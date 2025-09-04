@@ -1,9 +1,9 @@
 {
-	"name": "nodejs template",
+	"name": "JSON Schema TypeScript CodeGen",
 	"dockerComposeFile": "./docker-compose.yml",
 	"service": "devcontainer",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"postCreateCommand": "npm config set git-tag-version=false && npm install && echo \"source ./.devcontainer/.post-create\" >> /home/node/.bashrc",
+	"postCreateCommand": "npm config set git-tag-version=false && npm install",
 	"remoteUser": "vscode",
 	"updateRemoteUserUID": true,
 	"customizations": {
