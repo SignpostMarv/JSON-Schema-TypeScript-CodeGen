@@ -78,7 +78,7 @@ type non_empty_string_schema<
 	}
 );
 
-export abstract class BaseString<
+abstract class BaseString<
 	TSType extends TypeNode,
 	T extends string = string,
 	Definition extends string_schema<
