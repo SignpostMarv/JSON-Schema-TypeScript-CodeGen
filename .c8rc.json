@@ -3,5 +3,5 @@
 	"report-dir": "./coverage",
 	"all": true,
 	"include": ["src"],
-	"exclude": ["./*.ts", "./**/*.d.ts"]
+	"exclude": ["./*.ts", "./**/*.d.ts", "./src/types.ts"]
 }

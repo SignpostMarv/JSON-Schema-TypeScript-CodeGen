@@ -4,14 +4,21 @@ import {
 import {
 	run,
 } from 'node:test';
+import {
+	glob as _glob,
+} from 'node:fs';
+import {
+	promisify,
+} from 'node:util';
+
+const glob: (spec:string) => Promise<string[]> = promisify(_glob);
 
 const ac = new AbortController();
 
 let already_stopped = false;
 
 run({
-	files: [
-	],
+	files: await glob('./tests/**/*.spec.ts'),
 	concurrency: true,
 	signal: ac.signal,
 })

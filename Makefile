@@ -23,11 +23,11 @@ lint--eslint:
 lint: lint--prettier lint--tsc lint--eslint
 
 .PHONY: tests
-tests: build
+tests: lint
 	@node ./tests.ts
 
 .PHONY: coverage
-coverage: build
+coverage: lint
 	@./node_modules/.bin/c8 node ./tests.ts
 
 npm-prep: tests
