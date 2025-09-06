@@ -12,9 +12,9 @@ import type {
 } from './JSONSchema/Type.ts';
 
 import {
-	ConstString,
 	NonEmptyString,
 	String,
+	UnspecifiedConstString,
 } from './JSONSchema/String.ts';
 
 type SchemaParserOptions = (
@@ -79,7 +79,7 @@ export class SchemaParser
 			new String({
 				ajv,
 			}),
-			new ConstString({ajv}),
+			new UnspecifiedConstString({ajv}),
 			new NonEmptyString(1, {ajv}),
 		];
 	}

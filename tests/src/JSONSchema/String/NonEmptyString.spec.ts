@@ -13,12 +13,6 @@ import {
 	Ajv,
 } from 'ajv';
 
-import type {
-	Identifier,
-	LiteralTypeNode,
-	StringLiteral,
-	TypeReferenceNode,
-} from 'typescript';
 import {
 	SyntaxKind,
 } from 'typescript';
@@ -35,8 +29,8 @@ import {
 } from '../../../../src/SchemaParser.ts';
 
 import {
-	ConstString,
 	NonEmptyString,
+	UnspecifiedConstString,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	throws_Error,
@@ -103,35 +97,26 @@ void describe('identify non-empty String types as expected', () => {
 					);
 					ts_assert.isTypeReferenceNode(typed);
 					ts_assert.isIdentifier(
-						(typed as TypeReferenceNode).typeName,
+						typed.typeName,
 					);
 					assert.equal(
-						(typed.typeName as Identifier).text,
+						typed.typeName.text,
 						'Exclude',
 					);
 					not_undefined(typed.typeArguments);
 
-					const type_arguments = typed.typeArguments as Exclude<
-						TypeReferenceNode['typeArguments'],
-						undefined
-					>;
-
-					array_has_size(type_arguments, 2);
+					array_has_size(typed.typeArguments, 2);
 
 					ts_assert.isTokenWithExpectedKind(
-						type_arguments[0],
+						typed.typeArguments[0],
 						SyntaxKind.StringKeyword,
 					);
-					ts_assert.isLiteralTypeNode(type_arguments[1]);
+					ts_assert.isLiteralTypeNode(typed.typeArguments[1]);
 					ts_assert.isStringLiteral(
-						(type_arguments[1] as LiteralTypeNode).literal,
+						typed.typeArguments[1].literal,
 					);
 					assert.equal(
-						(
-							(
-								type_arguments[1] as LiteralTypeNode
-							).literal as StringLiteral
-						).text,
+						typed.typeArguments[1].literal.text,
 						'',
 					);
 
@@ -156,7 +141,7 @@ void describe('identify non-empty String types as expected', () => {
 				const ajv = new Ajv();
 				const instance = new SchemaParser({
 					ajv,
-					types: [new ConstString({ajv})],
+					types: [new UnspecifiedConstString({ajv})],
 				});
 
 				throws_Error(

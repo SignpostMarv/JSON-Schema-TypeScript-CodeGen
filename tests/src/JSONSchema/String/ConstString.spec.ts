@@ -13,6 +13,10 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import {
+	is_instanceof,
+} from '@satisfactory-dev/custom-assert';
+
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
@@ -20,8 +24,9 @@ import {
 } from '../../../../src/SchemaParser.ts';
 
 import {
-	ConstString,
+	SpecifiedConstString,
 	String,
+	UnspecifiedConstString,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	SyntaxKind,
@@ -40,10 +45,6 @@ void describe('identify Const String types as expected', () => {
 			)
 		>,
 		string|undefined, // const literal type
-		( // whether type is expected to be StringKeyword or LiteralString
-			| 'keyword'
-			| 'literal'
-		),
 		string, // conversion value
 		string, // expected value of converted text
 	][] = [
@@ -55,7 +56,6 @@ void describe('identify Const String types as expected', () => {
 			{
 			},
 			undefined,
-			'keyword',
 			'foo',
 			'foo',
 		],
@@ -67,7 +67,6 @@ void describe('identify Const String types as expected', () => {
 			{
 			},
 			'foo',
-			'literal',
 			'foo',
 			'foo',
 		],
@@ -77,7 +76,6 @@ void describe('identify Const String types as expected', () => {
 		schema,
 		ajv_options,
 		literal,
-		expected_type_choice,
 		conversion_value,
 		converted_expectation_value,
 	], i) => {
@@ -91,27 +89,38 @@ void describe('identify Const String types as expected', () => {
 				() => {
 					const instance = from_parser_default
 						? (new SchemaParser()).parse(schema)
-						: new ConstString<typeof literal>(
-							{
-								ajv: new Ajv({
-									...ajv_options,
-									strict: true,
-								}),
-							},
-							literal,
+						: (
+							'string' === typeof literal
+								? new SpecifiedConstString(literal, {
+									ajv: new Ajv({
+										...ajv_options,
+										strict: true,
+									}),
+								})
+								: new UnspecifiedConstString({
+									ajv: new Ajv({
+										...ajv_options,
+										strict: true,
+									}),
+								})
 						);
 
-					const typed = instance.generate_type(
-						(undefined === literal)
-							? ConstString.schema_definition<undefined>(
-								{literal: undefined},
-							)
-							: ConstString.schema_definition<string>({literal}),
-					);
-
-					if ('literal' === expected_type_choice) {
+					if (
+						'string' === typeof literal
+						&& false === from_parser_default
+					) {
+						is_instanceof(instance, SpecifiedConstString);
+						const typed = instance.generate_type(
+							SpecifiedConstString.schema_definition({
+								literal,
+							}),
+						);
 						ts_assert.isLiteralTypeNode(typed);
 					} else {
+						is_instanceof(instance, UnspecifiedConstString);
+						const typed = (
+							instance as UnspecifiedConstString
+						).generate_type();
 						ts_assert.isTokenWithExpectedKind(
 							typed,
 							SyntaxKind.StringKeyword,

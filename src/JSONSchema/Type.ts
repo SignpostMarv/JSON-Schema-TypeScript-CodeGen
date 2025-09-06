@@ -9,24 +9,18 @@ import type {
 	TypeNode,
 } from 'typescript';
 
+export type ObjectOfSchemas = {[key: string]: SchemaObject};
+
 export type SchemaDefinition<
-	Type extends string = string,
-	Required extends [string, ...string[]] = (
-		| ['type']
-		| ['type', ...string[]]
-	)
+	Required extends [string, ...string[]] = [string, ...string[]],
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = (
 	& SchemaObject
 	& {
 		type: 'object',
 		required: Required,
 		additionalProperties: false,
-		properties: {
-			type: {
-				type: 'string',
-				const: Type,
-			},
-		},
+		properties: Properties,
 	}
 );
 
@@ -34,7 +28,7 @@ export type TypeOptions<
 	Definition extends SchemaDefinition,
 > = {
 	ajv: Ajv,
-	schema_definition: Definition,
+	schema_definition: Definition|Readonly<Definition>,
 };
 
 export type SchemalessTypeOptions = Omit<
@@ -72,7 +66,7 @@ export abstract class Type<
 
 	static schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		_: {[k: string]: unknown},
+		_: {[k: string]: unknown} = {},
 	): Readonly<SchemaDefinition> {
 		throw new Error('Not implemented!');
 	}
