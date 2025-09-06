@@ -24,8 +24,8 @@ import {
 } from '../../../../src/SchemaParser.ts';
 
 import {
+	ConstString,
 	String,
-	UnspecifiedConstString,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	throws_Error,
@@ -108,7 +108,7 @@ void describe('identify simple String types as expected', () => {
 				const ajv = new Ajv();
 				const instance = new SchemaParser({
 					ajv,
-					types: [new UnspecifiedConstString({ajv})],
+					types: [new ConstString(undefined, {ajv})],
 				});
 
 				throws_Error(
@@ -118,4 +118,13 @@ void describe('identify simple String types as expected', () => {
 			})
 		}
 	});
+
+	void it('fails if given a non-matching schema', () => {
+		assert.throws(
+			() => (new String({ajv: new Ajv({strict: true})}).must_match({
+				type: 'string',
+				const: 'foo',
+			})),
+		);
+	})
 })

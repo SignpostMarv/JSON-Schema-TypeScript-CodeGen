@@ -6,16 +6,11 @@ import assert from 'node:assert/strict';
 
 import type {
 	Options,
-	SchemaObject,
 } from 'ajv/dist/2020.js';
 
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
-
-import {
-	is_instanceof,
-} from '@satisfactory-dev/custom-assert';
 
 import ts_assert from '@signpostmarv/ts-assert';
 
@@ -24,20 +19,16 @@ import {
 } from '../../../../src/SchemaParser.ts';
 
 import {
-	SpecifiedConstString,
+	ConstString,
 	String,
-	UnspecifiedConstString,
 } from '../../../../src/JSONSchema/String.ts';
-import {
-	SyntaxKind,
-} from 'typescript';
 import {
 	throws_Error,
 } from '../../../assertions.ts';
 
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [
-		SchemaObject, // input for SchemaParser
+		{type: 'string', const: string},
 		Omit< // Ajv Options
 			Options,
 			(
@@ -48,17 +39,6 @@ void describe('identify Const String types as expected', () => {
 		string, // conversion value
 		string, // expected value of converted text
 	][] = [
-		[
-			{
-				type: 'string',
-				const: 'foo',
-			},
-			{
-			},
-			undefined,
-			'foo',
-			'foo',
-		],
 		[
 			{
 				type: 'string',
@@ -89,43 +69,13 @@ void describe('identify Const String types as expected', () => {
 				() => {
 					const instance = from_parser_default
 						? (new SchemaParser()).parse(schema)
-						: (
-							'string' === typeof literal
-								? new SpecifiedConstString(literal, {
-									ajv: new Ajv({
-										...ajv_options,
-										strict: true,
-									}),
-								})
-								: new UnspecifiedConstString({
-									ajv: new Ajv({
-										...ajv_options,
-										strict: true,
-									}),
-								})
-						);
+						: new ConstString(literal, {ajv: new Ajv({
+							...ajv_options,
+							strict: true,
+						})});
 
-					if (
-						'string' === typeof literal
-						&& false === from_parser_default
-					) {
-						is_instanceof(instance, SpecifiedConstString);
-						const typed = instance.generate_type(
-							SpecifiedConstString.schema_definition({
-								literal,
-							}),
-						);
-						ts_assert.isLiteralTypeNode(typed);
-					} else {
-						is_instanceof(instance, UnspecifiedConstString);
-						const typed = (
-							instance as UnspecifiedConstString
-						).generate_type();
-						ts_assert.isTokenWithExpectedKind(
-							typed,
-							SyntaxKind.StringKeyword,
-						);
-					}
+					const typed = instance.generate_type(schema);
+					ts_assert.isLiteralTypeNode(typed);
 
 					const get_converted = () => instance.convert(
 						conversion_value,

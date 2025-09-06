@@ -1,5 +1,8 @@
 import type {
-	Expression,
+	SchemaObject,
+} from 'ajv/dist/2020.js';
+
+import type {
 	KeywordTypeNode,
 	StringLiteral,
 	TypeNode,
@@ -85,27 +88,31 @@ type non_empty_string_schema<
 
 abstract class BaseString<
 	TSType extends TypeNode,
-	T extends string = string,
-	Definition extends string_schema<
+	Matches extends string_schema<
 		['type'] | ['type', ...string[]]
-	> = string_schema<
-		['type', ...string[]]
 	>,
-	TSExpression extends Expression = Expression
+	GeneratesFrom extends (
+		& SchemaObject
+		& {
+			type: 'string',
+		}
+	),
+	T extends string = string,
 > extends Type<
 	T,
-	Definition,
+	Matches,
+	GeneratesFrom,
 	TSType,
-	TSExpression
+	StringLiteral
 > {
 
 }
 
 export class String extends BaseString<
 	KeywordTypeNode<SyntaxKind.StringKeyword>,
-	string,
 	string_schema<['type'], undefined>,
-	StringLiteral
+	{type: 'string'},
+	string
 > {
 	constructor(options: SchemalessTypeOptions) {
 		super({
@@ -137,28 +144,76 @@ export class String extends BaseString<
 	}
 }
 
-export class UnspecifiedConstString extends BaseString<
-	KeywordTypeNode<SyntaxKind.StringKeyword>,
-	string,
-	unspecified_const_schema
+export class ConstString<
+	T extends string|undefined = undefined
+> extends BaseString<
+	LiteralTypeNode<StringLiteral>,
+	T extends string ? specified_const_schema<T> : unspecified_const_schema,
+	(
+		T extends string
+			? {type: 'string', const: T}
+			: {type: 'string', const: string}
+	),
+	Exclude<T, undefined>
 > {
-	constructor(options: SchemalessTypeOptions)
-	{
+	constructor(
+		literal: T,
+		options: SchemalessTypeOptions,
+	) {
 		super({
 			...options,
-			schema_definition: UnspecifiedConstString.schema_definition(),
-		})
+			schema_definition: ConstString.schema_definition({
+				literal,
+			}),
+		});
 	}
 
-	convert(data: string): Expression {
+	convert(data: string) {
 		return factory.createStringLiteral(data);
 	}
 
-	generate_type() {
-		return factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
+	generate_type(
+		schema: (
+			T extends string
+				? {type: 'string', const: T}
+				: {type: 'string', const: string}
+		),
+	): LiteralTypeNode<StringLiteral> {
+		return factory.createLiteralTypeNode(
+			factory.createStringLiteral(schema.const),
+		) as LiteralTypeNode<StringLiteral>;
 	}
 
-	static schema_definition() {
+	static schema_definition<
+		T extends string|undefined = undefined
+	>({literal}: {literal: T}): Readonly<
+		T extends string
+			? specified_const_schema<T & string>
+			: unspecified_const_schema
+	> {
+		if ('string' === typeof literal) {
+			const _const:T & string = literal;
+			return Object.freeze<specified_const_schema<T & string>>({
+				type: 'object',
+				required: ['type', 'const'],
+				additionalProperties: false,
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					const: {
+						type: 'string',
+						const: _const,
+					},
+				},
+			}) as Readonly<
+				T extends string
+					? specified_const_schema<T & string>
+					: unspecified_const_schema
+			>;
+		}
+
 		return Object.freeze<unspecified_const_schema>({
 			type: 'object',
 			required: ['type', 'const'],
@@ -172,57 +227,11 @@ export class UnspecifiedConstString extends BaseString<
 					type: 'string',
 				},
 			},
-		});
-	}
-}
-
-export class SpecifiedConstString<
-	T extends string
-> extends BaseString<
-	LiteralTypeNode<StringLiteral>,
-	T,
-	specified_const_schema<T>
-> {
-	constructor(
-		literal: T,
-		options: SchemalessTypeOptions,
-	) {
-		super({
-			...options,
-			schema_definition: SpecifiedConstString.schema_definition({
-				literal,
-			}),
-		})
-	}
-
-	convert(data: string): Expression {
-		return factory.createStringLiteral(data);
-	}
-
-	generate_type(
-		schema: specified_const_schema<T>,
-	): LiteralTypeNode<StringLiteral> {
-		return factory.createLiteralTypeNode(
-			factory.createStringLiteral(schema.properties.const.const),
-		) as LiteralTypeNode<StringLiteral>;
-	}
-
-	static schema_definition<T extends string>({literal}: {literal: T}) {
-		return Object.freeze<specified_const_schema<T>>({
-			type: 'object',
-			required: ['type', 'const'],
-			additionalProperties: false,
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-				const: {
-					type: 'string',
-					const: literal,
-				},
-			},
-		});
+		}) as Readonly<
+			T extends string
+				? specified_const_schema<T & string>
+				: unspecified_const_schema
+		>;
 	}
 }
 
@@ -231,8 +240,9 @@ export class NonEmptyString<
 	T extends Exclude<string, ''> = Exclude<string, ''>
 > extends BaseString<
 	TypeReferenceNode,
-	T,
-	non_empty_string_schema<MinLength>
+	non_empty_string_schema<MinLength>,
+	{type: 'string', minLength: MinLength},
+	T
 > {
 	constructor(
 		minLength: MinLength,

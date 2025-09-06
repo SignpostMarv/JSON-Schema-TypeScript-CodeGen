@@ -12,9 +12,9 @@ import type {
 } from './JSONSchema/Type.ts';
 
 import {
+	ConstString,
 	NonEmptyString,
 	String,
-	UnspecifiedConstString,
 } from './JSONSchema/String.ts';
 
 type SchemaParserOptions = (
@@ -53,7 +53,7 @@ export class SchemaParser
 	parse(schema:SchemaObject): Type<unknown>
 	{
 		for (const type of this.types) {
-			const maybe = type.matches(schema);
+			const maybe = type.matching(schema);
 
 			if (maybe) {
 				return maybe;
@@ -79,7 +79,7 @@ export class SchemaParser
 			new String({
 				ajv,
 			}),
-			new UnspecifiedConstString({ajv}),
+			new ConstString(undefined, {ajv}),
 			new NonEmptyString(1, {ajv}),
 		];
 	}

@@ -38,31 +38,48 @@ export type SchemalessTypeOptions = Omit<
 
 export abstract class Type<
 	T,
-	Definition extends SchemaDefinition = SchemaDefinition,
+	Matches extends SchemaDefinition = SchemaDefinition,
+	GeneratesFrom extends SchemaObject = SchemaObject,
 	TSType extends TypeNode = TypeNode,
 	TSExpression extends Expression = Expression
 > {
-	readonly schema_definition: Readonly<Definition>;
+	readonly schema_definition: Readonly<Matches>;
 
-	#validate: ValidateFunction<Definition>;
+	#validate: ValidateFunction<Matches>;
 
 	constructor({
 		ajv,
 		schema_definition,
-	}: TypeOptions<Definition>) {
+	}: TypeOptions<Matches>) {
 		this.#validate = ajv.compile(schema_definition);
 		this.schema_definition = Object.freeze(schema_definition);
 	}
 
 	matches(
 		definition: SchemaObject,
-	): this|undefined {
-		return this.#validate(definition) ? this : undefined;
+	): definition is GeneratesFrom {
+		return this.#validate(definition);
 	}
 
-	abstract convert(data: T, schema?: Definition): TSExpression;
+	matching(
+		definition: SchemaObject,
+	): this|undefined {
+		return this.matches(definition) ? this : undefined;
+	}
 
-	abstract generate_type(schema: Definition): TSType;
+	must_match(
+		definition: SchemaObject,
+	): asserts definition is GeneratesFrom {
+		if (!this.matches(definition)) {
+			throw new TypeError(
+				'supplied defintion did not match expected definition',
+			);
+		}
+	}
+
+	abstract convert(data: T, schema?: GeneratesFrom): TSExpression;
+
+	abstract generate_type(schema: GeneratesFrom): TSType;
 
 	static schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
