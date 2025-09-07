@@ -349,8 +349,8 @@ export class SchemaWithDefsParser
 					$defs: schema.$defs,
 				}).generate_type(
 					{
-					...value,
-					$defs: schema.$defs,
+						...value,
+						$defs: schema.$defs,
 					},
 					this.#schema_parser,
 				),
