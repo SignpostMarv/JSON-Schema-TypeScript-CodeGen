@@ -68,7 +68,7 @@ void describe('identify Const String types as expected', () => {
 				} with dataset item ${i}`,
 				() => {
 					const instance = from_parser_default
-						? (new SchemaParser()).parse(schema)
+						? (new SchemaParser()).parse_for_conversion(schema)
 						: new ConstString(literal, {ajv: new Ajv({
 							...ajv_options,
 							strict: true,

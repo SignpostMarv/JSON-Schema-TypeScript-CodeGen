@@ -36,12 +36,10 @@ export type SchemalessTypeOptions = Omit<
 	'schema_definition'
 >;
 
-export abstract class Type<
-	T,
+export abstract class ConversionlessType<
 	Matches extends SchemaDefinition = SchemaDefinition,
 	GeneratesFrom extends SchemaObject = SchemaObject,
 	TSType extends TypeNode = TypeNode,
-	TSExpression extends Expression = Expression
 > {
 	readonly schema_definition: Readonly<Matches>;
 
@@ -77,8 +75,6 @@ export abstract class Type<
 		}
 	}
 
-	abstract convert(data: T, schema?: GeneratesFrom): TSExpression;
-
 	abstract generate_type(schema: GeneratesFrom): TSType;
 
 	static schema_definition(
@@ -87,4 +83,18 @@ export abstract class Type<
 	): Readonly<SchemaDefinition> {
 		throw new Error('Not implemented!');
 	}
+}
+
+export abstract class Type<
+	T,
+	Matches extends SchemaDefinition = SchemaDefinition,
+	GeneratesFrom extends SchemaObject = SchemaObject,
+	TSType extends TypeNode = TypeNode,
+	TSExpression extends Expression = Expression
+> extends ConversionlessType<
+	Matches,
+	GeneratesFrom,
+	TSType
+> {
+	abstract convert(data: T, schema?: GeneratesFrom): TSExpression;
 }

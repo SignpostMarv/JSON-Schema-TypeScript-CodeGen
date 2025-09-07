@@ -268,7 +268,7 @@ export class SchemaWithDefsParser
 
 			return [
 				property,
-				this.#schema_parser.parse(sub_schema).convert(
+				this.#schema_parser.parse_for_conversion(sub_schema).convert(
 					value,
 					sub_schema,
 				),
@@ -293,7 +293,7 @@ export class SchemaWithDefsParser
 			],
 		) => [
 			property,
-			this.#schema_parser.parse(value).convert(
+			this.#schema_parser.parse_for_conversion(value).convert(
 				data[property],
 				value,
 			),

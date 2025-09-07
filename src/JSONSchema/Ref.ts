@@ -3,7 +3,6 @@ import type {
 } from 'ajv/dist/2020.js';
 
 import type {
-	Expression,
 	TypeReferenceNode,
 } from 'typescript';
 import {
@@ -16,7 +15,7 @@ import type {
 } from './Type.ts';
 
 import {
-	Type,
+	ConversionlessType,
 } from './Type.ts';
 
 import {
@@ -78,9 +77,7 @@ type $def_schema = SchemaDefinition<
 export class $ref<
 	T extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
 	$Defs extends {[key: $def]: SchemaObject} = {[key: $def]: SchemaObject},
-	TSExpression extends Expression = Expression,
-> extends Type<
-	{$ref: T},
+> extends ConversionlessType<
 	ref_schema<undefined|[
 		(keyof $Defs & $def),
 		...(keyof $Defs & $def)[]
@@ -130,11 +127,7 @@ export class $ref<
 		this.#adjust_name = adjust_name;
 	}
 
-	convert(): TSExpression {
-		throw new Error('Method not implemented.');
-	}
-
-	generate_type(schema: {$ref: T}): TypeReferenceNode {
+	generate_type(schema: {$ref: T}) {
 		return factory.createTypeReferenceNode(
 			this.#adjust_name(
 				schema.$ref.replace(

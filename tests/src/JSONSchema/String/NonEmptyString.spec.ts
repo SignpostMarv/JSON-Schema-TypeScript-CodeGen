@@ -81,7 +81,7 @@ void describe('identify non-empty String types as expected', () => {
 				} with dataset item ${i}`,
 				() => {
 					const instance = from_parser_default
-						? (new SchemaParser()).parse(schema)
+						? (new SchemaParser()).parse_for_conversion(schema)
 						: new NonEmptyString(
 							minLength,
 							{
