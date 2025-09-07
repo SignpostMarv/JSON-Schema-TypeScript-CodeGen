@@ -24,7 +24,7 @@ import {
 	$ref,
 } from './JSONSchema/Ref.ts';
 
-type supported_type = (
+export type supported_type = (
 	| ConversionlessType
 	| Type<unknown>
 );
@@ -62,34 +62,31 @@ export class SchemaParser
 		this.types = types || SchemaParser.#default_types(this.#ajv);
 	}
 
-	parse(
+	parse<T extends boolean|undefined = undefined>(
 		schema: SchemaObject,
-	): supported_type {
+		require_conversion?: T,
+	): T extends true ? Type<unknown> : supported_type {
 		for (const type of this.types) {
-			const maybe = type.matching(schema);
+			const maybe:supported_type|undefined = type.matching(schema);
 
 			if (maybe) {
-				return maybe;
+				if (require_conversion && !(maybe instanceof Type)) {
+					throw new TypeError(
+						`schema resolved to the conversionless type ${
+							maybe.constructor.name
+						}`,
+					);
+				}
+
+				return maybe as (
+					T extends true
+						? Type<unknown>
+						: supported_type
+				);
 			}
 		}
 
 		throw new TypeError('Could not determine type for schema!');
-	}
-
-	parse_for_conversion(
-		schema: SchemaObject,
-	): Type<unknown> {
-		const maybe = this.parse(schema);
-
-		if (!(maybe instanceof Type)) {
-			throw new TypeError(
-				`schema resolved to the conversionless type ${
-					maybe.constructor.name
-				}`,
-			);
-		}
-
-		return maybe;
 	}
 
 	share_ajv<T>(

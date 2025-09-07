@@ -27,10 +27,10 @@ import type {
 import {
 	$ref,
 } from './JSONSchema/Ref.ts';
-
 import type {
-	ObjectOfSchemas,
-} from './JSONSchema/Type.ts';
+	pattern_object_schema,
+	simple_object_schema,
+} from './JSONSchema/Object.ts';
 
 type SchemaWithDefsParserOptions = (
 	& (
@@ -39,22 +39,6 @@ type SchemaWithDefsParserOptions = (
 		}
 	)
 );
-
-type simple_object_schema = {
-	type: 'object',
-	additionalProperties?: false,
-	unevaluatedProperties?: false,
-	required?: string[],
-	properties: ObjectOfSchemas,
-};
-
-type pattern_object_schema = {
-	type: 'object',
-	additionalProperties?: false,
-	unevaluatedProperties?: false,
-	required?: string[],
-	patternProperties: ObjectOfSchemas,
-};
 
 type supported_object_schema = (
 	| simple_object_schema
@@ -268,7 +252,7 @@ export class SchemaWithDefsParser
 
 			return [
 				property,
-				this.#schema_parser.parse_for_conversion(sub_schema).convert(
+				this.#schema_parser.parse(sub_schema, true).convert(
 					value,
 					sub_schema,
 				),
@@ -293,7 +277,7 @@ export class SchemaWithDefsParser
 			],
 		) => [
 			property,
-			this.#schema_parser.parse_for_conversion(value).convert(
+			this.#schema_parser.parse(value, true).convert(
 				data[property],
 				value,
 			),
@@ -363,10 +347,13 @@ export class SchemaWithDefsParser
 				this.#schema_parser.parse({
 					...value,
 					$defs: schema.$defs,
-				}).generate_type({
+				}).generate_type(
+					{
 					...value,
 					$defs: schema.$defs,
-				}),
+					},
+					this.#schema_parser,
+				),
 			)),
 		);
 	}
@@ -386,6 +373,7 @@ export class SchemaWithDefsParser
 				sub_schema,
 			).generate_type(
 				sub_schema,
+				this.#schema_parser,
 			);
 		}));
 	}

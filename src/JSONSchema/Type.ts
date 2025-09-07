@@ -9,6 +9,14 @@ import type {
 	TypeNode,
 } from 'typescript';
 
+import type {
+	$def,
+} from './Ref.ts';
+
+import type {
+	SchemaParser,
+} from '../SchemaParser.ts';
+
 export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 export type SchemaDefinition<
@@ -75,7 +83,10 @@ export abstract class ConversionlessType<
 		}
 	}
 
-	abstract generate_type(schema: GeneratesFrom): TSType;
+	abstract generate_type(
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+	): TSType;
 
 	static schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -97,4 +108,43 @@ export abstract class Type<
 	TSType
 > {
 	abstract convert(data: T, schema?: GeneratesFrom): TSExpression;
+}
+
+export type SchemaDefinition_with_$defs<
+	$defs extends {[key: $def]: SchemaObject} = {[key: $def]: SchemaObject},
+	Required extends [
+		'$defs',
+		'type',
+		...string[]
+	] = [
+		'$defs',
+		'type',
+		...string[]
+	],
+	Properties extends ObjectOfSchemas & $defs = ObjectOfSchemas & $defs,
+> = SchemaDefinition<
+	Required,
+	Properties
+>;
+
+export type GeneratesFrom_with_$defs = (
+	& SchemaObject
+	& {
+		$defs: {[key: $def]: SchemaObject},
+	}
+);
+
+export abstract class TypeWithDefs<
+	T,
+	Matches extends SchemaDefinition_with_$defs,
+	GeneratesFrom extends GeneratesFrom_with_$defs = GeneratesFrom_with_$defs,
+	TSType extends TypeNode = TypeNode,
+	TSExpression extends Expression = Expression
+> extends Type<
+	T,
+	Matches,
+	GeneratesFrom,
+	TSType,
+	TSExpression
+> {
 }

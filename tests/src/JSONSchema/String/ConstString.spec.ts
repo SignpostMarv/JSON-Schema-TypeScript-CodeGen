@@ -67,14 +67,15 @@ void describe('identify Const String types as expected', () => {
 						: 'directly'
 				} with dataset item ${i}`,
 				() => {
+					const parser = new SchemaParser();
 					const instance = from_parser_default
-						? (new SchemaParser()).parse_for_conversion(schema)
+						? parser.parse(schema, true)
 						: new ConstString(literal, {ajv: new Ajv({
 							...ajv_options,
 							strict: true,
 						})});
 
-					const typed = instance.generate_type(schema);
+					const typed = instance.generate_type(schema, parser);
 					ts_assert.isLiteralTypeNode(typed);
 
 					const get_converted = () => instance.convert(

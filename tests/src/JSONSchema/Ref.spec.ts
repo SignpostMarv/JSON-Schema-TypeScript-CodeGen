@@ -117,8 +117,9 @@ void describe('$ref', () => {
 					: 'directly from $ref'
 			}`,
 			() => {
+				const parser = new SchemaParser();
 				const instance = from_parser_default
-					? (new SchemaParser()).parse(schema)
+					? parser.parse(schema)
 					: new $ref(
 						undefined,
 						{
@@ -131,7 +132,7 @@ void describe('$ref', () => {
 
 				is_instanceof(instance, $ref);
 
-				const typed = instance.generate_type(schema);
+				const typed = instance.generate_type(schema, parser);
 
 				ts_assert.isTypeReferenceNode(typed);
 				ts_assert.isIdentifier(typed.typeName);

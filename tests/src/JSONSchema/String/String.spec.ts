@@ -68,8 +68,9 @@ void describe('identify simple String types as expected', () => {
 						: 'directly'
 				} with dataset item ${i}`,
 				() => {
+					const parser = new SchemaParser();
 					const instance = from_parser_default
-						? (new SchemaParser()).parse_for_conversion(schema)
+						? parser.parse(schema, true)
 						: new String(
 							{
 								ajv: new Ajv({
@@ -81,6 +82,7 @@ void describe('identify simple String types as expected', () => {
 
 					const typed = instance.generate_type(
 						String.schema_definition(),
+						parser,
 					);
 					ts_assert.isTokenWithExpectedKind(
 						typed,
