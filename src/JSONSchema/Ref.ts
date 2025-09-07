@@ -34,18 +34,18 @@ export type $def = (
 	}
 );
 
-type LocalRef<T extends $def = $def> = `#/$defs/${T}`;
-type ExternalRef<
+export type LocalRef<T extends $def = $def> = `#/$defs/${T}`;
+export type ExternalRef<
 	$ID extends $def = $def,
 	Local extends $def = $def,
 > = `${$ID}${LocalRef<Local>}`;
 
-type ref_identifier = '([a-zA-Z][a-zA-Z0-9._-]*)';
+type ref_identifier = '([a-zA-Z0-9][a-zA-Z0-9._-]*)';
 
-export type pattern = `^${ref_identifier}?#/$defs/${ref_identifier}$`;
-export const sub_pattern:`^${ref_identifier}$` = '^([a-zA-Z][a-zA-Z0-9._-]*)$';
+export type pattern = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
+export const sub_pattern:`^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
 export const pattern:pattern = (
-	'^([a-zA-Z][a-zA-Z0-9._-]*)?#/$defs/([a-zA-Z][a-zA-Z0-9._-]*)$'
+	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
 
 type ref_schema<
@@ -76,7 +76,7 @@ type $def_schema = SchemaDefinition<
 >;
 
 export class $ref<
-	T extends (ExternalRef | LocalRef) = LocalRef,
+	T extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
 	$Defs extends {[key: $def]: SchemaObject} = {[key: $def]: SchemaObject},
 	TSExpression extends Expression = Expression,
 > extends Type<
@@ -112,11 +112,11 @@ export class $ref<
 					return '__class';
 				}
 
-				if (value.match(/^\d+\.\d+-/)) {
+				if (value.match(/^\d+(\.\d+)+$/)) {
 					value = `v${value}`;
 				}
 
-				return value.replace(/[^A-Za-z_\d ]/g, '_');
+				return value;
 			},
 		},
 	) {
@@ -136,13 +136,30 @@ export class $ref<
 
 	generate_type(schema: {$ref: T}): TypeReferenceNode {
 		return factory.createTypeReferenceNode(
-			this.#adjust_name(schema.$ref.replace('#/$defs/', '_')),
+			this.#adjust_name(
+				schema.$ref.replace(
+					/^#\/\$defs\//,
+					'',
+				).replace(
+					'#/$defs/',
+					'_',
+				),
+			).replace(/[^A-Za-z_\d ]/g, '_'),
 		);
 	}
 
 	static is_ref(value: string): value is LocalRef|ExternalRef
 	{
 		return this.#pattern.test(value);
+	}
+
+	static require_ref<T extends string>(value: T): (LocalRef|ExternalRef) & T
+	{
+		if (!this.is_ref(value)) {
+			throw new TypeError(`value "${value}" is not a supported $ref string!`);
+		}
+
+		return value;
 	}
 
 	static schema_definition<
