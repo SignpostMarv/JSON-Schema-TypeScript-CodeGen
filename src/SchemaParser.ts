@@ -17,7 +17,11 @@ import {
 	String,
 } from './JSONSchema/String.ts';
 
-type SchemaParserOptions = (
+import {
+	$ref,
+} from './JSONSchema/Ref.ts';
+
+export type SchemaParserOptions = (
 	& (
 		| {
 			ajv: Ajv,
@@ -63,6 +67,12 @@ export class SchemaParser
 		throw new TypeError('Could not determine type for schema!');
 	}
 
+	share_ajv<T>(
+		callback: (ajv: Ajv) => T,
+	): T {
+		return callback(this.#ajv);
+	}
+
 	static #AjvFactory(options: SchemaParserOptions): Ajv {
 		if ('ajv' in options) {
 			return options.ajv;
@@ -81,6 +91,9 @@ export class SchemaParser
 			}),
 			new ConstString(undefined, {ajv}),
 			new NonEmptyString(1, {ajv}),
+			new $ref(undefined, {
+				ajv,
+			}),
 		];
 	}
 }
