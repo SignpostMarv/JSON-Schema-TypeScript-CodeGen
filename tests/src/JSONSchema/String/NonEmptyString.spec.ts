@@ -7,11 +7,11 @@ import assert from 'node:assert/strict';
 import type {
 	Options,
 	SchemaObject,
-} from 'ajv';
+} from 'ajv/dist/2020.js';
 
 import {
-	Ajv,
-} from 'ajv';
+	Ajv2020 as Ajv,
+} from 'ajv/dist/2020.js';
 
 import {
 	SyntaxKind,
