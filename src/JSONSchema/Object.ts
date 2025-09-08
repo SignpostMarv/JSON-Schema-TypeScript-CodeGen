@@ -1,24 +1,38 @@
 import type {
-	Expression,
-	TypeNode,
+	SchemaObject,
+} from 'ajv/dist/2020.js';
+
+import type {
+	ObjectLiteralExpression,
+	PropertySignature,
+	TypeLiteralNode,
+} from 'typescript';
+import {
+	factory,
+	SyntaxKind,
 } from 'typescript';
 
 import type {
 	GeneratesFrom_with_$defs,
 	ObjectOfSchemas,
 	SchemaDefinition_with_$defs,
-	Type,
+	SchemalessTypeOptions,
+	TypedSchemaDefinition_without_$defs,
 } from './Type.ts';
 import {
+	Type,
 	TypeWithDefs,
 } from './Type.ts';
 
 import type {
 	SchemaParser,
-	supported_type,
 } from '../SchemaParser.ts';
 
+import type {
+	adjust_name_callback,
+} from '../coercions.ts';
 import {
+	adjust_name_default,
 	object_keys,
 } from '../coercions.ts';
 
@@ -62,7 +76,7 @@ type GeneratesFromObject<
 	& GeneratesFrom_with_$defs
 	& (
 		T extends 'both'
-			? schema_property_types
+			? (schema_property_types & GeneratesFromObject_schema)
 			: (
 				T extends Exclude<
 					(
@@ -75,51 +89,201 @@ type GeneratesFromObject<
 						| 'both'
 					)
 				>
-					? Omit<schema_property_types, 'patternProperties'>
-					: Omit<schema_property_types, 'properties'>
+					? (
+						& Omit<schema_property_types, 'patternProperties'>
+						& simple_object_schema
+					)
+					: (
+						& Omit<schema_property_types, 'properties'>
+						& pattern_object_schema
+					)
 			)
 	)
 )
 
-export abstract class BaseObject<
-	T,
-	Matches extends SchemaDefinition_with_$defs,
-	GeneratesFrom extends (
-		| GeneratesFromObject<'both'>
-		| GeneratesFromObject<'properties'>
-		| GeneratesFromObject<'patternProperties'>
-	) = (
-		| GeneratesFromObject<'both'>
-		| GeneratesFromObject<'properties'>
-		| GeneratesFromObject<'patternProperties'>
-	),
-	TSType extends TypeNode = TypeNode,
-	TSExpression extends Expression = Expression
-> extends TypeWithDefs<
-	T,
-	Matches,
-	GeneratesFrom,
-	TSType,
-	TSExpression
-> {
-	protected get_type_for_property(
+export class ObjectHelper
+{
+
+	static convert<
+		T,
+		GeneratesFrom extends (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		) = (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		),
+	> (
+		value: unknown,
 		property: string,
 		schema: GeneratesFrom,
 		schema_parser: SchemaParser,
-		require_conversion = false,
-	): (
-		typeof require_conversion extends true
-			? Type<unknown>
-			: supported_type
 	) {
+		const sub_schema = this.#sub_schema_for_property(
+			property,
+			schema,
+		);
+		const ajv = schema_parser.share_ajv((ajv) => ajv);
+		const validator = ajv.compile<T>(sub_schema);
+
+		if (!(validator(value))) {
+			throw new TypeError('Supplied value not supported by property!');
+		}
+
+		return schema_parser.parse(
+			sub_schema,
+			true,
+		).convert(
+			value,
+			sub_schema,
+			schema_parser,
+		);
+	}
+
+	static createObjectLiteralExpression<
+		T extends {[key: string]: unknown},
+		Mode extends keyof ObjectWith$defs_Definition_required_by_mode,
+		GeneratesFrom extends (
+			Mode extends 'both'
+				? GeneratesFromObject<'both'>
+				: (
+					Mode extends 'properties'
+						? GeneratesFromObject<'properties'>
+						: GeneratesFromObject<'patternProperties'>
+				)
+		)
+	>(
+		data: T,
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+		adjust_name: adjust_name_callback,
+	) {
+		return factory.createObjectLiteralExpression(
+			Object.entries(
+				data,
+			).map(([
+				property,
+				value,
+			]) => {
+				const type = ObjectHelper.convert(
+					value,
+					property,
+					schema,
+					schema_parser,
+				);
+
+				return factory.createPropertyAssignment(
+					adjust_name(property),
+					type,
+				)
+			}),
+		);
+	}
+
+	static createTypeLiteralNode<
+		Mode extends keyof ObjectWith$defs_Definition_required_by_mode,
+		GeneratesFrom extends (
+			& (
+				Mode extends 'both'
+					? GeneratesFromObject<'both'>
+					: (
+						Mode extends 'properties'
+							? GeneratesFromObject<'properties'>
+							: GeneratesFromObject<'patternProperties'>
+					)
+			)
+			& (
+				| GeneratesFromObject<'both'>
+				| GeneratesFromObject<'properties'>
+			)
+		),
+	>(
+		schema: (
+			& GeneratesFrom
+			& (
+				| GeneratesFromObject<'both'>
+				| GeneratesFromObject<'properties'>
+			)
+		),
+		schema_parser: SchemaParser,
+	) {
+		return factory.createTypeLiteralNode(
+			Object.keys(
+				schema.properties,
+			).map((
+				property,
+			): PropertySignature => factory.createPropertySignature(
+				undefined,
+				(
+					/[?[\] ]/.test(property)
+						? factory.createComputedPropertyName(
+							factory.createStringLiteral(property),
+						)
+						: property
+				),
+				(
+					(schema.required || []).includes(property)
+						? undefined
+						: factory.createToken(SyntaxKind.QuestionToken)
+				),
+				ObjectHelper.generate_type(
+					property,
+					schema,
+					schema_parser,
+				),
+			)),
+		);
+	}
+
+	static generate_type<
+		GeneratesFrom extends (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		) = (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		),
+	> (
+		property: string,
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+	) {
+		const sub_schema = this.#sub_schema_for_property(
+			property,
+			schema,
+		);
+
+		return schema_parser.parse(
+			sub_schema,
+		).generate_type(
+			sub_schema,
+			schema_parser,
+		);
+	}
+
+	static #sub_schema_for_property<
+		GeneratesFrom extends (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		) = (
+			| GeneratesFromObject<'both'>
+			| GeneratesFromObject<'properties'>
+			| GeneratesFromObject<'patternProperties'>
+		),
+	>(
+		property: string,
+		schema: GeneratesFrom,
+	): SchemaObject {
 		if (
-			BaseObject.#is_schema_with_properties(schema)
+			ObjectHelper.#is_schema_with_properties(schema)
 			&& property in schema.properties
 		) {
-			return schema_parser.parse(
-				schema.properties[property],
-				require_conversion,
-			);
+			return schema.properties[property];
 		}
 
 		type coerced = (
@@ -137,10 +301,7 @@ export abstract class BaseObject<
 			throw new TypeError(`Property "${property}" has no match on the specified schema!`);
 		}
 
-		return schema_parser.parse(
-			(schema as coerced).patternProperties[matching],
-			require_conversion,
-		);
+		return (schema as coerced).patternProperties[matching];
 	}
 
 	static #is_schema_with_properties<
@@ -149,5 +310,331 @@ export abstract class BaseObject<
 		schema: T,
 	): schema is T & GeneratesFromObject<'properties'> {
 		return 'properties' in schema;
+	}
+}
+
+type ObjectPropertiesForDefinition = {
+	properties: {
+		type: 'object',
+		additionalProperties: {
+			type: 'object',
+		},
+	},
+	patternProperties: {
+		type: 'object',
+		additionalProperties: {
+			type: 'object',
+		},
+	},
+};
+
+const ObjectPropertiesForDefinition: (
+	ObjectPropertiesForDefinition
+) = {
+	properties: {
+		type: 'object',
+		additionalProperties: {
+			type: 'object',
+		},
+	},
+	patternProperties: {
+		type: 'object',
+		additionalProperties: {
+			type: 'object',
+		},
+	},
+};
+
+type ObjectPropertiesForDefinition_by_mode = {
+	both: ObjectPropertiesForDefinition,
+	properties: Pick<ObjectPropertiesForDefinition, 'properties'>,
+	patternProperties: Pick<
+		ObjectPropertiesForDefinition,
+		'patternProperties'
+	>,
+};
+
+const ObjectPropertiesForDefinition_by_mode: (
+	ObjectPropertiesForDefinition_by_mode
+) = {
+	both: ObjectPropertiesForDefinition,
+	properties: {
+		properties: ObjectPropertiesForDefinition.properties,
+	},
+	patternProperties: {
+		patternProperties: (
+			ObjectPropertiesForDefinition.patternProperties
+		),
+	},
+}
+
+type ObjectWith$defs_Definition_required_by_mode = {
+	both: ['type', '$defs', 'properties', 'patternProperties'],
+	properties: ['type', '$defs', 'properties'],
+	patternProperties: ['type', '$defs', 'patternProperties'],
+};
+
+const ObjectWith$defs_Definition_required_by_mode: (
+	ObjectWith$defs_Definition_required_by_mode
+) = {
+	both: ['type', '$defs', 'properties', 'patternProperties'],
+	properties: ['type', '$defs', 'properties'],
+	patternProperties: ['type', '$defs', 'patternProperties'],
+};
+
+type ObjectWithout$defs_Definition_required_by_mode = {
+	both: ['type', 'properties', 'patternProperties'],
+	properties: ['type', 'properties'],
+	patternProperties: ['type', 'patternProperties'],
+};
+
+const ObjectWithout$defs_Definition_required_by_mode: (
+	ObjectWithout$defs_Definition_required_by_mode
+) = {
+	both: ['type', 'properties', 'patternProperties'],
+	properties: ['type', 'properties'],
+	patternProperties: ['type', 'patternProperties'],
+};
+
+type ObjectWith$defs_Definition<
+	Mode extends 'both'|'properties'|'patternProperties',
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = SchemaDefinition_with_$defs<
+	'object',
+	ObjectWith$defs_Definition_required_by_mode[Mode],
+	(
+		& Properties
+		& ObjectPropertiesForDefinition_by_mode[Mode]
+	)
+>;
+
+type ObjectWithout$defs_Definition<
+	Mode extends 'both'|'properties'|'patternProperties',
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = TypedSchemaDefinition_without_$defs<
+	'object',
+	ObjectWithout$defs_Definition_required_by_mode[Mode],
+	(
+		& Properties
+		& ObjectPropertiesForDefinition_by_mode[Mode]
+	)
+>;
+
+export class ObjectWith$defs<
+	T extends {[key: string]: unknown},
+	Mode extends keyof ObjectWith$defs_Definition_required_by_mode,
+	GeneratesFrom extends (
+		Mode extends 'both'
+			? GeneratesFromObject<'both'>
+			: (
+				Mode extends 'properties'
+					? GeneratesFromObject<'properties'>
+					: GeneratesFromObject<'patternProperties'>
+			)
+	) = (
+		Mode extends 'both'
+			? GeneratesFromObject<'both'>
+			: (
+				Mode extends 'properties'
+					? GeneratesFromObject<'properties'>
+					: GeneratesFromObject<'patternProperties'>
+			)
+	)
+> extends TypeWithDefs<
+	T,
+	'object',
+	ObjectWith$defs_Definition<Mode>,
+	GeneratesFrom,
+	TypeLiteralNode,
+	ObjectLiteralExpression
+> {
+	#adjust_name: adjust_name_callback;
+
+	constructor(
+		options: SchemalessTypeOptions,
+		{
+			adjust_name,
+			mode,
+		}: {
+			adjust_name?: adjust_name_callback,
+			mode: Mode,
+		},
+	) {
+		super({
+			...options,
+			schema_definition: ObjectWith$defs.schema_definition({mode}),
+		});
+		this.#adjust_name = adjust_name || adjust_name_default;
+	}
+
+	convert(
+		data: T,
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+	) {
+		return ObjectHelper.createObjectLiteralExpression(
+			data,
+			schema,
+			schema_parser,
+			this.#adjust_name,
+		);
+	}
+
+	generate_type(
+		schema: (
+			& GeneratesFrom
+			& (
+				| GeneratesFromObject<'both'>
+				| GeneratesFromObject<'properties'>
+			)
+		),
+		schema_parser: SchemaParser,
+	) {
+		return ObjectHelper.createTypeLiteralNode(schema, schema_parser);
+	}
+
+	static schema_definition<
+		Mode extends keyof ObjectWith$defs_Definition_required_by_mode,
+	>({
+		mode,
+	}: {
+		mode: Mode,
+	}): Readonly<ObjectWith$defs_Definition<Mode>> {
+		const base_properties:(
+			SchemaDefinition_with_$defs<'object'>['properties']
+		) = {
+			'$defs': {
+				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+			type: {
+				type: 'string',
+				const: 'object',
+			},
+		};
+		const mode_props:ObjectPropertiesForDefinition_by_mode[
+			Mode
+		] = ObjectPropertiesForDefinition_by_mode[mode];
+
+		return Object.freeze<ObjectWith$defs_Definition<Mode>>({
+			type: 'object',
+			additionalProperties: false,
+			required: ObjectWith$defs_Definition_required_by_mode[mode],
+			properties: {
+				...base_properties,
+				...mode_props,
+			},
+		});
+	}
+}
+
+export class ObjectWithout$defs<
+	T extends {[key: string]: unknown},
+	Mode extends keyof ObjectWithout$defs_Definition_required_by_mode,
+	GeneratesFrom extends (
+		Mode extends 'both'
+			? GeneratesFromObject<'both'>
+			: (
+				Mode extends 'properties'
+					? GeneratesFromObject<'properties'>
+					: GeneratesFromObject<'patternProperties'>
+			)
+	) = (
+		Mode extends 'both'
+			? GeneratesFromObject<'both'>
+			: (
+				Mode extends 'properties'
+					? GeneratesFromObject<'properties'>
+					: GeneratesFromObject<'patternProperties'>
+			)
+	)
+> extends Type<
+	T,
+	ObjectWithout$defs_Definition<Mode>,
+	GeneratesFrom,
+	TypeLiteralNode,
+	ObjectLiteralExpression
+> {
+	#adjust_name: adjust_name_callback;
+
+	constructor(
+		options: SchemalessTypeOptions,
+		{
+			adjust_name,
+			mode,
+		}: {
+			adjust_name?: adjust_name_callback,
+			mode: Mode,
+		},
+	) {
+		super({
+			...options,
+			schema_definition: ObjectWithout$defs.schema_definition({mode}),
+		});
+		this.#adjust_name = adjust_name || adjust_name_default;
+	}
+
+	convert(
+		data: T,
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+	) {
+		return ObjectHelper.createObjectLiteralExpression(
+			data,
+			schema,
+			schema_parser,
+			this.#adjust_name,
+		);
+	}
+
+	generate_type(
+		schema: (
+			& GeneratesFrom
+			& (
+				| GeneratesFromObject<'both'>
+				| GeneratesFromObject<'properties'>
+			)
+		),
+		schema_parser: SchemaParser,
+	) {
+		return ObjectHelper.createTypeLiteralNode(schema, schema_parser);
+	}
+
+	static schema_definition<
+		Mode extends keyof ObjectWithout$defs_Definition_required_by_mode,
+	>({
+		mode,
+	}: {
+		mode: Mode,
+	}): Readonly<ObjectWithout$defs_Definition<Mode>> {
+		const base_properties:(
+			SchemaDefinition_with_$defs<'object'>['properties']
+		) = {
+			'$defs': {
+				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+			type: {
+				type: 'string',
+				const: 'object',
+			},
+		};
+		const mode_props:ObjectPropertiesForDefinition_by_mode[
+			Mode
+		] = ObjectPropertiesForDefinition_by_mode[mode];
+
+		return Object.freeze<ObjectWithout$defs_Definition<Mode>>({
+			type: 'object',
+			additionalProperties: false,
+			required: ObjectWithout$defs_Definition_required_by_mode[mode],
+			properties: {
+				...base_properties,
+				...mode_props,
+			},
+		});
 	}
 }

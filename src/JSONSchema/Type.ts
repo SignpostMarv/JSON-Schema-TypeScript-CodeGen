@@ -107,24 +107,86 @@ export abstract class Type<
 	GeneratesFrom,
 	TSType
 > {
-	abstract convert(data: T, schema?: GeneratesFrom): TSExpression;
+	abstract convert(
+		data: T,
+		schema: GeneratesFrom,
+		schema_parser: SchemaParser,
+	): TSExpression;
 }
 
-export type SchemaDefinition_with_$defs<
-	$defs extends {[key: $def]: SchemaObject} = {[key: $def]: SchemaObject},
+export type TypedSchemaDefinition<
+	Type extends string,
 	Required extends [
-		'$defs',
 		'type',
 		...string[]
 	] = [
-		'$defs',
 		'type',
 		...string[]
 	],
-	Properties extends ObjectOfSchemas & $defs = ObjectOfSchemas & $defs,
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = SchemaDefinition<
 	Required,
-	Properties
+	(
+		& Properties
+		& {
+			type: {
+				type: 'string',
+				const: Type,
+			}
+		}
+	)
+>;
+
+export type TypedSchemaDefinition_without_$defs<
+	Type extends string,
+	Required extends [
+		'type',
+		...Exclude<string, '$defs'>[]
+	] = [
+		'type',
+		...Exclude<string, '$defs'>[]
+	],
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = TypedSchemaDefinition<
+	Type,
+	Required,
+	(
+		& Properties
+		& {
+			type: {
+				type: 'string',
+				const: Type,
+			}
+		}
+	)
+>;
+
+export type SchemaDefinition_with_$defs<
+	Type extends string,
+	Required extends [
+		'type',
+		'$defs',
+		...string[]
+	] = [
+		'type',
+		'$defs',
+		...string[]
+	],
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = TypedSchemaDefinition<
+	Type,
+	Required,
+	(
+		& Properties
+		& {
+			$defs: {
+				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+		}
+	)
 >;
 
 export type GeneratesFrom_with_$defs = (
@@ -136,7 +198,8 @@ export type GeneratesFrom_with_$defs = (
 
 export abstract class TypeWithDefs<
 	T,
-	Matches extends SchemaDefinition_with_$defs,
+	SchemaDefinitionType extends string,
+	Matches extends SchemaDefinition_with_$defs<SchemaDefinitionType>,
 	GeneratesFrom extends GeneratesFrom_with_$defs = GeneratesFrom_with_$defs,
 	TSType extends TypeNode = TypeNode,
 	TSExpression extends Expression = Expression

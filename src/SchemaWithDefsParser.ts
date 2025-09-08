@@ -255,6 +255,7 @@ export class SchemaWithDefsParser
 				this.#schema_parser.parse(sub_schema, true).convert(
 					value,
 					sub_schema,
+					this.#schema_parser,
 				),
 			];
 		}));
@@ -280,6 +281,7 @@ export class SchemaWithDefsParser
 			this.#schema_parser.parse(value, true).convert(
 				data[property],
 				value,
+				this.#schema_parser,
 			),
 		]));
 	}

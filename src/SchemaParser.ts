@@ -24,6 +24,11 @@ import {
 	$ref,
 } from './JSONSchema/Ref.ts';
 
+import {
+	ObjectWith$defs,
+	ObjectWithout$defs,
+} from './JSONSchema/Object.ts';
+
 export type supported_type = (
 	| ConversionlessType
 	| Type<unknown>
@@ -115,6 +120,24 @@ export class SchemaParser
 			new NonEmptyString(1, {ajv}),
 			new $ref(undefined, {
 				ajv,
+			}),
+			new ObjectWith$defs({ajv}, {
+				mode: 'both',
+			}),
+			new ObjectWith$defs({ajv}, {
+				mode: 'properties',
+			}),
+			new ObjectWith$defs({ajv}, {
+				mode: 'patternProperties',
+			}),
+			new ObjectWithout$defs({ajv}, {
+				mode: 'both',
+			}),
+			new ObjectWithout$defs({ajv}, {
+				mode: 'properties',
+			}),
+			new ObjectWithout$defs({ajv}, {
+				mode: 'patternProperties',
 			}),
 		];
 	}

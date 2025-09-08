@@ -18,7 +18,14 @@ import {
 	ConversionlessType,
 } from './Type.ts';
 
+import type {
+	adjust_name_callback,
+} from '../coercions.ts';
 import {
+	adjust_name_finisher,
+} from '../coercions.ts';
+import {
+	adjust_name_default,
 	object_keys,
 } from '../coercions.ts';
 
@@ -85,7 +92,7 @@ export class $ref<
 	{$ref: T},
 	TypeReferenceNode
 > {
-	#adjust_name: (value: string) => string;
+	#adjust_name: adjust_name_callback;
 
 	// eslint-disable-next-line no-unused-private-class-members
 	#$defs?: $Defs;
@@ -98,23 +105,9 @@ export class $ref<
 		{
 			adjust_name,
 		}: {
-			adjust_name: (value: string) => string,
+			adjust_name: adjust_name_callback,
 		} = {
-			adjust_name: (value: string) => {
-				if ('boolean' === value) {
-					return '__boolean';
-				}
-
-				if ('class' === value) {
-					return '__class';
-				}
-
-				if (value.match(/^\d+(\.\d+)+$/)) {
-					value = `v${value}`;
-				}
-
-				return value;
-			},
+			adjust_name: adjust_name_default,
 		},
 	) {
 		super({
@@ -129,7 +122,7 @@ export class $ref<
 
 	generate_type(schema: {$ref: T}) {
 		return factory.createTypeReferenceNode(
-			this.#adjust_name(
+			adjust_name_finisher(
 				schema.$ref.replace(
 					/^#\/\$defs\//,
 					'',
@@ -137,7 +130,8 @@ export class $ref<
 					'#/$defs/',
 					'_',
 				),
-			).replace(/[^A-Za-z_\d ]/g, '_'),
+				this.#adjust_name,
+			),
 		);
 	}
 

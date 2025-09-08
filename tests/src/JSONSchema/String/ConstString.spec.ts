@@ -80,6 +80,8 @@ void describe('identify Const String types as expected', () => {
 
 					const get_converted = () => instance.convert(
 						conversion_value,
+						schema,
+						parser,
 					);
 
 					assert.doesNotThrow(get_converted);
