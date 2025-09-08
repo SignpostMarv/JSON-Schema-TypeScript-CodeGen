@@ -94,7 +94,7 @@ export abstract class ConversionlessType<
 		if (!this.matches(definition)) {
 			if (verbose) {
 				throw new VerboseMatchError(
-					'supplied defintion did not match expected definition (verbosely)',
+					'supplied defintion did not match expected definition',
 					this.#validate.errors,
 				);
 			}
