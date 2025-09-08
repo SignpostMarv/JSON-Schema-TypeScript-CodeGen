@@ -44,6 +44,20 @@ export type SchemalessTypeOptions = Omit<
 	'schema_definition'
 >;
 
+export class VerboseMatchError extends TypeError
+{
+	readonly ajv_errors:ValidateFunction['errors'];
+
+	constructor(
+		message: string,
+		errors: VerboseMatchError['ajv_errors'],
+		options?: ErrorOptions,
+	) {
+		super(message, options);
+		this.ajv_errors = errors;
+	}
+}
+
 export abstract class ConversionlessType<
 	Matches extends SchemaDefinition = SchemaDefinition,
 	GeneratesFrom extends SchemaObject = SchemaObject,
@@ -75,8 +89,15 @@ export abstract class ConversionlessType<
 
 	must_match(
 		definition: SchemaObject,
+		verbose = false,
 	): asserts definition is GeneratesFrom {
 		if (!this.matches(definition)) {
+			if (verbose) {
+				throw new VerboseMatchError(
+					'supplied defintion did not match expected definition (verbosely)',
+					this.#validate.errors,
+				);
+			}
 			throw new TypeError(
 				'supplied defintion did not match expected definition',
 			);
@@ -150,15 +171,7 @@ export type TypedSchemaDefinition_without_$defs<
 > = TypedSchemaDefinition<
 	Type,
 	Required,
-	(
-		& Properties
-		& {
-			type: {
-				type: 'string',
-				const: Type,
-			}
-		}
-	)
+	Properties
 >;
 
 export type SchemaDefinition_with_$defs<
@@ -184,6 +197,7 @@ export type SchemaDefinition_with_$defs<
 				additionalProperties: {
 					type: 'object',
 				},
+				minProperties: 1,
 			},
 		}
 	)

@@ -500,32 +500,47 @@ export class ObjectWith$defs<
 	}: {
 		mode: Mode,
 	}): Readonly<ObjectWith$defs_Definition<Mode>> {
-		const base_properties:(
-			SchemaDefinition_with_$defs<'object'>['properties']
-		) = {
-			'$defs': {
+		const properties:Partial<
+			ObjectWith$defs_Definition<
+				'both'
+			>['properties']
+		> = {
+			$defs: {
 				type: 'object',
 				additionalProperties: {
 					type: 'object',
 				},
+				minProperties: 1,
 			},
 			type: {
 				type: 'string',
 				const: 'object',
 			},
 		};
-		const mode_props:ObjectPropertiesForDefinition_by_mode[
+
+		if ('properties' === mode || 'both' === mode) {
+			properties.properties = ObjectPropertiesForDefinition.properties;
+		}
+
+		if ('patternProperties' === mode || 'both' === mode) {
+			properties.patternProperties = (
+				ObjectPropertiesForDefinition.patternProperties
+			);
+		}
+
+		const coerced:ObjectWith$defs_Definition<
 			Mode
-		] = ObjectPropertiesForDefinition_by_mode[mode];
+		>[
+			'properties'
+		] = properties as ObjectWith$defs_Definition<
+			Mode
+		>['properties'];
 
 		return Object.freeze<ObjectWith$defs_Definition<Mode>>({
 			type: 'object',
 			additionalProperties: false,
 			required: ObjectWith$defs_Definition_required_by_mode[mode],
-			properties: {
-				...base_properties,
-				...mode_props,
-			},
+			properties: coerced,
 		});
 	}
 }
@@ -609,32 +624,47 @@ export class ObjectWithout$defs<
 	}: {
 		mode: Mode,
 	}): Readonly<ObjectWithout$defs_Definition<Mode>> {
-		const base_properties:(
-			SchemaDefinition_with_$defs<'object'>['properties']
-		) = {
-			'$defs': {
-				type: 'object',
-				additionalProperties: {
-					type: 'object',
-				},
-			},
+		const properties:Partial<
+			ObjectWithout$defs_Definition<
+				'both'
+			>['properties']
+		> = {
 			type: {
 				type: 'string',
 				const: 'object',
 			},
+			$defs: {
+				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
+				minProperties: 1,
+			},
 		};
-		const mode_props:ObjectPropertiesForDefinition_by_mode[
+
+		if ('properties' === mode || 'both' === mode) {
+			properties.properties = ObjectPropertiesForDefinition.properties;
+		}
+
+		if ('patternProperties' === mode || 'both' === mode) {
+			properties.patternProperties = (
+				ObjectPropertiesForDefinition.patternProperties
+			);
+		}
+
+		const coerced:ObjectWithout$defs_Definition<
 			Mode
-		] = ObjectPropertiesForDefinition_by_mode[mode];
+		>[
+			'properties'
+		] = properties as ObjectWithout$defs_Definition<
+			Mode
+		>['properties'];
 
 		return Object.freeze<ObjectWithout$defs_Definition<Mode>>({
 			type: 'object',
 			additionalProperties: false,
 			required: ObjectWithout$defs_Definition_required_by_mode[mode],
-			properties: {
-				...base_properties,
-				...mode_props,
-			},
+			properties: coerced,
 		});
 	}
 }
