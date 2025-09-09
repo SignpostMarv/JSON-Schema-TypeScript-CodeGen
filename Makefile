@@ -27,7 +27,9 @@ tests: lint
 	@node ./tests.ts
 
 .PHONY: coverage
-coverage: lint
+coverage: lint coverage--skip-lint
+
+coverage--skip-pint:
 	@./node_modules/.bin/c8 node ./tests.ts
 
 npm-prep: tests

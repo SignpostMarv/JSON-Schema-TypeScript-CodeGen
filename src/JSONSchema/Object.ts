@@ -63,7 +63,7 @@ type schema_property_types = Pick<
 	)
 >;
 
-type GeneratesFromObject<
+export type GeneratesFromObject<
 	T extends (
 		| 'properties'
 		| 'patternProperties'
@@ -314,6 +314,11 @@ export class ObjectHelper
 }
 
 type ObjectPropertiesForDefinition = {
+	required: [
+		'properties',
+		'patternProperties',
+		...string[],
+	],
 	properties: {
 		type: 'object',
 		additionalProperties: {
@@ -331,6 +336,7 @@ type ObjectPropertiesForDefinition = {
 const ObjectPropertiesForDefinition: (
 	ObjectPropertiesForDefinition
 ) = {
+	required: ['properties', 'patternProperties'],
 	properties: {
 		type: 'object',
 		additionalProperties: {
@@ -346,12 +352,28 @@ const ObjectPropertiesForDefinition: (
 };
 
 type ObjectPropertiesForDefinition_by_mode = {
-	both: ObjectPropertiesForDefinition,
-	properties: Pick<ObjectPropertiesForDefinition, 'properties'>,
+	both: ObjectPropertiesForDefinition & {
+		required: [
+			'properties',
+			'patternProperties',
+			...string[]
+		]
+	},
+	properties: Pick<ObjectPropertiesForDefinition, 'properties'> & {
+		required: [
+			'properties',
+			...string[]
+		]
+	},
 	patternProperties: Pick<
 		ObjectPropertiesForDefinition,
 		'patternProperties'
-	>,
+	> & {
+		required: [
+			'patternProperties',
+			...string[]
+		]
+	},
 };
 
 const ObjectPropertiesForDefinition_by_mode: (
@@ -359,9 +381,11 @@ const ObjectPropertiesForDefinition_by_mode: (
 ) = {
 	both: ObjectPropertiesForDefinition,
 	properties: {
+		required: ['properties'],
 		properties: ObjectPropertiesForDefinition.properties,
 	},
 	patternProperties: {
+		required: ['patternProperties'],
 		patternProperties: (
 			ObjectPropertiesForDefinition.patternProperties
 		),
@@ -421,8 +445,10 @@ type ObjectWithout$defs_Definition<
 >;
 
 export class ObjectWith$defs<
-	T extends {[key: string]: unknown},
-	Mode extends keyof ObjectWith$defs_Definition_required_by_mode,
+	Mode extends keyof ObjectWith$defs_Definition_required_by_mode = (
+		keyof ObjectWith$defs_Definition_required_by_mode
+	),
+	T extends {[key: string]: unknown} = {[key: string]: unknown},
 	GeneratesFrom extends (
 		Mode extends 'both'
 			? GeneratesFromObject<'both'>
@@ -500,6 +526,20 @@ export class ObjectWith$defs<
 	}: {
 		mode: Mode,
 	}): Readonly<ObjectWith$defs_Definition<Mode>> {
+
+		const required:(
+			ObjectWith$defs_Definition<
+				Mode
+			>['properties']['required']
+		) = (
+			'both' === mode
+				? ['properties', 'patternProperties']
+				: (
+					'properties' === mode
+						? ['properties']
+						: ['patternProperties']
+				)
+		);
 		const properties:Partial<
 			ObjectWith$defs_Definition<
 				'both'
@@ -512,6 +552,9 @@ export class ObjectWith$defs<
 				},
 				minProperties: 1,
 			},
+			required: required as ObjectWith$defs_Definition<
+				'both'
+			>['properties']['required'],
 			type: {
 				type: 'string',
 				const: 'object',

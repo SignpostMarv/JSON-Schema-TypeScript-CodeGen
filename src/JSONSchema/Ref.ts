@@ -186,6 +186,16 @@ export class $defs
 {
 	static #pattern = new RegExp(sub_pattern);
 
+	static assert_$defs(
+		value: {[key: string]: SchemaObject},
+	): asserts value is {[key: $def]: SchemaObject} {
+		if (!this.is_$defs(value)) {
+			throw new TypeError(
+				'Value is not a supported object of definitions!',
+			);
+		}
+	}
+
 	static is_$def_key(value: string): value is $def
 	{
 		return this.#pattern.test(value);
@@ -195,6 +205,14 @@ export class $defs
 		value: {[key: string]: SchemaObject},
 	): value is {[key: $def]: SchemaObject} {
 		return Object.keys(value).every((key) => this.is_$def_key(key));
+	}
+
+	static require_$defs(
+		value: {[key: string]: SchemaObject},
+	): {[key: $def]: SchemaObject} {
+		this.assert_$defs(value);
+
+		return value;
 	}
 
 	static schema_definition({

@@ -165,14 +165,12 @@ void describe('ObjectWith$defs', () => {
 			const ajv = new Ajv({strict: true});
 			mode = mode || 'both';
 
-			console.log(schema);
-
 			const instance:ObjectWith$defs<
-				{[key: string]: unknown},
-				typeof mode
+				typeof mode,
+				{[key: string]: unknown}
 			> = new ObjectWith$defs<
-				{[key: string]: unknown},
-				typeof mode
+				typeof mode,
+				{[key: string]: unknown}
 			>(
 				{ajv},
 				{mode: mode || 'both'},
