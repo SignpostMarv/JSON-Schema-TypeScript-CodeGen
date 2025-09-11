@@ -1,9 +1,14 @@
 import type {
 	BooleanLiteral,
 	LiteralExpression,
+	NodeArray,
 	NullLiteral,
 	PrefixUnaryExpression,
+	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
+	TypeLiteralNode as TSTypeLiteralNode,
+	TypeElement,
+	TypeNode,
 } from 'typescript';
 
 export type PositiveNumber<
@@ -38,3 +43,21 @@ export type LiteralTypeNode<
 		| PrefixUnaryExpression
 	)
 > = TSLiteralTypeNode & {literal: T};
+
+export type TypeLiteralNode<
+	T extends TypeElement
+> = (
+	& TSTypeLiteralNode
+	& {
+		readonly members: NodeArray<T>,
+	}
+);
+
+export type IntersectionTypeNode<
+	T extends [TypeNode, ...TypeNode[]],
+> = (
+	& TSIntersectionTypeNode
+	& {
+		readonly types: T,
+	}
+);

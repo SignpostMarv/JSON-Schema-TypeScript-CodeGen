@@ -252,7 +252,7 @@ export class SchemaWithDefsParser
 
 			return [
 				property,
-				this.#schema_parser.parse(sub_schema, true).convert(
+				this.#schema_parser.parse(sub_schema, true).generate_typescript_data(
 					value,
 					sub_schema,
 					this.#schema_parser,
@@ -278,7 +278,7 @@ export class SchemaWithDefsParser
 			],
 		) => [
 			property,
-			this.#schema_parser.parse(value, true).convert(
+			this.#schema_parser.parse(value, true).generate_typescript_data(
 				data[property],
 				value,
 				this.#schema_parser,

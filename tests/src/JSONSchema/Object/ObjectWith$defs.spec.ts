@@ -7,51 +7,52 @@ import assert from 'node:assert/strict';
 import type {
 	SchemaObject,
 } from 'ajv/dist/2020.js';
-
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import type {
+	ObjectMaybeHas$defs_TypeDefinition,
+} from '../../../../src/JSONSchema/Object.ts';
 import {
 	ObjectWith$defs,
 } from '../../../../src/JSONSchema/Object.ts';
 
-import {
-	VerboseMatchError,
+import type {
+	ObjectOfSchemas,
 } from '../../../../src/JSONSchema/Type.ts';
 
 void describe('ObjectWith$defs', () => {
-	void describe('.matches()', () => {
-		const matches_expectations: (
+	void describe('.check_type()', () => {
+		type ExpectationDataSet = [
+			SchemaObject,
+			(
+				| ObjectMaybeHas$defs_TypeDefinition<
+					'both',
+					'with',
+					ObjectOfSchemas
+				>
+				| ObjectMaybeHas$defs_TypeDefinition<
+					'properties',
+					'with',
+					ObjectOfSchemas
+				>
+				| ObjectMaybeHas$defs_TypeDefinition<
+					'patternProperties',
+					'with',
+					ObjectOfSchemas
+				>
+			),
+			boolean,
+		];
+
+		const expectations: (
+			| ExpectationDataSet
 			| [
-				SchemaObject,
-				boolean,
-			]
-			| [
-				SchemaObject,
-				boolean,
+				...ExpectationDataSet,
 				'both'|'properties'|'patternProperties',
 			]
 		)[] = [
-			[
-				{type: 'string'},
-				false,
-			],
-			[
-				{type: 'object'},
-				false,
-			],
-			[
-				{
-					type: 'object',
-					$defs: {
-						foo: {
-							type: 'string',
-						},
-					},
-				},
-				false,
-			],
 			[
 				{
 					type: 'object',
@@ -63,6 +64,17 @@ void describe('ObjectWith$defs', () => {
 					properties: {
 						foo: {
 							$ref: '#/$defs/foo',
+						},
+					},
+				},
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
 						},
 					},
 				},
@@ -88,6 +100,17 @@ void describe('ObjectWith$defs', () => {
 						},
 					},
 				},
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
 				false,
 				'patternProperties',
 			],
@@ -110,10 +133,25 @@ void describe('ObjectWith$defs', () => {
 						},
 					},
 				},
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
 				false,
 				'properties',
 			],
 			[
+				{
+					type: 'object',
+					a1: 'object',
+				},
 				{
 					type: 'object',
 					$defs: {
@@ -128,7 +166,7 @@ void describe('ObjectWith$defs', () => {
 						},
 					},
 					patternProperties: {
-						type: {
+						'a\\d+': {
 							type: 'string',
 							const: 'object',
 						},
@@ -139,6 +177,9 @@ void describe('ObjectWith$defs', () => {
 			],
 			[
 				{
+					a1: 'object',
+				},
+				{
 					type: 'object',
 					$defs: {
 						foo: {
@@ -146,7 +187,7 @@ void describe('ObjectWith$defs', () => {
 						},
 					},
 					patternProperties: {
-						type: {
+						'^a\\d+': {
 							type: 'string',
 							const: 'object',
 						},
@@ -157,41 +198,32 @@ void describe('ObjectWith$defs', () => {
 			],
 		];
 
-		matches_expectations.forEach(([
-			schema,
+		expectations.forEach(([
+			data,
+			type_definition,
 			expectation,
-			mode,
+			properties_mode,
 		], i) => {
 			const ajv = new Ajv({strict: true});
-			mode = mode || 'both';
-
-			const instance:ObjectWith$defs<
-				typeof mode,
-				{[key: string]: unknown}
-			> = new ObjectWith$defs<
-				typeof mode,
-				{[key: string]: unknown}
-			>(
-				{ajv},
-				{mode: mode || 'both'},
-			);
+			properties_mode = properties_mode || 'both';
 
 			void it(`behaves as expected with matches_expectations[${i}]`, () => {
-				try {
-					instance.must_match(schema, true);
-					if (!expectation) {
-						assert.fail('matched unexpectedly!');
-					}
-				} catch (err) {
-					if (expectation) {
-						if (err instanceof VerboseMatchError) {
-							console.error(err.ajv_errors, schema);
-						}
-						assert.fail(err instanceof Error ? err : `Unexpected failure`);
-					} else {
-						assert.ok(false === expectation);
-					}
-				}
+				const instance:ObjectWith$defs<
+					typeof properties_mode
+				> = new ObjectWith$defs<typeof properties_mode>(
+					{
+						properties_mode,
+					},
+					{
+						ajv,
+						type_definition: Object.freeze<
+							ExpectationDataSet[1]
+						>(
+							type_definition,
+						),
+					},
+				);
+				assert.equal(expectation, instance.check_type(data));
 			});
 		});
 	})

@@ -19,29 +19,55 @@ import type {
 
 export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
-export type SchemaDefinition<
-	Required extends [string, ...string[]] = [string, ...string[]],
+export type SchemaDefinitionDefinition<
+	Required extends (
+		| undefined
+		| [string, ...string[]]
+	) = (
+		| undefined
+		| [string, ...string[]]
+	),
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = (
 	& SchemaObject
-	& {
+	& (
+		Required extends [string, ...string[]]
+			? {
 		type: 'object',
 		required: Required,
 		additionalProperties: false,
 		properties: Properties,
-	}
+			}
+			: {
+				type: 'object',
+				additionalProperties: false,
+				properties: Properties,
+			}
+	)
+);
+
+export type TypeDefinitionSchema<
+	Schema extends SchemaObject = SchemaObject,
+> = (
+	& SchemaObject
+	& Schema
 );
 
 export type TypeOptions<
-	Definition extends SchemaDefinition,
+	Schema extends SchemaDefinitionDefinition,
+	Type extends TypeDefinitionSchema,
 > = {
 	ajv: Ajv,
-	schema_definition: Definition|Readonly<Definition>,
+	schema_definition: Readonly<Schema>,
+	type_definition: Readonly<Type>,
 };
 
 export type SchemalessTypeOptions = Omit<
-	TypeOptions<SchemaDefinition>,
-	'schema_definition'
+	TypeOptions<SchemaDefinitionDefinition, TypeDefinitionSchema>,
+	(
+		| 'schema_definition'
+		| 'type_definition'
+	)
 >;
 
 export class VerboseMatchError extends TypeError
@@ -59,84 +85,116 @@ export class VerboseMatchError extends TypeError
 }
 
 export abstract class ConversionlessType<
-	Matches extends SchemaDefinition = SchemaDefinition,
-	GeneratesFrom extends SchemaObject = SchemaObject,
+	T,
+	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	SchemaDefinition extends (
+		SchemaDefinitionDefinition
+	) = SchemaDefinitionDefinition,
 	TSType extends TypeNode = TypeNode,
 > {
-	readonly schema_definition: Readonly<Matches>;
+	protected schema_definition: SchemaDefinition;
+	protected type_definition: TypeDefinition;
 
-	#validate: ValidateFunction<Matches>;
+	#check_type: ValidateFunction<T>;
+	#check_schema: ValidateFunction<SchemaDefinition>;
 
 	constructor({
 		ajv,
 		schema_definition,
-	}: TypeOptions<Matches>) {
-		this.#validate = ajv.compile(schema_definition);
-		this.schema_definition = Object.freeze(schema_definition);
+		type_definition,
+	}: TypeOptions<SchemaDefinition, TypeDefinition>) {
+		this.type_definition = type_definition;
+		this.schema_definition = schema_definition;
+		this.#check_schema = ajv.compile<SchemaDefinition>(schema_definition);
+		this.#check_type = ajv.compile<T>(type_definition);
 	}
 
-	matches(
-		definition: SchemaObject,
-	): definition is GeneratesFrom {
-		return this.#validate(definition);
-	}
-
-	matching(
-		definition: SchemaObject,
+	can_handle_schema(
+		definition: TypeDefinitionSchema,
+		must: true|'verbose',
+	): this;
+	can_handle_schema(
+		definition: TypeDefinitionSchema,
+		must?: false,
+	): this|undefined;
+	can_handle_schema(
+		definition: TypeDefinitionSchema,
+		must: boolean|'verbose' = false,
 	): this|undefined {
-		return this.matches(definition) ? this : undefined;
-	}
-
-	must_match(
-		definition: SchemaObject,
-		verbose = false,
-	): asserts definition is GeneratesFrom {
-		if (!this.matches(definition)) {
-			if (verbose) {
+		const check = this.check_schema(definition);
+		if (!check && must) {
+			if ('verbose' === must) {
 				throw new VerboseMatchError(
 					'supplied defintion did not match expected definition',
-					this.#validate.errors,
+					this.#check_type.errors,
 				);
 			}
 			throw new TypeError(
 				'supplied defintion did not match expected definition',
 			);
 		}
+
+		return check ? this : undefined;
 	}
 
-	abstract generate_type(
-		schema: GeneratesFrom,
-		schema_parser: SchemaParser,
-	): TSType;
+	check_schema(
+		value: TypeDefinitionSchema,
+	): value is TypeDefinition {
+		return this.#check_schema(value);
+	}
 
-	static schema_definition(
+	check_type(
+		value: unknown,
+	): value is T {
+		return this.#check_type(value);
+	}
+
+	abstract generate_typescript_type(options: (
+		| undefined
+		| {
+			data: T,
+		}
+		| {
+			schema: TypeDefinition,
+		}
+		| {
+			data?: T,
+			schema: TypeDefinition,
+			schema_parser: SchemaParser,
+		}
+	)): TSType;
+
+	static generate_default_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		_: {[k: string]: unknown} = {},
-	): Readonly<SchemaDefinition> {
+	): Readonly<SchemaDefinitionDefinition> {
 		throw new Error('Not implemented!');
 	}
 }
 
 export abstract class Type<
 	T,
-	Matches extends SchemaDefinition = SchemaDefinition,
-	GeneratesFrom extends SchemaObject = SchemaObject,
-	TSType extends TypeNode = TypeNode,
-	TSExpression extends Expression = Expression
+	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	SchemaDefinition extends (
+		SchemaDefinitionDefinition
+	) = SchemaDefinitionDefinition,
+	SchemaTo extends TypeNode = TypeNode,
+	DataTo extends Expression = Expression,
 > extends ConversionlessType<
-	Matches,
-	GeneratesFrom,
-	TSType
+	T,
+	TypeDefinition,
+	SchemaDefinition,
+	SchemaTo
 > {
-	abstract convert(
+	abstract generate_typescript_data(
 		data: T,
-		schema: GeneratesFrom,
 		schema_parser: SchemaParser,
-	): TSExpression;
+		schema: TypeDefinition,
+	): DataTo;
 }
 
 export type TypedSchemaDefinition<
-	Type extends string,
+	TypeProperty extends string,
 	Required extends [
 		'type',
 		...string[]
@@ -145,21 +203,21 @@ export type TypedSchemaDefinition<
 		...string[]
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
-> = SchemaDefinition<
+> = SchemaDefinitionDefinition<
 	Required,
 	(
 		& Properties
 		& {
 			type: {
 				type: 'string',
-				const: Type,
+				const: TypeProperty,
 			}
 		}
 	)
 >;
 
 export type TypedSchemaDefinition_without_$defs<
-	Type extends string,
+	TypeProperty extends string,
 	Required extends [
 		'type',
 		...Exclude<string, '$defs'>[]
@@ -169,13 +227,13 @@ export type TypedSchemaDefinition_without_$defs<
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = TypedSchemaDefinition<
-	Type,
+	TypeProperty,
 	Required,
 	Properties
 >;
 
-export type SchemaDefinition_with_$defs<
-	Type extends string,
+export type TypeDefinition_with_$defs<
+	TypeProperty extends string,
 	Required extends [
 		'type',
 		'$defs',
@@ -187,7 +245,26 @@ export type SchemaDefinition_with_$defs<
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = TypedSchemaDefinition<
-	Type,
+	TypeProperty,
+	Required,
+	(
+		& Properties
+		& {
+			$defs: {[key: $def]: SchemaObject},
+		}
+	)
+>;
+
+export type SchemaDefinition_with_$defs<
+	Required extends (
+		| undefined
+		| ['$defs', string, ...string[]]
+	) = (
+		| undefined
+		| ['$defs', string, ...string[]]
+	),
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = SchemaDefinitionDefinition<
 	Required,
 	(
 		& Properties
@@ -203,25 +280,24 @@ export type SchemaDefinition_with_$defs<
 	)
 >;
 
-export type GeneratesFrom_with_$defs = (
-	& SchemaObject
-	& {
-		$defs: {[key: $def]: SchemaObject},
-	}
-);
-
 export abstract class TypeWithDefs<
 	T,
 	SchemaDefinitionType extends string,
-	Matches extends SchemaDefinition_with_$defs<SchemaDefinitionType>,
-	GeneratesFrom extends GeneratesFrom_with_$defs = GeneratesFrom_with_$defs,
-	TSType extends TypeNode = TypeNode,
-	TSExpression extends Expression = Expression
+	TypeDefinition extends (
+		TypeDefinition_with_$defs<SchemaDefinitionType>
+	) = (
+		TypeDefinition_with_$defs<SchemaDefinitionType>
+	),
+	SchemaDefinition extends (
+		SchemaDefinition_with_$defs
+	) = SchemaDefinition_with_$defs,
+	SchemaTo extends TypeNode = TypeNode,
+	DataTo extends Expression = Expression,
 > extends Type<
 	T,
-	Matches,
-	GeneratesFrom,
-	TSType,
-	TSExpression
+	TypeDefinition,
+	SchemaDefinition,
+	SchemaTo,
+	DataTo
 > {
 }

@@ -19,6 +19,7 @@ import {
 
 import {
 	array_has_size,
+	is_instanceof,
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
@@ -93,10 +94,11 @@ void describe('identify non-empty String types as expected', () => {
 							},
 						);
 
-					const typed = instance.generate_type(
-						NonEmptyString.schema_definition({minLength}),
-						parser,
-					);
+					is_instanceof(instance, NonEmptyString);
+
+					const typed = (
+						instance as NonEmptyString
+					).generate_typescript_type();
 					ts_assert.isTypeReferenceNode(typed);
 					ts_assert.isIdentifier(
 						typed.typeName,
@@ -122,10 +124,10 @@ void describe('identify non-empty String types as expected', () => {
 						'',
 					);
 
-					const get_converted = () => instance.convert(
+					const get_converted = () => (
+						instance as NonEmptyString
+					).generate_typescript_data(
 						conversion_value,
-						schema,
-						parser,
 					);
 
 					assert.doesNotThrow(get_converted);

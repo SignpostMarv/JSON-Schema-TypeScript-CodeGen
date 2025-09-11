@@ -12,6 +12,10 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import {
+	is_instanceof,
+} from '@satisfactory-dev/custom-assert';
+
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
@@ -75,13 +79,17 @@ void describe('identify Const String types as expected', () => {
 							strict: true,
 						})});
 
-					const typed = instance.generate_type(schema, parser);
+					is_instanceof(instance, ConstString);
+
+					const typed = instance.generate_typescript_type({
+						schema,
+					});
 					ts_assert.isLiteralTypeNode(typed);
 
-					const get_converted = () => instance.convert(
+					const get_converted = () => (
+						instance as ConstString
+					).generate_typescript_data(
 						conversion_value,
-						schema,
-						parser,
 					);
 
 					assert.doesNotThrow(get_converted);

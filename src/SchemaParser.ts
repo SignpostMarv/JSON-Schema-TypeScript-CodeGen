@@ -32,7 +32,7 @@ import {
 */
 
 export type supported_type = (
-	| ConversionlessType
+	| ConversionlessType<unknown>
 	| Type<unknown>
 );
 
@@ -51,14 +51,14 @@ export type SchemaParserOptions = (
 		}
 	)
 	& {
-		types?: [supported_type, ...supported_type[]]
+		types?: [ConversionlessType<unknown>, ...ConversionlessType<unknown>[]]
 	}
 )
 
 export class SchemaParser
 {
 	#ajv: Ajv;
-	types: [supported_type, ...supported_type[]];
+	types: [ConversionlessType<never>, ...ConversionlessType<never>[]];
 
 	constructor(options: SchemaParserOptions = {
 		ajv_options: {
@@ -66,7 +66,10 @@ export class SchemaParser
 	}) {
 		this.#ajv = SchemaParser.#AjvFactory(options);
 		const {types} = options;
-		this.types = types || SchemaParser.#default_types(this.#ajv);
+		this.types = (
+			types
+			|| SchemaParser.#default_types(this.#ajv)
+		) as SchemaParser['types'];
 	}
 
 	parse<T extends boolean|undefined = undefined>(
@@ -74,7 +77,7 @@ export class SchemaParser
 		require_conversion?: T,
 	): T extends true ? Type<unknown> : supported_type {
 		for (const type of this.types) {
-			const maybe:supported_type|undefined = type.matching(schema);
+			const maybe = type.can_handle_schema(schema);
 
 			if (maybe) {
 				if (require_conversion && !(maybe instanceof Type)) {
@@ -113,16 +116,26 @@ export class SchemaParser
 		});
 	}
 
-	static #default_types(ajv: Ajv): SchemaParser['types'] {
+	static #default_types(ajv: Ajv): [
+		String<string>,
+		ConstString<undefined>,
+		NonEmptyString<1>,
+		$ref<undefined>,
+	] {
 		return [
 			new String({
 				ajv,
 			}),
 			new ConstString(undefined, {ajv}),
 			new NonEmptyString(1, {ajv}),
-			new $ref(undefined, {
-				ajv,
-			}),
+			new $ref(
+				{
+					mode: 'either',
+				},
+				{
+					ajv,
+				},
+			),
 			/*
 			new ObjectWith$defs({ajv}, {
 				mode: 'both',

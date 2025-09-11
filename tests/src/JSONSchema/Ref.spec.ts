@@ -17,10 +17,6 @@ import {
 
 import ts_assert from '@signpostmarv/ts-assert';
 
-import {
-	SchemaParser,
-} from '../../../src/SchemaParser.ts';
-
 import type {
 	ExternalRef,
 	LocalRef,
@@ -102,7 +98,7 @@ void describe('$ref', () => {
 	}
 
 	for (const [
-		schema,
+		data,
 		ajv_options,
 		expected_generated_type_name,
 		from_parser_default,
@@ -117,22 +113,22 @@ void describe('$ref', () => {
 					: 'directly from $ref'
 			}`,
 			() => {
-				const parser = new SchemaParser();
-				const instance = from_parser_default
-					? parser.parse(schema)
-					: new $ref(
-						undefined,
-						{
-							ajv: new Ajv({
-								...ajv_options,
-								strict: true,
-							}),
-						},
-					);
+				const instance = new $ref(
+					{
+						mode: 'either',
+						required_as: data.$ref,
+					},
+					{
+						ajv: new Ajv({
+							...ajv_options,
+							strict: true,
+						}),
+					},
+				);
 
 				is_instanceof(instance, $ref);
 
-				const typed = instance.generate_type(schema, parser);
+				const typed = instance.generate_typescript_type();
 
 				ts_assert.isTypeReferenceNode(typed);
 				ts_assert.isIdentifier(typed.typeName);

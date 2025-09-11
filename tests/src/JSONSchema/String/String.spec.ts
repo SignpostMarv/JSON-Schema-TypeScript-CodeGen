@@ -17,6 +17,10 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+import {
+	is_instanceof,
+} from '@satisfactory-dev/custom-assert';
+
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
@@ -80,19 +84,20 @@ void describe('identify simple String types as expected', () => {
 							},
 						);
 
-					const typed = instance.generate_type(
-						String.schema_definition(),
-						parser,
-					);
+					is_instanceof(instance, String);
+
+					const typed = (
+						instance as String<string>
+					).generate_typescript_type();
 					ts_assert.isTokenWithExpectedKind(
 						typed,
 						SyntaxKind.StringKeyword,
 					);
 
-					const get_converted = () => instance.convert(
+					const get_converted = () => (
+						instance as String<string>
+					).generate_typescript_data(
 						conversion_value,
-						schema,
-						parser,
 					);
 
 					assert.doesNotThrow(get_converted);
@@ -125,10 +130,15 @@ void describe('identify simple String types as expected', () => {
 
 	void it('fails if given a non-matching schema', () => {
 		assert.throws(
-			() => (new String({ajv: new Ajv({strict: true})}).must_match({
-				type: 'string',
-				const: 'foo',
-			})),
+			() => (new String({
+				ajv: new Ajv({strict: true}),
+			}).can_handle_schema(
+				{
+					type: 'string',
+					const: 'foo',
+				},
+				'verbose',
+			)),
 		);
 	})
 })

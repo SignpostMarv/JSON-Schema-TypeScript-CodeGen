@@ -9,10 +9,10 @@ import {
 	Type,
 } from '../../../../src/JSONSchema/Type.ts';
 
-void describe('Type.schema_definition()', () => {
+void describe('Type.generate_default_schema_definition()', () => {
 	void it('will always fail', () => {
 		throws_Error(
-			() => Type.schema_definition({}),
+			() => Type.generate_default_schema_definition({}),
 			Error,
 			'Not implemented!',
 		);
