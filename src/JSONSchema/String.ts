@@ -326,7 +326,7 @@ export class NonEmptyString<
 			...options,
 			schema_definition: (
 				NonEmptyString.generate_default_schema_definition<MinLength>({
-				minLength,
+					minLength,
 				})
 			),
 			type_definition: (
