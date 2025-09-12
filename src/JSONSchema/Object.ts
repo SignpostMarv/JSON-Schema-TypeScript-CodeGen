@@ -633,11 +633,11 @@ export type ObjectMaybeHas$defs_options<
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
 > = (
 	& Omit<
-	TypeOptions<SchemaDefinition, TypeDefinition>,
-	(
-		| 'schema_definition'
+		TypeOptions<SchemaDefinition, TypeDefinition>,
+		(
+			| 'schema_definition'
 			| 'type_definition'
-	)
+		)
 	>
 	& Partial<
 		Pick<
