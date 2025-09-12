@@ -713,7 +713,7 @@ export class ObjectHelper
 				[string, ...string[]]
 			>
 	) {
-		return 'properties' in schema;
+		return 'required' in schema;
 	}
 
 	static #patterned_literal_node(
