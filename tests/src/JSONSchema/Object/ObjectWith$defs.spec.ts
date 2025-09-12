@@ -145,6 +145,26 @@ void describe('ObjectWith$defs', () => {
 				},
 				false,
 			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+					},
+				},
+				'properties',
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				true,
+			],
 		];
 		expectations.forEach(([
 			type_definition,
@@ -347,6 +367,19 @@ void describe('ObjectWith$defs', () => {
 				},
 				true,
 				'patternProperties',
+			],
+			[
+				{
+					a1: 'object',
+				},
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+					},
+				},
+				true,
+				'properties',
 			],
 		];
 

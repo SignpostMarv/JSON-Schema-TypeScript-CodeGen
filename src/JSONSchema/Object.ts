@@ -631,12 +631,23 @@ export type ObjectMaybeHas$defs_options<
 		SchemaDefinitionDefinition
 	),
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
-> = Omit<
+> = (
+	& Omit<
 	TypeOptions<SchemaDefinition, TypeDefinition>,
 	(
 		| 'schema_definition'
+			| 'type_definition'
 	)
->;
+	>
+	& Partial<
+		Pick<
+			TypeOptions<SchemaDefinition, TypeDefinition>,
+			(
+				| 'type_definition'
+			)
+		>
+	>
+);
 
 export type ObjectMaybeHas$defs_TypeDefinition<
 	PropertiesMode extends object_properties_mode,
@@ -740,7 +751,10 @@ abstract class ObjectMaybeHas$defs<
 			properties_mode: PropertiesMode,
 			defs_mode: DefsMode,
 		},
-		options: ObjectMaybeHas$defs_options<
+		{
+			ajv,
+			type_definition,
+		}: ObjectMaybeHas$defs_options<
 			ObjectMaybeHas$defs_SchemaDefinition<
 				PropertiesMode,
 				DefsMode
@@ -753,7 +767,14 @@ abstract class ObjectMaybeHas$defs<
 		>,
 	) {
 		super({
-			...options,
+			ajv,
+			type_definition: (
+				type_definition
+				||  ObjectMaybeHas$defs.generate_default_type_definition(
+					properties_mode,
+					defs_mode,
+				)
+			),
 			schema_definition: (
 				ObjectMaybeHas$defs.generate_default_schema_definition({
 					defs_mode,
@@ -841,6 +862,8 @@ abstract class ObjectMaybeHas$defs<
 			} else {
 				unfrozen.required = ['type', '$defs', 'patternProperties'];
 			}
+		} else if ('without' === defs_mode) {
+			unfrozen.required = ['type', 'properties', 'patternProperties'];
 		}
 
 		if ('without' === defs_mode) {
@@ -858,6 +881,72 @@ abstract class ObjectMaybeHas$defs<
 		);
 
 		return Object.freeze(coerced);
+	}
+
+	static generate_default_type_definition<
+		PropertiesMode extends object_properties_mode,
+		DefsMode extends object_$defs_mode,
+		Defs extends (
+			DefsMode extends 'with'
+				? ObjectOfSchemas
+				: never
+		),
+	>(
+		properties_mode: PropertiesMode,
+		defs_mode: DefsMode,
+	): Exclude<
+		ObjectMaybeHas$defs_options<
+			ObjectMaybeHas$defs_SchemaDefinition<
+				PropertiesMode,
+				DefsMode
+			>,
+			ObjectMaybeHas$defs_TypeDefinition<
+				PropertiesMode,
+				DefsMode,
+				Defs
+			>
+		>['type_definition'],
+		undefined
+	> {
+		const partial:[
+			string,
+			unknown,
+		][] = [['type', 'object']];
+
+		if ('with' === defs_mode) {
+			partial.push([
+				'$defs',
+				{},
+			]);
+		}
+
+		if ('both' === properties_mode || 'properties' === properties_mode) {
+			partial.push(['properties', {}]);
+		}
+
+		if (
+			'both' === properties_mode
+			|| 'patternProperties' === properties_mode
+		) {
+			partial.push(['patternProperties', {}]);
+		}
+
+		return Object.freeze(
+			Object.fromEntries(partial),
+		) as Exclude<
+			ObjectMaybeHas$defs_options<
+				ObjectMaybeHas$defs_SchemaDefinition<
+					PropertiesMode,
+					DefsMode
+				>,
+				ObjectMaybeHas$defs_TypeDefinition<
+					PropertiesMode,
+					DefsMode,
+					Defs
+				>
+			>['type_definition'],
+			undefined
+		>;
 	}
 
 	static #generate_default_schema_definition_both(

@@ -24,12 +24,10 @@ import {
 	$ref,
 } from './JSONSchema/Ref.ts';
 
-/*
 import {
 	ObjectWith$defs,
 	ObjectWithout$defs,
 } from './JSONSchema/Object.ts';
-*/
 
 export type supported_type = (
 	| ConversionlessType<unknown>
@@ -121,6 +119,12 @@ export class SchemaParser
 		ConstString<undefined>,
 		NonEmptyString<1>,
 		$ref<undefined>,
+		ObjectWith$defs<'both'>,
+		ObjectWith$defs<'properties'>,
+		ObjectWith$defs<'patternProperties'>,
+		ObjectWithout$defs<'both'>,
+		ObjectWithout$defs<'properties'>,
+		ObjectWithout$defs<'patternProperties'>,
 	] {
 		return [
 			new String({
@@ -136,26 +140,42 @@ export class SchemaParser
 					ajv,
 				},
 			),
-			/*
-			new ObjectWith$defs({ajv}, {
-				mode: 'both',
-			}),
-			new ObjectWith$defs({ajv}, {
-				mode: 'properties',
-			}),
-			new ObjectWith$defs({ajv}, {
-				mode: 'patternProperties',
-			}),
-			new ObjectWithout$defs({ajv}, {
-				mode: 'both',
-			}),
-			new ObjectWithout$defs({ajv}, {
-				mode: 'properties',
-			}),
-			new ObjectWithout$defs({ajv}, {
-				mode: 'patternProperties',
-			}),
-			*/
+			new ObjectWith$defs(
+				{
+					properties_mode: 'both',
+				},
+				{ajv},
+			),
+			new ObjectWith$defs(
+				{
+					properties_mode: 'properties',
+				},
+				{ajv},
+			),
+			new ObjectWith$defs(
+				{
+					properties_mode: 'patternProperties',
+				},
+				{ajv},
+			),
+			new ObjectWithout$defs(
+				{
+					properties_mode: 'both',
+				},
+				{ajv},
+			),
+			new ObjectWithout$defs(
+				{
+					properties_mode: 'properties',
+				},
+				{ajv},
+			),
+			new ObjectWithout$defs(
+				{
+					properties_mode: 'patternProperties',
+				},
+				{ajv},
+			),
 		];
 	}
 }
