@@ -42,7 +42,7 @@ import type {
 	TypeLiteralNode,
 } from '../types.ts';
 
-type object_properties_mode = (
+export type object_properties_mode = (
 	| 'both'
 	| 'properties'
 	| 'patternProperties'

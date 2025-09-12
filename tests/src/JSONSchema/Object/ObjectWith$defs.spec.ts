@@ -12,6 +12,7 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type {
+	object_properties_mode,
 	ObjectMaybeHas$defs_TypeDefinition,
 } from '../../../../src/JSONSchema/Object.ts';
 import {
@@ -20,9 +21,160 @@ import {
 
 import type {
 	ObjectOfSchemas,
+	TypeDefinitionSchema,
 } from '../../../../src/JSONSchema/Type.ts';
 
 void describe('ObjectWith$defs', () => {
+	void describe('.check_schema()', () => {
+		type ExpectationDataSet<
+			PropertiesMode extends object_properties_mode,
+		> = [
+			ObjectMaybeHas$defs_TypeDefinition<
+				PropertiesMode,
+				'with',
+				ObjectOfSchemas
+			>,
+			PropertiesMode,
+			TypeDefinitionSchema,
+			boolean,
+		];
+
+		const expectations:(
+			| ExpectationDataSet<'both'>
+			| ExpectationDataSet<'properties'>
+			| ExpectationDataSet<'patternProperties'>
+		)[] = [
+			[
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				'properties',
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				true,
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				'properties',
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				true,
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				'properties',
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				true,
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				'properties',
+				{
+					$defs: {},
+					type: 'object',
+					patternProperties: {
+						'.+': {
+							type: 'string',
+							const: 'foo',
+						},
+					},
+				},
+				false,
+			],
+		];
+		expectations.forEach(([
+			type_definition,
+			properties_mode,
+			test_schema,
+			expectation,
+		], i) => {
+			const ajv = new Ajv({strict: true});
+
+			void it(`behaves as expected with matches_expectations[${i}]`, () => {
+				const instance:ObjectWith$defs<
+					typeof properties_mode
+				> = new ObjectWith$defs<typeof properties_mode>(
+					{
+						properties_mode,
+					},
+					{
+						ajv,
+						type_definition: Object.freeze<
+							ExpectationDataSet<typeof properties_mode>[0]
+						>(
+							type_definition,
+						),
+					},
+				);
+				assert.equal(expectation, instance.check_schema(test_schema));
+			});
+		});
+	})
+
 	void describe('.check_type()', () => {
 		type ExpectationDataSet = [
 			SchemaObject,
