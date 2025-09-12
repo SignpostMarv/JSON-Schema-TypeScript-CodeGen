@@ -24,6 +24,7 @@ import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	object_properties_mode,
+	object_with_$defs_type,
 	ObjectMaybeHas$defs_TypeDefinition,
 } from '../../../../src/JSONSchema/Object.ts';
 import {
@@ -46,6 +47,7 @@ import {
 
 import {
 	bool_throw,
+	is_TypeLiteralNode,
 } from '../../../assertions.ts';
 
 void describe('ObjectWith$defs', () => {
@@ -436,6 +438,119 @@ void describe('ObjectWith$defs', () => {
 			});
 		});
 	})
+
+	void describe('.generate_typescript_type()', () => {
+		type UnpaddedExpectationDataSet<
+			PropertiesMode extends object_properties_mode,
+		> = [
+			object_with_$defs_type<ObjectOfSchemas, PropertiesMode>,
+			PropertiesMode,
+		];
+
+		type PaddedExpectationDataSet<
+			PropertiesMode extends object_properties_mode,
+		> = [
+			...UnpaddedExpectationDataSet<PropertiesMode>,
+			boolean,
+			number,
+		];
+
+		const expectations:[
+			...(
+				| UnpaddedExpectationDataSet<'both'>
+				| UnpaddedExpectationDataSet<'properties'>
+				| UnpaddedExpectationDataSet<'patternProperties'>
+			)
+		][] = [
+			[
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+						foo: {
+							type: 'string',
+						},
+					},
+				},
+				'properties',
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					patternProperties: {
+						'^.+$': {
+							type: 'string',
+						},
+					},
+				},
+				'patternProperties',
+			],
+		];
+
+		function* padded(): Generator<PaddedExpectationDataSet<
+			object_properties_mode
+		>> {
+			let i = 0;
+			for (const unpadded of expectations) {
+				yield [
+					...unpadded,
+					true,
+					i,
+				];
+				yield [
+					...unpadded,
+					false,
+					i,
+				];
+
+				++i;
+			}
+		}
+
+		for (const [
+			schema,
+			properties_mode,
+			from_parser,
+			i,
+		] of padded()) {
+			void it(
+				`behaves with expectations[${i}] ${
+					from_parser ? 'from parser' : 'directly'
+				}`,
+				() => {
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					const instance = from_parser
+						? schema_parser.parse(schema)
+						: new ObjectWith$defs({properties_mode}, {ajv});
+
+					is_instanceof<
+						ObjectWith$defs<typeof properties_mode>
+					>(instance, ObjectWith$defs);
+
+					const generated = instance.generate_typescript_type({
+						schema,
+						schema_parser,
+					});
+
+					if ('both' === properties_mode) {
+						ts_assert.isIntersectionTypeNode(generated);
+					} else if ('properties' === properties_mode) {
+						is_TypeLiteralNode(
+							generated,
+							ts_assert.isPropertySignature,
+						);
+					} else {
+						is_TypeLiteralNode(
+							generated,
+							ts_assert.isIndexSignatureDeclaration,
+						);
+					}
+				},
+			);
+		}
+	});
 
 	void describe('.generate_typescript_data()', () => {
 		type ExpectationDataSet<

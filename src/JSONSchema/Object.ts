@@ -333,7 +333,7 @@ type object_without_$defs_schema<
 	)
 >;
 
-type object_with_$defs_schema<
+export type object_with_$defs_schema<
 	Mode extends object_properties_mode = 'both'
 > = SchemaDefinitionDefinition<
 	(

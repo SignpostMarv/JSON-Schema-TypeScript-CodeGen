@@ -1,5 +1,16 @@
 import assert from 'node:assert/strict';
 
+import type {
+	Node,
+	TypeElement,
+} from 'typescript';
+
+import ts_assert from '@signpostmarv/ts-assert';
+
+import type {
+	TypeLiteralNode,
+} from '../src/types';
+
 export function is_Error<
 	T extends Error = Error,
 >(
@@ -73,4 +84,21 @@ export function bool_throw<T1, T2>(
 	} catch (_) {
 		return false;
 	}
+}
+
+export function is_TypeLiteralNode<
+	T extends TypeElement,
+>(
+	value: Node,
+	predicate: (value: Node, message?:string|Error) => asserts value is T,
+	message?: string|Error,
+): asserts value is TypeLiteralNode<T> {
+	ts_assert.isTypeLiteralNode(value, message);
+	assert.ok(
+		value.members.every((maybe) => bool_throw(
+			maybe,
+			predicate,
+		)),
+		message,
+	);
 }
