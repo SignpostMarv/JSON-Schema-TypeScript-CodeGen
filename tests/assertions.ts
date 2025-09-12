@@ -61,3 +61,16 @@ export function throws_Error(
 		is_Error(e, expected, expected_message, message);
 	}
 }
+
+export function bool_throw<T1, T2>(
+	value: T1,
+	callback: (value:T1|T2) => asserts value is T2,
+): value is T1 & T2 {
+	try {
+		callback(value);
+		return true;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (_) {
+		return false;
+	}
+}
