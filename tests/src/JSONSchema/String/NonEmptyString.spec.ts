@@ -49,7 +49,7 @@ void describe('identify non-empty String types as expected', () => {
 				| 'strict'
 			)
 		>,
-		PositiveInteger, // minLength
+		undefined|PositiveInteger, // minLength
 		string, // conversion value
 		string, // expected value of converted text
 	][] = [
@@ -61,6 +61,17 @@ void describe('identify non-empty String types as expected', () => {
 			{
 			},
 			1,
+			'foo',
+			'foo',
+		],
+		[
+			{
+				type: 'string',
+				minLength: 1,
+			},
+			{
+			},
+			undefined,
 			'foo',
 			'foo',
 		],
