@@ -13,6 +13,10 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
+	SyntaxKind,
+} from 'typescript';
+
+import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
@@ -24,15 +28,17 @@ import {
 
 import {
 	ConstString,
-	String,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	throws_Error,
 } from '../../../assertions.ts';
+import {
+	ObjectWith$defs,
+} from '../../../../src/JSONSchema/Object.ts';
 
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [
-		{type: 'string', const: string},
+		{type: 'string', const?: string},
 		Omit< // Ajv Options
 			Options,
 			(
@@ -54,6 +60,16 @@ void describe('identify Const String types as expected', () => {
 			'foo',
 			'foo',
 		],
+		[
+			{
+				type: 'string',
+			},
+			{
+			},
+			'foo',
+			'foo',
+			'foo',
+		],
 	];
 
 	const_expectations.forEach(([
@@ -63,7 +79,13 @@ void describe('identify Const String types as expected', () => {
 		conversion_value,
 		converted_expectation_value,
 	], i) => {
-		for (const from_parser_default of [true, false]) {
+		const from_parser_defaults:boolean[] = [false];
+
+		if ('const' in schema) {
+			from_parser_defaults.push(true);
+		}
+
+		for (const from_parser_default of from_parser_defaults) {
 			void it(
 				`identified const strings ${
 					from_parser_default
@@ -84,7 +106,15 @@ void describe('identify Const String types as expected', () => {
 					const typed = await instance.generate_typescript_type({
 						schema,
 					});
+
+					if ('const' in schema) {
 					ts_assert.isLiteralTypeNode(typed);
+					} else {
+						ts_assert.isTokenWithExpectedKind(
+							typed,
+							SyntaxKind.StringKeyword,
+						);
+					}
 
 					const get_converted = () => (
 						instance as ConstString
@@ -110,7 +140,7 @@ void describe('identify Const String types as expected', () => {
 			const ajv = new Ajv();
 			const instance = new SchemaParser({
 				ajv,
-				types: [new String({ajv})],
+				types: [new ObjectWith$defs({properties_mode: 'both'}, {ajv})],
 			});
 
 			throws_Error(
