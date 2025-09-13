@@ -162,7 +162,7 @@ export abstract class ConversionlessType<
 			schema: TypeDefinition,
 			schema_parser: SchemaParser,
 		}
-	)): TSType;
+	)): Promise<TSType>;
 
 	static generate_default_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars

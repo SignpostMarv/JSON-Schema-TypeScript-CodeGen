@@ -455,7 +455,7 @@ export class ObjectHelper
 		);
 	}
 
-	static createTypeNode<
+	static async createTypeNode<
 		DefsMode extends object_$defs_mode,
 		PropertiesMode extends object_properties_mode,
 	>(
@@ -465,16 +465,16 @@ export class ObjectHelper
 				: object_with_$defs_type<ObjectOfSchemas, PropertiesMode>
 		),
 		schema_parser: SchemaParser,
-	): object_TypeLiteralNode<PropertiesMode> {
+	): Promise<object_TypeLiteralNode<PropertiesMode>> {
 		let properties:PropertySignature[] = [];
 		let patterned:TypeNode[] = [];
 
 		if (this.#is_schema_with_properties(schema)) {
-			properties = Object.keys(
+			properties = await Promise.all(Object.keys(
 				schema.properties,
-			).map((
+			).map(async (
 				property,
-			): PropertySignature => factory.createPropertySignature(
+			): Promise<PropertySignature> => factory.createPropertySignature(
 				undefined,
 				(
 					/[?[\] ]/.test(property)
@@ -491,22 +491,24 @@ export class ObjectHelper
 						? undefined
 						: factory.createToken(SyntaxKind.QuestionToken)
 				),
-				ObjectHelper.generate_type(
+				await ObjectHelper.generate_type(
 					property,
 					schema,
 					schema_parser,
 				),
-			));
+			)));
 		}
 
 		if (this.#is_schema_with_pattern_properties(schema)) {
-			patterned = Object.values(schema.patternProperties).map(
+			patterned = await Promise.all(
+				Object.values(schema.patternProperties).map(
 				(sub_schema) => schema_parser.parse(
 					sub_schema,
 				).generate_typescript_type({
 					schema: sub_schema,
 					schema_parser,
 				}),
+				),
 			);
 		}
 
@@ -963,7 +965,7 @@ abstract class ObjectMaybeHas$defs<
 				: object_with_$defs_type<Defs, PropertiesMode>
 		),
 		schema_parser: SchemaParser,
-	}): object_TypeLiteralNode<PropertiesMode> {
+	}): Promise<object_TypeLiteralNode<PropertiesMode>> {
 		return ObjectHelper.createTypeNode(schema, schema_parser);
 	}
 

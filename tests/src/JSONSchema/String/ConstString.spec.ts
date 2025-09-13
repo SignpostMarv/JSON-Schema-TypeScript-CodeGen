@@ -70,7 +70,7 @@ void describe('identify Const String types as expected', () => {
 						? 'from parser'
 						: 'directly'
 				} with dataset item ${i}`,
-				() => {
+				async () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
 						? parser.parse(schema, true)
@@ -81,7 +81,7 @@ void describe('identify Const String types as expected', () => {
 
 					is_instanceof(instance, ConstString);
 
-					const typed = instance.generate_typescript_type({
+					const typed = await instance.generate_typescript_type({
 						schema,
 					});
 					ts_assert.isLiteralTypeNode(typed);

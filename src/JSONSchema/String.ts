@@ -187,7 +187,9 @@ export class String<
 	}
 
 	generate_typescript_type() {
-		return factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
+		return Promise.resolve(
+			factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+		);
 	}
 
 	static generate_default_schema_definition() {
@@ -242,16 +244,16 @@ export class ConstString<
 		schema,
 	}: {
 		schema: const_type<T>,
-	}): const_generate_typescript_type<T> {
+	}): Promise<const_generate_typescript_type<T>> {
 		if ('const' in schema) {
-			return factory.createLiteralTypeNode(
+			return Promise.resolve(factory.createLiteralTypeNode(
 				factory.createStringLiteral(schema.const),
-			) as const_generate_typescript_type<T>;
+			) as const_generate_typescript_type<T>);
 		}
 
-		return factory.createKeywordTypeNode(
+		return Promise.resolve(factory.createKeywordTypeNode(
 			SyntaxKind.StringKeyword,
-		) as const_generate_typescript_type<T>;
+		) as const_generate_typescript_type<T>);
 	}
 
 	static generate_default_schema_definition<
@@ -339,14 +341,14 @@ export class NonEmptyString<
 		return factory.createStringLiteral(data);
 	}
 
-	generate_typescript_type(): TypeReferenceNode {
-		return factory.createTypeReferenceNode(
+	generate_typescript_type(): Promise<TypeReferenceNode> {
+		return Promise.resolve(factory.createTypeReferenceNode(
 			'Exclude',
 			[
 				factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
 				factory.createLiteralTypeNode(factory.createStringLiteral('')),
 			],
-		);
+		));
 	}
 
 	static generate_default_schema_definition<

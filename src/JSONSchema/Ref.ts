@@ -191,21 +191,21 @@ export class $ref<
 		);
 	}
 
-	generate_typescript_type(): TypeReferenceNode;
+	generate_typescript_type(): Promise<TypeReferenceNode>;
 	generate_typescript_type(options?: (
 		Specific extends undefined
 			? undefined
 			: {
 				data: {$ref: Exclude<Specific, undefined>},
 			}
-	)): TypeReferenceNode {
+	)): Promise<TypeReferenceNode> {
 		const $ref = (
 			options
 				? options.data.$ref
 				: this.#required_as as Exclude<Specific, undefined>
 		);
 
-		return factory.createTypeReferenceNode(
+		return Promise.resolve(factory.createTypeReferenceNode(
 			adjust_name_finisher(
 				$ref.replace(
 					/^#\/\$defs\//,
@@ -216,7 +216,7 @@ export class $ref<
 				),
 				this.#adjust_name,
 			),
-		);
+		));
 	}
 
 	static generate_default_schema_definition<

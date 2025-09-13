@@ -80,7 +80,7 @@ void describe('identify non-empty String types as expected', () => {
 						? 'from parser'
 						: 'directly'
 				} with dataset item ${i}`,
-				() => {
+				async () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
 						? parser.parse(schema, true)
@@ -96,7 +96,7 @@ void describe('identify non-empty String types as expected', () => {
 
 					is_instanceof(instance, NonEmptyString);
 
-					const typed = (
+					const typed = await (
 						instance as NonEmptyString
 					).generate_typescript_type();
 					ts_assert.isTypeReferenceNode(typed);

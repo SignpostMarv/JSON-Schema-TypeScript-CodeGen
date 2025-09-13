@@ -486,6 +486,23 @@ void describe('ObjectWith$defs', () => {
 				},
 				'patternProperties',
 			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					patternProperties: {
+						'^.+$': {
+							type: 'object',
+							patternProperties: {
+								'^.+$': {
+									type: 'string',
+								},
+							},
+						},
+					},
+				},
+				'patternProperties',
+			],
 		];
 
 		function* padded(): Generator<PaddedExpectationDataSet<
@@ -518,7 +535,7 @@ void describe('ObjectWith$defs', () => {
 				`behaves with expectations[${i}] ${
 					from_parser ? 'from parser' : 'directly'
 				}`,
-				() => {
+				async () => {
 					const ajv = new Ajv({strict: true});
 					const schema_parser = new SchemaParser({ajv});
 					const instance = from_parser
@@ -529,7 +546,7 @@ void describe('ObjectWith$defs', () => {
 						ObjectWith$defs<typeof properties_mode>
 					>(instance, ObjectWith$defs);
 
-					const generated = instance.generate_typescript_type({
+					const generated = await instance.generate_typescript_type({
 						schema,
 						schema_parser,
 					});

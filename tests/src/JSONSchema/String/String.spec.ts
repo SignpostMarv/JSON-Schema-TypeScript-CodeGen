@@ -71,7 +71,7 @@ void describe('identify simple String types as expected', () => {
 						? 'from parser'
 						: 'directly'
 				} with dataset item ${i}`,
-				() => {
+				async () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
 						? parser.parse(schema, true)
@@ -86,7 +86,7 @@ void describe('identify simple String types as expected', () => {
 
 					is_instanceof(instance, String);
 
-					const typed = (
+					const typed = await (
 						instance as String<string>
 					).generate_typescript_type();
 					ts_assert.isTokenWithExpectedKind(

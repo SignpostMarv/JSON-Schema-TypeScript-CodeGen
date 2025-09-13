@@ -112,7 +112,7 @@ void describe('$ref', () => {
 					? ' from parser defaults'
 					: 'directly from $ref'
 			}`,
-			() => {
+			async () => {
 				const instance = new $ref(
 					{
 						mode: 'either',
@@ -128,7 +128,7 @@ void describe('$ref', () => {
 
 				is_instanceof(instance, $ref);
 
-				const typed = instance.generate_typescript_type();
+				const typed = await instance.generate_typescript_type();
 
 				ts_assert.isTypeReferenceNode(typed);
 				ts_assert.isIdentifier(typed.typeName);
