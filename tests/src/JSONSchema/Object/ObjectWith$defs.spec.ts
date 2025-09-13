@@ -486,6 +486,7 @@ void describe('ObjectWith$defs', () => {
 				{
 					$defs: {},
 					type: 'object',
+					required: ['foo'],
 					properties: {
 						foo: {
 							type: 'string',
@@ -652,6 +653,10 @@ void describe('ObjectWith$defs', () => {
 						);
 					}
 
+					const required:(
+						string[]
+					) = (schema?.required as string[]) || [];
+
 					if (members) {
 						assert.equal(
 							members.length,
@@ -669,6 +674,10 @@ void describe('ObjectWith$defs', () => {
 							const [
 								expected_property_name,
 							] = property_asserters[i];
+
+							if (required.includes(expected_property_name)) {
+								not_undefined(property.questionToken);
+							}
 
 							// eslint-disable-next-line max-len
 							if (property_asserter === ts_assert.isComputedPropertyName) {

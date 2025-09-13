@@ -488,8 +488,8 @@ export class ObjectHelper
 						this.#is_schema_with_required(schema)
 						&& schema.required.includes(property)
 					)
-						? undefined
-						: factory.createToken(SyntaxKind.QuestionToken)
+						? factory.createToken(SyntaxKind.QuestionToken)
+						: undefined
 				),
 				await ObjectHelper.generate_type(
 					property,
