@@ -67,6 +67,9 @@ export const regexp_either = new RegExp(pattern_either);
 export const regexp_external = new RegExp(pattern_external);
 export const regexp_local = new RegExp(pattern_local);
 
+type $ref_mode_options = 'either'|'external'|'local';
+type $specific_mode_options = 'neither'|Exclude<$ref_mode_options, 'either'>;
+
 export type $ref_mode<
 	RefType extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
 > = (
@@ -77,7 +80,19 @@ export type $ref_mode<
 				? 'external'
 				: 'local'
 		)
-)
+);
+
+type $ref_type_by_mode<
+	RefMode extends $ref_mode_options
+> = (
+	RefMode extends 'either'
+		? (ExternalRef | LocalRef)
+		: (
+			RefMode extends 'external'
+				? ExternalRef
+				: LocalRef
+		)
+);
 
 type $ref_type<
 	RefType extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
@@ -132,27 +147,27 @@ type $ref_schema<
 }>;
 
 export class $ref<
-	Specific extends (undefined | ExternalRef | LocalRef),
-	RefType extends (
-		Specific extends undefined
-			? (ExternalRef | LocalRef)
-			: Exclude<Specific, undefined>
+	SpecificMode extends $specific_mode_options,
+	RefMode extends (
+		SpecificMode extends 'neither'
+			? 'either'
+			: SpecificMode
 	) = (
-		Specific extends undefined
-			? (ExternalRef | LocalRef)
-			: Exclude<Specific, undefined>
+		SpecificMode extends 'neither'
+			? 'either'
+			: SpecificMode
 	),
 > extends ConversionlessType<
-	{$ref: RefType},
-	$ref_type<RefType>,
-	$ref_schema<RefType>,
+	{$ref: $ref_type_by_mode<RefMode>},
+	$ref_type<$ref_type_by_mode<RefMode>>,
+	$ref_schema<$ref_type_by_mode<RefMode>>,
 	TypeReferenceNode
 > {
 	#adjust_name: adjust_name_callback;
 	#required_as: (
-		Specific extends undefined
-			? undefined
-			: Exclude<Specific, undefined>
+		SpecificMode extends 'neither'
+			? (undefined|$ref_type_by_mode<RefMode>)
+			: $ref_type_by_mode<RefMode>
 	);
 
 	constructor(
@@ -161,16 +176,16 @@ export class $ref<
 			adjust_name,
 			required_as,
 		}: (
-			Specific extends undefined
+			SpecificMode extends 'neither'
 				? {
-					mode: $ref_mode<RefType>,
+					mode: RefMode,
 					adjust_name?: adjust_name_callback,
-					required_as?: undefined,
+					required_as?: undefined|$ref_type_by_mode<RefMode>,
 				}
 				: {
-					mode: $ref_mode<RefType>,
+					mode: RefMode,
 					adjust_name?: adjust_name_callback,
-					required_as: Exclude<Specific, undefined>,
+					required_as: $ref_type_by_mode<RefMode>,
 				}
 		),
 		options: SchemalessTypeOptions,
@@ -185,23 +200,28 @@ export class $ref<
 		this.#adjust_name = adjust_name || adjust_name_default;
 
 		this.#required_as = required_as as (
-			Specific extends undefined
+			SpecificMode extends 'neither'
 				? undefined
-				: Exclude<Specific, undefined>
+				: $ref_type_by_mode<RefMode>
 		);
 	}
 
 	generate_typescript_type(options?: (
-		Specific extends undefined
-			? undefined
+		SpecificMode extends 'neither'
+			? (
+				| undefined
+				| {
+					data: {$ref: $ref_type_by_mode<RefMode>},
+				}
+			)
 			: {
-				data: {$ref: RefType},
+				data: {$ref: $ref_type_by_mode<RefMode>},
 			}
 	)): Promise<TypeReferenceNode> {
 		const $ref = (
 			options
 				? options.data.$ref
-				: this.#required_as as Exclude<Specific, undefined>
+				: this.#required_as as $ref_type_by_mode<RefMode>
 		);
 
 		return Promise.resolve(factory.createTypeReferenceNode(
@@ -219,19 +239,11 @@ export class $ref<
 	}
 
 	static generate_default_schema_definition<
-		T extends (ExternalRef | LocalRef),
+		RefMode extends $ref_mode_options,
 	>({mode}: {
-		mode: (
-			T extends (ExternalRef | LocalRef)
-				? 'either'
-				: (
-					T extends ExternalRef
-						? 'external'
-						: 'local'
-				)
-		),
-	}): Readonly<$ref_schema<T>> {
-		return Object.freeze<$ref_schema<T>>({
+		mode: RefMode,
+	}): Readonly<$ref_schema<$ref_type_by_mode<RefMode>>> {
+		return Object.freeze<$ref_schema<$ref_type_by_mode<RefMode>>>({
 			type: 'object',
 			required: [
 				'type',
@@ -319,41 +331,25 @@ export class $ref<
 	}
 
 	static #pattern<
-		T extends (ExternalRef | LocalRef),
+		RefMode extends $ref_mode_options,
 	>(
-		mode: (
-			T extends (ExternalRef | LocalRef)
-				? 'either'
-				: (
-					T extends ExternalRef
-						? 'external'
-						: 'local'
-				)
-		),
-	): pattern<T> {
+		mode: RefMode,
+	): pattern<$ref_type_by_mode<RefMode>> {
 		if ('either' === mode) {
-			return pattern_either as pattern<T>;
+			return pattern_either as pattern<$ref_type_by_mode<RefMode>>;
 		} else if ('external' === mode) {
-			return pattern_external as pattern<T>;
+			return pattern_external as pattern<$ref_type_by_mode<RefMode>>;
 		} else {
-			return pattern_local as pattern<T>;
+			return pattern_local as pattern<$ref_type_by_mode<RefMode>>;
 		}
 	}
 
 	static #type_definition<
-		T extends (ExternalRef | LocalRef),
+		RefMode extends $ref_mode_options,
 	>(
-		mode: (
-			T extends (ExternalRef | LocalRef)
-				? 'either'
-				: (
-					T extends ExternalRef
-						? 'external'
-						: 'local'
-				)
-		),
-	): Readonly<$ref_type<T>> {
-		return Object.freeze<$ref_type<T>>({
+		mode: RefMode,
+	): Readonly<$ref_type<$ref_type_by_mode<RefMode>>> {
+		return Object.freeze<$ref_type<$ref_type_by_mode<RefMode>>>({
 			type: 'object',
 			required: ['$ref'],
 			additionalProperties: false,

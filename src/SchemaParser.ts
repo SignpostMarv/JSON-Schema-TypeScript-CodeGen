@@ -118,7 +118,7 @@ export class SchemaParser
 		String<string>,
 		ConstString<undefined>,
 		NonEmptyString<1>,
-		$ref<undefined>,
+		$ref<'neither'>,
 		ObjectWith$defs<'both'>,
 		ObjectWith$defs<'properties'>,
 		ObjectWith$defs<'patternProperties'>,

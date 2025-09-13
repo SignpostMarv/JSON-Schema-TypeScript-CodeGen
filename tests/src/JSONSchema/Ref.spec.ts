@@ -165,7 +165,7 @@ void describe('$ref', () => {
 				index
 			}]`,
 			async () => {
-				const instance = new $ref<ExternalRef | LocalRef>(
+				const instance = new $ref<'neither'>(
 					{
 						mode: 'either',
 						required_as: data.$ref,
