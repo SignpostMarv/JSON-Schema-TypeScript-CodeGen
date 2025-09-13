@@ -96,7 +96,7 @@ export abstract class ConversionlessType<
 	protected type_definition: TypeDefinition;
 
 	#check_type: ValidateFunction<T>;
-	#check_schema: ValidateFunction<SchemaDefinition>;
+	#check_schema: ValidateFunction<TypeDefinition>;
 
 	constructor({
 		ajv,
@@ -105,7 +105,7 @@ export abstract class ConversionlessType<
 	}: TypeOptions<SchemaDefinition, TypeDefinition>) {
 		this.type_definition = type_definition;
 		this.schema_definition = schema_definition;
-		this.#check_schema = ajv.compile<SchemaDefinition>(schema_definition);
+		this.#check_schema = ajv.compile<TypeDefinition>(schema_definition);
 		this.#check_type = ajv.compile<T>(type_definition);
 	}
 

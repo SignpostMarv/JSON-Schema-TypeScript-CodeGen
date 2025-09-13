@@ -319,7 +319,8 @@ void describe('$ref', () => {
 				});
 
 				assert.equal(
-					definition.properties.properties.properties.$ref.pattern,
+					// eslint-disable-next-line max-len
+					definition.properties.properties.properties.$ref.properties.pattern.const,
 					expectation[mode],
 				);
 			})

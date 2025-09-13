@@ -138,8 +138,19 @@ type $ref_schema<
 			additionalProperties: false,
 			properties: {
 				$ref: {
-					type: 'string',
-					pattern: pattern<RefType>,
+					type: 'object',
+					required: ['type', 'pattern'],
+					additionalProperties: false,
+					properties: {
+						type: {
+							type: 'string',
+							const: 'string',
+						},
+						pattern: {
+							type: 'string',
+							const: pattern<RefType>,
+						},
+					},
 				}
 			}
 		}
@@ -271,8 +282,19 @@ export class $ref<
 					additionalProperties: false,
 					properties: {
 						$ref: {
-							type: 'string',
-							pattern: this.#pattern(mode),
+							type: 'object',
+							required: ['type', 'pattern'],
+							additionalProperties: false,
+							properties: {
+								type: {
+									type: 'string',
+									const: 'string',
+								},
+								pattern: {
+									type: 'string',
+									const: this.#pattern(mode),
+								},
+							},
 						},
 					},
 				},
