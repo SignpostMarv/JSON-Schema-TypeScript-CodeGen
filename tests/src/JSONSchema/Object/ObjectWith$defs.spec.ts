@@ -12,7 +12,15 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type {
+	ComputedPropertyName,
+	Identifier,
 	Node,
+	NodeArray,
+	PropertySignature,
+	TypeNode,
+} from 'typescript';
+import {
+	SyntaxKind,
 } from 'typescript';
 
 import {
@@ -49,6 +57,10 @@ import {
 	bool_throw,
 	is_TypeLiteralNode,
 } from '../../../assertions.ts';
+
+import type {
+	ts_asserter,
+} from '../../../types.ts';
 
 void describe('ObjectWith$defs', () => {
 	void describe('.check_schema()', () => {
@@ -445,6 +457,14 @@ void describe('ObjectWith$defs', () => {
 		> = [
 			object_with_$defs_type<ObjectOfSchemas, PropertiesMode>,
 			PropertiesMode,
+			[
+				string,
+				ts_asserter<(
+					| ComputedPropertyName
+					| Identifier
+				)>,
+				ts_asserter,
+			][],
 		];
 
 		type PaddedExpectationDataSet<
@@ -473,6 +493,24 @@ void describe('ObjectWith$defs', () => {
 					},
 				},
 				'properties',
+				[
+					[
+						'foo',
+						ts_assert.isIdentifier,
+						(
+							value: Node,
+							message: string|Error,
+						): asserts value is TypeNode & {
+							kind: typeof SyntaxKind.StringKeyword,
+						} => {
+							ts_assert.isTokenWithExpectedKind(
+								value,
+								SyntaxKind.StringKeyword,
+								message,
+							);
+						},
+					],
+				],
 			],
 			[
 				{
@@ -485,6 +523,7 @@ void describe('ObjectWith$defs', () => {
 					},
 				},
 				'patternProperties',
+				[],
 			],
 			[
 				{
@@ -502,6 +541,37 @@ void describe('ObjectWith$defs', () => {
 					},
 				},
 				'patternProperties',
+				[],
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
+					properties: {
+						'foo bar': {
+							type: 'string',
+						},
+					},
+				},
+				'properties',
+				[
+					[
+						'foo bar',
+						ts_assert.isComputedPropertyName,
+						(
+							value: Node,
+							message: string|Error,
+						): asserts value is TypeNode & {
+							kind: typeof SyntaxKind.StringKeyword,
+						} => {
+							ts_assert.isTokenWithExpectedKind(
+								value,
+								SyntaxKind.StringKeyword,
+								message,
+							);
+						},
+					],
+				],
 			],
 		];
 
@@ -528,6 +598,7 @@ void describe('ObjectWith$defs', () => {
 		for (const [
 			schema,
 			properties_mode,
+			property_asserters,
 			from_parser,
 			i,
 		] of padded()) {
@@ -551,18 +622,81 @@ void describe('ObjectWith$defs', () => {
 						schema_parser,
 					});
 
+					let members: (
+						| undefined
+						| NodeArray<PropertySignature>
+					) = undefined;
+
 					if ('both' === properties_mode) {
 						ts_assert.isIntersectionTypeNode(generated);
+						assert.equal(generated.types.length, 2);
+						is_TypeLiteralNode(
+							generated.types[0],
+							ts_assert.isPropertySignature,
+						);
+						is_TypeLiteralNode(
+							generated.types[1],
+							ts_assert.isIndexSignatureDeclaration,
+						);
+						members = generated.types[0].members;
 					} else if ('properties' === properties_mode) {
 						is_TypeLiteralNode(
 							generated,
 							ts_assert.isPropertySignature,
 						);
+						members = generated.members;
 					} else {
 						is_TypeLiteralNode(
 							generated,
 							ts_assert.isIndexSignatureDeclaration,
 						);
+					}
+
+					if (members) {
+						assert.equal(
+							members.length,
+							property_asserters.length,
+						);
+
+						members.forEach((property, i) => {
+							const property_asserter:ts_asserter = (
+								property_asserters[i][1]
+							);
+							const value_asserter:ts_asserter = (
+								property_asserters[i][2]
+							);
+
+							const [
+								expected_property_name,
+							] = property_asserters[i];
+
+							// eslint-disable-next-line max-len
+							if (property_asserter === ts_assert.isComputedPropertyName) {
+								ts_assert.isComputedPropertyName(
+									property.name,
+									`Property name not of expected type for property ${i}!`,
+								);
+								ts_assert.isStringLiteral(
+									property.name.expression,
+								);
+								assert.equal(
+									property.name.expression.text,
+									expected_property_name,
+								);
+							} else {
+								ts_assert.isIdentifier(property.name);
+								assert.equal(
+									property.name.text,
+									expected_property_name,
+								);
+							}
+
+							not_undefined(property.type);
+							value_asserter(
+								property.type,
+								`Property value not of expected type for property ${i}!`,
+							);
+						});
 					}
 				},
 			);
