@@ -108,7 +108,7 @@ void describe('identify Const String types as expected', () => {
 					});
 
 					if ('const' in schema) {
-					ts_assert.isLiteralTypeNode(typed);
+						ts_assert.isLiteralTypeNode(typed);
 					} else {
 						ts_assert.isTokenWithExpectedKind(
 							typed,
