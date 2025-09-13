@@ -548,6 +548,47 @@ void describe('ObjectWith$defs', () => {
 				{
 					$defs: {},
 					type: 'object',
+					required: ['foo'],
+					properties: {
+						foo: {
+							type: 'string',
+						},
+					},
+					patternProperties: {
+						'^.+$': {
+							type: 'object',
+							patternProperties: {
+								'^.+$': {
+									type: 'string',
+								},
+							},
+						},
+					},
+				},
+				'both',
+				[
+					[
+						'foo',
+						ts_assert.isIdentifier,
+						(
+							value: Node,
+							message: string|Error,
+						): asserts value is TypeNode & {
+							kind: typeof SyntaxKind.StringKeyword,
+						} => {
+							ts_assert.isTokenWithExpectedKind(
+								value,
+								SyntaxKind.StringKeyword,
+								message,
+							);
+						},
+					],
+				],
+			],
+			[
+				{
+					$defs: {},
+					type: 'object',
 					properties: {
 						'foo bar': {
 							type: 'string',
