@@ -14,6 +14,7 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	$ref_mode_options,
 	ExternalRef,
 	LocalRef,
 } from '../../../src/JSONSchema/Ref.ts';
@@ -295,6 +296,33 @@ void describe('$ref', () => {
 				$ref.is_$ref(value, mode),
 				expectation,
 			);
+		}
+	})
+
+	void describe('.generate_default_schema_definition()', () => {
+		const options: [$ref_mode_options, ...$ref_mode_options[]] = [
+			'either',
+			'external',
+			'local',
+		];
+		const expectation = {
+			// eslint-disable-next-line max-len
+			either: '^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$',
+			// eslint-disable-next-line max-len
+			external: '^([a-zA-Z0-9][a-zA-Z0-9._-]*)#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$',
+			local: '^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$',
+		}
+		for (const mode of options) {
+			void it(`behaves with mode=${mode}`, () => {
+				const definition = $ref.generate_default_schema_definition({
+					mode,
+				});
+
+				assert.equal(
+					definition.properties.properties.properties.$ref.pattern,
+					expectation[mode],
+				);
+			})
 		}
 	})
 })

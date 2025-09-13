@@ -67,7 +67,7 @@ export const regexp_either = new RegExp(pattern_either);
 export const regexp_external = new RegExp(pattern_external);
 export const regexp_local = new RegExp(pattern_local);
 
-type $ref_mode_options = 'either'|'external'|'local';
+export type $ref_mode_options = 'either'|'external'|'local';
 type $specific_mode_options = 'neither'|Exclude<$ref_mode_options, 'either'>;
 
 export type $ref_mode<
