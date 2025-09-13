@@ -502,12 +502,12 @@ export class ObjectHelper
 		if (this.#is_schema_with_pattern_properties(schema)) {
 			patterned = await Promise.all(
 				Object.values(schema.patternProperties).map(
-				(sub_schema) => schema_parser.parse(
-					sub_schema,
-				).generate_typescript_type({
-					schema: sub_schema,
-					schema_parser,
-				}),
+					(sub_schema) => schema_parser.parse(
+						sub_schema,
+					).generate_typescript_type({
+						schema: sub_schema,
+						schema_parser,
+					}),
 				),
 			);
 		}
