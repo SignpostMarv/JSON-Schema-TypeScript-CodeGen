@@ -156,4 +156,91 @@ void describe('$ref', () => {
 			);
 		});
 	})
+
+	void it('.is_$ref() behaves', () => {
+		type ExpectationDataSet<T> = [
+			T,
+			(
+				| 'either'
+				| 'external'
+				| 'local'
+			),
+			boolean,
+		];
+
+		const expectations: ExpectationDataSet<unknown>[] = [];
+
+		function* pad_failure<
+			T = Exclude<unknown, string>,
+		>(value: T): Generator<ExpectationDataSet<T>> {
+			yield [
+				value,
+				'either',
+				false,
+			];
+			yield [
+				value,
+				'external',
+				false,
+			];
+			yield [
+				value,
+				'local',
+				false,
+			];
+		}
+
+		function* pad_success<
+			T extends ExternalRef|LocalRef = ExternalRef|LocalRef,
+		>(
+			value: T,
+		): Generator<ExpectationDataSet<T>> {
+			yield [
+				value,
+				'either',
+				true,
+			];
+
+			yield [
+				value,
+				value.startsWith('#/$defs/') ? 'local' : 'external',
+				true,
+			];
+		}
+
+		for (const failure_value of [
+			false,
+			true,
+			undefined,
+			'fail',
+		]) {
+			for (const data_set of pad_failure(failure_value)) {
+				expectations.push(data_set);
+			}
+		}
+
+		const success_values:(
+			LocalRef|ExternalRef
+		)[] = [
+			'#/$defs/foo' as LocalRef,
+			'foo.json#/$defs/bar' as ExternalRef,
+		];
+
+		for (const success_value of success_values) {
+			for (const data_set of pad_success(success_value)) {
+				expectations.push(data_set);
+			}
+		}
+
+		for (const [
+			value,
+			mode,
+			expectation,
+		] of expectations) {
+			assert.equal(
+				$ref.is_$ref(value, mode),
+				expectation,
+			);
+		}
+	})
 })

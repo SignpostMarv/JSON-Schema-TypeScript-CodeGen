@@ -67,7 +67,7 @@ export const regexp_either = new RegExp(pattern_either);
 export const regexp_external = new RegExp(pattern_external);
 export const regexp_local = new RegExp(pattern_local);
 
-type $ref_mode<
+export type $ref_mode<
 	RefType extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
 > = (
 	RefType extends (ExternalRef | LocalRef)
@@ -270,11 +270,19 @@ export class $ref<
 	}
 
 	static is_$ref<
-		RefType extends (ExternalRef | LocalRef) = ExternalRef | LocalRef,
+		RefMode = 'either' | 'external' | 'local',
 	>(
 		value: unknown,
-		mode: $ref_mode<RefType>,
-	): value is RefType {
+		mode: RefMode,
+	): value is (
+		RefMode extends 'either'
+			? (ExternalRef | LocalRef)
+			: (
+				RefMode extends 'external'
+					? ExternalRef
+					: LocalRef
+			)
+	) {
 		return (
 			'string' === typeof value
 			&& (
