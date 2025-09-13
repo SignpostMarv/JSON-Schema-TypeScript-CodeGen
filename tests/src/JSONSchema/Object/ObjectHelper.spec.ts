@@ -19,7 +19,51 @@ import type {
 	ObjectOfSchemas,
 } from '../../../../src/JSONSchema/Type.ts';
 
+import {
+	SchemaParser,
+} from '../../../../src/SchemaParser.ts';
+
 void describe('ObjectHelper', () => {
+	void describe('.convert()', () => {
+		void it ('fails', () => {
+			assert.throws(() => {
+				ObjectHelper.convert(
+					{
+						foo: 'bar',
+					},
+					'bar',
+					{
+						type: 'object',
+						required: ['bar'],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					new SchemaParser({ajv_options: {}}),
+				)
+			})
+			assert.throws(() => {
+				ObjectHelper.convert(
+					{
+						bar: 'bar',
+					},
+					'bar',
+					{
+						type: 'object',
+						required: ['bar'],
+						patternProperties: {
+							'^bar\\d+$': {
+								type: 'string',
+							},
+						},
+					},
+					new SchemaParser({ajv_options: {}}),
+				)
+			})
+		})
+	})
 	void describe('.guess_schema()', () => {
 		type ExpectationDataSet<
 			DefsMode extends object_$defs_mode,
