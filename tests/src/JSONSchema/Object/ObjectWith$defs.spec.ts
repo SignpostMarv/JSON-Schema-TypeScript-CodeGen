@@ -889,6 +889,7 @@ void describe('ObjectWith$defs', () => {
 						)
 						|| ObjectWith$defs.generate_default_type_definition(
 							properties_mode,
+							'with',
 						)
 					);
 					const instance = new ObjectWith$defs({properties_mode}, {
