@@ -140,5 +140,16 @@ void describe('identify simple String types as expected', () => {
 				'verbose',
 			)),
 		);
+		assert.throws(
+			() => (new String({
+				ajv: new Ajv({strict: true}),
+			}).can_handle_schema(
+				{
+					type: 'string',
+					const: 'foo',
+				},
+				true,
+			)),
+		);
 	})
 })
