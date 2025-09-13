@@ -831,6 +831,25 @@ void describe('ObjectWith$defs', () => {
 					['foo', ts_assert.isStringLiteral],
 				],
 			],
+			[
+				{
+					foo: 'bar',
+				},
+				{
+					$defs: {},
+					type: 'object',
+					patternProperties: {
+						'^.+$': {
+							type: 'string',
+						},
+					},
+				},
+				'patternProperties',
+				false,
+				[
+					['foo', ts_assert.isStringLiteral],
+				],
+			],
 		];
 
 		function* padded(): Generator<[
