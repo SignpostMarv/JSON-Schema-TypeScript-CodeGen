@@ -85,7 +85,7 @@ void describe('$ref', () => {
 
 	function* pad_expectations(): Generator<[
 		...$ref_expectation,
-		boolean, // from_parser_defualt
+		boolean, // from_parser_default
 		number, // index
 	]> {
 		let index = 0;
