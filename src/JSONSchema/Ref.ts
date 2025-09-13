@@ -191,12 +191,11 @@ export class $ref<
 		);
 	}
 
-	generate_typescript_type(): Promise<TypeReferenceNode>;
 	generate_typescript_type(options?: (
 		Specific extends undefined
 			? undefined
 			: {
-				data: {$ref: Exclude<Specific, undefined>},
+				data: {$ref: RefType},
 			}
 	)): Promise<TypeReferenceNode> {
 		const $ref = (

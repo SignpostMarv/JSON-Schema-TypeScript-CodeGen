@@ -11,10 +11,6 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
-import {
-	is_instanceof,
-} from '@satisfactory-dev/custom-assert';
-
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
@@ -40,7 +36,15 @@ void describe('$ref', () => {
 		string, // expected type generation result name
 	];
 
-	const $ref_expectations:$ref_expectation[] = [
+	const $ref_expectations:(
+		| $ref_expectation
+		| [
+			...$ref_expectation,
+			{
+				data: {$ref: Exclude<ExternalRef | LocalRef, undefined>},
+			}
+		]
+	)[] = [
 		[
 			{$ref: $ref.require_ref('#/$defs/foo')},
 			{},
@@ -81,17 +85,65 @@ void describe('$ref', () => {
 			{},
 			'foo_json_1_1',
 		],
+		[
+			{$ref: $ref.require_ref('foo.json#/$defs/1.1')},
+			{},
+			'foo_json_1_1',
+			{
+				data: {
+					$ref: 'foo.json#/$defs/1.1' as ExternalRef,
+				},
+			},
+		],
 	];
 
-	function* pad_expectations(): Generator<[
+	function* pad_defaults(): Generator<[
 		...$ref_expectation,
-		boolean, // from_parser_default
+		(
+			| undefined
+			| {
+				data: {
+					$ref: ExternalRef|LocalRef,
+				},
+			}
+		)
+	]> {
+		for (const expectation_set of $ref_expectations) {
+			if (3 === expectation_set.length) {
+				yield [
+					...expectation_set,
+					undefined,
+				];
+			} else {
+				yield expectation_set;
+			}
+		}
+	}
+
+	function* pad_expectations(): Generator<[
+		...[
+			...$ref_expectation,
+			(
+				| undefined
+				| {
+					data: {
+						$ref: ExternalRef | LocalRef,
+					},
+				}
+			),
+		],
 		number, // index
 	]> {
 		let index = 0;
-		for (const expectation_set of $ref_expectations) {
-			yield [...expectation_set, true, index];
-			yield [...expectation_set, false, index];
+		for (const expectation_set of pad_defaults()) {
+			yield [
+				...expectation_set,
+				index,
+			];
+			yield [
+				...expectation_set,
+				index,
+			];
 
 			++index;
 		}
@@ -101,19 +153,19 @@ void describe('$ref', () => {
 		data,
 		ajv_options,
 		expected_generated_type_name,
-		from_parser_default,
+		type_options,
 		index,
 	] of pad_expectations()) {
 		void it(
-			`.generate_type() behaves as expected with $ref_expectations[${
+			`.generate_type${
+				type_options
+					? '(type_options)'
+					: '()'
+			} behaves as expected with $ref_expectations[${
 				index
-			}] ${
-				from_parser_default
-					? ' from parser defaults'
-					: 'directly from $ref'
-			}`,
+			}]`,
 			async () => {
-				const instance = new $ref(
+				const instance = new $ref<ExternalRef | LocalRef>(
 					{
 						mode: 'either',
 						required_as: data.$ref,
@@ -126,9 +178,11 @@ void describe('$ref', () => {
 					},
 				);
 
-				is_instanceof(instance, $ref);
-
-				const typed = await instance.generate_typescript_type();
+				const typed = await (
+					type_options
+						? instance.generate_typescript_type(type_options)
+						: instance.generate_typescript_type()
+				);
 
 				ts_assert.isTypeReferenceNode(typed);
 				ts_assert.isIdentifier(typed.typeName);
