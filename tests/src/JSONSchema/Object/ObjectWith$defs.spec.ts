@@ -69,7 +69,6 @@ void describe('ObjectWith$defs', () => {
 		> = [
 			ObjectMaybeHas$defs_TypeDefinition<
 				PropertiesMode,
-				'with',
 				ObjectOfSchemas
 			>,
 			PropertiesMode,
@@ -219,17 +218,14 @@ void describe('ObjectWith$defs', () => {
 			(
 				| ObjectMaybeHas$defs_TypeDefinition<
 					'both',
-					'with',
 					ObjectOfSchemas
 				>
 				| ObjectMaybeHas$defs_TypeDefinition<
 					'properties',
-					'with',
 					ObjectOfSchemas
 				>
 				| ObjectMaybeHas$defs_TypeDefinition<
 					'patternProperties',
-					'with',
 					ObjectOfSchemas
 				>
 			),
@@ -740,14 +736,12 @@ void describe('ObjectWith$defs', () => {
 				| undefined
 				| ObjectMaybeHas$defs_TypeDefinition<
 					PropertiesMode,
-					'with',
 					ObjectOfSchemas
 				>
 			) = (
 				| undefined
 				| ObjectMaybeHas$defs_TypeDefinition<
 					PropertiesMode,
-					'with',
 					ObjectOfSchemas
 				>
 			),

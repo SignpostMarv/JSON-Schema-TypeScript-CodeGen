@@ -1,6 +1,13 @@
-export type $defs_mode = (
-	| 'with'
-	| 'without'
+import type {
+	ObjectOfSchemas,
+} from './Type.ts';
+
+export type $defs_mode<
+	Defs extends DefsType = DefsType
+> = (
+	Defs extends Exclude<DefsType, ObjectOfSchemas>
+		? 'without'
+		: 'with'
 );
 
 export type $defs_schema = {
@@ -11,3 +18,5 @@ export type $defs_schema = {
 		},
 	},
 };
+
+export type DefsType = undefined|ObjectOfSchemas;
