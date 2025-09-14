@@ -152,7 +152,7 @@ type object_without_$defs_type<
 			? ObjectOfSchemas
 			: never
 	),
-	PaternProperties extends (
+	PatternProperties extends (
 		PropertiesMode extends 'both'|'patternProperties'
 			? ObjectOfSchemas
 			: never
@@ -172,14 +172,14 @@ type object_without_$defs_type<
 		? object_without_$defs_type_both<
 			Required,
 			Properties,
-			PaternProperties
+			PatternProperties
 		>
 		: (
 			PropertiesMode extends 'properties'
 				? object_without_$defs_type_properties<Required, Properties>
 				: object_without_$defs_type_pattern_properties<
 					Required,
-					PaternProperties
+					PatternProperties
 				>
 		)
 >;
