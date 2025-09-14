@@ -53,23 +53,34 @@ export type object_properties_mode = (
 	| 'patternProperties'
 );
 
+type object_without_$defs_and_unspecified_properties_type = {
+	type: 'object',
+};
+
 type object_without_$defs_type_both<
 	Required extends undefined|[string, ...string[]],
 	Properties extends ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas,
 > = (
-	Required extends undefined
+	& object_without_$defs_and_unspecified_properties_type
+	& Required extends Exclude<undefined, [string, ...string[]]>
 		? {
-			type: 'object',
 			properties: Properties,
 			patternProperties: PatternProperties,
 		}
-		: {
-			type: 'object',
-			required: Required,
+		: (
+			Required extends Exclude<Required, undefined>
+				? {
+			required: Exclude<Required, undefined>,
 			properties: Properties,
 			patternProperties: PatternProperties,
-		}
+				}
+				: {
+					required?: Exclude<Required, undefined>,
+					properties: Properties,
+					patternProperties: PatternProperties,
+				}
+		)
 );
 
 type object_with_$defs_type_both<
@@ -168,7 +179,7 @@ type object_without_$defs_type<
 
 export type object_with_$defs_type<
 	Defs extends ObjectOfSchemas,
-	Mode extends object_properties_mode = 'both',
+	PropertiesMode extends object_properties_mode = 'both',
 	Required extends (
 		| undefined
 		| [string, ...string[]]
@@ -177,25 +188,25 @@ export type object_with_$defs_type<
 		| [string, ...string[]]
 	),
 	Properties extends (
-		Mode extends 'patternProperties'
+		PropertiesMode extends 'patternProperties'
 			? never
 			: ObjectOfSchemas
 	) = (
-		Mode extends 'patternProperties'
+		PropertiesMode extends 'patternProperties'
 			? never
 			: ObjectOfSchemas
 	),
 	PaternProperties extends (
-		Mode extends 'properties'
+		PropertiesMode extends 'properties'
 			? never
 			: ObjectOfSchemas
 	) = (
-		Mode extends 'properties'
+		PropertiesMode extends 'properties'
 			? never
 			: ObjectOfSchemas
 	),
 > = TypeDefinitionSchema<
-	Mode extends 'both'
+	PropertiesMode extends 'both'
 		? object_with_$defs_type_both<
 			Required,
 			Properties,
@@ -203,7 +214,7 @@ export type object_with_$defs_type<
 			Defs
 		>
 		: (
-			Mode extends 'properties'
+			PropertiesMode extends 'properties'
 				? object_with_$defs_type_properties<Required, Properties, Defs>
 				: object_with_$defs_type_pattern_properties<
 					Required,
@@ -213,15 +224,28 @@ export type object_with_$defs_type<
 		)
 >;
 
-type object_without_$defs_schema_both = {
-	type: 'object',
-	required: ['type', 'properties', 'patternProperties'],
-	additionalProperties: false,
-	properties: {
+type object_without_$defs_and_unspecified_properties_schema = (
+	SchemaDefinitionDefinition<
+		['type'],
+	{
 		type: {
 			type: 'string',
 			const: 'object',
 		},
+	}
+	>
+);
+
+
+type object_without_$defs_schema_both = SchemaDefinitionDefinition<
+	[
+		...object_without_$defs_and_unspecified_properties_schema['required'],
+		'properties',
+		'patternProperties',
+	],
+	(
+		& object_without_$defs_and_unspecified_properties_schema['properties']
+		& {
 		required: {
 			type: 'array',
 			items: {
@@ -241,63 +265,54 @@ type object_without_$defs_schema_both = {
 				type: 'object',
 			},
 		},
-	},
-};
+		}
+	)
+>
 
-type object_with_$defs_schema_both = (
-	& Omit<object_without_$defs_schema_both, 'required'|'properties'>
-	& {
-		required: ['type', '$defs', 'properties', 'patternProperties'],
-		properties: (
+type object_with_$defs_schema_both = SchemaDefinitionDefinition<
+	[
+		...object_without_$defs_schema_both['required'],
+		'$defs',
+	],
+	(
 			& object_without_$defs_schema_both['properties']
 			& $defs_schema
-		),
-	}
-);
+	)
+>;
 
-type object_without_$defs_schema_properties = (
-	& Omit<object_without_$defs_schema_both, 'required'|'properties'>
-	& {
-		required: ['type', 'properties'],
-		properties: Omit<
+type object_without_$defs_schema_properties = SchemaDefinitionDefinition<
+	['type', 'properties'],
+	Omit<
 			object_without_$defs_schema_both['properties'],
 			'patternProperties'
-		>,
-	}
-);
+	>
+>;
 
-type object_with_$defs_schema_properties = (
-	& Omit<object_with_$defs_schema_both, 'required'|'properties'>
-	& {
-		required: ['type', '$defs', 'properties'],
-		properties: Omit<
+type object_with_$defs_schema_properties = SchemaDefinitionDefinition<
+	['type', '$defs', 'properties'],
+	Omit<
 			object_with_$defs_schema_both['properties'],
 			'patternProperties'
-		>,
-	}
-);
+	>
+>;
 
 type object_without_$defs_schema_pattern_properties = (
-	& Omit<object_without_$defs_schema_both, 'required'|'properties'>
-	& {
-		required: ['type', 'patternProperties'],
-		properties: Omit<
+	SchemaDefinitionDefinition<
+		['type', 'patternProperties'],
+	Omit<
 			object_without_$defs_schema_both['properties'],
 			'properties'
-		>,
-	}
+	>
+	>
 );
 
-type object_with_$defs_schema_pattern_properties = (
-	& Omit<object_with_$defs_schema_both, 'required'|'properties'>
-	& {
-		required: ['type', 'patternProperties'],
-		properties: Omit<
-			object_with_$defs_schema_both['properties'],
-			'properties'
-		>,
-	}
-);
+type object_with_$defs_schema_pattern_properties = SchemaDefinitionDefinition<
+	['type', 'patternProperties'],
+	Omit<
+		object_with_$defs_schema_both['properties'],
+		'properties'
+	>
+>;
 
 type object_without_$defs_schema<
 	Mode extends object_properties_mode = 'both'
@@ -313,7 +328,7 @@ type object_without_$defs_schema<
 					]
 			)
 	),
-	ObjectOfSchemas & (
+	(
 		Mode extends 'both'
 			? object_without_$defs_schema_both['properties']
 			: (
@@ -340,7 +355,7 @@ export type object_with_$defs_schema<
 					]
 			)
 	),
-	ObjectOfSchemas & (
+	(
 		Mode extends 'both'
 			? object_with_$defs_schema_both['properties']
 			: (
@@ -807,10 +822,17 @@ export type ObjectMaybeHas$defs_TypeDefinition<
 			? ObjectOfSchemas
 			: never
 	),
+	Required extends (
+		| undefined
+		| [string, ...string[]]
+	) = (
+		| undefined
+		| [string, ...string[]]
+	),
 > = (
 	DefsMode extends 'without'
-		? object_without_$defs_type<PropertiesMode>
-		: object_with_$defs_type<Defs, PropertiesMode>
+		? object_without_$defs_type<PropertiesMode, Required>
+		: object_with_$defs_type<Defs, PropertiesMode, Required>
 );
 
 export type ObjectMaybeHas$defs_SchemaDefinition<
@@ -1069,7 +1091,7 @@ abstract class ObjectMaybeHas$defs<
 
 		return {
 			type: 'object',
-			required: ['type', '$defs', 'properties', 'patternProperties'],
+			required: ['type', 'properties', 'patternProperties', '$defs'],
 			additionalProperties: false,
 			properties: {
 				type: {
