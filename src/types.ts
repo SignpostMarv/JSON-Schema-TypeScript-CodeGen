@@ -1,11 +1,14 @@
 import type {
 	BooleanLiteral,
 	LiteralExpression,
+	NamedTupleMember,
 	NodeArray,
 	NullLiteral,
 	PrefixUnaryExpression,
+	ArrayTypeNode as TSArrayTypeNode,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
+	TupleTypeNode as TSTupleTypeNode,
 	TypeLiteralNode as TSTypeLiteralNode,
 	TypeElement,
 	TypeNode,
@@ -59,5 +62,33 @@ export type IntersectionTypeNode<
 	& TSIntersectionTypeNode
 	& {
 		readonly types: T,
+	}
+);
+
+export type ArrayTypeNode<
+	T extends TypeNode = TypeNode,
+> = (
+	& TSArrayTypeNode
+	& {
+		readonly elementType: T,
+	}
+);
+
+export type TupleTypeNode<
+	T1 extends (
+		| TypeNode
+		| NamedTupleMember
+	) = (
+		| TypeNode
+		| NamedTupleMember
+	),
+	T2 extends [T1, ...T1[]] = [T1, ...T1[]],
+> = (
+	& TSTupleTypeNode
+	& {
+		readonly elements: (
+			& TSTupleTypeNode['elements']
+			& T2
+		),
 	}
 );

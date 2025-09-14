@@ -42,15 +42,15 @@ import type {
 	TypeLiteralNode,
 } from '../types.ts';
 
+import type {
+	$defs_mode,
+	$defs_schema,
+} from './types.ts';
+
 export type object_properties_mode = (
 	| 'both'
 	| 'properties'
 	| 'patternProperties'
-);
-
-export type object_$defs_mode = (
-	| 'with'
-	| 'without'
 );
 
 type object_without_$defs_type_both<
@@ -250,14 +250,7 @@ type object_with_$defs_schema_both = (
 		required: ['type', '$defs', 'properties', 'patternProperties'],
 		properties: (
 			& object_without_$defs_schema_both['properties']
-			& {
-				$defs: {
-					type: 'object',
-					additionalProperties: {
-						type: 'object',
-					},
-				},
-			}
+			& $defs_schema
 		),
 	}
 );
@@ -380,7 +373,7 @@ export class ObjectHelper
 	static convert<
 		T,
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	> (
 		value: unknown,
 		property: string,
@@ -418,7 +411,7 @@ export class ObjectHelper
 	static createObjectLiteralExpression<
 		T extends {[key: string]: unknown},
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		data: T,
 		schema: (
@@ -456,7 +449,7 @@ export class ObjectHelper
 	}
 
 	static async createTypeNode<
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 		PropertiesMode extends object_properties_mode,
 	>(
 		schema: (
@@ -534,7 +527,7 @@ export class ObjectHelper
 
 	static generate_type<
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	> (
 		property: string,
 		schema: (
@@ -558,7 +551,7 @@ export class ObjectHelper
 	}
 
 	static guess_schema<
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		guess_from: {[key: string]: unknown},
 		defs_mode: DefsMode,
@@ -571,7 +564,7 @@ export class ObjectHelper
 	}
 
 	static #guess_schema_with_chain<
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		guess_from: {[key: string]: unknown},
 		defs_mode: DefsMode,
@@ -637,7 +630,7 @@ export class ObjectHelper
 	}
 
 	static #is_schema_with_pattern_properties<
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	> (
 		schema: (
 			DefsMode extends 'without'
@@ -664,7 +657,7 @@ export class ObjectHelper
 	}
 
 	static #is_schema_with_properties<
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	> (
 		schema: (
 			DefsMode extends 'without'
@@ -696,7 +689,7 @@ export class ObjectHelper
 			| 'properties'
 			| 'patternProperties'
 		),
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		schema: (
 			DefsMode extends 'without'
@@ -743,7 +736,7 @@ export class ObjectHelper
 
 	static #sub_schema_for_property<
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		property: string,
 		schema: (
@@ -804,7 +797,7 @@ export type ObjectMaybeHas$defs_options<
 
 export type ObjectMaybeHas$defs_TypeDefinition<
 	PropertiesMode extends object_properties_mode,
-	DefsMode extends object_$defs_mode,
+	DefsMode extends $defs_mode,
 	Defs extends (
 		DefsMode extends 'with'
 			? ObjectOfSchemas
@@ -822,7 +815,7 @@ export type ObjectMaybeHas$defs_TypeDefinition<
 
 export type ObjectMaybeHas$defs_SchemaDefinition<
 	PropertiesMode extends object_properties_mode,
-	DefsMode extends object_$defs_mode,
+	DefsMode extends $defs_mode,
 > = (
 	DefsMode extends 'without'
 		? object_without_$defs_schema<PropertiesMode>
@@ -832,7 +825,7 @@ export type ObjectMaybeHas$defs_SchemaDefinition<
 abstract class ObjectMaybeHas$defs<
 	T extends {[key: string]: unknown},
 	PropertiesMode extends object_properties_mode,
-	DefsMode extends object_$defs_mode,
+	DefsMode extends $defs_mode,
 	Defs extends (
 		DefsMode extends 'with'
 			? ObjectOfSchemas
@@ -943,7 +936,7 @@ abstract class ObjectMaybeHas$defs<
 	>;
 	static generate_default_schema_definition<
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>({
 		defs_mode,
 		properties_mode,
@@ -1032,7 +1025,7 @@ abstract class ObjectMaybeHas$defs<
 	>;
 	static generate_default_type_definition<
 		PropertiesMode extends object_properties_mode,
-		DefsMode extends object_$defs_mode,
+		DefsMode extends $defs_mode,
 	>(
 		properties_mode: PropertiesMode,
 		defs_mode: DefsMode,

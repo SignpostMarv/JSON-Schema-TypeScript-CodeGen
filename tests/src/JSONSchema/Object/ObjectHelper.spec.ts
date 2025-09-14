@@ -9,8 +9,9 @@ import type {
 } from 'ajv';
 
 import type {
-	object_$defs_mode,
-} from '../../../../src/JSONSchema/Object.ts';
+	$defs_mode,
+} from '../../../../src/JSONSchema/types.ts';
+
 import {
 	ObjectHelper,
 } from '../../../../src/JSONSchema/Object.ts';
@@ -66,7 +67,7 @@ void describe('ObjectHelper', () => {
 	})
 	void describe('.guess_schema()', () => {
 		type ExpectationDataSet<
-			DefsMode extends object_$defs_mode,
+			DefsMode extends $defs_mode,
 		> = [
 			DefsMode,
 			{[key: string]: unknown}, // input
@@ -76,7 +77,7 @@ void describe('ObjectHelper', () => {
 					: Omit<SchemaObject, '$defs'>
 			)
 		]
-		const expectations: ExpectationDataSet<object_$defs_mode>[] = [
+		const expectations: ExpectationDataSet<$defs_mode>[] = [
 			[
 				'with',
 				{},
