@@ -71,9 +71,9 @@ type object_without_$defs_type_both<
 		: (
 			Required extends Exclude<Required, undefined>
 				? {
-			required: Exclude<Required, undefined>,
-			properties: Properties,
-			patternProperties: PatternProperties,
+					required: Exclude<Required, undefined>,
+					properties: Properties,
+					patternProperties: PatternProperties,
 				}
 				: {
 					required?: Exclude<Required, undefined>,
@@ -227,12 +227,12 @@ export type object_with_$defs_type<
 type object_without_$defs_and_unspecified_properties_schema = (
 	SchemaDefinitionDefinition<
 		['type'],
-	{
-		type: {
-			type: 'string',
-			const: 'object',
-		},
-	}
+		{
+			type: {
+				type: 'string',
+				const: 'object',
+			},
+		}
 	>
 );
 
@@ -246,25 +246,25 @@ type object_without_$defs_schema_both = SchemaDefinitionDefinition<
 	(
 		& object_without_$defs_and_unspecified_properties_schema['properties']
 		& {
-		required: {
-			type: 'array',
-			items: {
-				type: 'string',
+			required: {
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+				minItems: 1,
 			},
-			minItems: 1,
-		},
-		properties: {
-			type: 'object',
-			additionalProperties: {
+			properties: {
 				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
 			},
-		},
-		patternProperties: {
-			type: 'object',
-			additionalProperties: {
+			patternProperties: {
 				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
 			},
-		},
 		}
 	)
 >
@@ -275,34 +275,34 @@ type object_with_$defs_schema_both = SchemaDefinitionDefinition<
 		'$defs',
 	],
 	(
-			& object_without_$defs_schema_both['properties']
-			& $defs_schema
+		& object_without_$defs_schema_both['properties']
+		& $defs_schema
 	)
 >;
 
 type object_without_$defs_schema_properties = SchemaDefinitionDefinition<
 	['type', 'properties'],
 	Omit<
-			object_without_$defs_schema_both['properties'],
-			'patternProperties'
+		object_without_$defs_schema_both['properties'],
+		'patternProperties'
 	>
 >;
 
 type object_with_$defs_schema_properties = SchemaDefinitionDefinition<
 	['type', '$defs', 'properties'],
 	Omit<
-			object_with_$defs_schema_both['properties'],
-			'patternProperties'
+		object_with_$defs_schema_both['properties'],
+		'patternProperties'
 	>
 >;
 
 type object_without_$defs_schema_pattern_properties = (
 	SchemaDefinitionDefinition<
 		['type', 'patternProperties'],
-	Omit<
-			object_without_$defs_schema_both['properties'],
-			'properties'
-	>
+		Omit<
+				object_without_$defs_schema_both['properties'],
+				'properties'
+		>
 	>
 );
 
@@ -884,7 +884,7 @@ abstract class ObjectMaybeHas$defs<
 			type_definition,
 			schema_definition,
 		}: TypeOptions<
-				ObjectMaybeHas$defs_SchemaDefinition<
+			ObjectMaybeHas$defs_SchemaDefinition<
 				PropertiesMode,
 				DefsMode
 			>,
