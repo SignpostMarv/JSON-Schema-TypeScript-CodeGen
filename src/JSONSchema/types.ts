@@ -7,7 +7,11 @@ export type $defs_mode<
 > = (
 	Defs extends Exclude<DefsType, ObjectOfSchemas>
 		? 'without'
-		: 'with'
+		: (
+			Defs extends Exclude<DefsType, undefined>
+				? 'with'
+				: never
+		)
 );
 
 export type $defs_schema = {

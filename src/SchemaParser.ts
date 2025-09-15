@@ -28,6 +28,10 @@ import {
 	ObjectUnspecified,
 } from './JSONSchema/Object.ts';
 
+import {
+	ArrayUnspecified,
+} from './JSONSchema/Array.ts';
+
 export type supported_type = (
 	| ConversionlessType<unknown>
 	| Type<unknown>
@@ -119,6 +123,7 @@ export class SchemaParser
 		NonEmptyString<1>,
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
+		ArrayUnspecified<unknown[]>,
 	] {
 		return [
 			new String({
@@ -138,6 +143,7 @@ export class SchemaParser
 				{},
 				{ajv},
 			),
+			new ArrayUnspecified({ajv}),
 		];
 	}
 }

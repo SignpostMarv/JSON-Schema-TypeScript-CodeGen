@@ -1,4 +1,5 @@
 import type {
+	NamedTupleMember,
 	TypeElement,
 	TypeNode,
 } from 'typescript';
@@ -6,7 +7,9 @@ import {
 	factory,
 } from 'typescript';
 import type {
+	ArrayTypeNode,
 	IntersectionTypeNode,
+	TupleTypeNode,
 	TypeLiteralNode,
 } from './types.ts';
 
@@ -62,4 +65,27 @@ export function intersection_type_node<
 	return factory.createIntersectionTypeNode(
 		value,
 	) as IntersectionTypeNode<T>;
+}
+
+export function tuple_type_node<
+	T1 extends (
+		| TypeNode
+		| NamedTupleMember
+	) = (
+		| TypeNode
+		| NamedTupleMember
+	),
+	T2 extends [T1, ...T1[]] = [T1, ...T1[]],
+>(
+	value: T2,
+): TupleTypeNode<T1, T2> {
+	return factory.createTupleTypeNode(value) as TupleTypeNode<T1, T2>;
+}
+
+export function array_type_node<
+	T1 extends TypeNode,
+>(
+	value: T1,
+): ArrayTypeNode<T1> {
+	return factory.createArrayTypeNode(value) as ArrayTypeNode<T1>;
 }
