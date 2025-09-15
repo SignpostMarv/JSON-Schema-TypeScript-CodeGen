@@ -20,3 +20,5 @@ export type $defs_schema = {
 };
 
 export type DefsType = undefined|ObjectOfSchemas;
+
+export type RequiredType = undefined|[string, ...string[]];

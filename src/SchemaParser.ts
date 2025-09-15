@@ -25,8 +25,7 @@ import {
 } from './JSONSchema/Ref.ts';
 
 import {
-	ObjectWith$defs,
-	ObjectWithout$defs,
+	ObjectUnspecified,
 } from './JSONSchema/Object.ts';
 
 export type supported_type = (
@@ -119,12 +118,7 @@ export class SchemaParser
 		ConstString<undefined>,
 		NonEmptyString<1>,
 		$ref<'neither'>,
-		ObjectWith$defs<'both'>,
-		ObjectWith$defs<'properties'>,
-		ObjectWith$defs<'patternProperties'>,
-		ObjectWithout$defs<'both'>,
-		ObjectWithout$defs<'properties'>,
-		ObjectWithout$defs<'patternProperties'>,
+		ObjectUnspecified<{[key: string]: unknown}>,
 	] {
 		return [
 			new String({
@@ -140,40 +134,8 @@ export class SchemaParser
 					ajv,
 				},
 			),
-			new ObjectWith$defs(
-				{
-					properties_mode: 'both',
-				},
-				{ajv},
-			),
-			new ObjectWith$defs(
-				{
-					properties_mode: 'properties',
-				},
-				{ajv},
-			),
-			new ObjectWith$defs(
-				{
-					properties_mode: 'patternProperties',
-				},
-				{ajv},
-			),
-			new ObjectWithout$defs(
-				{
-					properties_mode: 'both',
-				},
-				{ajv},
-			),
-			new ObjectWithout$defs(
-				{
-					properties_mode: 'properties',
-				},
-				{ajv},
-			),
-			new ObjectWithout$defs(
-				{
-					properties_mode: 'patternProperties',
-				},
+			new ObjectUnspecified(
+				{},
 				{ajv},
 			),
 		];

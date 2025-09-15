@@ -33,7 +33,7 @@ import {
 	throws_Error,
 } from '../../../assertions.ts';
 import {
-	ObjectWith$defs,
+	ObjectUnspecified,
 } from '../../../../src/JSONSchema/Object.ts';
 
 void describe('identify Const String types as expected', () => {
@@ -140,7 +140,7 @@ void describe('identify Const String types as expected', () => {
 			const ajv = new Ajv();
 			const instance = new SchemaParser({
 				ajv,
-				types: [new ObjectWith$defs({properties_mode: 'both'}, {ajv})],
+				types: [new ObjectUnspecified({}, {ajv})],
 			});
 
 			throws_Error(

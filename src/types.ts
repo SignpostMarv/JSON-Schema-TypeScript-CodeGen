@@ -92,3 +92,21 @@ export type TupleTypeNode<
 		),
 	}
 );
+
+// @see https://stackoverflow.com/a/64034671/1498831
+export type OmitFromTupleish<
+	T1 extends unknown[],
+	T2
+> = (
+	T1 extends []
+		? []
+		: (
+			T1 extends [infer T3, ...infer T4]
+				? (
+					T3 extends T2
+						? OmitFromTupleish<T4, T2>
+						: [T3, ...OmitFromTupleish<T4, T2>]
+				)
+				: T1
+		)
+);
