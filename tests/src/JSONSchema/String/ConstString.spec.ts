@@ -149,4 +149,30 @@ void describe('identify Const String types as expected', () => {
 			);
 		})
 	});
+
+	void it('ConstString::check_type() behaves', () => {
+		const ajv = new Ajv();
+		const datasets: [string|undefined, unknown, boolean][] = [
+			[undefined, 1, false],
+			['foo', 1, false],
+			['', 1, false],
+			[undefined, '', true],
+			[undefined, 'foo', true],
+			['foo', 'foo', true],
+			['foo', '', false],
+		];
+
+		datasets.forEach(([
+			specific,
+			test_value,
+			expectation,
+		], i) => {
+			const instance = new ConstString(specific, {ajv});
+			assert.equal(
+				instance.check_type(test_value),
+				expectation,
+				`ConstString::check_type(test_value) failed to behave with datasets[${i}]`,
+			);
+		});
+	});
 })
