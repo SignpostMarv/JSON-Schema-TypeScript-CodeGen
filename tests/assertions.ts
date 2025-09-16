@@ -1,15 +1,26 @@
 import assert from 'node:assert/strict';
 
 import type {
+	NamedTupleMember,
 	Node,
 	TypeElement,
+	TypeNode,
 } from 'typescript';
+
+import {
+	not_undefined,
+} from '@satisfactory-dev/custom-assert';
 
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	TupleTypeNode,
 	TypeLiteralNode,
-} from '../src/types';
+} from '../src/types.ts';
+
+import type {
+	ts_asserter,
+} from './types.ts';
 
 export function is_Error<
 	T extends Error = Error,
@@ -90,7 +101,7 @@ export function is_TypeLiteralNode<
 	T extends TypeElement,
 >(
 	value: Node,
-	predicate: (value: Node, message?:string|Error) => asserts value is T,
+	predicate: ts_asserter<T>,
 	message?: string|Error,
 ): asserts value is TypeLiteralNode<T> {
 	ts_assert.isTypeLiteralNode(value, message);
@@ -101,4 +112,27 @@ export function is_TypeLiteralNode<
 		)),
 		message,
 	);
+}
+
+export function is_TupleTypeNode<
+	T1 extends (TypeNode | NamedTupleMember),
+	T2 extends [T1, ...T1[]],
+>(
+	value: Node,
+	predicate: ts_asserter<T1>,
+	message?: string|Error,
+): asserts value is TupleTypeNode<T1, T2> {
+	ts_assert.isTupleTypeNode(value, message);
+	const elements = [...value.elements];
+	const last = (elements as unknown as Node[]).pop();
+	not_undefined(last);
+	assert.ok(
+		elements.every((maybe) => bool_throw(
+			maybe,
+			predicate,
+		)),
+		message,
+	);
+	ts_assert.isRestTypeNode(last, message);
+	assert.doesNotThrow(() => predicate(last.type, message));
 }

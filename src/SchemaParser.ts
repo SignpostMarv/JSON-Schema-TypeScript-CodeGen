@@ -123,7 +123,7 @@ export class SchemaParser
 		NonEmptyString<1>,
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
-		ArrayUnspecified<unknown[]>,
+		ArrayUnspecified<unknown[], 'items-only'>,
 	] {
 		return [
 			new String({
@@ -143,7 +143,14 @@ export class SchemaParser
 				{},
 				{ajv},
 			),
-			new ArrayUnspecified({ajv}),
+			new ArrayUnspecified(
+				{
+					array_mode: 'items-only',
+					items: {},
+					prefixItems: undefined,
+				},
+				{ajv},
+			),
 		];
 	}
 }

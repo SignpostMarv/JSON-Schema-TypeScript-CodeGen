@@ -43,42 +43,32 @@ import {
 	tuple_type_node,
 } from '../coercions.ts';
 
-type ItemsType = undefined|SchemaObject;
-type PrefixItemsType = undefined|[SchemaObject, ...SchemaObject[]];
+export type ItemsType = undefined|SchemaObject;
+export type PrefixItemsType = undefined|[SchemaObject, ...SchemaObject[]];
 
-type array_mode<
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
-> = (
-	Items extends Exclude<ItemsType, undefined> // items required
-		? (
-			PrefixItems extends Exclude<
-				PrefixItemsType,
-				undefined
-			>  // prefixItems required
-				? 'both'
-				: (
-					PrefixItems extends Exclude<
-						PrefixItemsType,
-						[SchemaObject, ...SchemaObject[]]
-					>
-						? 'items-only' // prefixItems excluded
-						: never // prefixItems indeterminate
-				)
-		)
-		: (
-			Items extends Exclude<ItemsType, SchemaObject> // items excluded
-				? (
-					PrefixItems extends Exclude<
-						PrefixItemsType,
-						undefined
-					> // prefixItems required
-						? 'prefix-only'
-						: 'items-only'
-				)
-				: never // items indeterminiate
-		)
-);
+export type array_mode = 'both'|'items-only'|'prefix-only';
+
+export type ItemsType_by_mode<
+	T extends SchemaObject = SchemaObject,
+> = {
+	both: T,
+	'items-only': T,
+	'prefix-only': undefined,
+};
+
+export type PrefixItemsType_by_mode<
+	T extends [
+		SchemaObject,
+		...SchemaObject[]
+	] = [
+		SchemaObject,
+		...SchemaObject[]
+	],
+> = {
+	both: T,
+	'items-only': undefined,
+	'prefix-only': T,
+};
 
 type array_full_type<
 	Defs extends ObjectOfSchemas,
@@ -93,11 +83,19 @@ type array_full_type<
 	minItems: MinItems,
 };
 
-type MinItemsType<
+export type MinItemsType<
 	N extends Exclude<number, 0> = Exclude<number, 0>,
 > = undefined|PositiveInteger<N>;
 
-type MinItemsMode<
+export type MinItemsType_by_mode = {
+	required: PositiveInteger,
+	optional: undefined|PositiveInteger,
+	excluded: undefined,
+};
+
+export type MinItemsType_mode = 'required'|'optional'|'excluded';
+
+export type min_items_mode<
 	MinItems extends MinItemsType,
 > = (
 	MinItems extends Exclude<MinItemsType, PositiveInteger>
@@ -300,17 +298,22 @@ type array_type_structured<
 	},
 };
 
-type array_type<
+export type array_type<
 	Defs extends DefsType,
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
+	MinItemsMode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	PrefixItems extends (
+		PrefixItemsType_by_mode[ArrayMode]
+	) = (
+		PrefixItemsType_by_mode[ArrayMode]
+	),
 > = array_type_structured<
 	Defs,
-	MinItems,
+	MinItemsType_by_mode[MinItemsMode],
 	Items,
 	PrefixItems
->[$defs_mode<Defs>][array_mode<Items, PrefixItems>][MinItemsMode<MinItems>];
+>[$defs_mode<Defs>][ArrayMode][MinItemsMode];
 
 type array_schema_full = SchemaDefinitionDefinition<
 	['$defs', 'type', 'items', 'prefixItems', 'minItems'],
@@ -646,40 +649,47 @@ type array_schema_structured = {
 	}
 }
 
-type array_schema<
+export type array_schema<
 	Defs extends DefsType,
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
 > = array_schema_structured[
 	$defs_mode<Defs>
 ][
-	array_mode<Items, PrefixItems>
+	ArrayMode
 ][
-	MinItemsMode<MinItems>
+	MinItems_mode
 ];
+
+type createTypeNode_structured<
+	T1 extends TypeNode,
+	T2 extends [T1, ...T1[]],
+> = {
+	both: {
+		required: TupleTypeNode<T1, T2>,
+		optional: TupleTypeNode<T1, T2>,
+		excluded: TupleTypeNode<T1, T2>,
+	},
+	'items-only': {
+		required: TupleTypeNode<T1, T2>,
+		optional: ArrayTypeNode<T1>|TupleTypeNode<T1, T2>,
+		excluded: ArrayTypeNode<T1>,
+	},
+	'prefix-only': {
+		required: TupleTypeNode<T1, T2>,
+		optional: TupleTypeNode<T1, T2>,
+		excluded: TupleTypeNode<T1, T2>,
+	},
+};
 
 type createTypeNode<
 	T1 extends TypeNode,
 	T2 extends [T1, ...T1[]],
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
-> = (
-	PrefixItems extends Exclude<PrefixItemsType, undefined>
-			? TupleTypeNode<T1, T2>
-			: (
-				MinItems extends Exclude<MinItemsType, undefined>
-					? TupleTypeNode<T1, T2>
-					: (
-						Items extends Exclude<ItemsType, undefined>
-							? ArrayTypeNode<T1>
-							: never
-					)
-			)
-);
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
+> = createTypeNode_structured<T1, T2>[ArrayMode][MinItems_mode];
 
-type ArrayUncertain_options<
+export type ArrayUncertain_options<
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = (
@@ -696,19 +706,30 @@ type ArrayUncertain_options<
 	>
 );
 
-abstract class ArrayUncertain<
+export abstract class ArrayUncertain<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
 	Defs extends DefsType,
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends Type<
 	T1,
-	array_type<Defs, MinItems, Items, PrefixItems>,
-	array_schema<Defs, MinItems, Items, PrefixItems>,
-	createTypeNode<T2, T3, MinItems, Items, PrefixItems>,
+	array_type<
+		Defs,
+		MinItems_mode,
+		ArrayMode,
+		Items,
+		PrefixItems
+	>,
+	array_schema<
+		Defs,
+		MinItems_mode,
+		ArrayMode
+	>,
+	createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
 	ArrayLiteralExpression
 > {
 	constructor(
@@ -722,18 +743,22 @@ abstract class ArrayUncertain<
 			array_mode,
 		}: {
 			$defs: Defs,
-			minItems: MinItems,
+			minItems: MinItemsType_by_mode[MinItems_mode],
 			items: Items,
 			prefixItems: PrefixItems,
 			$defs_mode: $defs_mode<Defs>,
-			minItems_mode: MinItemsMode<MinItems>,
-			array_mode: array_mode<Items, PrefixItems>,
+			minItems_mode: MinItems_mode,
+			array_mode: ArrayMode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<Defs, MinItems, Items, PrefixItems>,
-			array_type<Defs, MinItems, Items, PrefixItems>
+			array_schema<
+				Defs,
+				MinItems_mode,
+				ArrayMode
+			>,
+			array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>
 		>,
 	) {
 		super({
@@ -757,7 +782,7 @@ abstract class ArrayUncertain<
 	generate_typescript_data(
 		data: T1,
 		schema_parser: SchemaParser,
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
+		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
 	): ArrayLiteralExpression {
 		return factory.createArrayLiteralExpression(
 			data.map((value, i) => {
@@ -779,49 +804,47 @@ abstract class ArrayUncertain<
 			schema_parser,
 		}: {
 			data: T1,
-			schema: array_type<Defs, MinItems, Items, PrefixItems>,
+			schema: array_type<
+				Defs,
+				MinItems_mode,
+				ArrayMode,
+				Items,
+				PrefixItems
+			>,
 			schema_parser: SchemaParser,
 		},
-	): Promise<createTypeNode<T2, T3, MinItems, Items, PrefixItems>> {
+	): Promise<createTypeNode<
+		T2,
+		T3,
+		MinItems_mode,
+		ArrayMode
+	>> {
 		if (ArrayUncertain.#is_prefixItems_type(schema)) {
 			return ArrayUncertain.#generate_typescript_type_has_prefixItems(
 				data,
-				schema,
+				schema as array_type<
+					Defs,
+					MinItems_mode,
+					Exclude<array_mode, 'items-only'>,
+					Items,
+					PrefixItemsType_by_mode[Exclude<array_mode, 'items-only'>]
+				>,
 				schema_parser,
-			) as Promise<
-				PrefixItems extends Exclude<PrefixItemsType, undefined>
-					? TupleTypeNode<T2, T3>
-					: never
-			>;
+			);
 		}
 
-		const coerced = schema as array_type<
-			Defs,
-			MinItems,
-			Items,
-			undefined
-		>;
-
 		if (
-			ArrayUncertain.#is_items_type(coerced)
+			ArrayUncertain.#is_items_type(schema)
 		) {
-			return ArrayUncertain.#generate_typescript_type_has_items<
-				T1,
-				T2,
-				T3,
-				Defs,
-				MinItems,
-				Exclude<Items, undefined>
-			>(
+			return ArrayUncertain.#generate_typescript_type_has_items(
 				data,
-				coerced,
+				schema,
 				schema_parser,
 			) as Promise<createTypeNode<
 				T2,
 				T3,
-				MinItems,
-				Exclude<Items, undefined>,
-				PrefixItems
+				MinItems_mode,
+				ArrayMode
 			>>;
 		}
 
@@ -830,9 +853,8 @@ abstract class ArrayUncertain<
 
 	static generate_default_schema_definition<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
 	>(
 		{
 			$defs_mode,
@@ -840,10 +862,14 @@ abstract class ArrayUncertain<
 			minItems_mode,
 		}: {
 			$defs_mode: $defs_mode<Defs>,
-			array_mode: array_mode<Items, PrefixItems>,
-			minItems_mode: MinItemsMode<MinItems>,
+			array_mode: ArrayMode,
+			minItems_mode: MinItems_mode,
 		},
-	): Readonly<array_schema<Defs, MinItems, Items, PrefixItems>> {
+	): Readonly<array_schema<
+		Defs,
+		MinItems_mode,
+		ArrayMode
+	>> {
 
 		let partial_required: (typeof partial)['required'];
 
@@ -1043,9 +1069,8 @@ abstract class ArrayUncertain<
 			& Pick<
 				array_schema<
 					Defs,
-					MinItems,
-					Items,
-					PrefixItems
+					MinItems_mode,
+					ArrayMode
 				>,
 				(
 					| 'type'
@@ -1127,23 +1152,30 @@ abstract class ArrayUncertain<
 
 		return Object.freeze(partial as array_schema<
 			Defs,
-			MinItems,
-			Items,
-			PrefixItems
+			MinItems_mode,
+			ArrayMode
 		>);
 	}
 
 	static #generate_default_type_definition<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		MinItems extends MinItemsType_by_mode[MinItems_mode],
+		ArrayMode extends array_mode,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 	>(
 		$defs: Defs,
 		minItems: MinItems,
 		items: Items,
 		prefixItems: PrefixItems,
-	): Readonly<array_type<Defs, MinItems, Items, PrefixItems>> {
+	): Readonly<array_type<
+		Defs,
+		MinItems_mode,
+		ArrayMode,
+		Items,
+		PrefixItems
+	>> {
 		const partial: (
 			& Partial<Omit<
 				array_full_type<
@@ -1186,7 +1218,8 @@ abstract class ArrayUncertain<
 
 		return Object.freeze(partial as array_type<
 			Defs,
-			MinItems,
+			MinItems_mode,
+			ArrayMode,
 			Items,
 			PrefixItems
 		>);
@@ -1194,14 +1227,15 @@ abstract class ArrayUncertain<
 
 	static #convert<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 		N extends number,
 	>(
 		value: unknown,
 		index: 0|PositiveInteger<N>,
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
+		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
 		schema_parser: SchemaParser,
 	): Expression {
 		const sub_schema = this.#sub_schema_for_value(
@@ -1230,46 +1264,67 @@ abstract class ArrayUncertain<
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends Exclude<ItemsType, undefined>,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode]
 	> (
 		data: T1,
-		schema: array_type<Defs, MinItems, Items, undefined>,
+		schema: array_type<
+			Defs,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems
+		>,
 		schema_parser: SchemaParser,
 	): Promise<
-		createTypeNode<T2, T3, MinItems, Items, undefined>
+		createTypeNode<
+			T2,
+			T3,
+			MinItems_mode,
+			ArrayMode
+		>
 	> {
 		if (
-			this.#is_minItems_type(schema)
+			this.#is_minItems_required_type(schema)
 		) {
 			return this.#generate_typescript_type_has_items_and_minItems(
 				data,
-				schema,
+				schema as array_type<
+					Defs,
+					'required',
+					ArrayMode,
+					Items,
+					PrefixItems
+				> & {
+					minItems: MinItemsType_by_mode['required'],
+				},
 				schema_parser,
-			) as Promise<createTypeNode<
-				T2,
-				T3,
-				Exclude<MinItems, undefined>,
-				Items,
-				undefined
-			>>;
+			);
 		}
 
-		return this.#generate_typescript_type_has_items_only<
-			T2,
-			Defs,
-			Exclude<MinItems, PositiveInteger>,
-			Items
-		>(
-			schema,
+		return this.#generate_typescript_type_has_items_only(
+			schema as array_type<
+				Defs,
+				Exclude<MinItemsType_mode, 'required'>,
+				Exclude<ArrayMode, 'both'|'prefix-only'>,
+				ItemsType_by_mode[
+					Exclude<ArrayMode, 'both'|'prefix-only'>
+				],
+				PrefixItemsType_by_mode[
+					Exclude<ArrayMode, 'both'|'prefix-only'>
+				]
+			>,
 			schema_parser,
-		) as Promise<createTypeNode<
-			T2,
-			T3,
-			Exclude<MinItems, PositiveInteger>,
-			Items,
-			undefined
-		>>;
+		) as Promise<
+			createTypeNode<
+				T2,
+				T3,
+				MinItems_mode,
+				ArrayMode
+			>
+		>;
 	}
 
 	static async #generate_typescript_type_has_items_and_minItems<
@@ -1277,15 +1332,27 @@ abstract class ArrayUncertain<
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
 		Defs extends DefsType,
-		MinItems extends Exclude<MinItemsType, undefined>,
-		Items extends Exclude<ItemsType, undefined>,
+		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 	> (
 		data: T1,
-		schema: array_type<Defs, MinItems, Items, undefined> & {
-			minItems: MinItems,
+		schema: array_type<
+			Defs,
+			'required',
+			ArrayMode,
+			Items,
+			PrefixItems
+		> & {
+			minItems: MinItemsType_by_mode['required'],
 		},
 		schema_parser: SchemaParser,
-	): Promise<TupleTypeNode<T2, T3>> {
+	): Promise<createTypeNode<
+		T2,
+		T3,
+		'required',
+		ArrayMode
+	>> {
 		const tuple_members: TypeNode[] = [];
 		const sub_type = schema_parser.parse(
 			schema.items,
@@ -1316,12 +1383,25 @@ abstract class ArrayUncertain<
 	static async #generate_typescript_type_has_items_only<
 		T2 extends TypeNode,
 		Defs extends DefsType,
-		MinItems extends Exclude<MinItemsType, PositiveInteger>,
-		Items extends Exclude<ItemsType, undefined>,
+		MinItems_mode extends Exclude<MinItemsType_mode, 'required'>,
+		ArrayMode extends Exclude<array_mode, 'both'|'prefix-only'>,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode]
 	> (
-		schema: array_type<Defs, MinItems, Items, undefined>,
+		schema: array_type<
+			Defs,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems
+		>,
 		schema_parser: SchemaParser,
-	): Promise<ArrayTypeNode<T2>> {
+	): Promise<createTypeNode<
+		T2,
+		[T2, ...T2[]],
+		MinItems_mode,
+		ArrayMode
+	>> {
 		const sub_type = schema_parser.parse(
 			schema.items,
 		);
@@ -1337,12 +1417,13 @@ abstract class ArrayUncertain<
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends Exclude<PrefixItemsType, undefined>,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends Exclude<array_mode, 'items-only'>,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 	> (
 		data: T1,
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
+		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
 		schema_parser: SchemaParser,
 	): Promise<TupleTypeNode<T2, T3>> {
 		const tuple_members: TypeNode[] = [];
@@ -1368,7 +1449,7 @@ abstract class ArrayUncertain<
 				schema.items,
 			);
 
-			if (ArrayUncertain.#is_minItems_type(schema)) {
+			if (ArrayUncertain.#is_minItems_required_type(schema)) {
 				while (tuple_members.length < schema.minItems) {
 					tuple_members.push(
 						await sub_type.generate_typescript_type({
@@ -1392,89 +1473,85 @@ abstract class ArrayUncertain<
 
 	static #is_items_type<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
-	> (
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
-	): schema is (
-		PrefixItems extends Exclude<PrefixItemsType, undefined>
-			? array_type<
-				Defs,
-				MinItems,
-				Exclude<Items, undefined>,
-				Exclude<PrefixItems, undefined>
-			>
-			: (
-				PrefixItems extends Exclude<
-					PrefixItemsType,
-					[SchemaObject, ...SchemaObject[]
-				]>
-					? array_type<
-						Defs,
-						MinItems,
-						Exclude<Items, undefined>,
-						undefined
-					>
-					: array_type<
-						Defs,
-						MinItems,
-						Exclude<Items, undefined>,
-						PrefixItems
-					>
-			)
-	) {
-		return 'items' in schema;
-	}
-
-	static #is_minItems_type<
-		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
+		Items extends ItemsType_by_mode[ArrayMode],
 	> (
 		schema: array_type<
 			Defs,
-			MinItems,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItemsType_by_mode[ArrayMode]
+		>,
+	): schema is array_type<
+		Defs,
+		MinItems_mode,
+		Exclude<ArrayMode, 'prefix-only'>,
+		Exclude<Items, ItemsType_by_mode['prefix-only']>,
+		PrefixItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>]
+	> {
+		return 'items' in schema;
+	}
+
+	static #is_minItems_required_type<
+		Defs extends DefsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+	>(
+		schema: array_type<
+			Defs,
+			MinItems_mode,
+			ArrayMode,
 			Items,
 			PrefixItems
 		>,
 	): schema is array_type<
 		Defs,
-		Exclude<MinItems, undefined>,
+		Exclude<MinItems_mode, 'optional'|'excluded'>,
+		ArrayMode,
 		Items,
 		PrefixItems
 	> & {
-		minItems: Exclude<MinItems, undefined>
+		minItems: MinItemsType_by_mode['required']
 	} {
 		return 'minItems' in schema;
 	}
 
 	static #is_prefixItems_type<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
 	> (
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
+		schema: array_type<
+			Defs,
+			MinItems_mode,
+			ArrayMode,
+			ItemsType_by_mode[ArrayMode],
+			PrefixItemsType_by_mode[ArrayMode]
+		>,
 	): schema is array_type<
 		Defs,
-		MinItems,
-		Items,
-		Exclude<PrefixItems, undefined>
+		MinItems_mode,
+		Exclude<ArrayMode, 'items-only'>,
+		ItemsType_by_mode[Exclude<ArrayMode, 'items-only'>],
+		PrefixItemsType_by_mode[Exclude<ArrayMode, 'items-only'>]
 	> {
 		return 'prefixItems' in schema;
 	}
 
 	static #sub_schema_for_value<
 		Defs extends DefsType,
-		MinItems extends MinItemsType,
-		Items extends ItemsType,
-		PrefixItems extends PrefixItemsType,
+		MinItems_mode extends MinItemsType_mode,
+		ArrayMode extends array_mode,
+		Items extends ItemsType_by_mode[ArrayMode],
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 		N extends number,
 	>(
 		index: 0|PositiveInteger<N>,
-		schema: array_type<Defs, MinItems, Items, PrefixItems>,
+		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
 	): SchemaObject {
 		if (
 			this.#is_prefixItems_type(schema)
@@ -1491,34 +1568,67 @@ abstract class ArrayUncertain<
 	}
 }
 
+export type ArrayUnspecified_options<
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	PrefixItems extends (
+		PrefixItemsType_by_mode[ArrayMode]
+	) = (
+		PrefixItemsType_by_mode[ArrayMode]
+	),
+> = {
+	minItems?: MinItemsType_by_mode['optional'],
+	array_mode: ArrayMode,
+	items: Items,
+	prefixItems: PrefixItems,
+};
+
 export class ArrayUnspecified<
 	T extends unknown[],
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	PrefixItems extends (
+		PrefixItemsType_by_mode[ArrayMode]
+	) = (
+		PrefixItemsType_by_mode[ArrayMode]
+	),
 > extends ArrayUncertain<
 	T,
 	TypeNode,
 	[TypeNode, ...TypeNode[]],
 	undefined,
-	undefined,
-	undefined,
-	undefined
+	'optional',
+	ArrayMode,
+	Items,
+	PrefixItems
 > {
 	constructor(
 		{
+			minItems,
+			array_mode,
+			items,
+			prefixItems,
+		}: ArrayUnspecified_options<
+			ArrayMode,
+			Items,
+			PrefixItems
+		>,
+		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<undefined, undefined, undefined, undefined>,
-			array_type<undefined, undefined, undefined, undefined>
+			array_schema<undefined, 'optional', ArrayMode>,
+			array_type<undefined, 'optional', ArrayMode, Items, PrefixItems>
 		>,
 	) {
 		super(
 			{
 				$defs: undefined,
-				minItems: undefined,
-				items: undefined,
-				prefixItems: undefined,
+				minItems,
+				items,
+				prefixItems,
 				$defs_mode: 'without',
-				minItems_mode: 'excluded',
-				array_mode: 'items-only',
+				minItems_mode: 'optional',
+				array_mode,
 			},
 			{
 				ajv,
@@ -1531,15 +1641,17 @@ export class ArrayWithout$defs<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends ArrayUncertain<
 	T1,
 	T2,
 	T3,
 	undefined,
-	MinItems,
+	MinItems_mode,
+	ArrayMode,
 	Items,
 	PrefixItems
 > {
@@ -1551,17 +1663,21 @@ export class ArrayWithout$defs<
 			minItems_mode,
 			array_mode,
 		}: {
-			minItems: MinItems,
+			minItems: MinItemsType_by_mode[MinItems_mode],
 			items: Items,
 			prefixItems: PrefixItems,
-			minItems_mode: MinItemsMode<MinItems>,
-			array_mode: array_mode<Items, PrefixItems>,
+			minItems_mode: MinItems_mode,
+			array_mode: ArrayMode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<undefined, MinItems, Items, PrefixItems>,
-			array_type<undefined, MinItems, Items, PrefixItems>
+			array_schema<
+				undefined,
+				MinItems_mode,
+				ArrayMode
+			>,
+			array_type<undefined, MinItems_mode, ArrayMode, Items, PrefixItems>
 		>,
 	) {
 		super(
@@ -1586,15 +1702,17 @@ export class ArrayWith$defs<
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
 	Defs extends ObjectOfSchemas,
-	MinItems extends MinItemsType,
-	Items extends ItemsType,
-	PrefixItems extends PrefixItemsType,
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends ArrayUncertain<
 	T1,
 	T2,
 	T3,
 	Defs,
-	MinItems,
+	MinItems_mode,
+	ArrayMode,
 	Items,
 	PrefixItems
 > {
@@ -1608,17 +1726,21 @@ export class ArrayWith$defs<
 			array_mode,
 		}: {
 			$defs: Defs,
-			minItems: MinItems,
+			minItems: MinItemsType_by_mode[MinItems_mode],
 			items: Items,
 			prefixItems: PrefixItems,
-			minItems_mode: MinItemsMode<MinItems>,
-			array_mode: array_mode<Items, PrefixItems>,
+			minItems_mode: MinItems_mode,
+			array_mode: ArrayMode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<Defs, MinItems, Items, PrefixItems>,
-			array_type<Defs, MinItems, Items, PrefixItems>
+			array_schema<
+				Defs,
+				MinItems_mode,
+				ArrayMode
+			>,
+			array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>
 		>,
 	) {
 		super(
