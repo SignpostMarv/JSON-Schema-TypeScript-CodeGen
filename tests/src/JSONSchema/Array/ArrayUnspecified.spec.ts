@@ -31,22 +31,28 @@ import type {
 import type {
 	ts_asserter,
 } from '../../../types.ts';
+
 import {
 	is_TupleTypeNode,
 } from '../../../assertions.ts';
+
 import {
 	SchemaParser,
 } from '../../../../src/SchemaParser.ts';
+
 import type {
-	array_mode,
-	array_type,
 	ArrayUnspecified_options,
-	ItemsType_by_mode,
-	PrefixItemsType_by_mode,
 } from '../../../../src/JSONSchema/Array.ts';
 import {
 	ArrayUnspecified,
 } from '../../../../src/JSONSchema/Array.ts';
+
+import type {
+	array_mode,
+	array_type,
+	ItemsType_by_mode,
+	PrefixItemsType_by_mode,
+} from '../../../../src/JSONSchema/Array/types.ts';
 
 void describe('ArrayUnspecified', () => {
 	void describe('::generate_typescript_type()', () => {
