@@ -879,13 +879,11 @@ export abstract class ArrayUncertain<
 					'excluded' === minItems_mode
 					|| 'optional' === minItems_mode
 				) {
-					const sanity_check: array_schema_structured[
-						'with'
-					][
+					const sanity_check: array_schema<
+						ObjectOfSchemas,
+						'excluded' | 'optional',
 						'both'
-					][
-						'excluded' | 'optional'
-					]['required'] = [
+					>['required'] = [
 						'$defs',
 						'type',
 						'items',
@@ -893,13 +891,11 @@ export abstract class ArrayUncertain<
 					];
 					partial_required = sanity_check;
 				} else {
-					const sanity_check: array_schema_structured[
-						'with'
-					][
+					const sanity_check: array_schema<
+						ObjectOfSchemas,
+						'required',
 						'both'
-					][
-						'required'
-					]['required'] = [
+					>['required'] = [
 						'$defs',
 						'type',
 						'items',
@@ -913,26 +909,22 @@ export abstract class ArrayUncertain<
 					'excluded' === minItems_mode
 					|| 'optional' === minItems_mode
 				) {
-					const sanity_check: array_schema_structured[
-						'with'
-					][
+					const sanity_check: array_schema<
+						ObjectOfSchemas,
+						'excluded' | 'optional',
 						'items-only'
-					][
-						'excluded' | 'optional'
-					]['required'] = [
+					>['required'] = [
 						'$defs',
 						'type',
 						'items',
 					];
 					partial_required = sanity_check;
 				} else {
-					const sanity_check: array_schema_structured[
-						'with'
-					][
+					const sanity_check: array_schema<
+						ObjectOfSchemas,
+						'required',
 						'items-only'
-					][
-						'required'
-					]['required'] = [
+					>['required'] = [
 						'$defs',
 						'type',
 						'items',
@@ -944,26 +936,22 @@ export abstract class ArrayUncertain<
 				'excluded' === minItems_mode
 				|| 'optional' === minItems_mode
 			) {
-				const sanity_check: array_schema_structured[
-					'with'
-				][
+				const sanity_check: array_schema<
+					ObjectOfSchemas,
+					'excluded' | 'optional',
 					'prefix-only'
-				][
-					'excluded' | 'optional'
-				]['required'] = [
+				>['required'] = [
 					'$defs',
 					'type',
 					'prefixItems',
 				];
 				partial_required = sanity_check;
 			} else {
-				const sanity_check: array_schema_structured[
-					'with'
-				][
+				const sanity_check: array_schema<
+					ObjectOfSchemas,
+					'required',
 					'prefix-only'
-				][
-					'required'
-				]['required'] = [
+				>['required'] = [
 					'$defs',
 					'type',
 					'prefixItems',
@@ -977,26 +965,22 @@ export abstract class ArrayUncertain<
 					'excluded' === minItems_mode
 					|| 'optional' === minItems_mode
 				) {
-					const sanity_check: array_schema_structured[
-						'without'
-					][
+					const sanity_check: array_schema<
+						undefined,
+						'excluded' | 'optional',
 						'both'
-					][
-						'excluded' | 'optional'
-					]['required'] = [
+					>['required'] = [
 						'type',
 						'items',
 						'prefixItems',
 					];
 					partial_required = sanity_check;
 				} else {
-					const sanity_check: array_schema_structured[
-						'without'
-					][
+					const sanity_check: array_schema<
+						undefined,
+						'required',
 						'both'
-					][
-						'required'
-					]['required'] = [
+					>['required'] = [
 						'type',
 						'items',
 						'prefixItems',
@@ -1009,25 +993,21 @@ export abstract class ArrayUncertain<
 					'excluded' === minItems_mode
 					|| 'optional' === minItems_mode
 				) {
-					const sanity_check: array_schema_structured[
-						'without'
-					][
+					const sanity_check: array_schema<
+						undefined,
+						'excluded' | 'optional',
 						'items-only'
-					][
-						'excluded' | 'optional'
-					]['required'] = [
+					>['required'] = [
 						'type',
 						'items',
 					];
 					partial_required = sanity_check;
 				} else {
-					const sanity_check: array_schema_structured[
-						'without'
-					][
+					const sanity_check: array_schema<
+						undefined,
+						'required',
 						'items-only'
-					][
-						'required'
-					]['required'] = [
+					>['required'] = [
 						'type',
 						'items',
 						'minItems',
@@ -1038,25 +1018,21 @@ export abstract class ArrayUncertain<
 				'excluded' === minItems_mode
 				|| 'optional' === minItems_mode
 			) {
-				const sanity_check: array_schema_structured[
-					'without'
-				][
+				const sanity_check: array_schema<
+					undefined,
+					'excluded' | 'optional',
 					'prefix-only'
-				][
-					'excluded' | 'optional'
-				]['required'] = [
+				>['required'] = [
 					'type',
 					'prefixItems',
 				];
 				partial_required = sanity_check;
 			} else {
-				const sanity_check: array_schema_structured[
-					'without'
-				][
+				const sanity_check: array_schema<
+					undefined,
+					'required',
 					'prefix-only'
-				][
-					'required'
-				]['required'] = [
+				>['required'] = [
 					'type',
 					'prefixItems',
 					'minItems',
@@ -1178,22 +1154,20 @@ export abstract class ArrayUncertain<
 	>> {
 		const partial: (
 			& Partial<Omit<
-				array_full_type<
+				array_type<
 					ObjectOfSchemas,
-					PositiveInteger,
-					SchemaObject,
-					[SchemaObject, ...SchemaObject[]]
+					'required',
+					'both'
 				>,
 				(
 					| 'type'
 				)
 			>>
 			& Pick<
-				array_full_type<
+				array_type<
 					ObjectOfSchemas,
-					PositiveInteger,
-					SchemaObject,
-					[SchemaObject, ...SchemaObject[]]
+					'required',
+					'both'
 				>,
 				(
 					| 'type'
