@@ -56,6 +56,8 @@ export type SchemaParserOptions = (
 	}
 )
 
+export type share_ajv_callback<T> = (ajv: Ajv) => T;
+
 export class SchemaParser
 {
 	#ajv: Ajv;
@@ -101,7 +103,7 @@ export class SchemaParser
 	}
 
 	share_ajv<T>(
-		callback: (ajv: Ajv) => T,
+		callback: share_ajv_callback<T>,
 	): T {
 		return callback(this.#ajv);
 	}
