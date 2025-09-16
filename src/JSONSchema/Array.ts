@@ -93,11 +93,11 @@ type array_full_type<
 	minItems: MinItems,
 };
 
-export type MinItemsType<
+type MinItemsType<
 	N extends Exclude<number, 0> = Exclude<number, 0>,
 > = undefined|PositiveInteger<N>;
 
-export type MinItemsMode<
+type MinItemsMode<
 	MinItems extends MinItemsType,
 > = (
 	MinItems extends Exclude<MinItemsType, PositiveInteger>
