@@ -237,13 +237,13 @@ void describe('ArrayUnspecified', () => {
 			void it(`behaves with data_sets[${i}] from parser`, async () => {
 				const schema_parser = new SchemaParser({ajv});
 				if (will_fail_on_default) {
-				const manual = new ArrayUnspecified<
-					typeof data,
-					array_mode
-				>(ctor_args, {ajv});
+					const manual = new ArrayUnspecified<
+						typeof data,
+						array_mode
+					>(ctor_args, {ajv});
 
 					assert.throws(() => schema_parser.parse(schema));
-				schema_parser.types.push(manual);
+					schema_parser.types.push(manual);
 				}
 				const instance = schema_parser.parse(schema);
 
