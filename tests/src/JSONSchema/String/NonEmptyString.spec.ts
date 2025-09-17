@@ -33,12 +33,14 @@ import {
 	ConstString,
 	NonEmptyString,
 } from '../../../../src/JSONSchema/String.ts';
+
 import {
 	throws_Error,
 } from '../../../assertions.ts';
-import type {
+
+import {
 	PositiveInteger,
-} from '../../../../src/types.ts';
+} from '../../../../src/guarded.ts';
 
 void describe('identify non-empty String types as expected', () => {
 	const string_expectations: [
@@ -49,7 +51,10 @@ void describe('identify non-empty String types as expected', () => {
 				| 'strict'
 			)
 		>,
-		undefined|PositiveInteger, // minLength
+		(  // minLength
+			| undefined
+			| ReturnType<typeof PositiveInteger<number>>
+		),
 		string, // conversion value
 		string, // expected value of converted text
 	][] = [
@@ -60,7 +65,7 @@ void describe('identify non-empty String types as expected', () => {
 			},
 			{
 			},
-			1,
+			PositiveInteger(1),
 			'foo',
 			'foo',
 		],
@@ -95,7 +100,10 @@ void describe('identify non-empty String types as expected', () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
 						? parser.parse(schema, true)
-						: new NonEmptyString(
+						: new NonEmptyString<
+							| undefined
+							| ReturnType<typeof PositiveInteger<number>>
+						>(
 							minLength,
 							{
 								ajv: new Ajv({

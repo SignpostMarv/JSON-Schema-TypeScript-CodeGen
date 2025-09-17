@@ -30,8 +30,11 @@ import {
 
 import type {
 	LiteralTypeNode,
-	PositiveInteger,
 } from '../types.ts';
+
+import type {
+	PositiveInteger,
+} from '../guarded.ts';
 
 type string_schema<
 	Schema extends SchemaObject = SchemaObject,
@@ -102,9 +105,12 @@ type const_generate_typescript_type<T extends string|undefined> = (
 );
 
 type non_empty_string_type<
-	MinLength extends PositiveInteger|undefined = undefined
+	MinLength extends (
+		| ReturnType<typeof PositiveInteger<number>>
+		| undefined
+	) = undefined,
 > = (
-	MinLength extends PositiveInteger
+	MinLength extends ReturnType<typeof PositiveInteger<number>>
 		? {
 			type: 'integer',
 			const: MinLength,
@@ -116,7 +122,13 @@ type non_empty_string_type<
 );
 
 type non_empty_string_schema<
-	MinLength extends undefined|PositiveInteger = undefined|PositiveInteger,
+	MinLength extends (
+		| ReturnType<typeof PositiveInteger<number>>
+		| undefined
+	) = (
+		| ReturnType<typeof PositiveInteger<number>>
+		| undefined
+	),
 	Schema extends SchemaObject = SchemaObject,
 > = TypeDefinitionSchema<
 	(
@@ -131,7 +143,9 @@ type non_empty_string_schema<
 					const: 'string',
 				},
 				minLength: (
-					MinLength extends number
+					MinLength extends ReturnType<
+						typeof PositiveInteger<number>
+					>
 						? {
 							type: 'integer',
 							const: MinLength,
@@ -297,7 +311,13 @@ export class ConstString<
 }
 
 export class NonEmptyString<
-	MinLength extends undefined|PositiveInteger = undefined|PositiveInteger,
+	MinLength extends (
+		| ReturnType<typeof PositiveInteger<number>>
+		| undefined
+	) = (
+		| ReturnType<typeof PositiveInteger<number>>
+		| undefined
+	),
 	T extends Exclude<string, ''> = Exclude<string, ''>
 > extends BaseString<
 	T,
@@ -311,13 +331,18 @@ export class NonEmptyString<
 		options: SchemalessTypeOptions,
 	) {
 		const type_definition:Partial<
-			non_empty_string_type<undefined|PositiveInteger>
+			non_empty_string_type<(
+				| ReturnType<typeof PositiveInteger<number>>
+				| undefined
+			)>
 		> = {
 			type: 'integer',
 		};
 		if (undefined !== minLength) {
 			(
-				type_definition as non_empty_string_type<PositiveInteger>
+				type_definition as non_empty_string_type<
+					ReturnType<typeof PositiveInteger<number>>
+				>
 			).const = minLength;
 		} else {
 			(
@@ -352,7 +377,10 @@ export class NonEmptyString<
 	}
 
 	static generate_default_schema_definition<
-		MinLength extends undefined|PositiveInteger,
+		MinLength extends (
+			| ReturnType<typeof PositiveInteger<number>>
+			| undefined
+		)
 	> ({
 		minLength,
 	}: {
@@ -360,10 +388,10 @@ export class NonEmptyString<
 	}) {
 		const properties:(
 			Partial<
-				non_empty_string_schema<
-					| PositiveInteger
+				non_empty_string_schema<(
+					| ReturnType<typeof PositiveInteger<number>>
 					| undefined
-				>['properties']
+				)>['properties']
 			>
 		) = {
 			type: {

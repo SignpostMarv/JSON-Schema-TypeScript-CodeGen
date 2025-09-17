@@ -4,7 +4,6 @@ import type {
 
 import type {
 	OmitFromTupleish,
-	PositiveInteger,
 } from '../../types.ts';
 
 import type {
@@ -19,6 +18,10 @@ import type {
 	$defs_schema,
 	DefsType_by_mode,
 } from '../types.ts';
+
+import type {
+	PositiveIntegerOrZero,
+} from '../../guarded.ts';
 
 export type ItemsType = undefined|SchemaObject;
 export type PrefixItemsType = undefined|[SchemaObject, ...SchemaObject[]];
@@ -49,7 +52,7 @@ export type PrefixItemsType_by_mode<
 
 type array_full_type<
 	Defs extends ObjectOfSchemas,
-	MinItems extends PositiveInteger,
+	MinItems extends ReturnType<typeof PositiveIntegerOrZero<number>>,
 	Items extends SchemaObject,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = {
@@ -64,13 +67,9 @@ type array_prefixItems_items_type = {
 	items?: false,
 };
 
-export type MinItemsType<
-	N extends Exclude<number, 0> = Exclude<number, 0>,
-> = undefined|PositiveInteger<N>;
-
 export type MinItemsType_by_mode = {
-	required: PositiveInteger,
-	optional: undefined|PositiveInteger,
+	required: ReturnType<typeof PositiveIntegerOrZero<number>>,
+	optional: undefined|ReturnType<typeof PositiveIntegerOrZero<number>>,
 	excluded: undefined,
 };
 
@@ -78,7 +77,7 @@ export type MinItemsType_mode = 'required'|'optional'|'excluded';
 
 type array_type_structured<
 	Defs extends DefsType_by_mode['without']|DefsType_by_mode['with'],
-	MinItems extends MinItemsType,
+	MinItems extends MinItemsType_by_mode[MinItemsType_mode],
 	Items extends false|ItemsType,
 	PrefixItems extends PrefixItemsType,
 > = {
@@ -87,7 +86,7 @@ type array_type_structured<
 			excluded: Omit<
 				array_full_type<
 					Exclude<Defs, undefined>,
-					PositiveInteger,
+					ReturnType<typeof PositiveIntegerOrZero<number>>,
 					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>,
@@ -121,7 +120,7 @@ type array_type_structured<
 			excluded: Omit<
 				array_type_structured<
 					Exclude<Defs, undefined>,
-					PositiveInteger,
+					MinItems,
 					Exclude<Items, undefined|false>,
 					[SchemaObject, ...SchemaObject[]]
 				>['with']['both']['excluded'],
@@ -150,7 +149,7 @@ type array_type_structured<
 			excluded: Omit<
 				array_type_structured<
 					Exclude<Defs, undefined>,
-					PositiveInteger,
+					MinItems,
 					SchemaObject,
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['excluded'],

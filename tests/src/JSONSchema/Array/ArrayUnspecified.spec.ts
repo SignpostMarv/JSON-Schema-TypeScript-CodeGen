@@ -62,6 +62,10 @@ import type {
 	Type,
 } from '../../../../src/JSONSchema/Type.ts';
 
+import {
+	PositiveIntegerOrZero,
+} from '../../../../src/guarded.ts';
+
 void describe('ArrayUnspecified', () => {
 	void describe('::generate_typescript_type()', () => {
 		type DataSet<
@@ -106,10 +110,10 @@ void describe('ArrayUnspecified', () => {
 					items: {
 						type: 'string',
 					},
-					minItems: 2,
+					minItems: PositiveIntegerOrZero(2),
 				},
 				{
-					minItems: 2,
+					minItems: PositiveIntegerOrZero(2),
 					array_mode: 'items-only',
 					items: {},
 					prefixItems: undefined,
@@ -152,12 +156,12 @@ void describe('ArrayUnspecified', () => {
 							const: 'bar',
 						},
 					],
-					minItems: 2,
+					minItems: PositiveIntegerOrZero(2),
 					items: false,
 				},
 				{
 					array_mode: 'prefix-only',
-					minItems: 2,
+					minItems: PositiveIntegerOrZero(2),
 					items: false,
 					prefixItems: [
 						{

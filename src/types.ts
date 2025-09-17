@@ -14,31 +14,6 @@ import type {
 	TypeNode,
 } from 'typescript';
 
-export type PositiveNumber<
-	N extends Exclude<number, 0> = Exclude<number, 0>,
-> = (
-	& (
-		`${N}` extends `-${string}`
-			? never
-			: N
-	)
-);
-
-export type Integer<N extends number = number> = (
-	& (
-		`${N}` extends `${string}.${string}`
-			? never
-			: N
-	)
-);
-
-export type PositiveInteger<
-	N extends Exclude<number, 0> = Exclude<number, 0>,
-> = (
-	& Integer<N>
-	& PositiveNumber<N>
-);
-
 export type LiteralTypeNode<
 	T extends (
 		| NullLiteral

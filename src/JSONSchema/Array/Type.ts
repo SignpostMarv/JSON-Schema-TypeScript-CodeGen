@@ -13,7 +13,6 @@ import {
 
 import type {
 	ArrayTypeNode,
-	PositiveInteger,
 	TupleTypeNode,
 } from '../../types.ts';
 
@@ -34,6 +33,10 @@ import {
 	array_type_node,
 	tuple_type_node,
 } from '../../coercions.ts';
+
+import {
+	PositiveIntegerOrZero,
+} from '../../guarded.ts';
 
 import type {
 	array_mode,
@@ -172,7 +175,7 @@ export abstract class ArrayUncertain<
 			data.map((value, i) => {
 				return ArrayUncertain.#convert(
 					value,
-					i,
+					PositiveIntegerOrZero(i),
 					schema,
 					schema_parser,
 				);
@@ -605,7 +608,7 @@ export abstract class ArrayUncertain<
 		N extends number,
 	>(
 		value: unknown,
-		index: 0|PositiveInteger<N>,
+		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
 		schema: array_type<
 			DefsMode,
 			MinItems_mode,
@@ -954,7 +957,7 @@ export abstract class ArrayUncertain<
 		Defs extends DefsType_by_mode[DefsMode],
 		N extends number,
 	>(
-		index: 0|PositiveInteger<N>,
+		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
 		schema: array_type<
 			DefsMode,
 			MinItems_mode,

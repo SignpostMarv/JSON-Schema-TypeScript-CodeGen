@@ -32,6 +32,10 @@ import {
 	ArrayUnspecified,
 } from './JSONSchema/Array.ts';
 
+import {
+	PositiveInteger,
+} from './guarded.ts';
+
 export type supported_type = (
 	| ConversionlessType<unknown>
 	| Type<unknown>
@@ -122,7 +126,7 @@ export class SchemaParser
 	static #default_types(ajv: Ajv): [
 		String<string>,
 		ConstString<undefined>,
-		NonEmptyString<1>,
+		NonEmptyString<ReturnType<typeof PositiveInteger<1>>>,
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
 		ArrayUnspecified<unknown[], 'items-only'>,
@@ -132,7 +136,7 @@ export class SchemaParser
 				ajv,
 			}),
 			new ConstString(undefined, {ajv}),
-			new NonEmptyString(1, {ajv}),
+			new NonEmptyString(PositiveInteger(1), {ajv}),
 			new $ref(
 				{
 					mode: 'either',
