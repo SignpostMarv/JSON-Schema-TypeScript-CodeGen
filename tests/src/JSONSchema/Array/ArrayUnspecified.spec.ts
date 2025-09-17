@@ -51,8 +51,13 @@ import type {
 	array_mode,
 	array_type,
 	ItemsType_by_mode,
+	MinItemsType_mode,
 	PrefixItemsType_by_mode,
 } from '../../../../src/JSONSchema/Array/types.ts';
+
+import type {
+	$defs_mode,
+} from '../../../../src/JSONSchema/types.ts';
 
 void describe('ArrayUnspecified', () => {
 	void describe('::generate_typescript_type()', () => {
@@ -65,12 +70,14 @@ void describe('ArrayUnspecified', () => {
 				| TupleTypeNode<T1, [T1, ...T1[]]>
 				| ArrayTypeNode<T1>
 			),
+			DefsMode extends $defs_mode = $defs_mode,
+			MinItems extends MinItemsType_mode = MinItemsType_mode,
 			ArrayMode extends array_mode = array_mode,
 		> = [
 			unknown[], // input
 			array_type<
-				'without',
-				'optional',
+				DefsMode,
+				MinItems,
 				ArrayMode
 			>,
 			ArrayUnspecified_options<
@@ -119,6 +126,60 @@ void describe('ArrayUnspecified', () => {
 								SyntaxKind.StringKeyword,
 							);
 						},
+						message,
+					);
+				},
+			],
+			[
+				[
+					'foo',
+					'bar',
+				],
+				{
+					type: 'array',
+					prefixItems: [
+						{
+							type: 'string',
+							const: 'foo',
+						},
+						{
+							type: 'string',
+							const: 'bar',
+						},
+					],
+					minItems: 2,
+					items: false,
+				},
+				{
+					array_mode: 'prefix-only',
+					minItems: 2,
+					items: false,
+					prefixItems: [
+						{
+							type: 'string',
+							const: 'foo',
+						},
+						{
+							type: 'string',
+							const: 'bar',
+						},
+					],
+				},
+				(
+					value: Node,
+					message?: string|Error,
+				): asserts value is (
+					TupleTypeNode<LiteralTypeNode<StringLiteral>>
+				) => {
+					is_TupleTypeNode(
+						value,
+						(
+							element: Node,
+						) => {
+							ts_assert.isLiteralTypeNode(element);
+							ts_assert.isStringLiteral(element.literal);
+						},
+						false,
 						message,
 					);
 				},

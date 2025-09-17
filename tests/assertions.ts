@@ -121,11 +121,38 @@ export function is_TupleTypeNode<
 	value: Node,
 	predicate: ts_asserter<T1>,
 	message?: string|Error,
+): asserts value is TupleTypeNode<T1, T2>;
+export function is_TupleTypeNode<
+	T1 extends (TypeNode | NamedTupleMember),
+	T2 extends [T1, ...T1[]],
+>(
+	value: Node,
+	predicate: ts_asserter<T1>,
+	last_is_rest: boolean,
+	message?: string|Error,
+): asserts value is TupleTypeNode<T1, T2>
+export function is_TupleTypeNode<
+	T1 extends (TypeNode | NamedTupleMember),
+	T2 extends [T1, ...T1[]],
+>(
+	value: Node,
+	predicate: ts_asserter<T1>,
+	last_is_rest: boolean|undefined|string|Error = true,
+	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2> {
+	if (undefined === last_is_rest) {
+		last_is_rest = true;
+	}
+	if ('boolean' !== typeof last_is_rest) {
+		message = last_is_rest;
+		last_is_rest = true;
+	}
 	ts_assert.isTupleTypeNode(value, message);
-	const elements = [...value.elements];
-	const last = (elements as unknown as Node[]).pop();
-	not_undefined(last);
+	const elements = last_is_rest ? [...value.elements] : value.elements;
+	let last:Node|undefined;
+	if (last_is_rest) {
+		last = (elements as unknown as Node[]).pop();
+	}
 	assert.ok(
 		elements.every((maybe) => bool_throw(
 			maybe,
@@ -133,6 +160,10 @@ export function is_TupleTypeNode<
 		)),
 		message,
 	);
-	ts_assert.isRestTypeNode(last, message);
-	assert.doesNotThrow(() => predicate(last.type, message));
+
+	if (last_is_rest)  {
+		not_undefined(last);
+		ts_assert.isRestTypeNode(last, message);
+		assert.doesNotThrow(() => predicate(last.type, message));
+	}
 }

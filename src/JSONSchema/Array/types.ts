@@ -30,7 +30,7 @@ export type ItemsType_by_mode<
 > = {
 	both: T,
 	'items-only': T,
-	'prefix-only': undefined,
+	'prefix-only': undefined|false,
 };
 
 export type PrefixItemsType_by_mode<
@@ -60,6 +60,10 @@ type array_full_type<
 	minItems: MinItems,
 };
 
+type array_prefixItems_items_type = {
+	items?: false,
+};
+
 export type MinItemsType<
 	N extends Exclude<number, 0> = Exclude<number, 0>,
 > = undefined|PositiveInteger<N>;
@@ -75,7 +79,7 @@ export type MinItemsType_mode = 'required'|'optional'|'excluded';
 type array_type_structured<
 	Defs extends DefsType_by_mode['without']|DefsType_by_mode['with'],
 	MinItems extends MinItemsType,
-	Items extends ItemsType,
+	Items extends false|ItemsType,
 	PrefixItems extends PrefixItemsType,
 > = {
 	with: {
@@ -84,7 +88,7 @@ type array_type_structured<
 				array_full_type<
 					Exclude<Defs, undefined>,
 					PositiveInteger,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>,
 				'minItems'
@@ -92,21 +96,21 @@ type array_type_structured<
 			required: array_full_type<
 				Exclude<Defs, undefined>,
 				Exclude<MinItems, undefined>,
-				Exclude<Items, undefined>,
+				Exclude<Items, undefined|false>,
 				Exclude<PrefixItems, undefined>
 			>,
 			optional: (
 				& array_type_structured<
 					Exclude<Defs, undefined>,
 					undefined,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['excluded']
 				& Partial<Pick<
 					array_type_structured<
 						Exclude<Defs, undefined>,
 						Exclude<MinItems, undefined>,
-						Exclude<Items, undefined>,
+						Exclude<Items, undefined|false>,
 						Exclude<PrefixItems, undefined>
 					>['with']['both']['required'],
 					'minItems'
@@ -118,7 +122,7 @@ type array_type_structured<
 				array_type_structured<
 					Exclude<Defs, undefined>,
 					PositiveInteger,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					[SchemaObject, ...SchemaObject[]]
 				>['with']['both']['excluded'],
 				'prefixItems'
@@ -127,7 +131,7 @@ type array_type_structured<
 				array_type_structured<
 					Exclude<Defs, undefined>,
 					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					[SchemaObject, ...SchemaObject[]]
 				>['with']['both']['required'],
 				'prefixItems'
@@ -136,7 +140,7 @@ type array_type_structured<
 				array_type_structured<
 					Exclude<Defs, undefined>,
 					MinItems,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					[SchemaObject, ...SchemaObject[]]
 				>['with']['both']['optional'],
 				'prefixItems'
@@ -151,7 +155,7 @@ type array_type_structured<
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['excluded'],
 				'items'
-			>,
+			> & array_prefixItems_items_type,
 			required: Omit<
 				array_type_structured<
 					Exclude<Defs, undefined>,
@@ -160,7 +164,7 @@ type array_type_structured<
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['required'],
 				'items'
-			>,
+			> & array_prefixItems_items_type,
 			optional: Omit<
 				array_type_structured<
 					Exclude<Defs, undefined>,
@@ -169,7 +173,7 @@ type array_type_structured<
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['optional'],
 				'items'
-			>,
+			> & array_prefixItems_items_type,
 		},
 	},
 	without: {
@@ -178,7 +182,7 @@ type array_type_structured<
 				array_type_structured<
 					ObjectOfSchemas,
 					undefined,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['excluded'],
 				'$defs'
@@ -187,7 +191,7 @@ type array_type_structured<
 				array_type_structured<
 					ObjectOfSchemas,
 					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['required'],
 				'$defs'
@@ -196,7 +200,7 @@ type array_type_structured<
 				array_type_structured<
 					ObjectOfSchemas,
 					MinItems,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					Exclude<PrefixItems, undefined>
 				>['with']['both']['optional'],
 				'$defs'
@@ -207,7 +211,7 @@ type array_type_structured<
 				array_type_structured<
 					SchemaObject,
 					undefined,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					undefined
 				>['with']['items-only']['excluded'],
 				'$defs'
@@ -216,7 +220,7 @@ type array_type_structured<
 				array_type_structured<
 					SchemaObject,
 					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					undefined
 				>['with']['items-only']['excluded'],
 				'$defs'
@@ -225,7 +229,7 @@ type array_type_structured<
 				array_type_structured<
 					SchemaObject,
 					MinItems,
-					Exclude<Items, undefined>,
+					Exclude<Items, undefined|false>,
 					undefined
 				>['with']['items-only']['excluded'],
 				'$defs'
@@ -308,7 +312,6 @@ type array_schema_full = SchemaDefinitionDefinition<
 		prefixItems: {
 			type: 'array',
 			minItems: 1,
-			additionalItems: false,
 			items: (
 				& {
 					type: 'object',

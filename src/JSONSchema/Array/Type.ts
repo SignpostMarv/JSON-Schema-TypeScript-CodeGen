@@ -502,7 +502,6 @@ export abstract class ArrayUncertain<
 			partial.properties.prefixItems = {
 				type: 'array',
 				minItems: 1,
-				additionalItems: false,
 				items: {
 					type: 'object',
 					minProperties: 1,
@@ -553,7 +552,7 @@ export abstract class ArrayUncertain<
 				array_type<
 					'with',
 					'required',
-					'both'
+					'both'|'prefix-only'
 				>,
 				(
 					| 'type'
@@ -576,7 +575,7 @@ export abstract class ArrayUncertain<
 		if ($defs) {
 			partial.$defs = $defs;
 		}
-		if (items) {
+		if (undefined !== items) {
 			partial.items = items;
 		}
 		if (prefixItems) {
@@ -889,7 +888,7 @@ export abstract class ArrayUncertain<
 		PrefixItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>],
 		Defs
 	> {
-		return 'items' in schema;
+		return 'items' in schema && false !== schema.items;
 	}
 
 	static #is_minItems_required_type<
