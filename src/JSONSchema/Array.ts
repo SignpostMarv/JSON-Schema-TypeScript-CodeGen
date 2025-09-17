@@ -3,11 +3,7 @@ import type {
 } from 'typescript';
 
 import type {
-	ObjectOfSchemas,
-} from './Type.ts';
-
-import type {
-	$defs_mode,
+	DefsType_by_mode,
 } from './types.ts';
 
 import {
@@ -40,60 +36,6 @@ export type ArrayUnspecified_options<
 	prefixItems: PrefixItems,
 };
 
-export class ArrayUnspecified<
-	T extends unknown[],
-	ArrayMode extends array_mode,
-	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
-	PrefixItems extends (
-		PrefixItemsType_by_mode[ArrayMode]
-	) = (
-		PrefixItemsType_by_mode[ArrayMode]
-	),
-> extends ArrayUncertain<
-	T,
-	TypeNode,
-	[TypeNode, ...TypeNode[]],
-	undefined,
-	'optional',
-	ArrayMode,
-	Items,
-	PrefixItems
-> {
-	constructor(
-		{
-			minItems,
-			array_mode,
-			items,
-			prefixItems,
-		}: ArrayUnspecified_options<
-			ArrayMode,
-			Items,
-			PrefixItems
-		>,
-		{
-			ajv,
-		}: ArrayUncertain_options<
-			array_schema<undefined, 'optional', ArrayMode>,
-			array_type<undefined, 'optional', ArrayMode, Items, PrefixItems>
-		>,
-	) {
-		super(
-			{
-				$defs: undefined,
-				minItems,
-				items,
-				prefixItems,
-				$defs_mode: 'without',
-				minItems_mode: 'optional',
-				array_mode,
-			},
-			{
-				ajv,
-			},
-		);
-	}
-}
-
 export class ArrayWithout$defs<
 	T1 extends unknown[],
 	T2 extends TypeNode,
@@ -106,9 +48,10 @@ export class ArrayWithout$defs<
 	T1,
 	T2,
 	T3,
-	undefined,
+	'without',
 	MinItems_mode,
 	ArrayMode,
+	undefined,
 	Items,
 	PrefixItems
 > {
@@ -130,11 +73,11 @@ export class ArrayWithout$defs<
 			ajv,
 		}: ArrayUncertain_options<
 			array_schema<
-				undefined,
+				'without',
 				MinItems_mode,
 				ArrayMode
 			>,
-			array_type<undefined, MinItems_mode, ArrayMode, Items, PrefixItems>
+			array_type<'without', MinItems_mode, ArrayMode, Items, PrefixItems>
 		>,
 	) {
 		super(
@@ -154,22 +97,74 @@ export class ArrayWithout$defs<
 	}
 }
 
+export class ArrayUnspecified<
+	T extends unknown[],
+	ArrayMode extends array_mode,
+	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	PrefixItems extends (
+		PrefixItemsType_by_mode[ArrayMode]
+	) = (
+		PrefixItemsType_by_mode[ArrayMode]
+	),
+> extends ArrayWithout$defs<
+	T,
+	TypeNode,
+	[TypeNode, ...TypeNode[]],
+	'optional',
+	ArrayMode,
+	Items,
+	PrefixItems
+> {
+	constructor(
+		{
+			minItems,
+			array_mode,
+			items,
+			prefixItems,
+		}: ArrayUnspecified_options<
+			ArrayMode,
+			Items,
+			PrefixItems
+		>,
+		{
+			ajv,
+		}: ArrayUncertain_options<
+			array_schema<'without', 'optional', ArrayMode>,
+			array_type<'without', 'optional', ArrayMode, Items, PrefixItems>
+		>,
+	) {
+		super(
+			{
+				minItems,
+				items,
+				prefixItems,
+				minItems_mode: 'optional',
+				array_mode,
+			},
+			{
+				ajv,
+			},
+		);
+	}
+}
+
 export class ArrayWith$defs<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
-	Defs extends ObjectOfSchemas,
 	MinItems_mode extends MinItemsType_mode,
 	ArrayMode extends array_mode,
+	Defs extends DefsType_by_mode['with'],
 	Items extends ItemsType_by_mode[ArrayMode],
 	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends ArrayUncertain<
 	T1,
 	T2,
 	T3,
-	Defs,
+	'with',
 	MinItems_mode,
 	ArrayMode,
+	Defs,
 	Items,
 	PrefixItems
 > {
@@ -193,11 +188,18 @@ export class ArrayWith$defs<
 			ajv,
 		}: ArrayUncertain_options<
 			array_schema<
-				Defs,
+				'with',
 				MinItems_mode,
 				ArrayMode
 			>,
-			array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>
+			array_type<
+				'with',
+				MinItems_mode,
+				ArrayMode,
+				Items,
+				PrefixItems,
+				Defs
+			>
 		>,
 	) {
 		super(
@@ -206,7 +208,7 @@ export class ArrayWith$defs<
 				minItems,
 				items,
 				prefixItems,
-				$defs_mode: 'with' as $defs_mode<Defs>,
+				$defs_mode: 'with',
 				minItems_mode,
 				array_mode,
 			},

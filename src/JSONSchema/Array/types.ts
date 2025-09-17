@@ -17,7 +17,7 @@ import type {
 import type {
 	$defs_mode,
 	$defs_schema,
-	DefsType,
+	DefsType_by_mode,
 } from '../types.ts';
 
 export type ItemsType = undefined|SchemaObject;
@@ -73,7 +73,7 @@ export type MinItemsType_by_mode = {
 export type MinItemsType_mode = 'required'|'optional'|'excluded';
 
 type array_type_structured<
-	Defs extends DefsType,
+	Defs extends DefsType_by_mode['without']|DefsType_by_mode['with'],
 	MinItems extends MinItemsType,
 	Items extends ItemsType,
 	PrefixItems extends PrefixItemsType,
@@ -261,10 +261,16 @@ type array_type_structured<
 			>,
 		},
 	},
+	optional: array_type_structured<
+		DefsType_by_mode['with'],
+		MinItems,
+		Items,
+		PrefixItems
+	>['with']
 };
 
 export type array_type<
-	Defs extends DefsType,
+	DefsMode extends $defs_mode,
 	MinItemsMode extends MinItemsType_mode,
 	ArrayMode extends array_mode,
 	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
@@ -273,12 +279,13 @@ export type array_type<
 	) = (
 		PrefixItemsType_by_mode[ArrayMode]
 	),
+	Defs extends DefsType_by_mode[DefsMode] = DefsType_by_mode[DefsMode],
 > = array_type_structured<
 	Defs,
 	MinItemsType_by_mode[MinItemsMode],
 	Items,
 	PrefixItems
->[$defs_mode<Defs>][ArrayMode][MinItemsMode];
+>[DefsMode][ArrayMode][MinItemsMode];
 
 type array_schema_full = SchemaDefinitionDefinition<
 	['$defs', 'type', 'items', 'prefixItems', 'minItems'],
@@ -611,15 +618,16 @@ type array_schema_structured = {
 				>
 			>,
 		},
-	}
+	},
+	optional: array_schema_structured['with'],
 }
 
 export type array_schema<
-	Defs extends DefsType,
+	DefsMode extends $defs_mode,
 	MinItems_mode extends MinItemsType_mode,
 	ArrayMode extends array_mode,
 > = array_schema_structured[
-	$defs_mode<Defs>
+	DefsMode
 ][
 	ArrayMode
 ][

@@ -17,16 +17,13 @@ import type {
 	TupleTypeNode,
 } from '../../types.ts';
 
-import type {
-	ObjectOfSchemas,
-} from '../Type.ts';
 import {
 	Type,
 } from '../Type.ts';
 
 import type {
 	$defs_mode,
-	DefsType,
+	DefsType_by_mode,
 } from '../types.ts';
 
 import type {
@@ -81,22 +78,24 @@ export abstract class ArrayUncertain<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
-	Defs extends DefsType,
+	DefsMode extends $defs_mode,
 	MinItems_mode extends MinItemsType_mode,
 	ArrayMode extends array_mode,
+	Defs extends DefsType_by_mode[DefsMode],
 	Items extends ItemsType_by_mode[ArrayMode],
 	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends Type<
 	T1,
 	array_type<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		ArrayMode,
 		Items,
-		PrefixItems
+		PrefixItems,
+		Defs
 	>,
 	array_schema<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		ArrayMode
 	>,
@@ -117,7 +116,7 @@ export abstract class ArrayUncertain<
 			minItems: MinItemsType_by_mode[MinItems_mode],
 			items: Items,
 			prefixItems: PrefixItems,
-			$defs_mode: $defs_mode<Defs>,
+			$defs_mode: DefsMode,
 			minItems_mode: MinItems_mode,
 			array_mode: ArrayMode,
 		},
@@ -125,11 +124,18 @@ export abstract class ArrayUncertain<
 			ajv,
 		}: ArrayUncertain_options<
 			array_schema<
-				Defs,
+				DefsMode,
 				MinItems_mode,
 				ArrayMode
 			>,
-			array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>
+			array_type<
+				DefsMode,
+				MinItems_mode,
+				ArrayMode,
+				Items,
+				PrefixItems,
+				Defs
+			>
 		>,
 	) {
 		super({
@@ -153,7 +159,14 @@ export abstract class ArrayUncertain<
 	generate_typescript_data(
 		data: T1,
 		schema_parser: SchemaParser,
-		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
+		schema: array_type<
+			DefsMode,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems,
+			Defs
+		>,
 	): ArrayLiteralExpression {
 		return factory.createArrayLiteralExpression(
 			data.map((value, i) => {
@@ -176,11 +189,12 @@ export abstract class ArrayUncertain<
 		}: {
 			data: T1,
 			schema: array_type<
-				Defs,
+				DefsMode,
 				MinItems_mode,
 				ArrayMode,
 				Items,
-				PrefixItems
+				PrefixItems,
+				Defs
 			>,
 			schema_parser: SchemaParser,
 		},
@@ -194,11 +208,12 @@ export abstract class ArrayUncertain<
 			return ArrayUncertain.#generate_typescript_type_has_prefixItems(
 				data,
 				schema as array_type<
-					Defs,
+					DefsMode,
 					MinItems_mode,
 					Exclude<array_mode, 'items-only'>,
 					Items,
-					PrefixItemsType_by_mode[Exclude<array_mode, 'items-only'>]
+					PrefixItemsType_by_mode[Exclude<array_mode, 'items-only'>],
+					Defs
 				>,
 				schema_parser,
 			);
@@ -223,7 +238,7 @@ export abstract class ArrayUncertain<
 	}
 
 	static generate_default_schema_definition<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
 	>(
@@ -232,12 +247,12 @@ export abstract class ArrayUncertain<
 			array_mode,
 			minItems_mode,
 		}: {
-			$defs_mode: $defs_mode<Defs>,
+			$defs_mode: DefsMode,
 			array_mode: ArrayMode,
 			minItems_mode: MinItems_mode,
 		},
 	): Readonly<array_schema<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		ArrayMode
 	>> {
@@ -251,7 +266,7 @@ export abstract class ArrayUncertain<
 					|| 'optional' === minItems_mode
 				) {
 					const sanity_check: array_schema<
-						ObjectOfSchemas,
+						'with',
 						'excluded' | 'optional',
 						'both'
 					>['required'] = [
@@ -263,7 +278,7 @@ export abstract class ArrayUncertain<
 					partial_required = sanity_check;
 				} else {
 					const sanity_check: array_schema<
-						ObjectOfSchemas,
+						'with',
 						'required',
 						'both'
 					>['required'] = [
@@ -281,7 +296,7 @@ export abstract class ArrayUncertain<
 					|| 'optional' === minItems_mode
 				) {
 					const sanity_check: array_schema<
-						ObjectOfSchemas,
+						'with',
 						'excluded' | 'optional',
 						'items-only'
 					>['required'] = [
@@ -292,7 +307,7 @@ export abstract class ArrayUncertain<
 					partial_required = sanity_check;
 				} else {
 					const sanity_check: array_schema<
-						ObjectOfSchemas,
+						'with',
 						'required',
 						'items-only'
 					>['required'] = [
@@ -308,7 +323,7 @@ export abstract class ArrayUncertain<
 				|| 'optional' === minItems_mode
 			) {
 				const sanity_check: array_schema<
-					ObjectOfSchemas,
+					'with',
 					'excluded' | 'optional',
 						'prefix-only'
 				>['required'] = [
@@ -319,7 +334,7 @@ export abstract class ArrayUncertain<
 				partial_required = sanity_check;
 			} else {
 				const sanity_check: array_schema<
-					ObjectOfSchemas,
+					'with',
 					'required',
 						'prefix-only'
 				>['required'] = [
@@ -337,7 +352,7 @@ export abstract class ArrayUncertain<
 					|| 'optional' === minItems_mode
 				) {
 					const sanity_check: array_schema<
-						undefined,
+						'without',
 						'excluded' | 'optional',
 						'both'
 					>['required'] = [
@@ -348,7 +363,7 @@ export abstract class ArrayUncertain<
 					partial_required = sanity_check;
 				} else {
 					const sanity_check: array_schema<
-						undefined,
+						'without',
 						'required',
 						'both'
 					>['required'] = [
@@ -365,7 +380,7 @@ export abstract class ArrayUncertain<
 					|| 'optional' === minItems_mode
 				) {
 					const sanity_check: array_schema<
-						undefined,
+						'without',
 						'excluded' | 'optional',
 						'items-only'
 					>['required'] = [
@@ -375,7 +390,7 @@ export abstract class ArrayUncertain<
 					partial_required = sanity_check;
 				} else {
 					const sanity_check: array_schema<
-						undefined,
+						'without',
 						'required',
 						'items-only'
 					>['required'] = [
@@ -390,7 +405,7 @@ export abstract class ArrayUncertain<
 				|| 'optional' === minItems_mode
 			) {
 				const sanity_check: array_schema<
-					undefined,
+					'without',
 					'excluded' | 'optional',
 					'prefix-only'
 				>['required'] = [
@@ -400,7 +415,7 @@ export abstract class ArrayUncertain<
 				partial_required = sanity_check;
 			} else {
 				const sanity_check: array_schema<
-					undefined,
+					'without',
 					'required',
 					'prefix-only'
 				>['required'] = [
@@ -415,7 +430,7 @@ export abstract class ArrayUncertain<
 		const partial: (
 			& Pick<
 				array_schema<
-					Defs,
+					DefsMode,
 					MinItems_mode,
 					ArrayMode
 				>,
@@ -428,13 +443,13 @@ export abstract class ArrayUncertain<
 			& {
 				properties: (
 					& Partial<array_schema<
-							ObjectOfSchemas,
+							'with',
 							'required',
 							'both'
 						>['properties']>
 					& Pick<
 						array_schema<
-							ObjectOfSchemas,
+							'with',
 							'required',
 							'both'
 						>['properties'],
@@ -506,35 +521,37 @@ export abstract class ArrayUncertain<
 		}
 
 		return Object.freeze(partial as array_schema<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode
 		>);
 	}
 
 	static #generate_default_type_definition<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		MinItems extends MinItemsType_by_mode[MinItems_mode],
 		ArrayMode extends array_mode,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 	>(
 		$defs: Defs,
 		minItems: MinItems,
 		items: Items,
 		prefixItems: PrefixItems,
 	): Readonly<array_type<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		ArrayMode,
 		Items,
-		PrefixItems
+		PrefixItems,
+		Defs
 	>> {
 		const partial: (
 			& Partial<Omit<
 				array_type<
-					ObjectOfSchemas,
+					'with',
 					'required',
 					'both'
 				>,
@@ -544,7 +561,7 @@ export abstract class ArrayUncertain<
 			>>
 			& Pick<
 				array_type<
-					ObjectOfSchemas,
+					'with',
 					'required',
 					'both'
 				>,
@@ -570,25 +587,34 @@ export abstract class ArrayUncertain<
 		}
 
 		return Object.freeze(partial as array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			Defs
 		>);
 	}
 
 	static #convert<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 		N extends number,
 	>(
 		value: unknown,
 		index: 0|PositiveInteger<N>,
-		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
+		schema: array_type<
+			DefsMode,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems,
+			Defs
+		>,
 		schema_parser: SchemaParser,
 	): Expression {
 		const sub_schema = this.#sub_schema_for_value(
@@ -616,19 +642,21 @@ export abstract class ArrayUncertain<
 		T1 extends unknown[],
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
 		Items extends ItemsType_by_mode[ArrayMode],
-		PrefixItems extends PrefixItemsType_by_mode[ArrayMode]
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode]
 	> (
 		data: T1,
 		schema: array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			Defs
 		>,
 		schema_parser: SchemaParser,
 	): Promise<
@@ -645,11 +673,12 @@ export abstract class ArrayUncertain<
 			return this.#generate_typescript_type_has_items_and_minItems(
 				data,
 				schema as array_type<
-					Defs,
+					DefsMode,
 					'required',
 					ArrayMode,
 					Items,
-					PrefixItems
+					PrefixItems,
+					Defs
 				> & {
 					minItems: MinItemsType_by_mode['required'],
 				},
@@ -659,15 +688,16 @@ export abstract class ArrayUncertain<
 
 		return this.#generate_typescript_type_has_items_only(
 			schema as array_type<
-				Defs,
-				Exclude<MinItemsType_mode, 'required'>,
+				DefsMode,
+				Exclude<MinItems_mode, 'required'>,
 				Exclude<ArrayMode, 'both'|'prefix-only'>,
 				ItemsType_by_mode[
 					Exclude<ArrayMode, 'both'|'prefix-only'>
 				],
 				PrefixItemsType_by_mode[
 					Exclude<ArrayMode, 'both'|'prefix-only'>
-				]
+				],
+				Defs
 			>,
 			schema_parser,
 		) as Promise<
@@ -684,18 +714,20 @@ export abstract class ArrayUncertain<
 		T1 extends unknown[],
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 	> (
 		data: T1,
 		schema: array_type<
-			Defs,
+			DefsMode,
 			'required',
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			Defs
 		> & {
 			minItems: MinItemsType_by_mode['required'],
 		},
@@ -735,18 +767,20 @@ export abstract class ArrayUncertain<
 
 	static async #generate_typescript_type_has_items_only<
 		T2 extends TypeNode,
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends Exclude<MinItemsType_mode, 'required'>,
 		ArrayMode extends Exclude<array_mode, 'both'|'prefix-only'>,
 		Items extends ItemsType_by_mode[ArrayMode],
-		PrefixItems extends PrefixItemsType_by_mode[ArrayMode]
+		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 	> (
 		schema: array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			Defs
 		>,
 		schema_parser: SchemaParser,
 	): Promise<createTypeNode<
@@ -769,14 +803,22 @@ export abstract class ArrayUncertain<
 		T1 extends unknown[],
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends Exclude<array_mode, 'items-only'>,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 	> (
 		data: T1,
-		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
+		schema: array_type<
+			DefsMode,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems,
+			Defs
+		>,
 		schema_parser: SchemaParser,
 	): Promise<TupleTypeNode<T2, T3>> {
 		const tuple_members: TypeNode[] = [];
@@ -825,48 +867,54 @@ export abstract class ArrayUncertain<
 	}
 
 	static #is_items_type<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
 		Items extends ItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode]
 	> (
 		schema: array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			Items,
-			PrefixItemsType_by_mode[ArrayMode]
+			PrefixItemsType_by_mode[ArrayMode],
+			Defs
 		>,
 	): schema is array_type<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		Exclude<ArrayMode, 'prefix-only'>,
 		Exclude<Items, ItemsType_by_mode['prefix-only']>,
-		PrefixItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>]
+		PrefixItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>],
+		Defs
 	> {
 		return 'items' in schema;
 	}
 
 	static #is_minItems_required_type<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 	>(
 		schema: array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			Defs
 		>,
 	): schema is array_type<
-		Defs,
+		DefsMode,
 		Exclude<MinItems_mode, 'optional'|'excluded'>,
 		ArrayMode,
 		Items,
-		PrefixItems
+		PrefixItems,
+		Defs
 	> & {
 		minItems: MinItemsType_by_mode['required']
 	} {
@@ -874,37 +922,48 @@ export abstract class ArrayUncertain<
 	}
 
 	static #is_prefixItems_type<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
+		Defs extends DefsType_by_mode[DefsMode]
 	> (
 		schema: array_type<
-			Defs,
+			DefsMode,
 			MinItems_mode,
 			ArrayMode,
 			ItemsType_by_mode[ArrayMode],
-			PrefixItemsType_by_mode[ArrayMode]
+			PrefixItemsType_by_mode[ArrayMode],
+			Defs
 		>,
 	): schema is array_type<
-		Defs,
+		DefsMode,
 		MinItems_mode,
 		Exclude<ArrayMode, 'items-only'>,
 		ItemsType_by_mode[Exclude<ArrayMode, 'items-only'>],
-		PrefixItemsType_by_mode[Exclude<ArrayMode, 'items-only'>]
+		PrefixItemsType_by_mode[Exclude<ArrayMode, 'items-only'>],
+		Defs
 	> {
 		return 'prefixItems' in schema;
 	}
 
 	static #sub_schema_for_value<
-		Defs extends DefsType,
+		DefsMode extends $defs_mode,
 		MinItems_mode extends MinItemsType_mode,
 		ArrayMode extends array_mode,
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		Defs extends DefsType_by_mode[DefsMode],
 		N extends number,
 	>(
 		index: 0|PositiveInteger<N>,
-		schema: array_type<Defs, MinItems_mode, ArrayMode, Items, PrefixItems>,
+		schema: array_type<
+			DefsMode,
+			MinItems_mode,
+			ArrayMode,
+			Items,
+			PrefixItems,
+			Defs
+		>,
 	): SchemaObject {
 		if (
 			this.#is_prefixItems_type(schema)

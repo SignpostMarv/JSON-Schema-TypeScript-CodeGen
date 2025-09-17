@@ -69,7 +69,7 @@ void describe('ArrayUnspecified', () => {
 		> = [
 			unknown[], // input
 			array_type<
-				undefined,
+				'without',
 				'optional',
 				ArrayMode
 			>,
