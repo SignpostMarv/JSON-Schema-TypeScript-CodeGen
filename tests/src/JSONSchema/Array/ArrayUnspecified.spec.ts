@@ -58,6 +58,9 @@ import type {
 import type {
 	$defs_mode,
 } from '../../../../src/JSONSchema/types.ts';
+import type {
+	Type,
+} from '../../../../src/JSONSchema/Type.ts';
 
 void describe('ArrayUnspecified', () => {
 	void describe('::generate_typescript_type()', () => {
@@ -218,6 +221,18 @@ void describe('ArrayUnspecified', () => {
 					generated,
 					`Did not pass asserter on data_set[${i}]`,
 				));
+				await assert.rejects(
+					() => (
+						instance as Type<unknown>
+					).generate_typescript_type({
+						data,
+						schema: {
+							type: 'string',
+						},
+						schema_parser,
+					}),
+					`Incorrectly matched array against string on data_set[${i}]`,
+				);
 			}
 
 			void it(`behaves with data_sets[${i}] directly`, async () => {
