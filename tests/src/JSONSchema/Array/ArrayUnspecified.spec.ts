@@ -86,6 +86,7 @@ void describe('ArrayUnspecified', () => {
 				PrefixItemsType_by_mode[ArrayMode]
 			>,
 			ts_asserter<T2>, // expectation asserter
+			boolean, // will or won't fail on default
 		];
 
 		const data_sets:[
@@ -129,6 +130,7 @@ void describe('ArrayUnspecified', () => {
 						message,
 					);
 				},
+				false,
 			],
 			[
 				[
@@ -183,6 +185,7 @@ void describe('ArrayUnspecified', () => {
 						message,
 					);
 				},
+				true,
 			],
 		];
 
@@ -191,6 +194,7 @@ void describe('ArrayUnspecified', () => {
 			schema,
 			ctor_args,
 			expectation_asserter,
+			will_fail_on_default,
 		], i) => {
 			const ajv = new Ajv({strict: false});
 
@@ -199,6 +203,7 @@ void describe('ArrayUnspecified', () => {
 					typeof data,
 					array_mode
 				>,
+				schema_parser: SchemaParser,
 			) {
 				assert.ok(
 					instance.check_type(data),
@@ -207,7 +212,7 @@ void describe('ArrayUnspecified', () => {
 				const generated = await instance.generate_typescript_type({
 					data,
 					schema,
-					schema_parser: new SchemaParser({ajv}),
+					schema_parser,
 				});
 				assert.doesNotThrow(() => expectation_asserter(
 					generated,
@@ -226,16 +231,20 @@ void describe('ArrayUnspecified', () => {
 					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
 				);
 
-				await do_test(instance);
+				await do_test(instance, new SchemaParser({ajv}));
 			})
 
 			void it(`behaves with data_sets[${i}] from parser`, async () => {
+				const schema_parser = new SchemaParser({ajv});
+				if (will_fail_on_default) {
 				const manual = new ArrayUnspecified<
 					typeof data,
 					array_mode
 				>(ctor_args, {ajv});
-				const schema_parser = new SchemaParser({ajv});
+
+					assert.throws(() => schema_parser.parse(schema));
 				schema_parser.types.push(manual);
+				}
 				const instance = schema_parser.parse(schema);
 
 				assert.ok(
@@ -253,7 +262,7 @@ void describe('ArrayUnspecified', () => {
 					ArrayUnspecified,
 				);
 
-				await do_test(instance);
+				await do_test(instance, schema_parser);
 			})
 		})
 	});
