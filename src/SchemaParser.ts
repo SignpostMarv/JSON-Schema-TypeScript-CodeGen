@@ -61,7 +61,7 @@ export type share_ajv_callback<T> = (ajv: Ajv) => T;
 export class SchemaParser
 {
 	#ajv: Ajv;
-	types: [ConversionlessType<never>, ...ConversionlessType<never>[]];
+	types: [ConversionlessType<unknown>, ...ConversionlessType<unknown>[]];
 
 	constructor(options: SchemaParserOptions = {
 		ajv_options: {
@@ -126,7 +126,6 @@ export class SchemaParser
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
 		ArrayUnspecified<unknown[], 'items-only'>,
-		ArrayUnspecified<unknown[], 'prefix-only'>,
 	] {
 		return [
 			new String({
@@ -151,15 +150,6 @@ export class SchemaParser
 					array_mode: 'items-only',
 					items: {},
 					prefixItems: undefined,
-				},
-				{ajv},
-			),
-			new ArrayUnspecified(
-				{
-					array_mode: 'prefix-only',
-					minItems: 1,
-					items: false,
-					prefixItems: [{}],
 				},
 				{ajv},
 			),

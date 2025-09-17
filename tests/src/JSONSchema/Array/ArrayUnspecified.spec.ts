@@ -192,8 +192,7 @@ void describe('ArrayUnspecified', () => {
 			ctor_args,
 			expectation_asserter,
 		], i) => {
-			const ajv = new Ajv({strict: true});
-			const schema_parser = new SchemaParser({ajv});
+			const ajv = new Ajv({strict: false});
 
 			async function do_test(
 				instance: ArrayUnspecified<
@@ -208,7 +207,7 @@ void describe('ArrayUnspecified', () => {
 				const generated = await instance.generate_typescript_type({
 					data,
 					schema,
-					schema_parser,
+					schema_parser: new SchemaParser({ajv}),
 				});
 				assert.doesNotThrow(() => expectation_asserter(
 					generated,
@@ -231,7 +230,19 @@ void describe('ArrayUnspecified', () => {
 			})
 
 			void it(`behaves with data_sets[${i}] from parser`, async () => {
+				const manual = new ArrayUnspecified<
+					typeof data,
+					array_mode
+				>(ctor_args, {ajv});
+				const schema_parser = new SchemaParser({ajv});
+				schema_parser.types.push(manual);
 				const instance = schema_parser.parse(schema);
+
+				assert.ok(
+					instance.check_schema(schema),
+					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
+				);
+
 				is_instanceof<
 					ArrayUnspecified<
 						typeof data,
