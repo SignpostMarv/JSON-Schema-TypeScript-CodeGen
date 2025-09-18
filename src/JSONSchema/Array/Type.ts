@@ -55,9 +55,11 @@ import {
 	UniqueItemsType_by_mode,
 } from './coercions.ts';
 
-type createTypeNode_structured<
+type createTypeNode<
 	T1 extends TypeNode,
 	T2 extends [T1, ...T1[]],
+	MinItems_mode extends MinItemsType_mode,
+	ArrayMode extends array_mode,
 > = {
 	both: {
 		with: TupleTypeNode<T1, T2>,
@@ -74,14 +76,7 @@ type createTypeNode_structured<
 		optional: TupleTypeNode<T1, T2>,
 		without: TupleTypeNode<T1, T2>,
 	},
-};
-
-type createTypeNode<
-	T1 extends TypeNode,
-	T2 extends [T1, ...T1[]],
-	MinItems_mode extends MinItemsType_mode,
-	ArrayMode extends array_mode,
-> = createTypeNode_structured<T1, T2>[ArrayMode][MinItems_mode];
+}[ArrayMode][MinItems_mode];
 
 export abstract class ArrayUncertain<
 	T1 extends unknown[],
