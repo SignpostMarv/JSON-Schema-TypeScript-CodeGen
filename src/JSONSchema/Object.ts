@@ -1225,11 +1225,7 @@ abstract class ObjectUncertain<
 					'properties',
 					'patternProperties',
 				];
-				required_for_unfrozen_both = sanity_check as object_schema<
-					DefsMode,
-					RequiredMode,
-					'both'
-				>['required'];
+				required_for_unfrozen_both = sanity_check;
 			} else {
 				const sanity_check:object_schema<
 					'with',
@@ -1242,11 +1238,7 @@ abstract class ObjectUncertain<
 					'properties',
 					'patternProperties',
 				];
-				required_for_unfrozen_both = sanity_check as object_schema<
-					DefsMode,
-					RequiredMode,
-					'both'
-				>['required'];
+				required_for_unfrozen_both = sanity_check;
 			}
 		} else {
 			if (!required) {
@@ -1259,11 +1251,7 @@ abstract class ObjectUncertain<
 					'properties',
 					'patternProperties',
 				];
-				required_for_unfrozen_both = sanity_check as object_schema<
-					DefsMode,
-					RequiredMode,
-					'both'
-				>['required'];
+				required_for_unfrozen_both = sanity_check;
 			} else {
 				const sanity_check:object_schema<
 					'without',
@@ -1275,22 +1263,14 @@ abstract class ObjectUncertain<
 					'properties',
 					'patternProperties',
 				];
-				required_for_unfrozen_both = sanity_check as object_schema<
-					DefsMode,
-					RequiredMode,
-					'both'
-				>['required'];
+				required_for_unfrozen_both = sanity_check;
 			}
 		}
 
 		if ('both' === properties_mode) {
-			return required_for_unfrozen_both as object_schema<
-				DefsMode,
-				RequiredMode,
-				PropertiesMode
-			>['required'];
+			return required_for_unfrozen_both;
 		} else if ('properties' === properties_mode) {
-			return (required_for_unfrozen_both as string[]).filter(
+			return required_for_unfrozen_both.filter(
 				(maybe) => 'patternProperties' !== maybe,
 			)  as object_schema<
 				DefsMode,
@@ -1299,7 +1279,7 @@ abstract class ObjectUncertain<
 			>['required'];
 		}
 
-		return (required_for_unfrozen_both as string[]).filter(
+		return required_for_unfrozen_both.filter(
 			(maybe) => 'properties' !== maybe,
 		) as object_schema<
 			DefsMode,
@@ -1332,27 +1312,17 @@ abstract class ObjectUncertain<
 		PatternProperties
 	>> {
 		if (properties_mode === 'neither') {
-			const frozen:Readonly<object_type<
-				DefsMode,
-				RequiredMode,
-				'neither',
-				Defs,
-				Required,
-				Properties,
-				PatternProperties
-			>> = Object.freeze({
+			return Object.freeze({
 				type: 'object',
-			});
-
-			return frozen as Readonly<object_type<
-				DefsMode,
+			} as object_type<
+				DefsMode & 'without',
 				RequiredMode,
-				PropertiesMode,
-				Defs,
+				PropertiesMode & 'neither',
+				Defs & undefined,
 				Required,
 				Properties,
 				PatternProperties
-			>>;
+			>);
 		}
 
 		const partial:Partial<object_full_type<
