@@ -85,18 +85,21 @@ void describe('ArrayUnspecified', () => {
 			MinItems extends MinItemsType_mode = MinItemsType_mode,
 			MaxItems extends MaxItemsType_mode = MaxItemsType_mode,
 			ArrayMode extends array_mode = array_mode,
+			UniqueItems_mode extends unique_items_mode = unique_items_mode,
 		> = [
 			unknown[], // input
 			array_type_alt<
 				DefsMode,
 				ArrayMode,
 				MinItems,
-				MaxItems
+				MaxItems,
+				UniqueItems_mode
 			>,
 			ArrayUnspecified_options<
 				ArrayMode,
 				ItemsType_by_mode[ArrayMode],
-				PrefixItemsType_by_mode[ArrayMode]
+				PrefixItemsType_by_mode[ArrayMode],
+				UniqueItems_mode
 			>,
 			ts_asserter<T2>, // expectation asserter
 			boolean, // will or won't fail on default
@@ -123,6 +126,7 @@ void describe('ArrayUnspecified', () => {
 					array_mode: 'items-only',
 					items: {},
 					prefixItems: undefined,
+					uniqueItems_mode: 'no',
 				},
 				(
 					value: Node,
@@ -179,6 +183,7 @@ void describe('ArrayUnspecified', () => {
 							const: 'bar',
 						},
 					],
+					uniqueItems_mode: 'no',
 				},
 				(
 					value: Node,

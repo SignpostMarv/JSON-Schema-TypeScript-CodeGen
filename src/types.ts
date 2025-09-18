@@ -87,6 +87,18 @@ export type OmitFromTupleish<
 		)
 );
 
+export type OmitFromTupleishIf<
+	T1 extends unknown[],
+	T2,
+	If extends 'with'|'without'|'optional'
+> = If extends 'without'
+	? OmitFromTupleish<T1, T2>
+	: (
+		If extends 'optional'
+			? T1|OmitFromTupleish<T1, T2>
+			: T1
+	);
+
 export type PartialPick<
 	T,
 	K extends keyof T,
@@ -94,3 +106,15 @@ export type PartialPick<
 	& Omit<T, K>
 	& Partial<Pick<T, K>>
 );
+
+export type OmitIf<
+	T,
+	K extends keyof T,
+	If extends 'with'|'without'|'optional'
+> = If extends 'without'
+	? Omit<T, K> & Exclude<T, {[key in K]: undefined}>
+	: (
+		If extends 'optional'
+			? PartialPick<T, K>
+			: T
+	);

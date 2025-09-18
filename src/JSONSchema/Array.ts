@@ -12,8 +12,6 @@ import {
 
 import type {
 	array_mode,
-	array_schema,
-	array_type_alt,
 	ArrayUncertain_options,
 	ItemsType_by_mode,
 	MaxItemsType_by_mode,
@@ -32,12 +30,14 @@ export type ArrayUnspecified_options<
 	) = (
 		PrefixItemsType_by_mode[ArrayMode]
 	),
+	UniqueItems_mode extends unique_items_mode = unique_items_mode,
 > = {
 	minItems?: MinItemsType_by_mode['optional'],
 	maxItems?: MaxItemsType_by_mode['optional'],
 	array_mode: ArrayMode,
 	items: Items,
 	prefixItems: PrefixItems,
+	uniqueItems_mode: UniqueItems_mode,
 };
 
 export class ArrayWithout$defs<
@@ -69,31 +69,27 @@ export class ArrayWithout$defs<
 > {
 	constructor(
 		{
+			array_mode,
+			minItems_mode,
+			maxItems_mode,
+			uniqueItems_mode,
 			minItems,
 			maxItems,
 			items,
 			prefixItems,
-			minItems_mode,
-			maxItems_mode,
-			array_mode,
 		}: {
+			array_mode: ArrayMode,
+			minItems_mode: MinItems_mode,
+			maxItems_mode: MaxItems_mode,
+			uniqueItems_mode: UniqueItems_mode,
 			minItems: MinItems,
 			maxItems: MaxItems,
 			items: Items,
 			prefixItems: PrefixItems,
-			minItems_mode: MinItems_mode,
-			maxItems_mode: MaxItems_mode,
-			array_mode: ArrayMode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<
-				'without',
-				MinItems_mode,
-				ArrayMode
-			>,
-			array_type_alt<
 				'without',
 				ArrayMode,
 				MinItems_mode,
@@ -104,20 +100,20 @@ export class ArrayWithout$defs<
 				MaxItems,
 				Items,
 				PrefixItems
-			>
 		>,
 	) {
 		super(
 			{
+				$defs_mode: 'without',
+				array_mode,
+				minItems_mode,
+				maxItems_mode,
+				uniqueItems_mode,
 				$defs: undefined,
 				minItems,
 				maxItems,
 				items,
 				prefixItems,
-				$defs_mode: 'without',
-				minItems_mode,
-				maxItems_mode,
-				array_mode,
 			},
 			{
 				ajv,
@@ -156,16 +152,16 @@ export class ArrayUnspecified<
 			array_mode,
 			items,
 			prefixItems,
+			uniqueItems_mode,
 		}: ArrayUnspecified_options<
 			ArrayMode,
 			Items,
-			PrefixItems
+			PrefixItems,
+			UniqueItems_mode
 		>,
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<'without', 'optional', ArrayMode>,
-			array_type_alt<
 				'without',
 				ArrayMode,
 				'optional',
@@ -176,7 +172,6 @@ export class ArrayUnspecified<
 				MaxItemsType_by_mode['optional'],
 				Items,
 				PrefixItems
-			>
 		>,
 	) {
 		super(
@@ -188,6 +183,7 @@ export class ArrayUnspecified<
 				minItems_mode: 'optional',
 				maxItems_mode: 'optional',
 				array_mode,
+				uniqueItems_mode,
 			},
 			{
 				ajv,
@@ -234,6 +230,7 @@ export class ArrayWith$defs<
 			minItems_mode,
 			maxItems_mode,
 			array_mode,
+			uniqueItems_mode,
 		}: {
 			$defs: Defs,
 			minItems: MinItemsType_by_mode[MinItems_mode],
@@ -243,16 +240,11 @@ export class ArrayWith$defs<
 			minItems_mode: MinItems_mode,
 			maxItems_mode: MaxItems_mode,
 			array_mode: ArrayMode,
+			uniqueItems_mode: UniqueItems_mode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<
-				'with',
-				MinItems_mode,
-				ArrayMode
-			>,
-			array_type_alt<
 				'with',
 				ArrayMode,
 				MinItems_mode,
@@ -263,20 +255,20 @@ export class ArrayWith$defs<
 				MaxItems,
 				Items,
 				PrefixItems
-			>
 		>,
 	) {
 		super(
 			{
+				$defs_mode: 'with',
+				array_mode,
+				minItems_mode,
+				maxItems_mode,
+				uniqueItems_mode,
 				$defs,
 				minItems,
 				maxItems,
 				items,
 				prefixItems,
-				$defs_mode: 'with',
-				minItems_mode,
-				maxItems_mode,
-				array_mode,
 			},
 			{
 				ajv,

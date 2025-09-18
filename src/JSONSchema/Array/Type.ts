@@ -40,7 +40,7 @@ import {
 
 import type {
 	array_mode,
-	array_schema,
+	array_schema_alt,
 	array_type_alt,
 	ArrayUncertain_options,
 	ItemsType_by_mode,
@@ -50,6 +50,7 @@ import type {
 	MinItemsType_mode,
 	PrefixItemsType_by_mode,
 	unique_items_mode,
+	UniqueItemsType_by_mode,
 } from './types.ts';
 
 type createTypeNode_structured<
@@ -57,19 +58,19 @@ type createTypeNode_structured<
 	T2 extends [T1, ...T1[]],
 > = {
 	both: {
-		required: TupleTypeNode<T1, T2>,
+		with: TupleTypeNode<T1, T2>,
 		optional: TupleTypeNode<T1, T2>,
-		excluded: TupleTypeNode<T1, T2>,
+		without: TupleTypeNode<T1, T2>,
 	},
 	'items-only': {
-		required: TupleTypeNode<T1, T2>,
+		with: TupleTypeNode<T1, T2>,
 		optional: ArrayTypeNode<T1>|TupleTypeNode<T1, T2>,
-		excluded: ArrayTypeNode<T1>,
+		without: ArrayTypeNode<T1>,
 	},
 	'prefix-only': {
-		required: TupleTypeNode<T1, T2>,
+		with: TupleTypeNode<T1, T2>,
 		optional: TupleTypeNode<T1, T2>,
-		excluded: TupleTypeNode<T1, T2>,
+		without: TupleTypeNode<T1, T2>,
 	},
 };
 
@@ -108,45 +109,43 @@ export abstract class ArrayUncertain<
 		Items,
 		PrefixItems
 	>,
-	array_schema<
+	array_schema_alt<
 		DefsMode,
+		ArrayMode,
 		MinItems_mode,
-		ArrayMode
+		MaxItems_mode,
+		UniqueItems_mode
 	>,
 	createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
 	ArrayLiteralExpression
 > {
 	constructor(
 		{
+			$defs_mode,
+			array_mode,
+			minItems_mode,
+			maxItems_mode,
+			uniqueItems_mode,
 			$defs,
 			minItems,
 			maxItems,
 			items,
 			prefixItems,
-			$defs_mode,
-			minItems_mode,
-			maxItems_mode,
-			array_mode,
 		}: {
+			$defs_mode: DefsMode,
+			array_mode: ArrayMode,
+			minItems_mode: MinItems_mode,
+			maxItems_mode: MaxItems_mode,
+			uniqueItems_mode: UniqueItems_mode,
 			$defs: Defs,
 			minItems: MinItemsType_by_mode[MinItems_mode],
 			maxItems: MaxItemsType_by_mode[MaxItems_mode],
 			items: Items,
 			prefixItems: PrefixItems,
-			$defs_mode: DefsMode,
-			minItems_mode: MinItems_mode,
-			maxItems_mode: MaxItems_mode,
-			array_mode: ArrayMode,
 		},
 		{
 			ajv,
 		}: ArrayUncertain_options<
-			array_schema<
-				DefsMode,
-				MinItems_mode,
-				ArrayMode
-			>,
-			array_type_alt<
 				DefsMode,
 				ArrayMode,
 				MinItems_mode,
@@ -157,7 +156,6 @@ export abstract class ArrayUncertain<
 				MaxItems,
 				Items,
 				PrefixItems
-			>
 		>,
 	) {
 		super({
@@ -168,13 +166,15 @@ export abstract class ArrayUncertain<
 				maxItems as MaxItems,
 				items,
 				prefixItems,
+				uniqueItems_mode,
 			),
 			schema_definition: (
 				ArrayUncertain.generate_default_schema_definition({
 					$defs_mode,
+					array_mode,
 					minItems_mode,
 					maxItems_mode,
-					array_mode,
+					uniqueItems_mode,
 				})
 			),
 		});
@@ -257,203 +257,76 @@ export abstract class ArrayUncertain<
 
 	static generate_default_schema_definition<
 		DefsMode extends $defs_mode,
+		ArrayMode extends array_mode,
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
-		ArrayMode extends array_mode,
+		UniqueItems_mode extends unique_items_mode,
 	>(
 		{
 			$defs_mode,
 			array_mode,
 			minItems_mode,
 			maxItems_mode,
+			uniqueItems_mode,
 		}: {
 			$defs_mode: DefsMode,
 			array_mode: ArrayMode,
 			minItems_mode: MinItems_mode,
 			maxItems_mode: MaxItems_mode,
+			uniqueItems_mode: UniqueItems_mode,
 		},
-	): Readonly<array_schema<
+	): Readonly<array_schema_alt<
 		DefsMode,
+		ArrayMode,
 		MinItems_mode,
-		ArrayMode
+		MaxItems_mode,
+		UniqueItems_mode
 	>> {
-
-		let partial_required: (typeof partial)['required'];
-
-		if ('with' === $defs_mode) {
-			if ('both' === array_mode) {
-				if (
-					'excluded' === minItems_mode
-					|| 'optional' === minItems_mode
-				) {
-					const sanity_check: array_schema<
-						'with',
-						'excluded' | 'optional',
-						'both'
-					>['required'] = [
-						'$defs',
-						'type',
-						'items',
-						'prefixItems',
-					];
-					partial_required = sanity_check;
-				} else {
-					const sanity_check: array_schema<
-						'with',
-						'required',
-						'both'
-					>['required'] = [
-						'$defs',
-						'type',
-						'items',
-						'prefixItems',
-						'minItems',
-					];
-					partial_required = sanity_check;
-				}
-			} else if ('items-only' === array_mode) {
-				if (
-					'excluded' === minItems_mode
-					|| 'optional' === minItems_mode
-				) {
-					const sanity_check: array_schema<
-						'with',
-						'excluded' | 'optional',
-						'items-only'
-					>['required'] = [
-						'$defs',
-						'type',
-						'items',
-					];
-					partial_required = sanity_check;
-				} else {
-					const sanity_check: array_schema<
-						'with',
-						'required',
-						'items-only'
-					>['required'] = [
-						'$defs',
-						'type',
-						'items',
-						'minItems',
-					];
-					partial_required = sanity_check;
-				}
-			} else if (
-				'excluded' === minItems_mode
-				|| 'optional' === minItems_mode
+		const full_required:[
+			'$defs',
+			'type',
+			'items',
+			'prefixItems',
+			'minItems',
+			'maxItems',
+			'uniqueItems',
+		] = [
+			'$defs',
+			'type',
+			'items',
+			'prefixItems',
+			'minItems',
+			'maxItems',
+			'uniqueItems',
+		];
+		const partial_required: array_schema_alt<
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode
+		>['required'] = full_required.filter((maybe) => {
+			if (
+				('$defs' === maybe && 'with' !== $defs_mode)
+				|| ('prefixItems' === maybe && 'items-only' === array_mode)
+				|| ('minItems' === maybe && 'with' !== minItems_mode)
+				|| ('maxItems' === maybe && 'with' !== maxItems_mode)
+				|| ('uniqueItems' === maybe && 'yes' !== uniqueItems_mode)
 			) {
-				const sanity_check: array_schema<
-					'with',
-					'excluded' | 'optional',
-						'prefix-only'
-				>['required'] = [
-					'$defs',
-					'type',
-					'prefixItems',
-				];
-				partial_required = sanity_check;
-			} else {
-				const sanity_check: array_schema<
-					'with',
-					'required',
-						'prefix-only'
-				>['required'] = [
-					'$defs',
-					'type',
-					'prefixItems',
-					'minItems',
-				];
-				partial_required = sanity_check;
+				return false;
 			}
-		} else {
-			if ('both' === array_mode) {
-				if (
-					'excluded' === minItems_mode
-					|| 'optional' === minItems_mode
-				) {
-					const sanity_check: array_schema<
-						'without',
-						'excluded' | 'optional',
-						'both'
-					>['required'] = [
-						'type',
-						'items',
-						'prefixItems',
-					];
-					partial_required = sanity_check;
-				} else {
-					const sanity_check: array_schema<
-						'without',
-						'required',
-						'both'
-					>['required'] = [
-						'type',
-						'items',
-						'prefixItems',
-						'minItems',
-					];
-					partial_required = sanity_check;
-				}
-			} else if ('items-only' === array_mode) {
-				if (
-					'excluded' === minItems_mode
-					|| 'optional' === minItems_mode
-				) {
-					const sanity_check: array_schema<
-						'without',
-						'excluded' | 'optional',
-						'items-only'
-					>['required'] = [
-						'type',
-						'items',
-					];
-					partial_required = sanity_check;
-				} else {
-					const sanity_check: array_schema<
-						'without',
-						'required',
-						'items-only'
-					>['required'] = [
-						'type',
-						'items',
-						'minItems',
-					];
-					partial_required = sanity_check;
-				}
-			} else if (
-				'excluded' === minItems_mode
-				|| 'optional' === minItems_mode
-			) {
-				const sanity_check: array_schema<
-					'without',
-					'excluded' | 'optional',
-					'prefix-only'
-				>['required'] = [
-					'type',
-					'prefixItems',
-				];
-				partial_required = sanity_check;
-			} else {
-				const sanity_check: array_schema<
-					'without',
-					'required',
-					'prefix-only'
-				>['required'] = [
-					'type',
-					'prefixItems',
-					'minItems',
-				];
-				partial_required = sanity_check;
-			}
-		}
+
+			return true;
+		});
 
 		const partial: (
 			& Pick<
-				array_schema<
+				array_schema_alt<
 					DefsMode,
+					ArrayMode,
 					MinItems_mode,
-					ArrayMode
+					MaxItems_mode,
+					UniqueItems_mode
 				>,
 				(
 					| 'type'
@@ -463,20 +336,25 @@ export abstract class ArrayUncertain<
 			>
 			& {
 				properties: (
-					& Partial<array_schema<
+					& Partial<array_schema_alt<
 							'with',
-							'required',
-							'both'
+							'both'|'prefix-only',
+							'with',
+							'with',
+							UniqueItems_mode
 						>['properties']>
 					& Pick<
-						array_schema<
+						array_schema_alt<
 							'with',
-							'required',
-							'both'
+							'both'|'prefix-only',
+							'with',
+							'with',
+							UniqueItems_mode
 						>['properties'],
 						(
 							| 'type'
 							| 'items'
+							| 'uniqueItems'
 						)
 					>
 				),
@@ -493,6 +371,12 @@ export abstract class ArrayUncertain<
 				items: {
 					type: 'boolean',
 					const: false,
+				},
+				uniqueItems: {
+					type: 'boolean',
+					const: (
+						'yes' === uniqueItems_mode
+					) as UniqueItemsType_by_mode<UniqueItems_mode>,
 				},
 			},
 		};
@@ -531,7 +415,7 @@ export abstract class ArrayUncertain<
 		}
 
 		if (
-			'required' === minItems_mode
+			'with' === minItems_mode
 			|| 'optional' === minItems_mode
 		) {
 			partial.properties.minItems = {
@@ -541,7 +425,7 @@ export abstract class ArrayUncertain<
 		}
 
 		if (
-			'required' === maxItems_mode
+			'with' === maxItems_mode
 			|| 'optional' === maxItems_mode
 		) {
 			partial.properties.maxItems = {
@@ -550,10 +434,12 @@ export abstract class ArrayUncertain<
 			};
 		}
 
-		return Object.freeze(partial as array_schema<
+		return Object.freeze(partial as array_schema_alt<
 			DefsMode,
+			ArrayMode,
 			MinItems_mode,
-			ArrayMode
+			MaxItems_mode,
+			UniqueItems_mode
 		>);
 	}
 
@@ -574,6 +460,7 @@ export abstract class ArrayUncertain<
 		maxItems: MaxItems,
 		items: Items,
 		prefixItems: PrefixItems,
+		uniqueItems_mode: UniqueItems_mode,
 	): Readonly<array_type_alt<
 		DefsMode,
 		ArrayMode,
@@ -592,8 +479,8 @@ export abstract class ArrayUncertain<
 					array_type_alt<
 						'with',
 						'both'|'prefix-only',
-						'required',
-						'required',
+						'with',
+						'with',
 						unique_items_mode
 					>,
 					(
@@ -605,16 +492,18 @@ export abstract class ArrayUncertain<
 				array_type_alt<
 					'with',
 					'both',
-					'required',
-					'required',
+					'with',
+					'with',
 					unique_items_mode
 				>,
 				(
 					| 'type'
+					| 'uniqueItems'
 				)
 			>
 		) = {
 			type: 'array',
+			uniqueItems: 'yes' === uniqueItems_mode,
 		};
 
 		if ($defs) {
@@ -762,11 +651,11 @@ export abstract class ArrayUncertain<
 				schema as array_type_alt<
 					DefsMode,
 					ArrayMode,
-					'required',
+					'with',
 					MaxItems_mode,
 					UniqueItems_mode,
 					Defs,
-					MinItemsType_by_mode['required'],
+					MinItemsType_by_mode['with'],
 					MaxItems,
 					Items,
 					PrefixItems
@@ -813,11 +702,11 @@ export abstract class ArrayUncertain<
 		schema: array_type_alt<
 			DefsMode,
 			ArrayMode,
-			'required',
+			'with',
 			MaxItems_mode,
 			UniqueItems_mode,
 			Defs,
-			MinItemsType_by_mode['required'],
+			MinItemsType_by_mode['with'],
 			MaxItems,
 			Items,
 			PrefixItems
@@ -826,7 +715,7 @@ export abstract class ArrayUncertain<
 	): Promise<createTypeNode<
 		T2,
 		T3,
-		'required',
+		'with',
 		ArrayMode
 	>> {
 		const tuple_members: TypeNode[] = [];
@@ -860,7 +749,7 @@ export abstract class ArrayUncertain<
 		T2 extends TypeNode,
 		DefsMode extends $defs_mode,
 		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
-		MinItems_mode extends Exclude<MinItemsType_mode, 'required'>,
+		MinItems_mode extends Exclude<MinItemsType_mode, 'with'>,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
 		Defs extends (
@@ -1047,11 +936,11 @@ export abstract class ArrayUncertain<
 	): schema is array_type_alt<
 		DefsMode,
 		ArrayMode,
-		'required',
+		'with',
 		MaxItems_mode,
 		UniqueItems_mode,
 		Defs,
-		MinItemsType_by_mode['required'],
+		MinItemsType_by_mode['with'],
 		MaxItems,
 		Items,
 		PrefixItems

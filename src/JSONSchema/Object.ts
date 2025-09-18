@@ -1694,7 +1694,9 @@ abstract class ObjectUncertain<
 
 		if (this.#is_schema_with_pattern_properties(schema)) {
 			patterned = await Promise.all(
-				Object.values(schema.patternProperties).map(
+				Object.values(
+					schema.patternProperties,
+				).filter((maybe) => undefined !== maybe).map(
 					(sub_schema) => schema_parser.parse(
 						sub_schema,
 					).generate_typescript_type({
@@ -1806,6 +1808,7 @@ abstract class ObjectUncertain<
 		if (
 			this.#is_schema_with_properties(schema)
 			&& property in schema.properties
+			&& undefined !== schema.properties[property]
 		) {
 			return schema.properties[property];
 		}
@@ -1816,11 +1819,17 @@ abstract class ObjectUncertain<
 			const matching = object_keys(
 				schema.patternProperties,
 			).find((maybe) => {
-				return (new RegExp(maybe)).test(property);
+				return (
+					(new RegExp(maybe)).test(property)
+					&& undefined !== schema.patternProperties[maybe]
+				);
 			});
 
 			if (matching) {
-				return schema.patternProperties[matching];
+				return schema.patternProperties[matching] as Exclude<
+					typeof schema.patternProperties[typeof matching],
+					undefined
+				>;
 			}
 		}
 
