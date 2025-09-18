@@ -1082,9 +1082,9 @@ abstract class ObjectUncertain<
 	>> {
 		if ('neither' === properties_mode) {
 			const unfrozen:object_schema<
-				'with',
-				'without',
-				'neither'
+				DefsMode & 'with',
+				RequiredMode & 'without',
+				PropertiesMode & 'neither'
 			> = {
 				type: 'object',
 				required: ['type'],
@@ -1097,11 +1097,7 @@ abstract class ObjectUncertain<
 				},
 			};
 
-			return Object.freeze(unfrozen as object_schema<
-				DefsMode,
-				RequiredMode,
-				PropertiesMode
-			>);
+			return Object.freeze(unfrozen);
 		}
 
 		type CoercedSchema = object_schema<
