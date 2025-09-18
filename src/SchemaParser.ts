@@ -79,15 +79,26 @@ export class SchemaParser
 		) as SchemaParser['types'];
 	}
 
-	parse<T extends boolean|undefined = undefined>(
+	parse(
 		schema: SchemaObject,
-		require_conversion?: T,
-	): T extends true ? Type<unknown> : supported_type {
+		require_conversion: true,
+	): Type<unknown>;
+	parse(
+		schema: SchemaObject,
+		require_conversion?: false,
+	): ConversionlessType<unknown>;
+	parse(
+		schema: SchemaObject,
+		require_conversion?: boolean,
+	): ConversionlessType<unknown> {
 		for (const type of this.types) {
-			const maybe = type.can_handle_schema(schema);
+			const maybe: (
+				| undefined
+				| ConversionlessType<unknown>
+			) = type.can_handle_schema(schema);
 
 			if (maybe) {
-				if (require_conversion && !(maybe instanceof Type)) {
+				if (require_conversion && !Type.is_a(maybe)) {
 					throw new TypeError(
 						`schema resolved to the conversionless type ${
 							maybe.constructor.name
@@ -95,11 +106,7 @@ export class SchemaParser
 					);
 				}
 
-				return maybe as (
-					T extends true
-						? Type<unknown>
-						: supported_type
-				);
+				return maybe;
 			}
 		}
 

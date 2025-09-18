@@ -170,6 +170,11 @@ export abstract class ConversionlessType<
 	): Readonly<SchemaDefinitionDefinition> {
 		throw new Error('Not implemented!');
 	}
+
+	static is_a(maybe: unknown): maybe is ConversionlessType<unknown>
+	{
+		return maybe instanceof this;
+	}
 }
 
 export abstract class Type<
@@ -191,6 +196,11 @@ export abstract class Type<
 		schema_parser: SchemaParser,
 		schema: TypeDefinition,
 	): DataTo;
+
+	static is_a(maybe: unknown): maybe is Type<unknown>
+	{
+		return super.is_a(maybe);
+	}
 }
 
 export type TypedSchemaDefinition<
