@@ -148,10 +148,10 @@ export function is_TupleTypeNode<
 		last_is_rest = true;
 	}
 	ts_assert.isTupleTypeNode(value, message);
-	const elements = last_is_rest ? [...value.elements] : value.elements;
-	let last:Node|undefined;
+	const elements = [...value.elements];
+	let last:TypeNode|NamedTupleMember|undefined;
 	if (last_is_rest) {
-		last = (elements as unknown as Node[]).pop();
+		last = elements.pop();
 	}
 	assert.ok(
 		elements.every((maybe) => bool_throw(
