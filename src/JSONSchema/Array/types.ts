@@ -7,7 +7,6 @@ import type {
 } from '../../types.ts';
 
 import type {
-	ObjectOfSchemas,
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
 	TypeOptions,
@@ -20,6 +19,7 @@ import type {
 } from '../types.ts';
 
 import type {
+	PositiveInteger,
 	PositiveIntegerOrZero,
 } from '../../guarded.ts';
 
@@ -50,22 +50,13 @@ export type PrefixItemsType_by_mode<
 	'prefix-only': T,
 };
 
-type array_full_type<
-	Defs extends ObjectOfSchemas,
-	MinItems extends ReturnType<typeof PositiveIntegerOrZero<number>>,
-	Items extends SchemaObject,
-	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+export type unique_items_mode = 'yes'|'no';
+export type UniqueItemsType_by_mode<
+	Mode extends unique_items_mode,
 > = {
-	$defs: Defs,
-	type: 'array',
-	items: Items,
-	prefixItems: PrefixItems,
-	minItems: MinItems,
-};
-
-type array_prefixItems_items_type = {
-	items?: false,
-};
+	yes: true,
+	no: false,
+}[Mode];
 
 export type MinItemsType_by_mode = {
 	required: ReturnType<typeof PositiveIntegerOrZero<number>>,
@@ -73,222 +64,96 @@ export type MinItemsType_by_mode = {
 	excluded: undefined,
 };
 
-export type MinItemsType_mode = 'required'|'optional'|'excluded';
-
-type array_type_structured<
-	Defs extends DefsType_by_mode['without']|DefsType_by_mode['with'],
-	MinItems extends MinItemsType_by_mode[MinItemsType_mode],
-	Items extends false|ItemsType,
-	PrefixItems extends PrefixItemsType,
-> = {
-	with: {
-		both: {
-			excluded: Omit<
-				array_full_type<
-					Exclude<Defs, undefined>,
-					ReturnType<typeof PositiveIntegerOrZero<number>>,
-					Exclude<Items, undefined|false>,
-					Exclude<PrefixItems, undefined>
-				>,
-				'minItems'
-			>,
-			required: array_full_type<
-				Exclude<Defs, undefined>,
-				Exclude<MinItems, undefined>,
-				Exclude<Items, undefined|false>,
-				Exclude<PrefixItems, undefined>
-			>,
-			optional: (
-				& array_type_structured<
-					Exclude<Defs, undefined>,
-					undefined,
-					Exclude<Items, undefined|false>,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['excluded']
-				& Partial<Pick<
-					array_type_structured<
-						Exclude<Defs, undefined>,
-						Exclude<MinItems, undefined>,
-						Exclude<Items, undefined|false>,
-						Exclude<PrefixItems, undefined>
-					>['with']['both']['required'],
-					'minItems'
-				>>
-			),
-		},
-		'items-only': {
-			excluded: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					MinItems,
-					Exclude<Items, undefined|false>,
-					[SchemaObject, ...SchemaObject[]]
-				>['with']['both']['excluded'],
-				'prefixItems'
-			>,
-			required: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined|false>,
-					[SchemaObject, ...SchemaObject[]]
-				>['with']['both']['required'],
-				'prefixItems'
-			>,
-			optional: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					MinItems,
-					Exclude<Items, undefined|false>,
-					[SchemaObject, ...SchemaObject[]]
-				>['with']['both']['optional'],
-				'prefixItems'
-			>,
-		},
-		'prefix-only': {
-			excluded: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					MinItems,
-					SchemaObject,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['excluded'],
-				'items'
-			> & array_prefixItems_items_type,
-			required: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					Exclude<MinItems, undefined>,
-					SchemaObject,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['required'],
-				'items'
-			> & array_prefixItems_items_type,
-			optional: Omit<
-				array_type_structured<
-					Exclude<Defs, undefined>,
-					MinItems,
-					SchemaObject,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['optional'],
-				'items'
-			> & array_prefixItems_items_type,
-		},
-	},
-	without: {
-		both: {
-			excluded: Omit<
-				array_type_structured<
-					ObjectOfSchemas,
-					undefined,
-					Exclude<Items, undefined|false>,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['excluded'],
-				'$defs'
-			>,
-			required: Omit<
-				array_type_structured<
-					ObjectOfSchemas,
-					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined|false>,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['required'],
-				'$defs'
-			>,
-			optional: Omit<
-				array_type_structured<
-					ObjectOfSchemas,
-					MinItems,
-					Exclude<Items, undefined|false>,
-					Exclude<PrefixItems, undefined>
-				>['with']['both']['optional'],
-				'$defs'
-			>,
-		},
-		'items-only': {
-			excluded: Omit<
-				array_type_structured<
-					SchemaObject,
-					undefined,
-					Exclude<Items, undefined|false>,
-					undefined
-				>['with']['items-only']['excluded'],
-				'$defs'
-			>,
-			required: Omit<
-				array_type_structured<
-					SchemaObject,
-					Exclude<MinItems, undefined>,
-					Exclude<Items, undefined|false>,
-					undefined
-				>['with']['items-only']['excluded'],
-				'$defs'
-			>,
-			optional: Omit<
-				array_type_structured<
-					SchemaObject,
-					MinItems,
-					Exclude<Items, undefined|false>,
-					undefined
-				>['with']['items-only']['excluded'],
-				'$defs'
-			>,
-		},
-		'prefix-only': {
-			excluded: Omit<
-				array_type_structured<
-					SchemaObject,
-					undefined,
-					undefined,
-					Exclude<PrefixItems, undefined>
-				>['with']['prefix-only']['excluded'],
-				'$defs'
-			>,
-			required: Omit<
-				array_type_structured<
-					SchemaObject,
-					Exclude<MinItems, undefined>,
-					undefined,
-					Exclude<PrefixItems, undefined>
-				>['with']['prefix-only']['excluded'],
-				'$defs'
-			>,
-			optional: Omit<
-				array_type_structured<
-					SchemaObject,
-					MinItems,
-					undefined,
-					Exclude<PrefixItems, undefined>
-				>['with']['prefix-only']['excluded'],
-				'$defs'
-			>,
-		},
-	},
-	optional: array_type_structured<
-		DefsType_by_mode['with'],
-		MinItems,
-		Items,
-		PrefixItems
-	>['with']
+export type MaxItemsType_by_mode = {
+	required: ReturnType<typeof PositiveInteger<number>>,
+	optional: undefined|ReturnType<typeof PositiveInteger<number>>,
+	excluded: undefined,
 };
 
-export type array_type<
+export type MinItemsType_mode = 'required'|'optional'|'excluded';
+export type MaxItemsType_mode = MinItemsType_mode;
+
+export type array_type_alt<
 	DefsMode extends $defs_mode,
-	MinItemsMode extends MinItemsType_mode,
 	ArrayMode extends array_mode,
-	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode = unique_items_mode,
+	Defs extends (
+		DefsType_by_mode[DefsMode]
+	) = DefsType_by_mode[DefsMode],
+	MinItems extends (
+		MinItemsType_by_mode[MinItems_mode]
+	) = MinItemsType_by_mode[MinItems_mode],
+	MaxItems extends (
+		MaxItemsType_by_mode[MaxItems_mode]
+	) = MaxItemsType_by_mode[MaxItems_mode],
+	Items extends (
+		ItemsType_by_mode[ArrayMode]
+	) = ItemsType_by_mode[ArrayMode],
 	PrefixItems extends (
 		PrefixItemsType_by_mode[ArrayMode]
-	) = (
-		PrefixItemsType_by_mode[ArrayMode]
-	),
-	Defs extends DefsType_by_mode[DefsMode] = DefsType_by_mode[DefsMode],
-> = array_type_structured<
-	Defs,
-	MinItemsType_by_mode[MinItemsMode],
-	Items,
-	PrefixItems
->[DefsMode][ArrayMode][MinItemsMode];
+	) = PrefixItemsType_by_mode[ArrayMode],
+> = (
+	& {
+		with: {
+			$defs: Defs,
+		},
+		without: {
+			$defs?: undefined,
+		},
+		optional: {
+			$defs?: Defs,
+		},
+	}[DefsMode]
+	& {
+		type: 'array',
+	}
+	& {
+		required: {
+			minItems: MinItems,
+		},
+		excluded: {
+			minItems?: undefined,
+		},
+		optional: {
+			minItems?: MinItems,
+		}
+	}[MinItems_mode]
+	& {
+		required: {
+			maxItems: MaxItems,
+		},
+		excluded: {
+			maxItems?: undefined,
+		},
+		optional: {
+			maxItems?: MaxItems,
+		}
+	}[MaxItems_mode]
+	& {
+		yes: {
+			uniqueItems: UniqueItemsType_by_mode<'yes'>,
+		},
+		no: {
+			uniqueItems?: UniqueItemsType_by_mode<'no'>,
+		},
+	}[UniqueItems_mode]
+	& {
+		both: {
+			items: Items,
+			prefixItems: PrefixItems,
+		},
+		'items-only': {
+			items: Exclude<Items, false>,
+			prefixItems?: undefined,
+		},
+		'prefix-only': {
+			items?: false,
+			prefixItems: PrefixItems,
+		},
+	}[ArrayMode]
+);
 
 type array_schema_full = SchemaDefinitionDefinition<
 	['$defs', 'type', 'items', 'prefixItems', 'minItems'],
@@ -321,6 +186,10 @@ type array_schema_full = SchemaDefinitionDefinition<
 		minItems: {
 			type: 'integer',
 			minimum: 0,
+		},
+		maxItems: {
+			type: 'integer',
+			minimum: 1,
 		},
 	}
 >;

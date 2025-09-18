@@ -35,6 +35,9 @@ import {
 import {
 	PositiveInteger,
 } from './guarded.ts';
+import type {
+	unique_items_mode,
+} from './JSONSchema/Array/types.ts';
 
 export type supported_type = (
 	| ConversionlessType<unknown>
@@ -129,7 +132,11 @@ export class SchemaParser
 		NonEmptyString<ReturnType<typeof PositiveInteger<1>>>,
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
-		ArrayUnspecified<unknown[], 'items-only'>,
+		ArrayUnspecified<
+			unknown[],
+			'items-only',
+			unique_items_mode
+		>,
 	] {
 		return [
 			new String({

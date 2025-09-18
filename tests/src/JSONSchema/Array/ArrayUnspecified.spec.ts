@@ -49,10 +49,14 @@ import {
 
 import type {
 	array_mode,
-	array_type,
+	array_type_alt,
 	ItemsType_by_mode,
+	MaxItemsType_by_mode,
+	MaxItemsType_mode,
+	MinItemsType_by_mode,
 	MinItemsType_mode,
 	PrefixItemsType_by_mode,
+	unique_items_mode,
 } from '../../../../src/JSONSchema/Array/types.ts';
 
 import type {
@@ -79,13 +83,15 @@ void describe('ArrayUnspecified', () => {
 			),
 			DefsMode extends $defs_mode = $defs_mode,
 			MinItems extends MinItemsType_mode = MinItemsType_mode,
+			MaxItems extends MaxItemsType_mode = MaxItemsType_mode,
 			ArrayMode extends array_mode = array_mode,
 		> = [
 			unknown[], // input
-			array_type<
+			array_type_alt<
 				DefsMode,
+				ArrayMode,
 				MinItems,
-				ArrayMode
+				MaxItems
 			>,
 			ArrayUnspecified_options<
 				ArrayMode,
@@ -218,7 +224,16 @@ void describe('ArrayUnspecified', () => {
 				);
 				const generated = await instance.generate_typescript_type({
 					data,
-					schema,
+					schema: schema as array_type_alt<
+						'without',
+						array_mode,
+						'optional',
+						'optional',
+						unique_items_mode,
+						undefined,
+						MinItemsType_by_mode['optional'],
+						MaxItemsType_by_mode['optional']
+					>,
 					schema_parser,
 				});
 				assert.doesNotThrow(() => expectation_asserter(
