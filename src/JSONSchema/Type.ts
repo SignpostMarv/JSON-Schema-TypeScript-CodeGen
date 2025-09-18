@@ -17,7 +17,7 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-export type ObjectOfSchemas = {[key: string]: SchemaObject|undefined};
+export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 export type SchemaDefinitionDefinition<
 	Required extends (

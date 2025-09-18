@@ -1792,10 +1792,7 @@ abstract class ObjectUncertain<
 			});
 
 			if (matching) {
-				return schema.patternProperties[matching] as Exclude<
-					typeof schema.patternProperties[typeof matching],
-					undefined
-				>;
+				return schema.patternProperties[matching];
 			}
 		}
 
