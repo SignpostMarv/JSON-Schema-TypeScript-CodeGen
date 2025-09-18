@@ -233,8 +233,8 @@ export class ArrayWith$defs<
 			uniqueItems_mode,
 		}: {
 			$defs: Defs,
-			minItems: MinItemsType_by_mode[MinItems_mode],
-			maxItems: MaxItemsType_by_mode[MaxItems_mode],
+			minItems: MinItems,
+			maxItems: MaxItems,
 			items: Items,
 			prefixItems: PrefixItems,
 			minItems_mode: MinItems_mode,

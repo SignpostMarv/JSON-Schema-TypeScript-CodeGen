@@ -50,8 +50,10 @@ import type {
 	MinItemsType_mode,
 	PrefixItemsType_by_mode,
 	unique_items_mode,
-	UniqueItemsType_by_mode,
 } from './types.ts';
+import {
+	UniqueItemsType_by_mode,
+} from './coercions.ts';
 
 type createTypeNode_structured<
 	T1 extends TypeNode,
@@ -138,8 +140,8 @@ export abstract class ArrayUncertain<
 			maxItems_mode: MaxItems_mode,
 			uniqueItems_mode: UniqueItems_mode,
 			$defs: Defs,
-			minItems: MinItemsType_by_mode[MinItems_mode],
-			maxItems: MaxItemsType_by_mode[MaxItems_mode],
+			minItems: MinItems,
+			maxItems: MaxItems,
 			items: Items,
 			prefixItems: PrefixItems,
 		},
@@ -162,8 +164,8 @@ export abstract class ArrayUncertain<
 			ajv,
 			type_definition: ArrayUncertain.#generate_default_type_definition(
 				$defs,
-				minItems as MinItems,
-				maxItems as MaxItems,
+				minItems,
+				maxItems,
 				items,
 				prefixItems,
 				uniqueItems_mode,
@@ -374,9 +376,7 @@ export abstract class ArrayUncertain<
 				},
 				uniqueItems: {
 					type: 'boolean',
-					const: (
-						'yes' === uniqueItems_mode
-					) as UniqueItemsType_by_mode<UniqueItems_mode>,
+					const: UniqueItemsType_by_mode(uniqueItems_mode),
 				},
 			},
 		};
