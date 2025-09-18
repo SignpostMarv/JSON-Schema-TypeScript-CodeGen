@@ -295,8 +295,8 @@ export type ArrayUncertain_options<
 			PrefixItems
 		>
 	>,
-		(
-			| 'schema_definition'
-			| 'type_definition'
-		)
+	(
+		| 'schema_definition'
+		| 'type_definition'
+	)
 >;

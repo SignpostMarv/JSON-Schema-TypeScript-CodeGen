@@ -146,16 +146,16 @@ export abstract class ArrayUncertain<
 		{
 			ajv,
 		}: ArrayUncertain_options<
-				DefsMode,
-				ArrayMode,
-				MinItems_mode,
-				MaxItems_mode,
-				UniqueItems_mode,
-				Defs,
-				MinItems,
-				MaxItems,
-				Items,
-				PrefixItems
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			Defs,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
 		>,
 	) {
 		super({
@@ -282,7 +282,7 @@ export abstract class ArrayUncertain<
 		MaxItems_mode,
 		UniqueItems_mode
 	>> {
-		const full_required:[
+		const full_required: [
 			'$defs',
 			'type',
 			'items',
@@ -337,12 +337,12 @@ export abstract class ArrayUncertain<
 			& {
 				properties: (
 					& Partial<array_schema_alt<
-							'with',
-							'both'|'prefix-only',
-							'with',
-							'with',
-							UniqueItems_mode
-						>['properties']>
+						'with',
+						'both'|'prefix-only',
+						'with',
+						'with',
+						UniqueItems_mode
+					>['properties']>
 					& Pick<
 						array_schema_alt<
 							'with',
