@@ -104,7 +104,7 @@ void describe('ArrayUnspecified', () => {
 			ArrayUnspecified_options<
 				ArrayMode,
 				UniqueItems_mode,
-				ItemsType_by_mode[ArrayMode],
+				ItemsType_by_mode<ArrayMode>,
 				[SchemaObject, ...SchemaObject[]]
 			>,
 			ts_asserter<T2>, // expectation asserter

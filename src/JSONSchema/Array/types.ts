@@ -25,12 +25,13 @@ import type {
 export type array_mode = 'both'|'items-only'|'prefix-only';
 
 export type ItemsType_by_mode<
-	T extends SchemaObject = SchemaObject,
+	ArrayMode extends array_mode,
+	Items extends SchemaObject = SchemaObject,
 > = {
-	both: T,
-	'items-only': T,
+	both: Items,
+	'items-only': Items,
 	'prefix-only': undefined|false,
-};
+}[ArrayMode];
 
 export type unique_items_mode = 'yes'|'no';
 export type UniqueItemsType_by_mode<
@@ -56,8 +57,8 @@ export type array_type<
 	MinItems extends MinItemsType = MinItemsType,
 	MaxItems extends MaxItemsType = MaxItemsType,
 	Items extends (
-		ItemsType_by_mode[ArrayMode]
-	) = ItemsType_by_mode[ArrayMode],
+		ItemsType_by_mode<ArrayMode>
+	) = ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [
 		SchemaObject,
 		...SchemaObject[]
@@ -245,7 +246,7 @@ export type ArrayUncertain_TypeOptions<
 	Defs extends SchemaObject,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	TypeOptions<

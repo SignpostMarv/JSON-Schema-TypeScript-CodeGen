@@ -31,7 +31,7 @@ type ArrayWithout$defs_options<
 	UniqueItems_mode extends unique_items_mode,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayUncertain_options<
@@ -59,7 +59,7 @@ type ArrayWith$defs_options<
 	Defs extends SchemaObject,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayUncertain_options<
@@ -82,7 +82,7 @@ type ArrayWith$defs_options<
 export type ArrayUnspecified_options<
 	ArrayMode extends array_mode,
 	UniqueItems_mode extends unique_items_mode,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayWithout$defs_options<
@@ -111,7 +111,7 @@ export class ArrayWithout$defs<
 	UniqueItems_mode extends unique_items_mode,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends ArrayUncertain<
 	T1,
@@ -181,7 +181,7 @@ export class ArrayUnspecified<
 	T extends unknown[],
 	ArrayMode extends array_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
-	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode> = ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [
 		SchemaObject,
 		...SchemaObject[]
@@ -248,7 +248,7 @@ export class ArrayWith$defs<
 	Defs extends SchemaObject,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends ArrayUncertain<
 	T1,

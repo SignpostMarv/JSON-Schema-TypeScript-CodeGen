@@ -85,7 +85,7 @@ export type ArrayUncertain_options<
 	Defs extends SchemaObject,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = (
 	& {
@@ -114,7 +114,7 @@ export abstract class ArrayUncertain<
 	Defs extends SchemaObject,
 	MinItems extends MinItemsType,
 	MaxItems extends MaxItemsType,
-	Items extends ItemsType_by_mode[ArrayMode],
+	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends Type<
 	T1,
@@ -451,7 +451,7 @@ export abstract class ArrayUncertain<
 		Defs extends SchemaObject,
 		MinItems extends MinItemsType,
 		MaxItems extends MaxItemsType,
-		Items extends ItemsType_by_mode[ArrayMode],
+		Items extends ItemsType_by_mode<ArrayMode>,
 		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 	>({
 		minItems = undefined,
@@ -556,8 +556,8 @@ export abstract class ArrayUncertain<
 		MinItems extends MinItemsType = MinItemsType,
 		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
-			ItemsType_by_mode[ArrayMode]
-		) = ItemsType_by_mode[ArrayMode],
+			ItemsType_by_mode<ArrayMode>
+		) = ItemsType_by_mode<ArrayMode>,
 		PrefixItems extends [
 			SchemaObject,
 			...SchemaObject[]
@@ -617,8 +617,8 @@ export abstract class ArrayUncertain<
 		MinItems extends MinItemsType = MinItemsType,
 		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
-			Exclude<ItemsType_by_mode[ArrayMode], false>
-		) = Exclude<ItemsType_by_mode[ArrayMode], false>,
+			Exclude<ItemsType_by_mode<ArrayMode>, false>
+		) = Exclude<ItemsType_by_mode<ArrayMode>, false>,
 		PrefixItems extends [
 			SchemaObject,
 			...SchemaObject[]
@@ -694,8 +694,8 @@ export abstract class ArrayUncertain<
 		Defs extends SchemaObject = SchemaObject,
 		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
-			ItemsType_by_mode[ArrayMode]
-		) = ItemsType_by_mode[ArrayMode],
+			ItemsType_by_mode<ArrayMode>
+		) = ItemsType_by_mode<ArrayMode>,
 		PrefixItems extends [
 			SchemaObject,
 			...SchemaObject[]
@@ -762,8 +762,8 @@ export abstract class ArrayUncertain<
 		MinItems extends MinItemsType = MinItemsType,
 		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
-			Exclude<ItemsType_by_mode[ArrayMode], false>
-		) = Exclude<ItemsType_by_mode[ArrayMode], false>,
+			Exclude<ItemsType_by_mode<ArrayMode>, false>
+		) = Exclude<ItemsType_by_mode<ArrayMode>, false>,
 		PrefixItems extends [
 			SchemaObject,
 			...SchemaObject[]
@@ -891,7 +891,7 @@ export abstract class ArrayUncertain<
 			Defs,
 			MinItems,
 			MaxItems,
-			ItemsType_by_mode[ArrayMode],
+			ItemsType_by_mode<ArrayMode>,
 			[SchemaObject, ...SchemaObject[]]
 		>,
 	): schema is array_type<
@@ -903,7 +903,7 @@ export abstract class ArrayUncertain<
 		Defs,
 		MinItems,
 		MaxItems,
-		Exclude<ItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>], false>,
+		Exclude<ItemsType_by_mode<Exclude<ArrayMode, 'prefix-only'>>, false>,
 		[SchemaObject, ...SchemaObject[]]
 	> {
 		return 'items' in schema && false !== schema.items;
@@ -916,7 +916,7 @@ export abstract class ArrayUncertain<
 		UniqueItems_mode extends unique_items_mode,
 		Defs extends SchemaObject,
 		MaxItems extends MaxItemsType,
-		Items extends ItemsType_by_mode[ArrayMode],
+		Items extends ItemsType_by_mode<ArrayMode>,
 		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 	>(
 		schema: array_type<
@@ -988,7 +988,7 @@ export abstract class ArrayUncertain<
 		Defs extends SchemaObject,
 		MinItems extends MinItemsType,
 		MaxItems extends MaxItemsType,
-		Items extends ItemsType_by_mode[ArrayMode],
+		Items extends ItemsType_by_mode<ArrayMode>,
 		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 		N extends number,
 	> (
