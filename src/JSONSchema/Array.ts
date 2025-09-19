@@ -51,7 +51,7 @@ type ArrayWithout$defs_options<
 	)
 >;
 
-type ArrayWith$defs_options<
+export type ArrayWith$defs_options<
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
