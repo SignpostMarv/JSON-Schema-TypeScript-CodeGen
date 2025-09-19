@@ -20,30 +20,22 @@ import type {
 export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 export type SchemaDefinitionDefinition<
-	Required extends (
-		| undefined
-		| [string, ...string[]]
-	) = (
-		| undefined
-		| [string, ...string[]]
-	),
+	Required extends readonly [
+		string,
+		...string[]
+	] = readonly [
+		string,
+		...string[]
+	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = (
 	& SchemaObject
-	& (
-		Required extends [string, ...string[]]
-			? {
-				type: 'object',
-				required: Required,
-				additionalProperties: false,
-				properties: Properties,
-			}
-			: {
-				type: 'object',
-				additionalProperties: false,
-				properties: Properties,
-			}
-	)
+	& {
+		type: 'object',
+		required: Required,
+		additionalProperties: false,
+		properties: Properties,
+	}
 );
 
 export type TypeDefinitionSchema<
@@ -267,11 +259,9 @@ export type TypeDefinition_with_$defs<
 
 export type SchemaDefinition_with_$defs<
 	Required extends (
-		| undefined
-		| ['$defs', string, ...string[]]
+		['$defs', string, ...string[]]
 	) = (
-		| undefined
-		| ['$defs', string, ...string[]]
+		['$defs', string, ...string[]]
 	),
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = SchemaDefinitionDefinition<

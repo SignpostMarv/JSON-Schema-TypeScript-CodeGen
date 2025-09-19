@@ -94,9 +94,9 @@ export type OmitFromTupleishIf<
 > = If extends 'without'
 	? OmitFromTupleish<T1, T2>
 	: (
-		If extends 'optional'
-			? T1|OmitFromTupleish<T1, T2>
-			: T1
+		If extends 'with'
+			? T1
+			: OmitFromTupleish<T1, T2>
 	);
 
 export type PartialPick<

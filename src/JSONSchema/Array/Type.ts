@@ -318,7 +318,13 @@ export abstract class ArrayUncertain<
 			}
 
 			return true;
-		});
+		}) as array_schema<
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode
+		>['required'];
 
 		const partial: (
 			& Pick<
