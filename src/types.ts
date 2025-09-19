@@ -112,7 +112,7 @@ export type OmitIf<
 	K extends keyof T,
 	If extends 'with'|'without'|'optional'
 > = If extends 'without'
-	? Omit<T, K> & Exclude<T, {[key in K]: undefined}>
+	? Omit<T, K>
 	: (
 		If extends 'optional'
 			? PartialPick<T, K>

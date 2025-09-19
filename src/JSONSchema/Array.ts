@@ -1,44 +1,105 @@
 import type {
+	SchemaObject,
+} from 'ajv/dist/2020.js';
+
+import type {
 	TypeNode,
 } from 'typescript';
 
 import type {
-	DefsType_by_mode,
-} from './types.ts';
-
+	ArrayUncertain_options,
+} from './Array/Type.ts';
 import {
 	ArrayUncertain,
 } from './Array/Type.ts';
 
 import type {
 	array_mode,
-	ArrayUncertain_options,
+	ArrayUncertain_TypeOptions,
 	ItemsType_by_mode,
-	MaxItemsType_by_mode,
+	MaxItemsType,
 	MaxItemsType_mode,
-	MinItemsType_by_mode,
+	MinItemsType,
 	MinItemsType_mode,
-	PrefixItemsType_by_mode,
 	unique_items_mode,
 } from './Array/types.ts';
 
+type ArrayWithout$defs_options<
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+> = Omit<
+	ArrayUncertain_options<
+		'without',
+		ArrayMode,
+		MinItems_mode,
+		MaxItems_mode,
+		UniqueItems_mode,
+		SchemaObject,
+		MinItems,
+		MaxItems,
+		Items,
+		PrefixItems
+	>,
+	(
+		| '$defs_mode'
+	)
+>;
+
+type ArrayWith$defs_options<
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode,
+	Defs extends SchemaObject,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+> = Omit<
+	ArrayUncertain_options<
+		'with',
+		ArrayMode,
+		MinItems_mode,
+		MaxItems_mode,
+		UniqueItems_mode,
+		Defs,
+		MinItems,
+		MaxItems,
+		Items,
+		PrefixItems
+	>,
+	(
+		| '$defs_mode'
+	)
+>;
+
 export type ArrayUnspecified_options<
 	ArrayMode extends array_mode,
-	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
-	PrefixItems extends (
-		PrefixItemsType_by_mode[ArrayMode]
-	) = (
-		PrefixItemsType_by_mode[ArrayMode]
-	),
-	UniqueItems_mode extends unique_items_mode = unique_items_mode,
-> = {
-	minItems?: MinItemsType_by_mode['optional'],
-	maxItems?: MaxItemsType_by_mode['optional'],
-	array_mode: ArrayMode,
-	items: Items,
-	prefixItems: PrefixItems,
-	uniqueItems_mode: UniqueItems_mode,
-};
+	UniqueItems_mode extends unique_items_mode,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+> = Omit<
+	ArrayWithout$defs_options<
+		ArrayMode,
+		'optional',
+		'optional',
+		UniqueItems_mode,
+		MinItemsType,
+		MaxItemsType,
+		Items,
+		PrefixItems
+	>,
+	(
+		| 'minItems_mode'
+		| 'maxItems_mode'
+	)
+>;
 
 export class ArrayWithout$defs<
 	T1 extends unknown[],
@@ -48,10 +109,10 @@ export class ArrayWithout$defs<
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 	UniqueItems_mode extends unique_items_mode,
-	MinItems extends MinItemsType_by_mode[MinItems_mode],
-	MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
 	Items extends ItemsType_by_mode[ArrayMode],
-	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends ArrayUncertain<
 	T1,
 	T2,
@@ -61,41 +122,32 @@ export class ArrayWithout$defs<
 	MinItems_mode,
 	MaxItems_mode,
 	UniqueItems_mode,
-	undefined,
+	SchemaObject,
 	MinItems,
 	MaxItems,
 	Items,
 	PrefixItems
 > {
 	constructor(
-		{
-			array_mode,
-			minItems_mode,
-			maxItems_mode,
-			uniqueItems_mode,
-			minItems,
-			maxItems,
-			items,
-			prefixItems,
-		}: {
-			array_mode: ArrayMode,
-			minItems_mode: MinItems_mode,
-			maxItems_mode: MaxItems_mode,
-			uniqueItems_mode: UniqueItems_mode,
-			minItems: MinItems,
-			maxItems: MaxItems,
-			items: Items,
-			prefixItems: PrefixItems,
-		},
+		options: ArrayWithout$defs_options<
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
+		>,
 		{
 			ajv,
-		}: ArrayUncertain_options<
+		}: ArrayUncertain_TypeOptions<
 				'without',
 				ArrayMode,
 				MinItems_mode,
 				MaxItems_mode,
 				UniqueItems_mode,
-				undefined,
+				SchemaObject,
 				MinItems,
 				MaxItems,
 				Items,
@@ -104,17 +156,20 @@ export class ArrayWithout$defs<
 	) {
 		super(
 			{
+				...options,
 				$defs_mode: 'without',
-				array_mode,
-				minItems_mode,
-				maxItems_mode,
-				uniqueItems_mode,
-				$defs: undefined,
-				minItems,
-				maxItems,
-				items,
-				prefixItems,
-			},
+			} as ArrayUncertain_options<
+				'without',
+				ArrayMode,
+				MinItems_mode,
+				MaxItems_mode,
+				UniqueItems_mode,
+				SchemaObject,
+				MinItems,
+				MaxItems,
+				Items,
+				PrefixItems
+			>,
 			{
 				ajv,
 			},
@@ -127,11 +182,13 @@ export class ArrayUnspecified<
 	ArrayMode extends array_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
 	Items extends ItemsType_by_mode[ArrayMode] = ItemsType_by_mode[ArrayMode],
-	PrefixItems extends (
-		PrefixItemsType_by_mode[ArrayMode]
-	) = (
-		PrefixItemsType_by_mode[ArrayMode]
-	),
+	PrefixItems extends [
+		SchemaObject,
+		...SchemaObject[]
+	] = [
+		SchemaObject,
+		...SchemaObject[]
+	],
 > extends ArrayWithout$defs<
 	T,
 	TypeNode,
@@ -140,50 +197,38 @@ export class ArrayUnspecified<
 	'optional',
 	'optional',
 	UniqueItems_mode,
-	MinItemsType_by_mode['optional'],
-	MaxItemsType_by_mode['optional'],
+	MinItemsType,
+	MaxItemsType,
 	Items,
 	PrefixItems
 > {
 	constructor(
-		{
-			minItems,
-			maxItems,
-			array_mode,
-			items,
-			prefixItems,
-			uniqueItems_mode,
-		}: ArrayUnspecified_options<
+		options: ArrayUnspecified_options<
 			ArrayMode,
+			UniqueItems_mode,
 			Items,
-			PrefixItems,
-			UniqueItems_mode
+			PrefixItems
 		>,
 		{
 			ajv,
-		}: ArrayUncertain_options<
+		}: ArrayUncertain_TypeOptions<
 				'without',
 				ArrayMode,
 				'optional',
 				'optional',
 				UniqueItems_mode,
-				undefined,
-				MinItemsType_by_mode['optional'],
-				MaxItemsType_by_mode['optional'],
+				SchemaObject,
+				MinItemsType,
+				MaxItemsType,
 				Items,
 				PrefixItems
 		>,
 	) {
 		super(
 			{
-				minItems,
-				maxItems,
-				items,
-				prefixItems,
+				...options,
 				minItems_mode: 'optional',
 				maxItems_mode: 'optional',
-				array_mode,
-				uniqueItems_mode,
 			},
 			{
 				ajv,
@@ -200,11 +245,11 @@ export class ArrayWith$defs<
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 	UniqueItems_mode extends unique_items_mode,
-	Defs extends DefsType_by_mode['with'],
-	MinItems extends MinItemsType_by_mode[MinItems_mode],
-	MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+	Defs extends SchemaObject,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
 	Items extends ItemsType_by_mode[ArrayMode],
-	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends ArrayUncertain<
 	T1,
 	T2,
@@ -221,30 +266,20 @@ export class ArrayWith$defs<
 	PrefixItems
 > {
 	constructor(
-		{
-			$defs,
-			minItems,
-			maxItems,
-			items,
-			prefixItems,
-			minItems_mode,
-			maxItems_mode,
-			array_mode,
-			uniqueItems_mode,
-		}: {
-			$defs: Defs,
-			minItems: MinItems,
-			maxItems: MaxItems,
-			items: Items,
-			prefixItems: PrefixItems,
-			minItems_mode: MinItems_mode,
-			maxItems_mode: MaxItems_mode,
-			array_mode: ArrayMode,
-			uniqueItems_mode: UniqueItems_mode,
-		},
+		options: ArrayWith$defs_options<
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			Defs,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
+		>,
 		{
 			ajv,
-		}: ArrayUncertain_options<
+		}: ArrayUncertain_TypeOptions<
 				'with',
 				ArrayMode,
 				MinItems_mode,
@@ -259,16 +294,8 @@ export class ArrayWith$defs<
 	) {
 		super(
 			{
+				...options,
 				$defs_mode: 'with',
-				array_mode,
-				minItems_mode,
-				maxItems_mode,
-				uniqueItems_mode,
-				$defs,
-				minItems,
-				maxItems,
-				items,
-				prefixItems,
 			},
 			{
 				ajv,

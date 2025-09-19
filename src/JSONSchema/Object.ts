@@ -16,6 +16,7 @@ import {
 import type {
 	IntersectionTypeNode,
 	OmitFromTupleish,
+	OmitIf,
 	TypeLiteralNode,
 } from '../types.ts';
 
@@ -32,7 +33,6 @@ import {
 import type {
 	$defs_mode,
 	$defs_schema,
-	DefsType_by_mode,
 } from './types.ts';
 
 import type {
@@ -57,230 +57,45 @@ type object_properties_mode = (
 
 type required_mode = 'optional'|'with'|'without';
 
-type RequiredType_by_mode<
-	RequiredMode extends required_mode,
-	Required extends [string, ...string[]] = [string, ...string[]]
-> = {
-	with: Required,
-	without: undefined,
-	optional: RequiredType_by_mode<'with', Required>,
-}[RequiredMode];
-
-type object_full_type<
-	Defs extends DefsType_by_mode['with'],
-	Required extends RequiredType_by_mode<'with'>,
-	Properties extends ObjectOfSchemas,
-	PatternProperties extends ObjectOfSchemas,
-> = {
-	type: 'object',
-	$defs: Defs,
-	required: Required,
-	properties: Properties,
-	patternProperties: PatternProperties,
-};
-
-type object_type_structured<
-	DefsMode extends $defs_mode,
-	RequiredMode extends required_mode,
-	Defs extends DefsType_by_mode[$defs_mode],
-	Required extends RequiredType_by_mode<RequiredMode>,
-	Properties extends ObjectOfSchemas,
-	PatternProperties extends ObjectOfSchemas,
-> = {
-	with: {
-		with: {
-			both: Omit<
-				object_full_type<
-					Exclude<Defs, DefsType_by_mode['without']>,
-					Exclude<Required, RequiredType_by_mode<'without'>>,
-					Properties,
-					PatternProperties
-				>,
-				(
-					| '$defs'
-				)
-			>,
-			neither: never,
-			properties: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['with']['with']['both'],
-				'patternProperties'
-			>,
-			pattern: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['with']['with']['both'],
-				'properties'
-			>,
-		},
-		without: {
-			both: Omit<
-				object_full_type<
-					Exclude<Defs, DefsType_by_mode['without']>,
-					Exclude<Required, RequiredType_by_mode<'without'>>,
-					Properties,
-					PatternProperties
-				>,
-				(
-					| '$defs'
-					| 'required'
-				)
-			>,
-			neither: never,
-			properties: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['with']['without']['both'],
-				'patternProperties'
-			>,
-			pattern: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['with']['without']['both'],
-				'properties'
-			>,
-		},
-		optional: object_type_structured<
-			DefsMode,
-			RequiredMode,
-			Defs,
-			Required,
-			Properties,
-			PatternProperties
-		>['with']['with'],
-	},
-	without: {
-		with: {
-			both: object_full_type<
-				Exclude<Defs, DefsType_by_mode['without']>,
-				Exclude<Required, RequiredType_by_mode<'without'>>,
-				Properties,
-				PatternProperties
-			>,
-			neither: never,
-			properties: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['without']['with']['both'],
-				'patternProperties'
-			>,
-			pattern: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['without']['with']['both'],
-				'properties'
-			>,
-		},
-		without: {
-			both: Omit<
-				object_full_type<
-					Exclude<Defs, DefsType_by_mode['without']>,
-					Exclude<Required, RequiredType_by_mode<'without'>>,
-					Properties,
-					PatternProperties
-				>,
-				(
-					| 'required'
-				)
-			>,
-			neither: Pick<
-				object_full_type<
-					Exclude<Defs, DefsType_by_mode['without']>,
-					Exclude<Required, RequiredType_by_mode<'without'>>,
-					Properties,
-					PatternProperties
-				>,
-				'type'
-			>,
-			properties: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['without']['without']['both'],
-				'patternProperties'
-			>,
-			pattern: Omit<
-				object_type_structured<
-					DefsMode,
-					RequiredMode,
-					Defs,
-					Required,
-					Properties,
-					PatternProperties
-				>['without']['without']['both'],
-				'properties'
-			>,
-		},
-		optional: object_type_structured<
-			DefsMode,
-			RequiredMode,
-			Defs,
-			Required,
-			Properties,
-			PatternProperties
-		>['without']['with'],
-	},
-	optional: object_type_structured<
-		DefsMode,
-		RequiredMode,
-		Defs,
-		Required,
-		Properties,
-		PatternProperties
-	>['with'],
-};
-
 type object_type<
 	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
-	Defs extends DefsType_by_mode[DefsMode],
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Defs extends SchemaObject,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas,
-> = object_type_structured<
-	DefsMode,
-	RequiredMode,
-	Defs,
-	Required,
-	Properties,
-	PatternProperties
->[DefsMode][RequiredMode][PropertiesMode];
+> = (
+	& {
+		type: 'object'
+	}
+	& OmitIf<
+		{
+			$defs: Defs,
+		},
+		'$defs',
+		DefsMode
+	>
+	& OmitIf<
+		{
+			required: Required,
+		},
+		'required',
+		RequiredMode
+	>
+	& Omit<
+		{
+			properties: Properties,
+			patternProperties: PatternProperties
+		},
+		{
+			both: '',
+			neither: 'properties'|'patternProperties',
+			properties: 'patternProperties',
+			pattern: 'properties',
+		}[PropertiesMode]
+	>
+);
 
 type object_full_schema = SchemaDefinitionDefinition<
 	['$defs', 'type', 'required', 'properties', 'patternProperties'],
@@ -931,10 +746,10 @@ abstract class ObjectUncertain<
 	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
-	Defs extends DefsType_by_mode[DefsMode],
-	Required extends RequiredType_by_mode<RequiredMode>,
-	Properties extends ObjectOfSchemas = ObjectOfSchemas,
-	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+	Defs extends SchemaObject,
+	Required extends [string, ...string[]],
+	Properties extends ObjectOfSchemas,
+	PatternProperties extends ObjectOfSchemas,
 > extends Type<
 	T,
 	object_type<
@@ -957,22 +772,14 @@ abstract class ObjectUncertain<
 	#adjust_name: adjust_name_callback;
 
 	constructor(
-		{
-			adjust_name,
-			required_mode,
-			properties_mode,
-			$defs,
-			required,
-			properties,
-			patternProperties,
-		}: {
+		options: {
 			adjust_name?: adjust_name_callback,
 			required_mode: RequiredMode,
 			properties_mode: PropertiesMode,
-			$defs: Defs,
-			required: Required,
-			properties: Properties,
-			patternProperties: PatternProperties,
+			$defs?: Defs,
+			required?: Required,
+			properties?: Properties,
+			patternProperties?: PatternProperties,
 		},
 		{
 			ajv,
@@ -996,23 +803,16 @@ abstract class ObjectUncertain<
 		super({
 			ajv,
 			type_definition: ObjectUncertain.#generate_default_type_definition(
-				properties_mode,
-				$defs,
-				required,
-				properties,
-				patternProperties,
+				options,
 			),
 			schema_definition: (
-				ObjectUncertain.generate_default_schema_definition({
-					required_mode,
-					properties_mode,
-					$defs,
-					required,
-				})
+				ObjectUncertain.generate_default_schema_definition(
+					options,
+				)
 			),
 		});
 
-		this.#adjust_name = adjust_name || adjust_name_default;
+		this.#adjust_name = options?.adjust_name || adjust_name_default;
 	}
 
 	generate_typescript_data(
@@ -1063,8 +863,8 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
 	>({
 		required_mode,
 		properties_mode,
@@ -1073,8 +873,8 @@ abstract class ObjectUncertain<
 	}: {
 		required_mode: RequiredMode,
 		properties_mode: PropertiesMode,
-		$defs: Defs,
-		required: Required,
+		$defs?: Defs,
+		required?: Required,
 	}): Readonly<object_schema<
 		DefsMode,
 		RequiredMode,
@@ -1195,13 +995,13 @@ abstract class ObjectUncertain<
 			object_properties_mode,
 			'neither'
 		>,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
 	>(
 		required_mode: RequiredMode,
 		properties_mode: PropertiesMode,
-		$defs: Defs,
-		required: Required,
+		$defs?: Defs,
+		required?: Required,
 	): object_schema<
 		DefsMode,
 		RequiredMode,
@@ -1292,17 +1092,23 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
-	>(
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
+	>({
+		properties_mode,
+		$defs,
+		required,
+		properties,
+		patternProperties,
+	}: {
 		properties_mode: PropertiesMode,
-		$defs: Defs,
-		required: Required,
-		properties: Properties,
-		patternProperties: PatternProperties,
-	): Readonly<object_type<
+		$defs?: Defs,
+		required?: Required,
+		properties?: Properties,
+		patternProperties?: PatternProperties,
+	}): Readonly<object_type<
 		DefsMode,
 		RequiredMode,
 		PropertiesMode,
@@ -1311,23 +1117,12 @@ abstract class ObjectUncertain<
 		Properties,
 		PatternProperties
 	>> {
-		if (properties_mode === 'neither') {
-			return Object.freeze({
-				type: 'object',
-			} as object_type<
-				DefsMode & 'without',
-				RequiredMode,
-				PropertiesMode & 'neither',
-				Defs & undefined,
-				Required,
-				Properties,
-				PatternProperties
-			>);
-		}
-
-		const partial:Partial<object_full_type<
-			ObjectOfSchemas,
-			[string, ...string[]],
+		const partial:Partial<object_type<
+			'with',
+			'with',
+			'both',
+			Defs,
+			Required,
 			Properties,
 			PatternProperties
 		>> = {
@@ -1369,16 +1164,15 @@ abstract class ObjectUncertain<
 	static #is_schema_with_neither<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
-		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
 			DefsMode,
 			RequiredMode,
-			PropertiesMode,
+			object_properties_mode,
 			Defs,
 			Required,
 			Properties,
@@ -1387,7 +1181,7 @@ abstract class ObjectUncertain<
 	): schema is object_type<
 		DefsMode,
 		RequiredMode,
-		Exclude<PropertiesMode, 'both'|'properties'|'patternProperties'>,
+		'neither',
 		Defs,
 		Required,
 		Properties,
@@ -1399,16 +1193,15 @@ abstract class ObjectUncertain<
 	static #is_schema_with_properties<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
-		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
 			DefsMode,
 			RequiredMode,
-			PropertiesMode,
+			object_properties_mode,
 			Defs,
 			Required,
 			Properties,
@@ -1417,13 +1210,7 @@ abstract class ObjectUncertain<
 	): schema is object_type<
 		DefsMode,
 		RequiredMode,
-		Exclude<
-			PropertiesMode,
-			(
-				| 'neither'
-				| 'pattern'
-			)
-		>,
+		'both' | 'properties',
 		Defs,
 		Required,
 		Properties,
@@ -1435,16 +1222,15 @@ abstract class ObjectUncertain<
 	static #is_schema_with_pattern_properties<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
-		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
 			DefsMode,
 			RequiredMode,
-			PropertiesMode,
+			object_properties_mode,
 			Defs,
 			Required,
 			Properties,
@@ -1453,13 +1239,7 @@ abstract class ObjectUncertain<
 	): schema is object_type<
 		DefsMode,
 		RequiredMode,
-		Exclude<
-			PropertiesMode,
-			(
-				| 'neither'
-				| 'properties'
-			)
-		>,
+		'both'|'pattern',
 		Defs,
 		Required,
 		Properties,
@@ -1469,31 +1249,25 @@ abstract class ObjectUncertain<
 	}
 
 	static #is_schema_with_required<
-		DefsMode extends $defs_mode,
-		RequiredMode extends required_mode,
-		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Required extends [string, ...string[]],
 	> (
 		schema: object_type<
-			DefsMode,
-			RequiredMode,
-			PropertiesMode,
-			Defs,
+			$defs_mode,
+			required_mode,
+			object_properties_mode,
+			SchemaObject,
 			Required,
-			Properties,
-			PatternProperties
+			ObjectOfSchemas,
+			ObjectOfSchemas
 		>,
 	): schema is object_type<
-		DefsMode,
+		$defs_mode,
 		'with',
-		PropertiesMode,
-		Defs,
-		Exclude<Required, undefined>,
-		Properties,
-		PatternProperties
+		object_properties_mode,
+		SchemaObject,
+		Required,
+		ObjectOfSchemas,
+		ObjectOfSchemas
 	> {
 		return 'required' in schema;
 	}
@@ -1503,10 +1277,10 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	> (
 		value: unknown,
 		property: string,
@@ -1547,10 +1321,10 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	>(
 		data: T,
 		schema: object_type<
@@ -1591,10 +1365,10 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	>(
 		schema: object_type<
 			DefsMode,
@@ -1698,10 +1472,10 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	> (
 		property: string,
 		schema: object_type<
@@ -1755,10 +1529,10 @@ abstract class ObjectUncertain<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		Required extends RequiredType_by_mode<RequiredMode>,
-		Properties extends ObjectOfSchemas = ObjectOfSchemas,
-		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+		Defs extends SchemaObject,
+		Required extends [string, ...string[]],
+		Properties extends ObjectOfSchemas,
+		PatternProperties extends ObjectOfSchemas,
 	>(
 		property: string,
 		schema: object_type<
@@ -1807,8 +1581,10 @@ export class ObjectUnspecified<
 	'without',
 	'without',
 	'neither',
-	undefined,
-	undefined
+	SchemaObject,
+	[string, ...string[]],
+	ObjectOfSchemas,
+	ObjectOfSchemas
 > {
 
 	constructor(
@@ -1829,8 +1605,8 @@ export class ObjectUnspecified<
 				'without',
 				'without',
 				'neither',
-				undefined,
-				undefined,
+				SchemaObject,
+				[string, ...string[]],
 				ObjectOfSchemas,
 				ObjectOfSchemas
 			>
@@ -1841,10 +1617,6 @@ export class ObjectUnspecified<
 				adjust_name,
 				required_mode: 'without',
 				properties_mode: 'neither',
-				$defs: undefined,
-				required: undefined,
-				properties: {},
-				patternProperties: {},
 			},
 			{
 				ajv,
@@ -1860,7 +1632,7 @@ abstract class ObjectWithout$defs<
 		'neither'
 	>,
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectUncertain<
@@ -1868,7 +1640,7 @@ abstract class ObjectWithout$defs<
 	'without',
 	RequiredMode,
 	PropertiesMode,
-	undefined,
+	SchemaObject,
 	Required,
 	Properties,
 	PatternProperties
@@ -1901,7 +1673,7 @@ abstract class ObjectWithout$defs<
 				'without',
 				RequiredMode,
 				PropertiesMode,
-				undefined,
+				SchemaObject,
 				Required,
 				ObjectOfSchemas,
 				ObjectOfSchemas
@@ -1913,7 +1685,7 @@ abstract class ObjectWithout$defs<
 				adjust_name,
 				required_mode,
 				properties_mode,
-				$defs: undefined,
+				$defs: {},
 				required,
 				properties,
 				patternProperties,
@@ -1928,7 +1700,7 @@ abstract class ObjectWithout$defs<
 export class ObjectWithout$defs_both<
 	T extends {[key: string]: unknown},
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectWithout$defs<
@@ -1965,7 +1737,7 @@ export class ObjectWithout$defs_both<
 				'without',
 				RequiredMode,
 				'both',
-				undefined,
+				SchemaObject,
 				Required,
 				ObjectOfSchemas,
 				ObjectOfSchemas
@@ -1991,7 +1763,7 @@ export class ObjectWithout$defs_both<
 export class ObjectWithout$defs_property_only<
 	T extends {[key: string]: unknown},
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectWithout$defs<
 	T,
@@ -2025,7 +1797,7 @@ export class ObjectWithout$defs_property_only<
 				'without',
 				RequiredMode,
 				'properties',
-				undefined,
+				SchemaObject,
 				Required,
 				ObjectOfSchemas,
 				ObjectOfSchemas
@@ -2051,7 +1823,7 @@ export class ObjectWithout$defs_property_only<
 export class ObjectWithout$defs_pattern_properties_only<
 	T extends {[key: string]: unknown},
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectWithout$defs<
 	T,
@@ -2085,7 +1857,7 @@ export class ObjectWithout$defs_pattern_properties_only<
 				'without',
 				RequiredMode,
 				'pattern',
-				undefined,
+				SchemaObject,
 				Required,
 				ObjectOfSchemas,
 				ObjectOfSchemas
@@ -2114,9 +1886,9 @@ abstract class ObjectWith$defs<
 		object_properties_mode,
 		'neither'
 	>,
-	Defs extends DefsType_by_mode['with'],
+	Defs extends SchemaObject,
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectUncertain<
@@ -2186,9 +1958,9 @@ abstract class ObjectWith$defs<
 
 export class ObjectWith$defs_both<
 	T extends {[key: string]: unknown},
-	Defs extends DefsType_by_mode['with'],
+	Defs extends SchemaObject,
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectWith$defs<
@@ -2254,9 +2026,9 @@ export class ObjectWith$defs_both<
 
 export class ObjectWith$defs_property_only<
 	T extends {[key: string]: unknown},
-	Defs extends DefsType_by_mode['with'],
+	Defs extends SchemaObject,
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
+	Required extends [string, ...string[]],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends ObjectWith$defs<
 	T,
@@ -2319,10 +2091,10 @@ export class ObjectWith$defs_property_only<
 
 export class ObjectWith$defs_pattern_properties_only<
 	T extends {[key: string]: unknown},
-	Defs extends DefsType_by_mode['with'],
+	Defs extends SchemaObject,
 	RequiredMode extends required_mode,
-	Required extends RequiredType_by_mode<RequiredMode>,
-	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
+	Required extends [string, ...string[]],
+	PatternProperties extends ObjectOfSchemas,
 > extends ObjectWith$defs<
 	T,
 	'pattern',

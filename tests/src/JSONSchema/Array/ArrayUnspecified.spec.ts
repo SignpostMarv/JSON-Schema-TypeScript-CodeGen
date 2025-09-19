@@ -4,6 +4,9 @@ import {
 } from 'node:test';
 import assert from 'node:assert/strict';
 
+import type {
+	SchemaObject,
+} from 'ajv/dist/2020.js';
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
@@ -51,11 +54,10 @@ import type {
 	array_mode,
 	array_type,
 	ItemsType_by_mode,
-	MaxItemsType_by_mode,
+	MaxItemsType,
 	MaxItemsType_mode,
-	MinItemsType_by_mode,
+	MinItemsType,
 	MinItemsType_mode,
-	PrefixItemsType_by_mode,
 	unique_items_mode,
 } from '../../../../src/JSONSchema/Array/types.ts';
 
@@ -87,6 +89,10 @@ void describe('ArrayUnspecified', () => {
 			ArrayMode extends array_mode = array_mode,
 			UniqueItems_mode extends unique_items_mode = unique_items_mode,
 		> = [
+			MinItems,
+			MaxItems,
+			ArrayMode,
+			UniqueItems_mode,
 			unknown[], // input
 			array_type<
 				DefsMode,
@@ -97,9 +103,9 @@ void describe('ArrayUnspecified', () => {
 			>,
 			ArrayUnspecified_options<
 				ArrayMode,
+				UniqueItems_mode,
 				ItemsType_by_mode[ArrayMode],
-				PrefixItemsType_by_mode[ArrayMode],
-				UniqueItems_mode
+				[SchemaObject, ...SchemaObject[]]
 			>,
 			ts_asserter<T2>, // expectation asserter
 			boolean, // will or won't fail on default
@@ -110,6 +116,10 @@ void describe('ArrayUnspecified', () => {
 			...DataSet[]
 		] = [
 			[
+				'optional',
+				'optional',
+				'items-only',
+				'no',
 				[
 					'foo',
 					'bar',
@@ -125,7 +135,6 @@ void describe('ArrayUnspecified', () => {
 					minItems: PositiveIntegerOrZero(2),
 					array_mode: 'items-only',
 					items: {},
-					prefixItems: undefined,
 					uniqueItems_mode: 'no',
 				},
 				(
@@ -150,6 +159,10 @@ void describe('ArrayUnspecified', () => {
 				false,
 			],
 			[
+				'optional',
+				'optional',
+				'prefix-only',
+				'no',
 				[
 					'foo',
 					'bar',
@@ -208,6 +221,7 @@ void describe('ArrayUnspecified', () => {
 		];
 
 		data_sets.forEach(([
+			,,,,
 			data,
 			schema,
 			ctor_args,
@@ -235,9 +249,9 @@ void describe('ArrayUnspecified', () => {
 						'optional',
 						'optional',
 						unique_items_mode,
-						undefined,
-						MinItemsType_by_mode['optional'],
-						MaxItemsType_by_mode['optional']
+						SchemaObject,
+						MinItemsType,
+						MaxItemsType
 					>,
 					schema_parser,
 				});

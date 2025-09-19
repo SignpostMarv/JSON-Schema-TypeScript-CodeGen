@@ -15,7 +15,6 @@ import type {
 import type {
 	$defs_mode,
 	$defs_schema,
-	DefsType_by_mode,
 } from '../types.ts';
 
 import type {
@@ -33,20 +32,6 @@ export type ItemsType_by_mode<
 	'prefix-only': undefined|false,
 };
 
-export type PrefixItemsType_by_mode<
-	T extends [
-		SchemaObject,
-		...SchemaObject[]
-	] = [
-		SchemaObject,
-		...SchemaObject[]
-	],
-> = {
-	both: T,
-	'items-only': undefined,
-	'prefix-only': T,
-};
-
 export type unique_items_mode = 'yes'|'no';
 export type UniqueItemsType_by_mode<
 	Mode extends unique_items_mode,
@@ -55,20 +40,11 @@ export type UniqueItemsType_by_mode<
 	no: false,
 }[Mode];
 
-export type MinItemsType_by_mode = {
-	with: ReturnType<typeof PositiveIntegerOrZero<number>>,
-	optional: undefined|ReturnType<typeof PositiveIntegerOrZero<number>>,
-	without: undefined,
-};
-
-export type MaxItemsType_by_mode = {
-	with: ReturnType<typeof PositiveInteger<number>>,
-	optional: undefined|ReturnType<typeof PositiveInteger<number>>,
-	without: undefined,
-};
-
 export type MinItemsType_mode = 'with'|'optional'|'without';
 export type MaxItemsType_mode = MinItemsType_mode;
+
+export type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
+export type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
 
 export type array_type<
 	DefsMode extends $defs_mode,
@@ -76,21 +52,19 @@ export type array_type<
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
-	Defs extends (
-		DefsType_by_mode[DefsMode]
-	) = DefsType_by_mode[DefsMode],
-	MinItems extends (
-		MinItemsType_by_mode[MinItems_mode]
-	) = MinItemsType_by_mode[MinItems_mode],
-	MaxItems extends (
-		MaxItemsType_by_mode[MaxItems_mode]
-	) = MaxItemsType_by_mode[MaxItems_mode],
+	Defs extends SchemaObject = SchemaObject,
+	MinItems extends MinItemsType = MinItemsType,
+	MaxItems extends MaxItemsType = MaxItemsType,
 	Items extends (
 		ItemsType_by_mode[ArrayMode]
 	) = ItemsType_by_mode[ArrayMode],
-	PrefixItems extends (
-		PrefixItemsType_by_mode[ArrayMode]
-	) = PrefixItemsType_by_mode[ArrayMode],
+	PrefixItems extends [
+		SchemaObject,
+		...SchemaObject[]
+	] = [
+		SchemaObject,
+		...SchemaObject[]
+	],
 > = (
 	& OmitIf<
 		{
@@ -262,17 +236,17 @@ export type array_schema<
 	)
 >;
 
-export type ArrayUncertain_options<
+export type ArrayUncertain_TypeOptions<
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 	UniqueItems_mode extends unique_items_mode,
-	Defs extends DefsType_by_mode[DefsMode],
-	MinItems extends MinItemsType_by_mode[MinItems_mode],
-	MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+	Defs extends SchemaObject,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
 	Items extends ItemsType_by_mode[ArrayMode],
-	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	TypeOptions<
 		array_schema<

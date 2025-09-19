@@ -34,6 +34,7 @@ import {
 
 import {
 	PositiveInteger,
+	PositiveIntegerOrZero,
 } from './guarded.ts';
 
 export type supported_type = (
@@ -164,8 +165,8 @@ export class SchemaParser
 				{
 					array_mode: 'items-only',
 					items: {},
-					prefixItems: undefined,
 					uniqueItems_mode: 'no',
+					minItems: PositiveIntegerOrZero(0),
 				},
 				{ajv},
 			),

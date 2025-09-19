@@ -22,7 +22,6 @@ import {
 
 import type {
 	$defs_mode,
-	DefsType_by_mode,
 } from '../types.ts';
 
 import type {
@@ -42,13 +41,12 @@ import type {
 	array_mode,
 	array_schema,
 	array_type,
-	ArrayUncertain_options,
+	ArrayUncertain_TypeOptions,
 	ItemsType_by_mode,
-	MaxItemsType_by_mode,
+	MaxItemsType,
 	MaxItemsType_mode,
-	MinItemsType_by_mode,
+	MinItemsType,
 	MinItemsType_mode,
-	PrefixItemsType_by_mode,
 	unique_items_mode,
 } from './types.ts';
 import {
@@ -78,6 +76,32 @@ type createTypeNode<
 	},
 }[ArrayMode][MinItems_mode];
 
+export type ArrayUncertain_options<
+	DefsMode extends $defs_mode,
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode,
+	Defs extends SchemaObject,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
+	Items extends ItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+> = (
+	& {
+		$defs_mode: DefsMode,
+		array_mode: ArrayMode,
+		minItems_mode: MinItems_mode,
+		maxItems_mode: MaxItems_mode,
+		uniqueItems_mode: UniqueItems_mode,
+		$defs?: Defs,
+		minItems?: MinItems,
+		maxItems?: MaxItems,
+		items: Items,
+		prefixItems?: PrefixItems,
+	}
+);
+
 export abstract class ArrayUncertain<
 	T1 extends unknown[],
 	T2 extends TypeNode,
@@ -87,11 +111,11 @@ export abstract class ArrayUncertain<
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 	UniqueItems_mode extends unique_items_mode,
-	Defs extends DefsType_by_mode[DefsMode],
-	MinItems extends MinItemsType_by_mode[MinItems_mode],
-	MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+	Defs extends SchemaObject,
+	MinItems extends MinItemsType,
+	MaxItems extends MaxItemsType,
 	Items extends ItemsType_by_mode[ArrayMode],
-	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > extends Type<
 	T1,
 	array_type<
@@ -117,32 +141,21 @@ export abstract class ArrayUncertain<
 	ArrayLiteralExpression
 > {
 	constructor(
-		{
-			$defs_mode,
-			array_mode,
-			minItems_mode,
-			maxItems_mode,
-			uniqueItems_mode,
-			$defs,
-			minItems,
-			maxItems,
-			items,
-			prefixItems,
-		}: {
-			$defs_mode: DefsMode,
-			array_mode: ArrayMode,
-			minItems_mode: MinItems_mode,
-			maxItems_mode: MaxItems_mode,
-			uniqueItems_mode: UniqueItems_mode,
-			$defs: Defs,
-			minItems: MinItems,
-			maxItems: MaxItems,
-			items: Items,
-			prefixItems: PrefixItems,
-		},
+		options: ArrayUncertain_options<
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			Defs,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
+		>,
 		{
 			ajv,
-		}: ArrayUncertain_options<
+		}: ArrayUncertain_TypeOptions<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -158,21 +171,12 @@ export abstract class ArrayUncertain<
 		super({
 			ajv,
 			type_definition: ArrayUncertain.#generate_default_type_definition(
-				$defs,
-				minItems,
-				maxItems,
-				items,
-				prefixItems,
-				uniqueItems_mode,
+				options,
 			),
 			schema_definition: (
-				ArrayUncertain.generate_default_schema_definition({
-					$defs_mode,
-					array_mode,
-					minItems_mode,
-					maxItems_mode,
-					uniqueItems_mode,
-				})
+				ArrayUncertain.generate_default_schema_definition(
+					options,
+				)
 			),
 		});
 	}
@@ -444,19 +448,30 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		MinItems extends MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject,
+		MinItems extends MinItemsType,
+		MaxItems extends MaxItemsType,
 		Items extends ItemsType_by_mode[ArrayMode],
-		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
-	>(
-		$defs: Defs,
-		minItems: MinItems,
-		maxItems: MaxItems,
-		items: Items,
-		prefixItems: PrefixItems,
-		uniqueItems_mode: UniqueItems_mode,
-	): Readonly<array_type<
+		PrefixItems extends [SchemaObject, ...SchemaObject[]],
+	>({
+		minItems = undefined,
+		maxItems = undefined,
+		items,
+		uniqueItems_mode,
+		$defs,
+		prefixItems = undefined,
+	}: ArrayUncertain_options<
+		DefsMode,
+		ArrayMode,
+		MinItems_mode,
+		MaxItems_mode,
+		UniqueItems_mode,
+		Defs,
+		MinItems,
+		MaxItems,
+		Items,
+		PrefixItems
+	>): Readonly<array_type<
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,
@@ -537,21 +552,19 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends (
-			DefsType_by_mode[DefsMode]
-		) = DefsType_by_mode[DefsMode],
-		MinItems extends (
-			MinItemsType_by_mode[MinItems_mode]
-		) = MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends (
-			MaxItemsType_by_mode[MaxItems_mode]
-		) = MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject = SchemaObject,
+		MinItems extends MinItemsType = MinItemsType,
+		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
 			ItemsType_by_mode[ArrayMode]
 		) = ItemsType_by_mode[ArrayMode],
-		PrefixItems extends (
-			PrefixItemsType_by_mode[ArrayMode]
-		) = PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [
+			SchemaObject,
+			...SchemaObject[]
+		] = [
+			SchemaObject,
+			...SchemaObject[]
+		],
 		N extends number = number,
 	>(
 		value: unknown,
@@ -600,21 +613,19 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends (
-			DefsType_by_mode[DefsMode]
-		) = DefsType_by_mode[DefsMode],
-		MinItems extends (
-			MinItemsType_by_mode[MinItems_mode]
-		) = MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends (
-			MaxItemsType_by_mode[MaxItems_mode]
-		) = MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject = SchemaObject,
+		MinItems extends MinItemsType = MinItemsType,
+		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
 			Exclude<ItemsType_by_mode[ArrayMode], false>
 		) = Exclude<ItemsType_by_mode[ArrayMode], false>,
-		PrefixItems extends (
-			PrefixItemsType_by_mode[ArrayMode]
-		) = PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [
+			SchemaObject,
+			...SchemaObject[]
+		] = [
+			SchemaObject,
+			...SchemaObject[]
+		],
 	> (
 		data: T1,
 		schema: array_type<
@@ -650,7 +661,7 @@ export abstract class ArrayUncertain<
 					MaxItems_mode,
 					UniqueItems_mode,
 					Defs,
-					MinItemsType_by_mode['with'],
+					MinItems,
 					MaxItems,
 					Items,
 					PrefixItems
@@ -680,18 +691,18 @@ export abstract class ArrayUncertain<
 		ArrayMode extends Exclude<array_mode, 'prefix-only'>,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends (
-			DefsType_by_mode[DefsMode]
-		) = DefsType_by_mode[DefsMode],
-		MaxItems extends (
-			MaxItemsType_by_mode[MaxItems_mode]
-		) = MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject = SchemaObject,
+		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
 			ItemsType_by_mode[ArrayMode]
 		) = ItemsType_by_mode[ArrayMode],
-		PrefixItems extends (
-			PrefixItemsType_by_mode[ArrayMode]
-		) = PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [
+			SchemaObject,
+			...SchemaObject[]
+		] = [
+			SchemaObject,
+			...SchemaObject[]
+		],
 	> (
 		data: T1,
 		schema: array_type<
@@ -701,7 +712,7 @@ export abstract class ArrayUncertain<
 			MaxItems_mode,
 			UniqueItems_mode,
 			Defs,
-			MinItemsType_by_mode['with'],
+			MinItemsType,
 			MaxItems,
 			Items,
 			PrefixItems
@@ -747,21 +758,19 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends Exclude<MinItemsType_mode, 'with'>,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends (
-			DefsType_by_mode[DefsMode]
-		) = DefsType_by_mode[DefsMode],
-		MinItems extends (
-			MinItemsType_by_mode[MinItems_mode]
-		) = MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends (
-			MaxItemsType_by_mode[MaxItems_mode]
-		) = MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject = SchemaObject,
+		MinItems extends MinItemsType = MinItemsType,
+		MaxItems extends MaxItemsType = MaxItemsType,
 		Items extends (
 			Exclude<ItemsType_by_mode[ArrayMode], false>
 		) = Exclude<ItemsType_by_mode[ArrayMode], false>,
-		PrefixItems extends (
-			PrefixItemsType_by_mode[ArrayMode]
-		) = PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [
+			SchemaObject,
+			...SchemaObject[]
+		] = [
+			SchemaObject,
+			...SchemaObject[]
+		],
 	> (
 		schema: array_type<
 			DefsMode,
@@ -801,15 +810,9 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends (
-			DefsType_by_mode[DefsMode]
-		) = DefsType_by_mode[DefsMode],
-		MinItems extends (
-			MinItemsType_by_mode[MinItems_mode]
-		) = MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends (
-			MaxItemsType_by_mode[MaxItems_mode]
-		) = MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject = SchemaObject,
+		MinItems extends MinItemsType = MinItemsType,
+		MaxItems extends MaxItemsType = MaxItemsType,
 	> (
 		data: T1,
 		schema: array_type<
@@ -875,9 +878,9 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		MinItems extends MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject,
+		MinItems extends MinItemsType,
+		MaxItems extends MaxItemsType,
 	> (
 		schema: array_type<
 			DefsMode,
@@ -889,7 +892,7 @@ export abstract class ArrayUncertain<
 			MinItems,
 			MaxItems,
 			ItemsType_by_mode[ArrayMode],
-			PrefixItemsType_by_mode[ArrayMode]
+			[SchemaObject, ...SchemaObject[]]
 		>,
 	): schema is array_type<
 		DefsMode,
@@ -901,7 +904,7 @@ export abstract class ArrayUncertain<
 		MinItems,
 		MaxItems,
 		Exclude<ItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>], false>,
-		PrefixItemsType_by_mode[Exclude<ArrayMode, 'prefix-only'>]
+		[SchemaObject, ...SchemaObject[]]
 	> {
 		return 'items' in schema && false !== schema.items;
 	}
@@ -911,10 +914,10 @@ export abstract class ArrayUncertain<
 		ArrayMode extends array_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject,
+		MaxItems extends MaxItemsType,
 		Items extends ItemsType_by_mode[ArrayMode],
-		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 	>(
 		schema: array_type<
 			DefsMode,
@@ -923,7 +926,7 @@ export abstract class ArrayUncertain<
 			MaxItems_mode,
 			UniqueItems_mode,
 			Defs,
-			MinItemsType_by_mode[MinItemsType_mode],
+			MinItemsType,
 			MaxItems,
 			Items,
 			PrefixItems
@@ -935,7 +938,7 @@ export abstract class ArrayUncertain<
 		MaxItems_mode,
 		UniqueItems_mode,
 		Defs,
-		MinItemsType_by_mode['with'],
+		MinItemsType,
 		MaxItems,
 		Items,
 		PrefixItems
@@ -949,9 +952,9 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		MinItems extends MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject,
+		MinItems extends MinItemsType,
+		MaxItems extends MaxItemsType,
 	> (
 		schema: array_type<
 			DefsMode,
@@ -982,11 +985,11 @@ export abstract class ArrayUncertain<
 		MinItems_mode extends MinItemsType_mode,
 		MaxItems_mode extends MaxItemsType_mode,
 		UniqueItems_mode extends unique_items_mode,
-		Defs extends DefsType_by_mode[DefsMode],
-		MinItems extends MinItemsType_by_mode[MinItems_mode],
-		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
+		Defs extends SchemaObject,
+		MinItems extends MinItemsType,
+		MaxItems extends MaxItemsType,
 		Items extends ItemsType_by_mode[ArrayMode],
-		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
+		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 		N extends number,
 	> (
 		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
