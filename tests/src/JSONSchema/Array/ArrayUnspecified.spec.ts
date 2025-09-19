@@ -49,7 +49,7 @@ import {
 
 import type {
 	array_mode,
-	array_type_alt,
+	array_type,
 	ItemsType_by_mode,
 	MaxItemsType_by_mode,
 	MaxItemsType_mode,
@@ -88,7 +88,7 @@ void describe('ArrayUnspecified', () => {
 			UniqueItems_mode extends unique_items_mode = unique_items_mode,
 		> = [
 			unknown[], // input
-			array_type_alt<
+			array_type<
 				DefsMode,
 				ArrayMode,
 				MinItems,
@@ -229,7 +229,7 @@ void describe('ArrayUnspecified', () => {
 				);
 				const generated = await instance.generate_typescript_type({
 					data,
-					schema: schema as array_type_alt<
+					schema: schema as array_type<
 						'without',
 						array_mode,
 						'optional',

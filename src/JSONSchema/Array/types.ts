@@ -70,7 +70,7 @@ export type MaxItemsType_by_mode = {
 export type MinItemsType_mode = 'with'|'optional'|'without';
 export type MaxItemsType_mode = MinItemsType_mode;
 
-export type array_type_alt<
+export type array_type<
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
@@ -139,7 +139,7 @@ export type array_type_alt<
 	}[ArrayMode]
 );
 
-export type array_schema_alt<
+export type array_schema<
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
@@ -275,14 +275,14 @@ export type ArrayUncertain_options<
 	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > = Omit<
 	TypeOptions<
-		array_schema_alt<
+		array_schema<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
 			MaxItems_mode,
 			UniqueItems_mode
 		>,
-		array_type_alt<
+		array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,

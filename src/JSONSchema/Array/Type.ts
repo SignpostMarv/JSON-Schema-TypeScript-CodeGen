@@ -40,8 +40,8 @@ import {
 
 import type {
 	array_mode,
-	array_schema_alt,
-	array_type_alt,
+	array_schema,
+	array_type,
 	ArrayUncertain_options,
 	ItemsType_by_mode,
 	MaxItemsType_by_mode,
@@ -94,7 +94,7 @@ export abstract class ArrayUncertain<
 	PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 > extends Type<
 	T1,
-	array_type_alt<
+	array_type<
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,
@@ -106,7 +106,7 @@ export abstract class ArrayUncertain<
 		Items,
 		PrefixItems
 	>,
-	array_schema_alt<
+	array_schema<
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,
@@ -180,7 +180,7 @@ export abstract class ArrayUncertain<
 	generate_typescript_data(
 		data: T1,
 		schema_parser: SchemaParser,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -213,7 +213,7 @@ export abstract class ArrayUncertain<
 			schema_parser,
 		}: {
 			data: T1,
-			schema: array_type_alt<
+			schema: array_type<
 				DefsMode,
 				ArrayMode,
 				MinItems_mode,
@@ -272,7 +272,7 @@ export abstract class ArrayUncertain<
 			maxItems_mode: MaxItems_mode,
 			uniqueItems_mode: UniqueItems_mode,
 		},
-	): Readonly<array_schema_alt<
+	): Readonly<array_schema<
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,
@@ -296,7 +296,7 @@ export abstract class ArrayUncertain<
 			'maxItems',
 			'uniqueItems',
 		];
-		const partial_required: array_schema_alt<
+		const partial_required: array_schema<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -318,7 +318,7 @@ export abstract class ArrayUncertain<
 
 		const partial: (
 			& Pick<
-				array_schema_alt<
+				array_schema<
 					DefsMode,
 					ArrayMode,
 					MinItems_mode,
@@ -333,7 +333,7 @@ export abstract class ArrayUncertain<
 			>
 			& {
 				properties: (
-					& Partial<array_schema_alt<
+					& Partial<array_schema<
 						'with',
 						'both'|'prefix-only',
 						'with',
@@ -341,7 +341,7 @@ export abstract class ArrayUncertain<
 						UniqueItems_mode
 					>['properties']>
 					& Pick<
-						array_schema_alt<
+						array_schema<
 							'with',
 							'both'|'prefix-only',
 							'with',
@@ -429,7 +429,7 @@ export abstract class ArrayUncertain<
 			};
 		}
 
-		return Object.freeze(partial as array_schema_alt<
+		return Object.freeze(partial as array_schema<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -456,7 +456,7 @@ export abstract class ArrayUncertain<
 		items: Items,
 		prefixItems: PrefixItems,
 		uniqueItems_mode: UniqueItems_mode,
-	): Readonly<array_type_alt<
+	): Readonly<array_type<
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,
@@ -471,7 +471,7 @@ export abstract class ArrayUncertain<
 		const partial: (
 			& (
 				| Partial<Omit<
-					array_type_alt<
+					array_type<
 						'with',
 						'both'|'prefix-only',
 						'with',
@@ -484,7 +484,7 @@ export abstract class ArrayUncertain<
 				>>
 			)
 			& Pick<
-				array_type_alt<
+				array_type<
 					'with',
 					'both',
 					'with',
@@ -517,7 +517,7 @@ export abstract class ArrayUncertain<
 			partial.maxItems = maxItems;
 		}
 
-		return Object.freeze(partial as array_type_alt<
+		return Object.freeze(partial as array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -556,7 +556,7 @@ export abstract class ArrayUncertain<
 	>(
 		value: unknown,
 		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -617,7 +617,7 @@ export abstract class ArrayUncertain<
 		) = PrefixItemsType_by_mode[ArrayMode],
 	> (
 		data: T1,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -643,7 +643,7 @@ export abstract class ArrayUncertain<
 		) {
 			return this.#generate_typescript_type_has_items_and_minItems(
 				data,
-				schema as array_type_alt<
+				schema as array_type<
 					DefsMode,
 					ArrayMode,
 					'with',
@@ -694,7 +694,7 @@ export abstract class ArrayUncertain<
 		) = PrefixItemsType_by_mode[ArrayMode],
 	> (
 		data: T1,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			'with',
@@ -763,7 +763,7 @@ export abstract class ArrayUncertain<
 			PrefixItemsType_by_mode[ArrayMode]
 		) = PrefixItemsType_by_mode[ArrayMode],
 	> (
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -812,7 +812,7 @@ export abstract class ArrayUncertain<
 		) = MaxItemsType_by_mode[MaxItems_mode],
 	> (
 		data: T1,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -879,7 +879,7 @@ export abstract class ArrayUncertain<
 		MinItems extends MinItemsType_by_mode[MinItems_mode],
 		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
 	> (
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -891,7 +891,7 @@ export abstract class ArrayUncertain<
 			ItemsType_by_mode[ArrayMode],
 			PrefixItemsType_by_mode[ArrayMode]
 		>,
-	): schema is array_type_alt<
+	): schema is array_type<
 		DefsMode,
 		Exclude<ArrayMode, 'prefix-only'>,
 		MinItems_mode,
@@ -916,7 +916,7 @@ export abstract class ArrayUncertain<
 		Items extends ItemsType_by_mode[ArrayMode],
 		PrefixItems extends PrefixItemsType_by_mode[ArrayMode],
 	>(
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItemsType_mode,
@@ -928,7 +928,7 @@ export abstract class ArrayUncertain<
 			Items,
 			PrefixItems
 		>,
-	): schema is array_type_alt<
+	): schema is array_type<
 		DefsMode,
 		ArrayMode,
 		'with',
@@ -953,7 +953,7 @@ export abstract class ArrayUncertain<
 		MinItems extends MinItemsType_by_mode[MinItems_mode],
 		MaxItems extends MaxItemsType_by_mode[MaxItems_mode],
 	> (
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -963,7 +963,7 @@ export abstract class ArrayUncertain<
 			MinItems,
 			MaxItems
 		>,
-	): schema is array_type_alt<
+	): schema is array_type<
 		DefsMode,
 		Exclude<ArrayMode, 'items-only'>,
 		MinItems_mode,
@@ -990,7 +990,7 @@ export abstract class ArrayUncertain<
 		N extends number,
 	> (
 		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
-		schema: array_type_alt<
+		schema: array_type<
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
