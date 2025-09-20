@@ -634,7 +634,7 @@ export abstract class ArrayUncertain<
 		const validator = ajv.compile(sub_schema);
 
 		if (!(validator(value))) {
-			throw new TypeError('Supplied value not supported by property!');
+			throw new TypeError('Supplied value not supported by index!');
 		}
 
 		return schema_parser.parse(
