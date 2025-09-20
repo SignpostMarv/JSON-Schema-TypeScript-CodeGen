@@ -29,6 +29,10 @@ import type {
 	PositiveIntegerOrZero,
 } from '../guarded.ts';
 
+import type {
+	PartialPick,
+} from '../types.ts';
+
 type ArrayWithout$defs_options<
 	T1 extends unknown[],
 	T4 extends Expression,
@@ -101,7 +105,7 @@ export type ArrayUnspecified_options<
 	UniqueItems_mode extends unique_items_mode,
 	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
-> = Omit<
+> = PartialPick<Omit<
 	ArrayWithout$defs_options<
 		unknown[],
 		Expression,
@@ -118,6 +122,9 @@ export type ArrayUnspecified_options<
 	(
 		| 'minItems_mode'
 		| 'maxItems_mode'
+	)
+>,
+	(
 		| 'expression_at_index_verifier'
 	)
 >;
@@ -208,6 +215,18 @@ export class ArrayWithout$defs<
 	}
 }
 
+function expression_at_index_verifier_default<
+	T extends unknown[],
+	Index extends ReturnType<
+		typeof PositiveIntegerOrZero<number>
+	>,
+>(
+	data: T,
+	expression: Expression,
+): expression is (Expression[])[Index] {
+	return true;
+}
+
 export class ArrayUnspecified<
 	T extends unknown[],
 	ArrayMode extends array_mode,
@@ -262,14 +281,10 @@ export class ArrayUnspecified<
 				...options,
 				minItems_mode: 'optional',
 				maxItems_mode: 'optional',
-				expression_at_index_verifier: <
-					Index extends ReturnType<
-						typeof PositiveIntegerOrZero<number>
-					>,
-				>(
-					data: T,
-					expression: Expression,
-				): expression is (Expression[])[Index] => true,
+				expression_at_index_verifier: (
+					options?.expression_at_index_verifier
+					|| expression_at_index_verifier_default
+				),
 			},
 			{
 				ajv,

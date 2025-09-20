@@ -57,9 +57,7 @@ import type {
 	array_mode,
 	array_type,
 	ItemsType_by_mode,
-	MaxItemsType,
 	MaxItemsType_mode,
-	MinItemsType,
 	MinItemsType_mode,
 	unique_items_mode,
 } from '../../../../src/JSONSchema/Array/types.ts';
@@ -263,6 +261,7 @@ void describe('ArrayUnspecified', () => {
 		ctor_args,
 		will_fail_on_default,
 		generate_typescript_type_asserter,
+		generate_typescript_data_asserter,
 	], i) => {
 		const ajv = new Ajv({strict: false});
 
@@ -273,23 +272,14 @@ void describe('ArrayUnspecified', () => {
 			>,
 			schema_parser: SchemaParser,
 		) {
-			void describe('::generate_typescript_type()', async () => {
+			void it('::generate_typescript_type() behaves', async () => {
 				assert.ok(
 					instance.check_type(data),
 					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
 				);
 				const generated = await instance.generate_typescript_type({
 					data,
-					schema: schema as array_type<
-						'without',
-						array_mode,
-						'optional',
-						'optional',
-						unique_items_mode,
-						SchemaObject,
-						MinItemsType,
-						MaxItemsType
-					>,
+					schema,
 					schema_parser,
 				});
 				assert.doesNotThrow(() => generate_typescript_type_asserter(
@@ -311,7 +301,56 @@ void describe('ArrayUnspecified', () => {
 			})
 		}
 
-		void it(`behaves with data_sets[${i}] directly`, async () => {
+		function test_generate_typescript_data(
+			instance: ArrayUnspecified<
+				typeof data,
+				array_mode
+			>,
+			schema_parser: SchemaParser,
+		) {
+			void it('::generate_typescript_data() behaves', () => {
+				assert.ok(
+					instance.check_type(data),
+					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
+				);
+				const generated = instance.generate_typescript_data(
+					data,
+					schema_parser,
+					schema,
+				);
+				assert.doesNotThrow(() => generate_typescript_data_asserter(
+					generated,
+					`Did not pass asserter on data_set[${i}]`,
+				));
+				assert.throws(() => (
+					new ArrayUnspecified<
+						typeof data,
+						array_mode
+					>({
+						...ctor_args,
+						expression_at_index_verifier: <
+							Data extends unknown[],
+							T1 extends Expression,
+							Result extends T1[],
+							Index extends ReturnType<
+								typeof PositiveIntegerOrZero<number>
+							> = ReturnType<
+								typeof PositiveIntegerOrZero<number>
+							>
+						> (
+							data: Data,
+							expression: Expression,
+						):  expression is Result[Index] => false,
+					}, {ajv})
+				).generate_typescript_data(
+					data,
+					schema_parser,
+					schema,
+				));
+			})
+		}
+
+		void describe('directly instantiated', () => {
 			const instance = new ArrayUnspecified<
 				typeof data,
 				array_mode
@@ -323,9 +362,10 @@ void describe('ArrayUnspecified', () => {
 			);
 
 			test_generate_typescript_type(instance, new SchemaParser({ajv}));
+			test_generate_typescript_data(instance, new SchemaParser({ajv}));
 		})
 
-		void it(`behaves with data_sets[${i}] from parser`, () => {
+		void describe('instantiated from parser', () => {
 			const schema_parser = new SchemaParser({ajv});
 			if (will_fail_on_default) {
 				const manual = new ArrayUnspecified<
@@ -354,6 +394,7 @@ void describe('ArrayUnspecified', () => {
 			);
 
 			test_generate_typescript_type(instance, schema_parser);
+			test_generate_typescript_data(instance, schema_parser);
 		})
 	});
 })
