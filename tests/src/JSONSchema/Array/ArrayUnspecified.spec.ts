@@ -76,94 +76,94 @@ import {
 } from '../../../../src/guarded.ts';
 
 void describe('ArrayUnspecified', () => {
-		type DataSet<
-			T1 extends TypeNode = TypeNode,
-			T2 extends (
-				| TupleTypeNode<T1, [T1, ...T1[]]>
-				| ArrayTypeNode<T1>
-			) = (
-				| TupleTypeNode<T1, [T1, ...T1[]]>
-				| ArrayTypeNode<T1>
-			),
-			T3 extends Expression = Expression,
-			T4 extends T3[] = T3[],
-			DefsMode extends $defs_mode = $defs_mode,
-			MinItems extends MinItemsType_mode = MinItemsType_mode,
-			MaxItems extends MaxItemsType_mode = MaxItemsType_mode,
-			ArrayMode extends array_mode = array_mode,
-			UniqueItems_mode extends unique_items_mode = unique_items_mode,
-		> = [
+	type DataSet<
+		T1 extends TypeNode = TypeNode,
+		T2 extends (
+			| TupleTypeNode<T1, [T1, ...T1[]]>
+			| ArrayTypeNode<T1>
+		) = (
+			| TupleTypeNode<T1, [T1, ...T1[]]>
+			| ArrayTypeNode<T1>
+		),
+		T3 extends Expression = Expression,
+		T4 extends T3[] = T3[],
+		DefsMode extends $defs_mode = $defs_mode,
+		MinItems extends MinItemsType_mode = MinItemsType_mode,
+		MaxItems extends MaxItemsType_mode = MaxItemsType_mode,
+		ArrayMode extends array_mode = array_mode,
+		UniqueItems_mode extends unique_items_mode = unique_items_mode,
+	> = [
+		MinItems,
+		MaxItems,
+		ArrayMode,
+		UniqueItems_mode,
+		unknown[], // input
+		array_type<
+			DefsMode,
+			ArrayMode,
 			MinItems,
 			MaxItems,
+			UniqueItems_mode
+		>,
+		ArrayUnspecified_options<
 			ArrayMode,
 			UniqueItems_mode,
-			unknown[], // input
-			array_type<
-				DefsMode,
-				ArrayMode,
-				MinItems,
-				MaxItems,
-				UniqueItems_mode
-			>,
-			ArrayUnspecified_options<
-				ArrayMode,
-				UniqueItems_mode,
-				ItemsType_by_mode<ArrayMode>,
-				[SchemaObject, ...SchemaObject[]]
-			>,
-			boolean, // will or won't fail on default
+			ItemsType_by_mode<ArrayMode>,
+			[SchemaObject, ...SchemaObject[]]
+		>,
+		boolean, // will or won't fail on default
 		// ArrayUnspecified::generate_typescript_type() asserter
 		ts_asserter<T2>,
 		// ArrayUnspecified::generate_typescript_data() asserter
 		ts_asserter<ArrayLiteralExpression<T3, T4, boolean>>,
-		];
+	];
 
-		const data_sets:[
-			DataSet,
-			...DataSet[]
-		] = [
+	const data_sets:[
+		DataSet,
+		...DataSet[]
+	] = [
+		[
+			'optional',
+			'optional',
+			'items-only',
+			'no',
 			[
-				'optional',
-				'optional',
-				'items-only',
-				'no',
-				[
-					'foo',
-					'bar',
-				],
-				{
-					type: 'array',
-					items: {
-						type: 'string',
+				'foo',
+				'bar',
+			],
+			{
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+				minItems: PositiveIntegerOrZero(2),
+			},
+			{
+				minItems: PositiveIntegerOrZero(2),
+				array_mode: 'items-only',
+				items: {},
+				uniqueItems_mode: 'no',
+			},
+			false,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_TupleTypeNode(
+					value,
+					(
+						element: Node,
+					) => {
+						ts_assert.isTokenWithExpectedKind(
+							element,
+							SyntaxKind.StringKeyword,
+						);
 					},
-					minItems: PositiveIntegerOrZero(2),
-				},
-				{
-					minItems: PositiveIntegerOrZero(2),
-					array_mode: 'items-only',
-					items: {},
-					uniqueItems_mode: 'no',
-				},
-				false,
-				(
-					value: Node,
-					message?: string|Error,
-				): asserts value is (
-					TupleTypeNode<LiteralTypeNode<StringLiteral>>
-				) => {
-					is_TupleTypeNode(
-						value,
-						(
-							element: Node,
-						) => {
-							ts_assert.isTokenWithExpectedKind(
-								element,
-								SyntaxKind.StringKeyword,
-							);
-						},
-						message,
-					);
-				},
+					message,
+				);
+			},
 			(
 				value: Node,
 				message?: string|Error,
@@ -179,66 +179,66 @@ void describe('ArrayUnspecified', () => {
 					message,
 				);
 			},
-			],
+		],
+		[
+			'optional',
+			'optional',
+			'prefix-only',
+			'no',
 			[
-				'optional',
-				'optional',
-				'prefix-only',
-				'no',
-				[
-					'foo',
-					'bar',
+				'foo',
+				'bar',
+			],
+			{
+				type: 'array',
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
 				],
-				{
-					type: 'array',
-					prefixItems: [
-						{
-							type: 'string',
-							const: 'foo',
-						},
-						{
-							type: 'string',
-							const: 'bar',
-						},
-					],
-					minItems: PositiveIntegerOrZero(2),
-					items: false,
-				},
-				{
-					array_mode: 'prefix-only',
-					minItems: PositiveIntegerOrZero(2),
-					items: false,
-					prefixItems: [
-						{
-							type: 'string',
-							const: 'foo',
-						},
-						{
-							type: 'string',
-							const: 'bar',
-						},
-					],
-					uniqueItems_mode: 'no',
-				},
-				true,
-				(
-					value: Node,
-					message?: string|Error,
-				): asserts value is (
-					TupleTypeNode<LiteralTypeNode<StringLiteral>>
-				) => {
-					is_TupleTypeNode(
-						value,
-						(
-							element: Node,
-						) => {
-							ts_assert.isLiteralTypeNode(element);
-							ts_assert.isStringLiteral(element.literal);
-						},
-						false,
-						message,
-					);
-				},
+				minItems: PositiveIntegerOrZero(2),
+				items: false,
+			},
+			{
+				array_mode: 'prefix-only',
+				minItems: PositiveIntegerOrZero(2),
+				items: false,
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
+				],
+				uniqueItems_mode: 'no',
+			},
+			true,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_TupleTypeNode(
+					value,
+					(
+						element: Node,
+					) => {
+						ts_assert.isLiteralTypeNode(element);
+						ts_assert.isStringLiteral(element.literal);
+					},
+					false,
+					message,
+				);
+			},
 			(
 				value: Node,
 				message?: string|Error,
@@ -254,8 +254,8 @@ void describe('ArrayUnspecified', () => {
 					message,
 				);
 			},
-			],
-		];
+		],
+	];
 	void describe('::generate_typescript_type()', () => {
 		data_sets.forEach(([
 			,,,,
