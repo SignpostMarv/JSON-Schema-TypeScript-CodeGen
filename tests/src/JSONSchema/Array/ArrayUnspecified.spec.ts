@@ -70,6 +70,7 @@ import type {
 } from '../../../../src/JSONSchema/Type.ts';
 
 import {
+	PositiveInteger,
 	PositiveIntegerOrZero,
 } from '../../../../src/guarded.ts';
 
@@ -135,9 +136,11 @@ void describe('ArrayUnspecified', () => {
 					type: 'string',
 				},
 				minItems: PositiveIntegerOrZero(2),
+				maxItems: PositiveInteger(2),
 			},
 			{
 				minItems: PositiveIntegerOrZero(2),
+				maxItems: PositiveInteger(2),
 				array_mode: 'items-only',
 				items: {},
 				uniqueItems_mode: 'no',
