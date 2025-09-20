@@ -256,23 +256,23 @@ void describe('ArrayUnspecified', () => {
 			},
 		],
 	];
-		data_sets.forEach(([
-			,,,,
-			data,
-			schema,
-			ctor_args,
-			will_fail_on_default,
-			expectation_asserter,
-		], i) => {
-			const ajv = new Ajv({strict: false});
+	data_sets.forEach(([
+		,,,,
+		data,
+		schema,
+		ctor_args,
+		will_fail_on_default,
+		expectation_asserter,
+	], i) => {
+		const ajv = new Ajv({strict: false});
 
-			function do_test(
-				instance: ArrayUnspecified<
-					typeof data,
-					array_mode
-				>,
-				schema_parser: SchemaParser,
-			) {
+		function do_test(
+			instance: ArrayUnspecified<
+				typeof data,
+				array_mode
+			>,
+			schema_parser: SchemaParser,
+		) {
 			void describe('::generate_typescript_type()', async () => {
 				assert.ok(
 					instance.check_type(data),
@@ -308,52 +308,52 @@ void describe('ArrayUnspecified', () => {
 					}),
 					`Incorrectly matched array against string on data_set[${i}]`,
 				);
-				})
-			}
+			})
+		}
 
-			void it(`behaves with data_sets[${i}] directly`, async () => {
-				const instance = new ArrayUnspecified<
+		void it(`behaves with data_sets[${i}] directly`, async () => {
+			const instance = new ArrayUnspecified<
+				typeof data,
+				array_mode
+			>(ctor_args, {ajv});
+
+			assert.ok(
+				instance.check_schema(schema),
+				`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
+			);
+
+			do_test(instance, new SchemaParser({ajv}));
+		})
+
+		void it(`behaves with data_sets[${i}] from parser`, () => {
+			const schema_parser = new SchemaParser({ajv});
+			if (will_fail_on_default) {
+				const manual = new ArrayUnspecified<
 					typeof data,
 					array_mode
 				>(ctor_args, {ajv});
 
-				assert.ok(
-					instance.check_schema(schema),
-					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
-				);
+				assert.throws(() => schema_parser.parse(schema));
+				schema_parser.types.push(manual);
+			}
+			const instance = schema_parser.parse(schema);
 
-				do_test(instance, new SchemaParser({ajv}));
-			})
+			assert.ok(
+				instance.check_schema(schema),
+				`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
+			);
 
-			void it(`behaves with data_sets[${i}] from parser`, () => {
-				const schema_parser = new SchemaParser({ajv});
-				if (will_fail_on_default) {
-					const manual = new ArrayUnspecified<
-						typeof data,
-						array_mode
-					>(ctor_args, {ajv});
+			is_instanceof<
+				ArrayUnspecified<
+					typeof data,
+					array_mode
+				>
+			>(
+				instance,
+				ArrayUnspecified,
+			);
 
-					assert.throws(() => schema_parser.parse(schema));
-					schema_parser.types.push(manual);
-				}
-				const instance = schema_parser.parse(schema);
-
-				assert.ok(
-					instance.check_schema(schema),
-					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
-				);
-
-				is_instanceof<
-					ArrayUnspecified<
-						typeof data,
-						array_mode
-					>
-				>(
-					instance,
-					ArrayUnspecified,
-				);
-
-				do_test(instance, schema_parser);
-			})
+			do_test(instance, schema_parser);
+		})
 	});
 })
