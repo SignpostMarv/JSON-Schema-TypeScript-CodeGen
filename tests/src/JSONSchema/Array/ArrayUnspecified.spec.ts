@@ -12,6 +12,7 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type {
+	Expression,
 	Node,
 	StringLiteral,
 	TypeNode,
@@ -27,6 +28,7 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	ArrayLiteralExpression,
 	ArrayTypeNode,
 	LiteralTypeNode,
 	TupleTypeNode,
@@ -36,6 +38,7 @@ import type {
 } from '../../../types.ts';
 
 import {
+	is_ArrayLiteralExpression,
 	is_TupleTypeNode,
 } from '../../../assertions.ts';
 
@@ -73,7 +76,6 @@ import {
 } from '../../../../src/guarded.ts';
 
 void describe('ArrayUnspecified', () => {
-	void describe('::generate_typescript_type()', () => {
 		type DataSet<
 			T1 extends TypeNode = TypeNode,
 			T2 extends (
@@ -83,6 +85,8 @@ void describe('ArrayUnspecified', () => {
 				| TupleTypeNode<T1, [T1, ...T1[]]>
 				| ArrayTypeNode<T1>
 			),
+			T3 extends Expression = Expression,
+			T4 extends T3[] = T3[],
 			DefsMode extends $defs_mode = $defs_mode,
 			MinItems extends MinItemsType_mode = MinItemsType_mode,
 			MaxItems extends MaxItemsType_mode = MaxItemsType_mode,
@@ -107,8 +111,11 @@ void describe('ArrayUnspecified', () => {
 				ItemsType_by_mode<ArrayMode>,
 				[SchemaObject, ...SchemaObject[]]
 			>,
-			ts_asserter<T2>, // expectation asserter
 			boolean, // will or won't fail on default
+		// ArrayUnspecified::generate_typescript_type() asserter
+		ts_asserter<T2>,
+		// ArrayUnspecified::generate_typescript_data() asserter
+		ts_asserter<ArrayLiteralExpression<T3, T4, boolean>>,
 		];
 
 		const data_sets:[
@@ -137,6 +144,7 @@ void describe('ArrayUnspecified', () => {
 					items: {},
 					uniqueItems_mode: 'no',
 				},
+				false,
 				(
 					value: Node,
 					message?: string|Error,
@@ -156,7 +164,21 @@ void describe('ArrayUnspecified', () => {
 						message,
 					);
 				},
-				false,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(2),
+					message,
+				);
+			},
 			],
 			[
 				'optional',
@@ -198,6 +220,7 @@ void describe('ArrayUnspecified', () => {
 					],
 					uniqueItems_mode: 'no',
 				},
+				true,
 				(
 					value: Node,
 					message?: string|Error,
@@ -216,17 +239,31 @@ void describe('ArrayUnspecified', () => {
 						message,
 					);
 				},
-				true,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(2),
+					message,
+				);
+			},
 			],
 		];
-
+	void describe('::generate_typescript_type()', () => {
 		data_sets.forEach(([
 			,,,,
 			data,
 			schema,
 			ctor_args,
-			expectation_asserter,
 			will_fail_on_default,
+			expectation_asserter,
 		], i) => {
 			const ajv = new Ajv({strict: false});
 

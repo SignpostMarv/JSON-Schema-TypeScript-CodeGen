@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 
 import type {
+	Expression,
 	NamedTupleMember,
 	Node,
 	TypeElement,
@@ -14,6 +15,7 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	ArrayLiteralExpression,
 	TupleTypeNode,
 	TypeLiteralNode,
 } from '../src/types.ts';
@@ -21,6 +23,10 @@ import type {
 import type {
 	ts_asserter,
 } from './types.ts';
+
+import type {
+	PositiveIntegerOrZero,
+} from '../src/guarded.ts';
 
 export function is_Error<
 	T extends Error = Error,
@@ -165,5 +171,31 @@ export function is_TupleTypeNode<
 		not_undefined(last);
 		ts_assert.isRestTypeNode(last, message);
 		assert.doesNotThrow(() => predicate(last.type, message));
+	}
+}
+
+export function is_ArrayLiteralExpression<
+	T1 extends Expression,
+	T2 extends T1[],
+>(
+	value: Node,
+	element_asserter: ts_asserter<T1>,
+	expected_length: ReturnType<typeof PositiveIntegerOrZero<number>>,
+	message?: string|Error,
+): asserts value is ArrayLiteralExpression<T1, T2, boolean> {
+	ts_assert.isArrayLiteralExpression(value, message);
+
+	if (value.elements.length !== expected_length) {
+		throw new RangeError(
+			`value was an ArrayLiteralExpression, but expected ${
+				expected_length
+			} elements, found ${
+				value.elements.length
+			}`,
+		);
+	}
+
+	for (let i=0; i<value.elements.length; ++i) {
+		element_asserter(value.elements[i], message);
 	}
 }
