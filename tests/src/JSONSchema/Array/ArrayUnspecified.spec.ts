@@ -256,7 +256,6 @@ void describe('ArrayUnspecified', () => {
 			},
 		],
 	];
-	void describe('::generate_typescript_type()', () => {
 		data_sets.forEach(([
 			,,,,
 			data,
@@ -267,13 +266,14 @@ void describe('ArrayUnspecified', () => {
 		], i) => {
 			const ajv = new Ajv({strict: false});
 
-			async function do_test(
+			function do_test(
 				instance: ArrayUnspecified<
 					typeof data,
 					array_mode
 				>,
 				schema_parser: SchemaParser,
 			) {
+			void describe('::generate_typescript_type()', async () => {
 				assert.ok(
 					instance.check_type(data),
 					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
@@ -308,6 +308,7 @@ void describe('ArrayUnspecified', () => {
 					}),
 					`Incorrectly matched array against string on data_set[${i}]`,
 				);
+				})
 			}
 
 			void it(`behaves with data_sets[${i}] directly`, async () => {
@@ -321,10 +322,10 @@ void describe('ArrayUnspecified', () => {
 					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
 				);
 
-				await do_test(instance, new SchemaParser({ajv}));
+				do_test(instance, new SchemaParser({ajv}));
 			})
 
-			void it(`behaves with data_sets[${i}] from parser`, async () => {
+			void it(`behaves with data_sets[${i}] from parser`, () => {
 				const schema_parser = new SchemaParser({ajv});
 				if (will_fail_on_default) {
 					const manual = new ArrayUnspecified<
@@ -352,8 +353,7 @@ void describe('ArrayUnspecified', () => {
 					ArrayUnspecified,
 				);
 
-				await do_test(instance, schema_parser);
+				do_test(instance, schema_parser);
 			})
-		})
 	});
 })
