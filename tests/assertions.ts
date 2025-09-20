@@ -16,6 +16,7 @@ import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ArrayLiteralExpression,
+	ArrayTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
 } from '../src/types.ts';
@@ -172,6 +173,17 @@ export function is_TupleTypeNode<
 		ts_assert.isRestTypeNode(last, message);
 		assert.doesNotThrow(() => predicate(last.type, message));
 	}
+}
+
+export function is_ArrayTypeNode<
+	T extends TypeNode
+>(
+	value: Node,
+	predicate: ts_asserter<T>,
+	message?: string|Error,
+): asserts value is ArrayTypeNode<T> {
+	ts_assert.isArrayTypeNode(value, message);
+	predicate(value.elementType, message);
 }
 
 export function is_ArrayLiteralExpression<

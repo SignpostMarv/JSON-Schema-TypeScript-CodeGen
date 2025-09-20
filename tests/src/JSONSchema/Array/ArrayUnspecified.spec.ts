@@ -39,6 +39,7 @@ import type {
 
 import {
 	is_ArrayLiteralExpression,
+	is_ArrayTypeNode,
 	is_TupleTypeNode,
 } from '../../../assertions.ts';
 
@@ -237,6 +238,62 @@ void describe('ArrayUnspecified', () => {
 						ts_assert.isStringLiteral(element.literal);
 					},
 					false,
+					message,
+				);
+			},
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(2),
+					message,
+				);
+			},
+		],
+		[
+			'optional',
+			'optional',
+			'items-only',
+			'no',
+			[
+				'foo',
+				'bar',
+			],
+			{
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+			{
+				array_mode: 'items-only',
+				items: {},
+				uniqueItems_mode: 'no',
+			},
+			false,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_ArrayTypeNode(
+					value,
+					(
+						element: Node,
+					) => {
+						ts_assert.isTokenWithExpectedKind(
+							element,
+							SyntaxKind.StringKeyword,
+						);
+					},
 					message,
 				);
 			},
