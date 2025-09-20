@@ -711,4 +711,45 @@ void describe('ArrayUnspecified', () => {
 			test_generate_typescript_data(instance, schema_parser);
 		})
 	});
+
+	void describe('::generate_typescript_data()', () => {
+		void it('fails as expected', () => {
+			const ajv = new Ajv({strict: true});
+			const schema_parser = new SchemaParser({ajv});
+			const instance = new ArrayUnspecified(
+				{
+					array_mode: 'items-only',
+					uniqueItems_mode: 'yes',
+					items: {
+						type: 'string',
+					},
+				},
+				{ajv},
+			);
+
+			const schema = {
+				type: 'array' as const,
+				items: {
+					type: 'string',
+				},
+				uniqueItems: true as const,
+			};
+
+			assert.doesNotThrow(() => instance.generate_typescript_data(
+				['foo'],
+				schema_parser,
+				schema,
+			));
+			assert.throws(() => instance.generate_typescript_data(
+				[1],
+				schema_parser,
+				schema,
+			));
+			assert.throws(() => instance.generate_typescript_data(
+				['foo'],
+				schema_parser,
+				{} as typeof schema,
+			));
+		})
+	})
 })
