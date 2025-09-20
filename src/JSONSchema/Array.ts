@@ -33,7 +33,7 @@ import type {
 	PartialPick,
 } from '../types.ts';
 
-type ArrayWithout$defs_options<
+export type ArrayWithout$defs_options<
 	T1 extends unknown[],
 	T4 extends Expression,
 	T5 extends T4[],
@@ -106,20 +106,23 @@ export type ArrayUnspecified_options<
 	Items extends ItemsType_by_mode<ArrayMode>,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = PartialPick<Omit<
-	ArrayWithout$defs_options<
+	ArrayUncertain_options<
 		unknown[],
 		Expression,
 		Expression[],
+		'optional',
 		ArrayMode,
 		'optional',
 		'optional',
 		UniqueItems_mode,
+		SchemaObject,
 		MinItemsType,
 		MaxItemsType,
 		Items,
 		PrefixItems
 	>,
 	(
+		| '$defs_mode'
 		| 'minItems_mode'
 		| 'maxItems_mode'
 	)
@@ -239,16 +242,18 @@ export class ArrayUnspecified<
 		SchemaObject,
 		...SchemaObject[]
 	],
-> extends ArrayWithout$defs<
+> extends ArrayUncertain<
 	T,
 	TypeNode,
 	[TypeNode, ...TypeNode[]],
 	Expression,
 	Expression[],
+	'optional',
 	ArrayMode,
 	'optional',
 	'optional',
 	UniqueItems_mode,
+	SchemaObject,
 	MinItemsType,
 	MaxItemsType,
 	Items,
@@ -264,7 +269,7 @@ export class ArrayUnspecified<
 		{
 			ajv,
 		}: ArrayUncertain_TypeOptions<
-				'without',
+				'optional',
 				ArrayMode,
 				'optional',
 				'optional',
@@ -279,6 +284,7 @@ export class ArrayUnspecified<
 		super(
 			{
 				...options,
+				$defs_mode: 'optional',
 				minItems_mode: 'optional',
 				maxItems_mode: 'optional',
 				expression_at_index_verifier: (
