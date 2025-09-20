@@ -23,6 +23,7 @@ import {
 
 import {
 	is_instanceof,
+	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
 import ts_assert from '@signpostmarv/ts-assert';
@@ -313,6 +314,258 @@ void describe('ArrayUnspecified', () => {
 				);
 			},
 		],
+		[
+			'optional',
+			'optional',
+			'prefix-only',
+			'no',
+			[
+				'foo',
+				'bar',
+				'baz',
+				'bat',
+			],
+			{
+				type: 'array',
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
+				],
+				minItems: PositiveIntegerOrZero(2),
+				items: {
+					type: 'string',
+				},
+			},
+			{
+				array_mode: 'both',
+				minItems: PositiveIntegerOrZero(2),
+				items: {},
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
+				],
+				uniqueItems_mode: 'no',
+			},
+			true,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_TupleTypeNode(
+					value,
+					(
+						element: Node,
+						_,
+						context,
+					) => {
+						if (context?.is_last) {
+							ts_assert.isTokenWithExpectedKind(
+								element,
+								SyntaxKind.StringKeyword,
+							);
+						} else {
+							ts_assert.isLiteralTypeNode(element);
+							ts_assert.isStringLiteral(element.literal);
+						}
+					},
+					true,
+					message,
+				);
+			},
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(4),
+					message,
+				);
+			},
+		],
+		[
+			'optional',
+			'optional',
+			'prefix-only',
+			'no',
+			[
+				'foo',
+				'bar',
+				'baz',
+				'bat',
+			],
+			{
+				type: 'array',
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
+				],
+				minItems: PositiveIntegerOrZero(4),
+				items: {
+					type: 'string',
+				},
+			},
+			{
+				array_mode: 'both',
+				minItems: PositiveIntegerOrZero(4),
+				items: {},
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+				],
+				uniqueItems_mode: 'no',
+			},
+			true,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_TupleTypeNode(
+					value,
+					(
+						element: Node,
+						_,
+						context,
+					) => {
+						not_undefined(context);
+						if (context.is_last || context.index >= 2) {
+							ts_assert.isTokenWithExpectedKind(
+								element,
+								SyntaxKind.StringKeyword,
+							);
+						} else {
+							ts_assert.isLiteralTypeNode(element);
+							ts_assert.isStringLiteral(element.literal);
+						}
+					},
+					true,
+					message,
+				);
+			},
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(4),
+					message,
+				);
+			},
+		],
+		[
+			'optional',
+			'optional',
+			'prefix-only',
+			'no',
+			[],
+			{
+				type: 'array',
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+					{
+						type: 'string',
+						const: 'bar',
+					},
+				],
+				minItems: PositiveIntegerOrZero(0),
+				items: {
+					type: 'string',
+				},
+			},
+			{
+				array_mode: 'both',
+				minItems: PositiveIntegerOrZero(0),
+				items: {},
+				prefixItems: [
+					{
+						type: 'string',
+						const: 'foo',
+					},
+				],
+				uniqueItems_mode: 'no',
+			},
+			true,
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is (
+				TupleTypeNode<LiteralTypeNode<StringLiteral>>
+			) => {
+				is_TupleTypeNode(
+					value,
+					(
+						element: Node,
+						_,
+						context,
+					) => {
+						if (context?.is_last) {
+							ts_assert.isTokenWithExpectedKind(
+								element,
+								SyntaxKind.StringKeyword,
+							);
+						} else {
+							ts_assert.isLiteralTypeNode(element);
+							ts_assert.isStringLiteral(element.literal);
+						}
+					},
+					true,
+					message,
+				);
+			},
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ArrayLiteralExpression<
+				StringLiteral,
+				[StringLiteral, StringLiteral],
+				boolean
+			> => {
+				is_ArrayLiteralExpression(
+					value,
+					ts_assert.isStringLiteral,
+					PositiveIntegerOrZero(0),
+					message,
+				);
+			},
+		],
 	];
 	data_sets.forEach(([
 		,,,,
@@ -332,7 +585,7 @@ void describe('ArrayUnspecified', () => {
 			>,
 			schema_parser: SchemaParser,
 		) {
-			void it('::generate_typescript_type() behaves', async () => {
+			void it(`::generate_typescript_type() behaves with data_sets[${i}]`, async () => {
 				assert.ok(
 					instance.check_type(data),
 					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
@@ -344,7 +597,7 @@ void describe('ArrayUnspecified', () => {
 				});
 				assert.doesNotThrow(() => generate_typescript_type_asserter(
 					generated,
-					`Did not pass asserter on data_set[${i}]`,
+					`Did not pass type asserter on data_set[${i}]`,
 				));
 				await assert.rejects(
 					() => (
@@ -368,7 +621,7 @@ void describe('ArrayUnspecified', () => {
 			>,
 			schema_parser: SchemaParser,
 		) {
-			void it('::generate_typescript_data() behaves', () => {
+			void it(`::generate_typescript_data() behaves with data_sets[${i}]`, () => {
 				assert.ok(
 					instance.check_type(data),
 					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
@@ -380,9 +633,10 @@ void describe('ArrayUnspecified', () => {
 				);
 				assert.doesNotThrow(() => generate_typescript_data_asserter(
 					generated,
-					`Did not pass asserter on data_set[${i}]`,
+					`Did not pass data asserter on data_set[${i}]`,
 				));
-				assert.throws(() => (
+				const call = 0 === data.length ? 'doesNotThrow' : 'throws';
+				assert[call](() => (
 					new ArrayUnspecified<
 						typeof data,
 						array_mode
@@ -410,7 +664,7 @@ void describe('ArrayUnspecified', () => {
 			})
 		}
 
-		void describe('directly instantiated', () => {
+		void describe(`directly instantiate with data_sets[${i}]`, () => {
 			const instance = new ArrayUnspecified<
 				typeof data,
 				array_mode
@@ -425,7 +679,7 @@ void describe('ArrayUnspecified', () => {
 			test_generate_typescript_data(instance, new SchemaParser({ajv}));
 		})
 
-		void describe('instantiated from parser', () => {
+		void describe(`instantiated from parser with data_sets[${i}]`, () => {
 			const schema_parser = new SchemaParser({ajv});
 			if (will_fail_on_default) {
 				const manual = new ArrayUnspecified<

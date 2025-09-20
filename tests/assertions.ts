@@ -25,7 +25,7 @@ import type {
 	ts_asserter,
 } from './types.ts';
 
-import type {
+import {
 	PositiveIntegerOrZero,
 } from '../src/guarded.ts';
 
@@ -91,12 +91,16 @@ export function throws_Error(
 	}
 }
 
-export function bool_throw<T1, T2>(
-	value: T1,
-	callback: (value:T1|T2) => asserts value is T2,
-): value is T1 & T2 {
+export function bool_throw<
+	T extends Node = Node,
+	Context extends {[key: string]: unknown} = {[key: string]: unknown},
+>(
+	value: Node,
+	callback: ts_asserter<T, Context>,
+	context?: Context,
+): value is T {
 	try {
-		callback(value);
+		callback(value, undefined, context);
 		return true;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (_) {
@@ -126,7 +130,13 @@ export function is_TupleTypeNode<
 	T2 extends [T1, ...T1[]],
 >(
 	value: Node,
-	predicate: ts_asserter<T1>,
+	predicate: ts_asserter<
+		T1,
+		{
+			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			is_last: boolean,
+		}
+	>,
 	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2>;
 export function is_TupleTypeNode<
@@ -134,7 +144,13 @@ export function is_TupleTypeNode<
 	T2 extends [T1, ...T1[]],
 >(
 	value: Node,
-	predicate: ts_asserter<T1>,
+	predicate: ts_asserter<
+		T1,
+		{
+			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			is_last: boolean,
+		}
+	>,
 	last_is_rest: boolean,
 	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2>
@@ -143,7 +159,13 @@ export function is_TupleTypeNode<
 	T2 extends [T1, ...T1[]],
 >(
 	value: Node,
-	predicate: ts_asserter<T1>,
+	predicate: ts_asserter<
+		T1,
+		{
+			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			is_last: boolean,
+		}
+	>,
 	last_is_rest: boolean|undefined|string|Error = true,
 	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2> {
@@ -161,9 +183,13 @@ export function is_TupleTypeNode<
 		last = elements.pop();
 	}
 	assert.ok(
-		elements.every((maybe) => bool_throw(
+		elements.every((maybe, i) => bool_throw(
 			maybe,
 			predicate,
+			{
+				index: PositiveIntegerOrZero(i),
+				is_last: i === (value.elements.length - 1),
+			},
 		)),
 		message,
 	);
@@ -171,7 +197,10 @@ export function is_TupleTypeNode<
 	if (last_is_rest)  {
 		not_undefined(last);
 		ts_assert.isRestTypeNode(last, message);
-		assert.doesNotThrow(() => predicate(last.type, message));
+		assert.doesNotThrow(() => predicate(last.type, message, {
+			index: PositiveIntegerOrZero(value.elements.length - 1),
+			is_last: true,
+		}));
 	}
 }
 
