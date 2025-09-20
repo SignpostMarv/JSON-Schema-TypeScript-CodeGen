@@ -3,6 +3,10 @@ import type {
 } from 'ajv/dist/2020.js';
 
 import type {
+	Expression,
+} from 'typescript';
+
+import type {
 	OmitFromTupleishIf,
 	OmitIf,
 } from '../../types.ts';
@@ -275,3 +279,18 @@ export type ArrayUncertain_TypeOptions<
 		| 'type_definition'
 	)
 >;
+
+export type ExpressionAtIndexVerifier<
+	Data extends unknown[],
+	T1 extends Expression,
+	Result extends T1[],
+	Index extends ReturnType<
+		typeof PositiveIntegerOrZero<number>
+	> = ReturnType<
+		typeof PositiveIntegerOrZero<number>
+	>
+> = (
+	data: Data,
+	expression: Expression,
+	index: Index,
+) => expression is Result[Index];

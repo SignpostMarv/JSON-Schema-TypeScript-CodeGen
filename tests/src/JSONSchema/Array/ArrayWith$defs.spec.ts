@@ -12,6 +12,7 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type {
+	Expression,
 	Node,
 	StringLiteral,
 	TypeNode,
@@ -36,6 +37,7 @@ import type {
 } from '../../../types.ts';
 
 import {
+	bool_throw,
 	is_TupleTypeNode,
 } from '../../../assertions.ts';
 
@@ -80,6 +82,8 @@ void describe('ArrayWith$defs', () => {
 				| TupleTypeNode<T1, [T1, ...T1[]]>
 				| ArrayTypeNode<T1>
 			),
+			T4 extends Expression = Expression,
+			T5 extends T4[] = T4[],
 			MinItems_mode extends MinItemsType_mode = MinItemsType_mode,
 			MaxItems_mode extends MaxItemsType_mode = MaxItemsType_mode,
 			ArrayMode extends array_mode = array_mode,
@@ -111,6 +115,9 @@ void describe('ArrayWith$defs', () => {
 				UniqueItems_mode
 			>,
 			ArrayWith$defs_options<
+				unknown[],
+				T4,
+				T5,
 				ArrayMode,
 				MinItems_mode,
 				MaxItems_mode,
@@ -156,6 +163,10 @@ void describe('ArrayWith$defs', () => {
 					array_mode: 'items-only',
 					items: {},
 					uniqueItems_mode: 'no',
+					expression_at_index_verifier: (
+						_,
+						expression,
+					) => bool_throw(expression, ts_assert.isStringLiteral),
 				},
 				(
 					value: Node,
@@ -198,10 +209,14 @@ void describe('ArrayWith$defs', () => {
 			type InferredType<
 				T2 extends TypeNode,
 				T3 extends [T2, ...T2[]],
+				T4 extends Expression,
+				T5 extends T4[],
 			> = ArrayWith$defs<
 				typeof data,
 				T2,
 				T3,
+				T4,
+				T5,
 				typeof array_mode,
 				typeof minItems_mode,
 				typeof maxItems_mode,
@@ -218,8 +233,10 @@ void describe('ArrayWith$defs', () => {
 			async function do_test<
 				T2 extends TypeNode,
 				T3 extends [T2, ...T2[]],
+				T4 extends Expression,
+				T5 extends T4[]
 			>(
-				instance: InferredType<T2, T3>,
+				instance: InferredType<T2, T3, T4, T5>,
 				schema_parser: SchemaParser,
 			) {
 				assert.ok(
@@ -285,7 +302,12 @@ void describe('ArrayWith$defs', () => {
 				);
 
 				is_instanceof<
-					InferredType<TypeNode, [TypeNode, ...TypeNode[]]>
+					InferredType<
+						TypeNode,
+						[TypeNode, ...TypeNode[]],
+						Expression,
+						Expression[]
+					>
 				>(
 					instance,
 					ArrayWith$defs,

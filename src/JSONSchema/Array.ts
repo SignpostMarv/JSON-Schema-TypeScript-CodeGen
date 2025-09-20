@@ -3,6 +3,7 @@ import type {
 } from 'ajv/dist/2020.js';
 
 import type {
+	Expression,
 	TypeNode,
 } from 'typescript';
 
@@ -24,7 +25,14 @@ import type {
 	unique_items_mode,
 } from './Array/types.ts';
 
+import type {
+	PositiveIntegerOrZero,
+} from '../guarded.ts';
+
 type ArrayWithout$defs_options<
+	T1 extends unknown[],
+	T4 extends Expression,
+	T5 extends T4[],
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
@@ -35,6 +43,9 @@ type ArrayWithout$defs_options<
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayUncertain_options<
+		T1,
+		T4,
+		T5,
 		'without',
 		ArrayMode,
 		MinItems_mode,
@@ -52,6 +63,9 @@ type ArrayWithout$defs_options<
 >;
 
 export type ArrayWith$defs_options<
+	T1 extends unknown[],
+	T4 extends Expression,
+	T5 extends T4[],
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
@@ -63,6 +77,9 @@ export type ArrayWith$defs_options<
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayUncertain_options<
+		T1,
+		T4,
+		T5,
 		'with',
 		ArrayMode,
 		MinItems_mode,
@@ -86,6 +103,9 @@ export type ArrayUnspecified_options<
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
 > = Omit<
 	ArrayWithout$defs_options<
+		unknown[],
+		Expression,
+		Expression[],
 		ArrayMode,
 		'optional',
 		'optional',
@@ -98,6 +118,7 @@ export type ArrayUnspecified_options<
 	(
 		| 'minItems_mode'
 		| 'maxItems_mode'
+		| 'expression_at_index_verifier'
 	)
 >;
 
@@ -105,6 +126,8 @@ export class ArrayWithout$defs<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
+	T4 extends Expression,
+	T5 extends T4[],
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
@@ -117,6 +140,8 @@ export class ArrayWithout$defs<
 	T1,
 	T2,
 	T3,
+	T4,
+	T5,
 	'without',
 	ArrayMode,
 	MinItems_mode,
@@ -130,6 +155,9 @@ export class ArrayWithout$defs<
 > {
 	constructor(
 		options: ArrayWithout$defs_options<
+			T1,
+			T4,
+			T5,
 			ArrayMode,
 			MinItems_mode,
 			MaxItems_mode,
@@ -159,6 +187,9 @@ export class ArrayWithout$defs<
 				...options,
 				$defs_mode: 'without',
 			} as ArrayUncertain_options<
+				T1,
+				T4,
+				T5,
 				'without',
 				ArrayMode,
 				MinItems_mode,
@@ -193,6 +224,8 @@ export class ArrayUnspecified<
 	T,
 	TypeNode,
 	[TypeNode, ...TypeNode[]],
+	Expression,
+	Expression[],
 	ArrayMode,
 	'optional',
 	'optional',
@@ -229,6 +262,14 @@ export class ArrayUnspecified<
 				...options,
 				minItems_mode: 'optional',
 				maxItems_mode: 'optional',
+				expression_at_index_verifier: <
+					Index extends ReturnType<
+						typeof PositiveIntegerOrZero<number>
+					>,
+				>(
+					data: T,
+					expression: Expression,
+				): expression is (Expression[])[Index] => true,
 			},
 			{
 				ajv,
@@ -241,6 +282,8 @@ export class ArrayWith$defs<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
+	T4 extends Expression,
+	T5 extends T4[],
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
@@ -254,6 +297,8 @@ export class ArrayWith$defs<
 	T1,
 	T2,
 	T3,
+	T4,
+	T5,
 	'with',
 	ArrayMode,
 	MinItems_mode,
@@ -267,6 +312,9 @@ export class ArrayWith$defs<
 > {
 	constructor(
 		options: ArrayWith$defs_options<
+			T1,
+			T4,
+			T5,
 			ArrayMode,
 			MinItems_mode,
 			MaxItems_mode,

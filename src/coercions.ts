@@ -1,4 +1,5 @@
 import type {
+	Expression,
 	NamedTupleMember,
 	TypeElement,
 	TypeNode,
@@ -7,6 +8,7 @@ import {
 	factory,
 } from 'typescript';
 import type {
+	ArrayLiteralExpression,
 	ArrayTypeNode,
 	IntersectionTypeNode,
 	TupleTypeNode,
@@ -88,4 +90,15 @@ export function array_type_node<
 	value: T1,
 ): ArrayTypeNode<T1> {
 	return factory.createArrayTypeNode(value) as ArrayTypeNode<T1>;
+}
+
+export function array_literal_expression<
+	T1 extends Expression,
+	T2 extends T1[],
+	T3 extends boolean,
+> (elements: T2, multiLine: T3): ArrayLiteralExpression<T1, T2, T3> {
+	return factory.createArrayLiteralExpression(
+		elements,
+		multiLine,
+	) as ArrayLiteralExpression<T1, T2, T3>;
 }

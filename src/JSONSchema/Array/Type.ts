@@ -3,7 +3,6 @@ import type {
 } from 'ajv/dist/2020.js';
 
 import type {
-	ArrayLiteralExpression,
 	Expression,
 	TypeNode,
 } from 'typescript';
@@ -12,6 +11,7 @@ import {
 } from 'typescript';
 
 import type {
+	ArrayLiteralExpression,
 	ArrayTypeNode,
 	TupleTypeNode,
 } from '../../types.ts';
@@ -29,6 +29,7 @@ import type {
 } from '../../SchemaParser.ts';
 
 import {
+	array_literal_expression,
 	array_type_node,
 	tuple_type_node,
 } from '../../coercions.ts';
@@ -42,6 +43,7 @@ import type {
 	array_schema,
 	array_type,
 	ArrayUncertain_TypeOptions,
+	ExpressionAtIndexVerifier,
 	ItemsType_by_mode,
 	MaxItemsType,
 	MaxItemsType_mode,
@@ -77,6 +79,9 @@ type createTypeNode<
 }[ArrayMode][MinItems_mode];
 
 export type ArrayUncertain_options<
+	T1 extends unknown[],
+	T4 extends Expression,
+	T5 extends T4[],
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
@@ -99,6 +104,7 @@ export type ArrayUncertain_options<
 		maxItems?: MaxItems,
 		items: Items,
 		prefixItems?: PrefixItems,
+		expression_at_index_verifier: ExpressionAtIndexVerifier<T1, T4, T5>,
 	}
 );
 
@@ -106,6 +112,8 @@ export abstract class ArrayUncertain<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
+	T4 extends Expression,
+	T5 extends T4[],
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
@@ -138,10 +146,15 @@ export abstract class ArrayUncertain<
 		UniqueItems_mode
 	>,
 	createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
-	ArrayLiteralExpression
+	ArrayLiteralExpression<T4, T5, true>
 > {
+	#expression_at_index_verifier: ExpressionAtIndexVerifier<T1, T4, T5>;
+
 	constructor(
 		options: ArrayUncertain_options<
+			T1,
+			T4,
+			T5,
 			DefsMode,
 			ArrayMode,
 			MinItems_mode,
@@ -179,6 +192,9 @@ export abstract class ArrayUncertain<
 				)
 			),
 		});
+		this.#expression_at_index_verifier = (
+			options.expression_at_index_verifier
+		);
 	}
 
 	generate_typescript_data(
@@ -196,16 +212,31 @@ export abstract class ArrayUncertain<
 			Items,
 			PrefixItems
 		>,
-	): ArrayLiteralExpression {
-		return factory.createArrayLiteralExpression(
-			data.map((value, i) => {
-				return ArrayUncertain.#convert(
+	): ArrayLiteralExpression<T4, T5, true> {
+		return array_literal_expression(
+			data.map((value, i): T4 => {
+				const index = PositiveIntegerOrZero(i);
+				const element = ArrayUncertain.#convert(
 					value,
-					PositiveIntegerOrZero(i),
+					index,
 					schema,
 					schema_parser,
 				);
-			}),
+
+				if (!(this.#expression_at_index_verifier(
+					data,
+					element,
+					index,
+				))) {
+					throw new TypeError(
+						`Element at index ${
+							index
+						} was not of expected type!`,
+					);
+				}
+
+				return element;
+			}) as T5,
 			true,
 		);
 	}
@@ -449,6 +480,9 @@ export abstract class ArrayUncertain<
 	}
 
 	static #generate_default_type_definition<
+		T1 extends unknown[],
+		T4 extends Expression,
+		T5 extends T4[],
 		DefsMode extends $defs_mode,
 		ArrayMode extends array_mode,
 		MinItems_mode extends MinItemsType_mode,
@@ -467,6 +501,9 @@ export abstract class ArrayUncertain<
 		$defs,
 		prefixItems = undefined,
 	}: ArrayUncertain_options<
+		T1,
+		T4,
+		T5,
 		DefsMode,
 		ArrayMode,
 		MinItems_mode,

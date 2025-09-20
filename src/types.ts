@@ -1,10 +1,12 @@
 import type {
 	BooleanLiteral,
+	Expression,
 	LiteralExpression,
 	NamedTupleMember,
 	NodeArray,
 	NullLiteral,
 	PrefixUnaryExpression,
+	ArrayLiteralExpression as TSArrayLiteralExpression,
 	ArrayTypeNode as TSArrayTypeNode,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
@@ -68,6 +70,21 @@ export type TupleTypeNode<
 		),
 	}
 );
+
+export type ArrayLiteralExpression<
+	T1 extends Expression,
+	T2 extends T1[],
+	T3 extends boolean
+> = (
+	& TSArrayLiteralExpression
+	& {
+		readonly __guard_multiLine: T3,
+		readonly elements: (
+			& TSArrayLiteralExpression['elements']
+			& T2
+		)
+	}
+)
 
 // @see https://stackoverflow.com/a/64034671/1498831
 export type OmitFromTupleish<
