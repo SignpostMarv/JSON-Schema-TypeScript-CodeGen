@@ -262,11 +262,11 @@ void describe('ArrayUnspecified', () => {
 		schema,
 		ctor_args,
 		will_fail_on_default,
-		expectation_asserter,
+		generate_typescript_type_asserter,
 	], i) => {
 		const ajv = new Ajv({strict: false});
 
-		function do_test(
+		function test_generate_typescript_type(
 			instance: ArrayUnspecified<
 				typeof data,
 				array_mode
@@ -292,7 +292,7 @@ void describe('ArrayUnspecified', () => {
 					>,
 					schema_parser,
 				});
-				assert.doesNotThrow(() => expectation_asserter(
+				assert.doesNotThrow(() => generate_typescript_type_asserter(
 					generated,
 					`Did not pass asserter on data_set[${i}]`,
 				));
@@ -322,7 +322,7 @@ void describe('ArrayUnspecified', () => {
 				`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
 			);
 
-			do_test(instance, new SchemaParser({ajv}));
+			test_generate_typescript_type(instance, new SchemaParser({ajv}));
 		})
 
 		void it(`behaves with data_sets[${i}] from parser`, () => {
@@ -353,7 +353,7 @@ void describe('ArrayUnspecified', () => {
 				ArrayUnspecified,
 			);
 
-			do_test(instance, schema_parser);
+			test_generate_typescript_type(instance, schema_parser);
 		})
 	});
 })
