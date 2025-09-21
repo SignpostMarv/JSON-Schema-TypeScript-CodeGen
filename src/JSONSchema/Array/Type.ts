@@ -51,9 +51,6 @@ import type {
 	MinItemsType_mode,
 	unique_items_mode,
 } from './types.ts';
-import {
-	UniqueItemsType_by_mode,
-} from './coercions.ts';
 
 type createTypeNode<
 	T1 extends TypeNode,
@@ -379,7 +376,7 @@ export abstract class ArrayUncertain<
 						'both'|'prefix-only',
 						'with',
 						'with',
-						UniqueItems_mode
+						'yes'
 					>['properties']>
 					& Pick<
 						array_schema<
@@ -387,12 +384,11 @@ export abstract class ArrayUncertain<
 							'both'|'prefix-only',
 							'with',
 							'with',
-							UniqueItems_mode
+							'yes'
 						>['properties'],
 						(
 							| 'type'
 							| 'items'
-							| 'uniqueItems'
 						)
 					>
 				),
@@ -412,7 +408,7 @@ export abstract class ArrayUncertain<
 				},
 				uniqueItems: {
 					type: 'boolean',
-					const: UniqueItemsType_by_mode(uniqueItems_mode),
+					const: true,
 				},
 			},
 		};
@@ -468,6 +464,10 @@ export abstract class ArrayUncertain<
 				type: 'integer',
 				minimum: 1,
 			};
+		}
+
+		if ('no' === uniqueItems_mode) {
+			delete partial.properties.uniqueItems;
 		}
 
 		return Object.freeze(partial as array_schema<

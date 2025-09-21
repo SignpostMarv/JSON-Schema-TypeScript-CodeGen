@@ -119,6 +119,25 @@ void describe('ArrayUnspecified', () => {
 		ts_asserter<ArrayLiteralExpression<T3, T4, boolean>>,
 	];
 
+	const prefixItems_foo_bar:Pick<array_type<
+		$defs_mode,
+		'prefix-only',
+		MinItemsType_mode,
+		MaxItemsType_mode,
+		unique_items_mode
+	>, 'prefixItems'> = {
+		prefixItems: [
+			{
+				type: 'string',
+				const: 'foo',
+			},
+			{
+				type: 'string',
+				const: 'bar',
+			},
+		],
+	};
+
 	const data_sets:[
 		DataSet,
 		...DataSet[]
@@ -194,16 +213,7 @@ void describe('ArrayUnspecified', () => {
 			],
 			{
 				type: 'array',
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				minItems: PositiveIntegerOrZero(2),
 				items: false,
 			},
@@ -211,16 +221,7 @@ void describe('ArrayUnspecified', () => {
 				array_mode: 'prefix-only',
 				minItems: PositiveIntegerOrZero(2),
 				items: false,
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				uniqueItems_mode: 'no',
 			},
 			true,
@@ -327,16 +328,7 @@ void describe('ArrayUnspecified', () => {
 			],
 			{
 				type: 'array',
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				minItems: PositiveIntegerOrZero(2),
 				items: {
 					type: 'string',
@@ -346,16 +338,7 @@ void describe('ArrayUnspecified', () => {
 				array_mode: 'both',
 				minItems: PositiveIntegerOrZero(2),
 				items: {},
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				uniqueItems_mode: 'no',
 			},
 			true,
@@ -415,16 +398,7 @@ void describe('ArrayUnspecified', () => {
 			],
 			{
 				type: 'array',
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				minItems: PositiveIntegerOrZero(4),
 				items: {
 					type: 'string',
@@ -495,16 +469,7 @@ void describe('ArrayUnspecified', () => {
 			[],
 			{
 				type: 'array',
-				prefixItems: [
-					{
-						type: 'string',
-						const: 'foo',
-					},
-					{
-						type: 'string',
-						const: 'bar',
-					},
-				],
+				...prefixItems_foo_bar,
 				minItems: PositiveIntegerOrZero(0),
 				items: {
 					type: 'string',
@@ -669,6 +634,24 @@ void describe('ArrayUnspecified', () => {
 				typeof data,
 				array_mode
 			>(ctor_args, {ajv});
+
+			assert.ok(
+				instance.check_schema(schema),
+				`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
+			);
+
+			test_generate_typescript_type(instance, new SchemaParser({ajv}));
+			test_generate_typescript_data(instance, new SchemaParser({ajv}));
+		})
+
+		void describe(`directly instantiate with data_sets[${i}] & forced blank-$defs`, () => {
+			const instance = new ArrayUnspecified<
+				typeof data,
+				array_mode
+			>({
+				...ctor_args,
+				$defs: {},
+			}, {ajv});
 
 			assert.ok(
 				instance.check_schema(schema),

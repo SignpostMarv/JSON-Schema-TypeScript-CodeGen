@@ -118,19 +118,7 @@ export type array_type<
 	}[ArrayMode]
 );
 
-export type array_schema<
-	DefsMode extends $defs_mode,
-	ArrayMode extends array_mode,
-	MinItems_mode extends MinItemsType_mode,
-	MaxItems_mode extends MaxItemsType_mode,
-	UniqueItems_mode extends unique_items_mode = unique_items_mode,
-> = SchemaDefinitionDefinition<
-	OmitFromTupleishIf<
-		OmitFromTupleishIf<
-			OmitFromTupleishIf<
-				OmitFromTupleishIf<
-					OmitFromTupleishIf<
-						[
+type base_required = [
 							'$defs',
 							'type',
 							'items',
@@ -138,15 +126,49 @@ export type array_schema<
 							'minItems',
 							'maxItems',
 							'uniqueItems'
-						],
+];
+
+type if_DefsMode<
+	DefsMode extends $defs_mode,
+> = OmitFromTupleishIf<
+	base_required,
 						'$defs',
 						DefsMode
-					>,
+>;
+
+type if_MinItemsType_mode<
+	DefsMode extends $defs_mode,
+	MinItems_mode extends MinItemsType_mode,
+> = OmitFromTupleishIf<
+	if_DefsMode<DefsMode>,
 					'minItems',
-					MinItemsType_mode
-				>,
+					MinItems_mode
+>;
+
+type if_MaxItemsType_mode<
+	DefsMode extends $defs_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+> = OmitFromTupleishIf<
+	if_MinItemsType_mode<
+		DefsMode,
+		MinItems_mode
+	>,
 				'maxItems',
-				MaxItemsType_mode
+				MaxItems_mode
+>;
+
+type ArrayMode_handler<
+	DefsMode extends $defs_mode,
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+> = OmitFromTupleishIf<
+		OmitFromTupleishIf<
+			if_MaxItemsType_mode<
+				DefsMode,
+				MinItems_mode,
+				MaxItems_mode
 			>,
 			'items',
 			{
@@ -161,6 +183,40 @@ export type array_schema<
 			'items-only': 'without',
 			'prefix-only': 'with',
 		}[ArrayMode]
+>;
+
+type array_schema_required<
+	DefsMode extends $defs_mode,
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode = unique_items_mode,
+> = OmitFromTupleishIf<
+	ArrayMode_handler<
+		DefsMode,
+		ArrayMode,
+		MinItems_mode,
+		MaxItems_mode
+	>,
+	'uniqueItems',
+	{
+		yes: 'with',
+		no: 'without',
+	}[UniqueItems_mode]
+>;
+
+export type array_schema<
+	DefsMode extends $defs_mode,
+	ArrayMode extends array_mode,
+	MinItems_mode extends MinItemsType_mode,
+	MaxItems_mode extends MaxItemsType_mode,
+	UniqueItems_mode extends unique_items_mode = unique_items_mode,
+> = SchemaDefinitionDefinition<
+	array_schema_required<
+		DefsMode,
+		ArrayMode,
+		MinItems_mode,
+		MaxItems_mode
 	>,
 	(
 		& OmitIf<
@@ -173,11 +229,21 @@ export type array_schema<
 				type: 'string',
 				const: 'array',
 			},
+		}
+		& {
+			yes: {
 			uniqueItems: {
 				type: 'boolean',
-				const: UniqueItemsType_by_mode<UniqueItems_mode>,
-			}
-		}
+					const: true,
+				},
+			},
+			no: {
+				uniqueItems?: {
+					type: 'boolean',
+					const: false,
+				},
+			},
+		}[UniqueItems_mode]
 		& OmitIf<
 			{
 				minItems: {
