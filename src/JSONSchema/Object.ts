@@ -41,6 +41,7 @@ import {
 	adjust_name_default,
 	intersection_type_node,
 	object_keys,
+	object_literal_expression,
 	type_literal_node,
 } from '../coercions.ts';
 import type {
@@ -56,7 +57,7 @@ export type object_properties_mode = (
 
 export type required_mode = 'optional'|'with'|'without';
 
-type object_type<
+export type object_type<
 	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
@@ -257,6 +258,10 @@ abstract class ObjectUncertain<
 > {
 	#adjust_name: adjust_name_callback;
 
+	readonly $defs_mode: DefsMode;
+	readonly properties_mode: PropertiesMode;
+	readonly required_mode: RequiredMode;
+
 	constructor(
 		options: {
 			adjust_name?: adjust_name_callback,
@@ -300,6 +305,9 @@ abstract class ObjectUncertain<
 		});
 
 		this.#adjust_name = options?.adjust_name || adjust_name_default;
+		this.$defs_mode = options.$defs_mode;
+		this.required_mode = options.required_mode;
+		this.properties_mode = options.properties_mode;
 	}
 
 	generate_typescript_data(
@@ -787,7 +795,7 @@ abstract class ObjectUncertain<
 		schema_parser: SchemaParser,
 		adjust_name: adjust_name_callback,
 	): ObjectLiteralExpression {
-		return factory.createObjectLiteralExpression(
+		return object_literal_expression(
 			Object.entries(
 				data,
 			).map(([
@@ -1040,13 +1048,14 @@ export function generate_default_schema_definition<
 
 export class ObjectUnspecified<
 	T extends {[key: string]: unknown},
+	PropertiesMode extends object_properties_mode,
 > extends ObjectUncertain<
 	T,
 	'optional',
 	'optional',
-	'neither',
+	PropertiesMode,
 	SchemaObject,
-	[string, ...string[]],
+	readonly [string, ...string[]],
 	ObjectOfSchemas,
 	ObjectOfSchemas
 > {
@@ -1054,8 +1063,10 @@ export class ObjectUnspecified<
 	constructor(
 		{
 			adjust_name,
+			properties_mode,
 		}: {
 			adjust_name?: adjust_name_callback,
+			properties_mode: PropertiesMode,
 		},
 		{
 			ajv,
@@ -1063,14 +1074,14 @@ export class ObjectUnspecified<
 			object_schema<
 				'optional',
 				'optional',
-				'neither'
+				PropertiesMode
 			>,
 			object_type<
 				'optional',
 				'optional',
-				'neither',
+				PropertiesMode,
 				SchemaObject,
-				[string, ...string[]],
+				readonly [string, ...string[]],
 				ObjectOfSchemas,
 				ObjectOfSchemas
 			>
@@ -1081,7 +1092,7 @@ export class ObjectUnspecified<
 				adjust_name,
 				$defs_mode: 'optional',
 				required_mode: 'optional',
-				properties_mode: 'neither',
+				properties_mode,
 			},
 			{
 				ajv,

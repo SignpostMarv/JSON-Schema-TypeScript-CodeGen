@@ -135,7 +135,10 @@ export class SchemaParser
 		ConstString<undefined>,
 		NonEmptyString<'optional'>,
 		$ref<'neither'>,
-		ObjectUnspecified<{[key: string]: unknown}>,
+		ObjectUnspecified<{[key: string]: unknown}, 'properties'>,
+		ObjectUnspecified<{[key: string]: unknown}, 'pattern'>,
+		ObjectUnspecified<{[key: string]: unknown}, 'both'>,
+		ObjectUnspecified<{[key: string]: unknown}, 'neither'>,
 		ArrayUnspecified<
 			unknown[],
 			'items-only',
@@ -157,7 +160,19 @@ export class SchemaParser
 				},
 			),
 			new ObjectUnspecified(
-				{},
+				{properties_mode: 'properties'},
+				{ajv},
+			),
+			new ObjectUnspecified(
+				{properties_mode: 'pattern'},
+				{ajv},
+			),
+			new ObjectUnspecified(
+				{properties_mode: 'both'},
+				{ajv},
+			),
+			new ObjectUnspecified(
+				{properties_mode: 'neither'},
 				{ajv},
 			),
 			new ArrayUnspecified(

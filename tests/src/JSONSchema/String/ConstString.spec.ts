@@ -140,7 +140,10 @@ void describe('identify Const String types as expected', () => {
 			const ajv = new Ajv();
 			const instance = new SchemaParser({
 				ajv,
-				types: [new ObjectUnspecified({}, {ajv})],
+				types: [new ObjectUnspecified(
+					{properties_mode: 'neither'},
+					{ajv},
+				)],
 			});
 
 			throws_Error(

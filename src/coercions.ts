@@ -1,6 +1,7 @@
 import type {
 	Expression,
 	NamedTupleMember,
+	ObjectLiteralElementLike,
 	TypeElement,
 	TypeNode,
 } from 'typescript';
@@ -11,6 +12,7 @@ import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	IntersectionTypeNode,
+	ObjectLiteralExpression,
 	TupleTypeNode,
 	TypeLiteralNode,
 } from './types.ts';
@@ -101,4 +103,17 @@ export function array_literal_expression<
 		elements,
 		multiLine,
 	) as ArrayLiteralExpression<T1, T2, T3>;
+}
+
+export function object_literal_expression<
+	T1 extends undefined|(readonly ObjectLiteralElementLike []),
+	T2 extends undefined|boolean,
+> (
+	properties?: T1,
+	multiLine?: T2,
+): ObjectLiteralExpression<T1, T2> {
+	return factory.createObjectLiteralExpression(
+		properties,
+		multiLine,
+	) as ObjectLiteralExpression<T1, T2>;
 }

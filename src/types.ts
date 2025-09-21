@@ -5,11 +5,13 @@ import type {
 	NamedTupleMember,
 	NodeArray,
 	NullLiteral,
+	ObjectLiteralElementLike,
 	PrefixUnaryExpression,
 	ArrayLiteralExpression as TSArrayLiteralExpression,
 	ArrayTypeNode as TSArrayTypeNode,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
+	ObjectLiteralExpression as TSObjectLiteralExpression,
 	TupleTypeNode as TSTupleTypeNode,
 	TypeLiteralNode as TSTypeLiteralNode,
 	TypeElement,
@@ -85,6 +87,21 @@ export type ArrayLiteralExpression<
 		)
 	}
 )
+
+export type ObjectLiteralExpression<
+	Properties extends (
+		undefined|(readonly ObjectLiteralElementLike [])
+	) = (
+		undefined|(readonly ObjectLiteralElementLike [])
+	),
+	MultiLine extends undefined|boolean = undefined|boolean,
+> = (
+	& TSObjectLiteralExpression
+	& {
+		readonly properties: Properties,
+		readonly __guard_multiLine: MultiLine,
+	}
+);
 
 // @see https://stackoverflow.com/a/64034671/1498831
 export type OmitFromTupleish<
