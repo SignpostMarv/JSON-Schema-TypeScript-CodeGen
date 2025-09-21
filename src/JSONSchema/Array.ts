@@ -52,7 +52,7 @@ import type {
 export type array_mode = 'both'|'items-only'|'prefix-only';
 
 export type unique_items_mode = 'yes'|'no';
-export type UniqueItemsType_by_mode<
+type UniqueItemsType_by_mode<
 	Mode extends unique_items_mode,
 > = {
 	yes: true,
