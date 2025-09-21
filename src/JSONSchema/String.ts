@@ -104,13 +104,15 @@ type const_generate_typescript_type<T extends string|undefined> = (
 		: KeywordTypeNode<SyntaxKind.StringKeyword>
 );
 
+type MinLength_type = ReturnType<typeof PositiveInteger<number>>;
+
 type non_empty_string_type<
 	MinLength extends (
-		| ReturnType<typeof PositiveInteger<number>>
+		| MinLength_type
 		| undefined
 	) = undefined,
 > = (
-	MinLength extends ReturnType<typeof PositiveInteger<number>>
+	MinLength extends MinLength_type
 		? {
 			type: 'integer',
 			const: MinLength,
@@ -123,10 +125,10 @@ type non_empty_string_type<
 
 type non_empty_string_schema<
 	MinLength extends (
-		| ReturnType<typeof PositiveInteger<number>>
+		| MinLength_type
 		| undefined
 	) = (
-		| ReturnType<typeof PositiveInteger<number>>
+		| MinLength_type
 		| undefined
 	),
 	Schema extends SchemaObject = SchemaObject,
@@ -312,10 +314,10 @@ export class ConstString<
 
 export class NonEmptyString<
 	MinLength extends (
-		| ReturnType<typeof PositiveInteger<number>>
+		| MinLength_type
 		| undefined
 	) = (
-		| ReturnType<typeof PositiveInteger<number>>
+		| MinLength_type
 		| undefined
 	),
 	T extends Exclude<string, ''> = Exclude<string, ''>
@@ -332,7 +334,7 @@ export class NonEmptyString<
 	) {
 		const type_definition:Partial<
 			non_empty_string_type<(
-				| ReturnType<typeof PositiveInteger<number>>
+				| MinLength_type
 				| undefined
 			)>
 		> = {
@@ -341,7 +343,7 @@ export class NonEmptyString<
 		if (undefined !== minLength) {
 			(
 				type_definition as non_empty_string_type<
-					ReturnType<typeof PositiveInteger<number>>
+					MinLength_type
 				>
 			).const = minLength;
 		} else {
@@ -378,7 +380,7 @@ export class NonEmptyString<
 
 	static generate_default_schema_definition<
 		MinLength extends (
-			| ReturnType<typeof PositiveInteger<number>>
+			| MinLength_type
 			| undefined
 		)
 	> ({
@@ -389,7 +391,7 @@ export class NonEmptyString<
 		const properties:(
 			Partial<
 				non_empty_string_schema<(
-					| ReturnType<typeof PositiveInteger<number>>
+					| MinLength_type
 					| undefined
 				)>['properties']
 			>
