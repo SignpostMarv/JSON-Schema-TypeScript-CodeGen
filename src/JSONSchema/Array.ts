@@ -131,21 +131,21 @@ export type array_type<
 );
 
 type base_required = [
-							'$defs',
-							'type',
-							'items',
-							'prefixItems',
-							'minItems',
-							'maxItems',
-							'uniqueItems'
+	'$defs',
+	'type',
+	'items',
+	'prefixItems',
+	'minItems',
+	'maxItems',
+	'uniqueItems'
 ];
 
 type if_DefsMode<
 	DefsMode extends $defs_mode,
 > = OmitFromTupleishIf<
 	base_required,
-						'$defs',
-						DefsMode
+	'$defs',
+	DefsMode
 >;
 
 type if_MinItemsType_mode<
@@ -153,8 +153,8 @@ type if_MinItemsType_mode<
 	MinItems_mode extends MinItemsType_mode,
 > = OmitFromTupleishIf<
 	if_DefsMode<DefsMode>,
-					'minItems',
-					MinItems_mode
+	'minItems',
+	MinItems_mode
 >;
 
 type if_MaxItemsType_mode<
@@ -166,8 +166,8 @@ type if_MaxItemsType_mode<
 		DefsMode,
 		MinItems_mode
 	>,
-				'maxItems',
-				MaxItems_mode
+	'maxItems',
+	MaxItems_mode
 >;
 
 type ArrayMode_handler<
@@ -176,25 +176,25 @@ type ArrayMode_handler<
 	MinItems_mode extends MinItemsType_mode,
 	MaxItems_mode extends MaxItemsType_mode,
 > = OmitFromTupleishIf<
-		OmitFromTupleishIf<
-			if_MaxItemsType_mode<
-				DefsMode,
-				MinItems_mode,
-				MaxItems_mode
-			>,
-			'items',
-			{
-				both: 'with',
-				'items-only': 'with',
-				'prefix-only': 'with',
-			}[ArrayMode] // yes, this is effectively a no-op
+	OmitFromTupleishIf<
+		if_MaxItemsType_mode<
+			DefsMode,
+			MinItems_mode,
+			MaxItems_mode
 		>,
-		'prefixItems',
+		'items',
 		{
 			both: 'with',
-			'items-only': 'without',
+			'items-only': 'with',
 			'prefix-only': 'with',
-		}[ArrayMode]
+		}[ArrayMode] // yes, this is effectively a no-op
+	>,
+	'prefixItems',
+	{
+		both: 'with',
+		'items-only': 'without',
+		'prefix-only': 'with',
+	}[ArrayMode]
 >;
 
 type array_schema_required<
