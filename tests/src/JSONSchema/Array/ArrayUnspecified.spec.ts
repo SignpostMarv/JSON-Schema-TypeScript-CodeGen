@@ -710,12 +710,12 @@ void describe('ArrayUnspecified', () => {
 			);
 
 			const schema = {
-				type: 'array' as const,
+				type: 'array',
 				items: {
 					type: 'string',
 				},
-				uniqueItems: true as const,
-			};
+				uniqueItems: true,
+			} as const;
 
 			assert.doesNotThrow(() => instance.generate_typescript_data(
 				['foo'],
