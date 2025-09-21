@@ -319,7 +319,7 @@ export type array_schema<
 	)
 >;
 
-export type ArrayUncertain_TypeOptions<
+type ArrayUncertain_TypeOptions<
 	DefsMode extends $defs_mode,
 	ArrayMode extends array_mode,
 	MinItems_mode extends MinItemsType_mode,
@@ -358,7 +358,7 @@ export type ArrayUncertain_TypeOptions<
 	)
 >;
 
-export type ExpressionAtIndexVerifier<
+type ExpressionAtIndexVerifier<
 	Data extends unknown[],
 	T1 extends Expression,
 	Result extends T1[],
