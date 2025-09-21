@@ -32,7 +32,7 @@ import type {
 	LiteralTypeNode,
 } from '../types.ts';
 
-import type {
+import {
 	PositiveInteger,
 } from '../guarded.ts';
 
@@ -104,37 +104,24 @@ type const_generate_typescript_type<T extends string|undefined> = (
 		: KeywordTypeNode<SyntaxKind.StringKeyword>
 );
 
-type MinLength_type = ReturnType<typeof PositiveInteger<number>>;
+type MinLength_type<
+	T extends number = number,
+> = ReturnType<typeof PositiveInteger<T>>;
+
+export type min_length_mode = 'required'|'optional';
 
 type non_empty_string_type<
-	MinLength extends (
-		| MinLength_type
-		| undefined
-	) = undefined,
-> = (
-	MinLength extends MinLength_type
-		? {
-			type: 'integer',
-			const: MinLength,
-		}
-		: {
-			type: 'integer',
-			minimum: 1,
-		}
-);
+	MinLength extends MinLength_type = MinLength_type,
+> = {
+	type: 'string',
+	minLength: MinLength,
+};
 
 type non_empty_string_schema<
-	MinLength extends (
-		| MinLength_type
-		| undefined
-	) = (
-		| MinLength_type
-		| undefined
-	),
-	Schema extends SchemaObject = SchemaObject,
+	Mode extends min_length_mode,
+	MinLength extends MinLength_type = MinLength_type,
 > = TypeDefinitionSchema<
 	(
-		& Schema
 		& {
 			type: 'object',
 			required: ['type', 'minLength'],
@@ -144,19 +131,16 @@ type non_empty_string_schema<
 					type: 'string',
 					const: 'string',
 				},
-				minLength: (
-					MinLength extends ReturnType<
-						typeof PositiveInteger<number>
-					>
-						? {
-							type: 'integer',
-							const: MinLength,
-						}
-						: {
-							type: 'integer',
-							minimum: 1,
-						}
-				),
+				minLength: {
+					required: {
+						type: 'integer',
+						const: MinLength,
+					}
+					optional: {
+						type: 'integer',
+						minimum: 1,
+					},
+				}[Mode],
 			}
 		}
 	)
@@ -313,54 +297,43 @@ export class ConstString<
 }
 
 export class NonEmptyString<
-	MinLength extends (
-		| MinLength_type
-		| undefined
-	) = (
-		| MinLength_type
-		| undefined
-	),
+	Mode extends min_length_mode,
 	T extends Exclude<string, ''> = Exclude<string, ''>
 > extends BaseString<
 	T,
-	non_empty_string_type<MinLength>,
-	non_empty_string_schema<MinLength>,
+	non_empty_string_type<MinLength_type>,
+	non_empty_string_schema<Mode, MinLength_type>,
 	TypeReferenceNode,
 	StringLiteral
 > {
 	constructor(
-		minLength: MinLength,
+		specific_options: {
+			required: {
+				mode?: Mode,
+				minLength: MinLength_type,
+			},
+			optional: {
+				mode?: Mode,
+			},
+		}[Mode],
 		options: SchemalessTypeOptions,
 	) {
-		const type_definition:Partial<
-			non_empty_string_type<(
-				| MinLength_type
-				| undefined
-			)>
-		> = {
-			type: 'integer',
+		const minLength = 'minLength' in specific_options
+			? specific_options.minLength
+			: undefined;
+		const type_definition:non_empty_string_type<MinLength_type> = {
+			type: 'string',
+			minLength: minLength || PositiveInteger(1),
 		};
-		if (undefined !== minLength) {
-			(
-				type_definition as non_empty_string_type<
-					MinLength_type
-				>
-			).const = minLength;
-		} else {
-			(
-				type_definition as non_empty_string_type<undefined>
-			).minimum = 1;
-		}
+
 		super({
 			...options,
 			schema_definition: (
-				NonEmptyString.generate_default_schema_definition<MinLength>({
+				NonEmptyString.generate_default_schema_definition<Mode>({
 					minLength,
 				})
 			),
-			type_definition: (
-				type_definition as non_empty_string_type<MinLength>
-			),
+			type_definition,
 		});
 	}
 
@@ -379,21 +352,15 @@ export class NonEmptyString<
 	}
 
 	static generate_default_schema_definition<
-		MinLength extends (
-			| MinLength_type
-			| undefined
-		)
+		Mode extends min_length_mode
 	> ({
 		minLength,
 	}: {
-		minLength: MinLength,
+		minLength?: MinLength_type,
 	}) {
 		const properties:(
 			Partial<
-				non_empty_string_schema<(
-					| MinLength_type
-					| undefined
-				)>['properties']
+				non_empty_string_schema<min_length_mode>['properties']
 			>
 		) = {
 			type: {
@@ -414,10 +381,10 @@ export class NonEmptyString<
 		}
 
 		const coerced = (
-			properties as non_empty_string_schema<MinLength>['properties']
+			properties as non_empty_string_schema<Mode>['properties']
 		);
 
-		return Object.freeze<non_empty_string_schema<MinLength>>({
+		return Object.freeze<non_empty_string_schema<Mode>>({
 			type: 'object',
 			required: ['type', 'minLength'],
 			additionalProperties: false,

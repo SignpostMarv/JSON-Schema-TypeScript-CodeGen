@@ -29,6 +29,9 @@ import {
 	SchemaParser,
 } from '../../../../src/SchemaParser.ts';
 
+import type {
+	min_length_mode,
+} from '../../../../src/JSONSchema/String.ts';
 import {
 	ConstString,
 	NonEmptyString,
@@ -100,11 +103,8 @@ void describe('identify non-empty String types as expected', () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
 						? parser.parse(schema, true)
-						: new NonEmptyString<
-							| undefined
-							| ReturnType<typeof PositiveInteger<number>>
-						>(
-							minLength,
+						: new NonEmptyString(
+							minLength ? {minLength}: {mode: 'optional'},
 							{
 								ajv: new Ajv({
 									...ajv_options,
@@ -116,7 +116,7 @@ void describe('identify non-empty String types as expected', () => {
 					is_instanceof(instance, NonEmptyString);
 
 					const typed = await (
-						instance as NonEmptyString
+						instance as NonEmptyString<min_length_mode>
 					).generate_typescript_type();
 					ts_assert.isTypeReferenceNode(typed);
 					ts_assert.isIdentifier(
@@ -144,7 +144,7 @@ void describe('identify non-empty String types as expected', () => {
 					);
 
 					const get_converted = () => (
-						instance as NonEmptyString
+						instance as NonEmptyString<min_length_mode>
 					).generate_typescript_data(
 						conversion_value,
 					);

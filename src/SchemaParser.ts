@@ -33,7 +33,6 @@ import {
 } from './JSONSchema/Array.ts';
 
 import {
-	PositiveInteger,
 	PositiveIntegerOrZero,
 } from './guarded.ts';
 
@@ -134,7 +133,7 @@ export class SchemaParser
 	static #default_types(ajv: Ajv): [
 		String<string>,
 		ConstString<undefined>,
-		NonEmptyString<ReturnType<typeof PositiveInteger<1>>>,
+		NonEmptyString<'optional'>,
 		$ref<'neither'>,
 		ObjectUnspecified<{[key: string]: unknown}>,
 		ArrayUnspecified<
@@ -148,7 +147,7 @@ export class SchemaParser
 				ajv,
 			}),
 			new ConstString(undefined, {ajv}),
-			new NonEmptyString(PositiveInteger(1), {ajv}),
+			new NonEmptyString({}, {ajv}),
 			new $ref(
 				{
 					mode: 'either',
