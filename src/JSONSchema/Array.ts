@@ -373,38 +373,6 @@ type ExpressionAtIndexVerifier<
 	index: Index,
 ) => expression is Result[Index];
 
-export type ArrayUnspecified_options<
-	ArrayMode extends array_mode,
-	UniqueItems_mode extends unique_items_mode,
-	Items extends SchemaObject,
-	PrefixItems extends [SchemaObject, ...SchemaObject[]],
-> = PartialPick<Omit<
-	ArrayUncertain_options<
-		unknown[],
-		Expression,
-		Expression[],
-		'optional',
-		ArrayMode,
-		'optional',
-		'optional',
-		UniqueItems_mode,
-		SchemaObject,
-		MinItemsType,
-		MaxItemsType,
-		Items,
-		PrefixItems
-	>,
-	(
-		| '$defs_mode'
-		| 'minItems_mode'
-		| 'maxItems_mode'
-	)
->,
-	(
-		| 'expression_at_index_verifier'
-	)
->;
-
 function expression_at_index_verifier_default<
 	T extends unknown[],
 	Index extends ReturnType<
@@ -439,7 +407,7 @@ type createTypeNode<
 	},
 }[ArrayMode][MinItems_mode];
 
-export type ArrayUncertain_options<
+type ArrayUncertain_options<
 	T1 extends unknown[],
 	T4 extends Expression,
 	T5 extends T4[],
@@ -472,6 +440,38 @@ export type ArrayUncertain_options<
 		expression_at_index_verifier: ExpressionAtIndexVerifier<T1, T4, T5>,
 	}
 );
+
+export type ArrayUnspecified_options<
+	ArrayMode extends array_mode,
+	UniqueItems_mode extends unique_items_mode,
+	Items extends SchemaObject,
+	PrefixItems extends [SchemaObject, ...SchemaObject[]],
+> = PartialPick<Omit<
+	ArrayUncertain_options<
+		unknown[],
+		Expression,
+		Expression[],
+		'optional',
+		ArrayMode,
+		'optional',
+		'optional',
+		UniqueItems_mode,
+		SchemaObject,
+		MinItemsType,
+		MaxItemsType,
+		Items,
+		PrefixItems
+	>,
+	(
+		| '$defs_mode'
+		| 'minItems_mode'
+		| 'maxItems_mode'
+	)
+>,
+	(
+		| 'expression_at_index_verifier'
+	)
+>;
 
 export abstract class ArrayUncertain<
 	T1 extends unknown[],
