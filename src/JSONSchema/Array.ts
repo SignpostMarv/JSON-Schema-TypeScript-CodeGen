@@ -1424,7 +1424,6 @@ abstract class ArrayUncertain<
 	}
 }
 
-
 export class ArrayUnspecified<
 	T extends unknown[],
 	ArrayMode extends array_mode,
