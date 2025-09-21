@@ -62,8 +62,8 @@ type UniqueItemsType_by_mode<
 export type MinItemsType_mode = 'with'|'optional'|'without';
 export type MaxItemsType_mode = 'with'|'optional'|'without';;
 
-export type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
-export type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
+type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
+type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
 
 export type array_type<
 	DefsMode extends $defs_mode,
