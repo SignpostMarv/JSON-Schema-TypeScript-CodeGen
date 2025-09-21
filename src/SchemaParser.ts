@@ -76,7 +76,7 @@ export class SchemaParser
 		this.types = (
 			types
 			|| SchemaParser.#default_types(this.#ajv)
-		) as SchemaParser['types'];
+		);
 	}
 
 	parse(
