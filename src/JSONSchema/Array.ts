@@ -60,7 +60,7 @@ type UniqueItemsType_by_mode<
 }[Mode];
 
 export type MinItemsType_mode = 'with'|'optional'|'without';
-export type MaxItemsType_mode = MinItemsType_mode;
+export type MaxItemsType_mode = 'with'|'optional'|'without';;
 
 export type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
 export type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
