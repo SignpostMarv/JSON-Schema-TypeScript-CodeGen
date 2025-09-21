@@ -62,7 +62,7 @@ import type {
 	MaxItemsType_mode,
 	MinItemsType_mode,
 	unique_items_mode,
-} from '../../../../src/JSONSchema/Array/types.ts';
+} from '../../../../src/JSONSchema/Array.ts';
 
 import type {
 	$defs_mode,
