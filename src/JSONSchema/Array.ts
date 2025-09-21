@@ -473,7 +473,7 @@ export type ArrayUnspecified_options<
 	)
 >;
 
-export abstract class ArrayUncertain<
+abstract class ArrayUncertain<
 	T1 extends unknown[],
 	T2 extends TypeNode,
 	T3 extends [T2, ...T2[]],
