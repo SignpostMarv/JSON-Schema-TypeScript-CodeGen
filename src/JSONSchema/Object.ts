@@ -47,14 +47,14 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-type object_properties_mode = (
+export type object_properties_mode = (
 	| 'neither'
 	| 'both'
 	| 'properties'
 	| 'pattern'
 );
 
-type required_mode = 'optional'|'with'|'without';
+export type required_mode = 'optional'|'with'|'without';
 
 type object_type<
 	DefsMode extends $defs_mode,
@@ -123,7 +123,7 @@ type object_schema_required<
 	]
 );
 
-type object_schema<
+export type object_schema<
 	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
@@ -400,7 +400,7 @@ abstract class ObjectUncertain<
 			};
 		}
 
-		if ('pattern' !== properties_mode) {
+		if ('pattern' !== properties_mode && 'neither' !== properties_mode) {
 			const properties: (
 				object_schema<
 					'with',
@@ -416,7 +416,10 @@ abstract class ObjectUncertain<
 			};
 			properties_for_partial.properties = properties;
 		}
-		if ('properties' !== properties_mode) {
+		if (
+			'properties' !== properties_mode
+			&& 'neither' !== properties_mode
+		) {
 			const properties: (
 				object_schema<
 					'with',
@@ -1019,12 +1022,28 @@ abstract class ObjectUncertain<
 	}
 }
 
+export function generate_default_schema_definition<
+	DefsMode extends $defs_mode,
+	RequiredMode extends required_mode,
+	PropertiesMode extends object_properties_mode,
+>(options: {
+	$defs_mode: DefsMode,
+	required_mode: RequiredMode,
+	properties_mode: PropertiesMode,
+}): Readonly<object_schema<
+	DefsMode,
+	RequiredMode,
+	PropertiesMode
+>> {
+	return ObjectUncertain.generate_default_schema_definition(options);
+}
+
 export class ObjectUnspecified<
 	T extends {[key: string]: unknown},
 > extends ObjectUncertain<
 	T,
-	'without',
-	'without',
+	'optional',
+	'optional',
 	'neither',
 	SchemaObject,
 	[string, ...string[]],
@@ -1042,13 +1061,13 @@ export class ObjectUnspecified<
 			ajv,
 		}: ObjectUncertain_options<
 			object_schema<
-				'without',
-				'without',
+				'optional',
+				'optional',
 				'neither'
 			>,
 			object_type<
-				'without',
-				'without',
+				'optional',
+				'optional',
 				'neither',
 				SchemaObject,
 				[string, ...string[]],
@@ -1060,8 +1079,8 @@ export class ObjectUnspecified<
 		super(
 			{
 				adjust_name,
-				$defs_mode: 'without',
-				required_mode: 'without',
+				$defs_mode: 'optional',
+				required_mode: 'optional',
 				properties_mode: 'neither',
 			},
 			{
