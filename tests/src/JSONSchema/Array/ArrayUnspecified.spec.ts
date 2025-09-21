@@ -58,7 +58,6 @@ import {
 import type {
 	array_mode,
 	array_type,
-	ItemsType_by_mode,
 	MaxItemsType_mode,
 	MinItemsType_mode,
 	unique_items_mode,
@@ -109,7 +108,7 @@ void describe('ArrayUnspecified', () => {
 		ArrayUnspecified_options<
 			ArrayMode,
 			UniqueItems_mode,
-			ItemsType_by_mode<ArrayMode>,
+			SchemaObject,
 			[SchemaObject, ...SchemaObject[]]
 		>,
 		boolean, // will or won't fail on default
