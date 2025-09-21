@@ -11,10 +11,11 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
-import type {
-	Node,
-	ObjectLiteralElementLike,
-	PropertyAssignment,
+import {
+	SyntaxKind,
+	type Node,
+	type ObjectLiteralElementLike,
+	type PropertyAssignment,
 } from 'typescript';
 
 import {
@@ -27,6 +28,7 @@ import ts_assert from '@signpostmarv/ts-assert';
 import type {
 	object_properties_mode,
 	object_type,
+	object_TypeLiteralNode,
 } from '../../../../src/JSONSchema/Object.ts';
 import {
 	ObjectUnspecified,
@@ -82,6 +84,7 @@ void describe('ObjectUnspecified', () => {
 			PatternProperties
 		>,
 		ts_asserter<ObjectLiteralExpression<DataAssertProperties>>,
+		ts_asserter<object_TypeLiteralNode<PropertiesMode>>,
 	];
 
 	function data_set<
@@ -134,7 +137,7 @@ void describe('ObjectUnspecified', () => {
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
-				assert.equal(1, value.properties.length);
+				assert.equal(value.properties.length, 1);
 				value.properties.forEach((property) => {
 					ts_assert.isPropertyAssignment(property, message);
 					ts_assert.isIdentifier(property.name, message);
@@ -142,6 +145,45 @@ void describe('ObjectUnspecified', () => {
 					ts_assert.isStringLiteral(property.initializer, message);
 					assert.equal('bar', property.initializer.text);
 				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isPropertySignature(member, message);
+					ts_assert.isIdentifier(member.name, message);
+					assert.equal(member.name.text, 'foo', message);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'Exclude',
+						message,
+					);
+					not_undefined(member.type.typeArguments, message);
+					assert.equal(member.type.typeArguments.length, 2);
+					ts_assert.isTokenWithExpectedKind(
+						member.type.typeArguments[0],
+						SyntaxKind.StringKeyword,
+						message,
+					);
+					ts_assert.isLiteralTypeNode(
+						member.type.typeArguments[1],
+						message,
+					);
+					ts_assert.isStringLiteral(
+						member.type.typeArguments[1].literal,
+						message,
+					);
+					assert.equal(
+						member.type.typeArguments[1].literal.text,
+						'',
+					);
+				})
 			},
 		],
 	];
@@ -205,4 +247,55 @@ void describe('ObjectUnspecified', () => {
 			})
 		})
 	});
+
+	void describe('::generate_typescript_type()', () => {
+		data_sets.forEach(([
+			specific_options,
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			input,
+			type_schema,
+			,
+			type_asserter,
+		], i) => {
+			const ajv = new Ajv({strict: true});
+			async function do_test(
+				instance: ObjectUnspecified<
+					typeof input,
+					typeof specific_options['properties_mode']
+				>,
+				schema_parser: SchemaParser,
+			) {
+				assert.ok(instance.check_type(type_schema));
+				const result = await instance.generate_typescript_type({
+					schema: type_schema,
+					schema_parser,
+				});
+				const foo: ts_asserter<object_TypeLiteralNode<
+					typeof specific_options['properties_mode']
+				>> = type_asserter;
+				foo(result);
+			}
+			void it(`behaves directly with data_sets[${i}]`, async () => {
+				const instance = new ObjectUnspecified(
+					specific_options,
+					{ajv},
+				);
+
+				await do_test(instance, new SchemaParser());
+			})
+			void it(`behaves from schema parser with data_sets[${i}]`, async () => {
+				const schema_parser = new SchemaParser();
+				const instance = schema_parser.parse(type_schema);
+				is_instanceof<
+					ObjectUnspecified<typeof input, object_properties_mode>
+				>(instance, ObjectUnspecified);
+				assert.equal(
+					instance.properties_mode,
+					specific_options.properties_mode,
+				);
+
+				await do_test(instance, schema_parser);
+			})
+		})
+	})
 })

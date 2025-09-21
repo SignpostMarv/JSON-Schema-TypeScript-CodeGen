@@ -195,7 +195,7 @@ export type object_schema<
 	)
 >;
 
-type object_TypeLiteralNode<
+export type object_TypeLiteralNode<
 	PropertiesMode extends object_properties_mode,
 > = {
 	['neither']: TypeLiteralNode<
