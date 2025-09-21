@@ -709,13 +709,13 @@ void describe('ArrayUnspecified', () => {
 				{ajv},
 			);
 
-			const schema = {
+			const schema = Object.freeze({
 				type: 'array',
 				items: {
 					type: 'string',
 				},
 				uniqueItems: true,
-			} as const;
+			});
 
 			assert.doesNotThrow(() => instance.generate_typescript_data(
 				['foo'],
