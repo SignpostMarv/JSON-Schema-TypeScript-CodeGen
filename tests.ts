@@ -1,5 +1,5 @@
 import {
-	tap,
+	spec,
 } from 'node:test/reporters';
 import {
 	run,
@@ -30,5 +30,5 @@ run({
 		already_stopped = true;
 		process.exitCode = 1;
 	})
-	.compose(tap)
+	.compose(spec)
 	.pipe(process.stdout);
