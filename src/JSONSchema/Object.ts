@@ -924,7 +924,7 @@ abstract class ObjectUncertain<
 		return result as object_TypeLiteralNode<PropertiesMode>;
 	}
 
-	static #generate_type<
+	static async #generate_type<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
@@ -950,10 +950,13 @@ abstract class ObjectUncertain<
 			schema,
 		);
 
-		return schema_parser.parse(
+		const matched = schema_parser.parse(
 			sub_schema,
-		).generate_typescript_type({
-			schema,
+			false,
+		);
+
+		return matched.generate_typescript_type({
+			schema: sub_schema,
 			schema_parser,
 		});
 	}
@@ -1064,9 +1067,11 @@ export class ObjectUnspecified<
 		{
 			adjust_name,
 			properties_mode,
+			$defs,
 		}: {
 			adjust_name?: adjust_name_callback,
 			properties_mode: PropertiesMode,
+			$defs?: SchemaObject,
 		},
 		{
 			ajv,
@@ -1093,6 +1098,7 @@ export class ObjectUnspecified<
 				$defs_mode: 'optional',
 				required_mode: 'optional',
 				properties_mode,
+				$defs,
 			},
 			{
 				ajv,

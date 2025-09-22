@@ -6,6 +6,7 @@ import {
 } from 'typescript';
 
 import type {
+	ObjectOfSchemas,
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 } from './Type.ts';
@@ -18,11 +19,13 @@ import type {
 	adjust_name_callback,
 } from '../coercions.ts';
 import {
+	adjust_name_default,
 	adjust_name_finisher,
 } from '../coercions.ts';
-import {
-	adjust_name_default,
-} from '../coercions.ts';
+
+import type {
+	$defs_schema,
+} from './types.ts';
 
 export type $def = (
 	& string
@@ -101,6 +104,7 @@ type $ref_type<
 	required: ['$ref'],
 	additionalProperties: false,
 	properties: {
+		$defs?: ObjectOfSchemas,
 		$ref: {
 			type: 'string',
 			pattern: pattern<RefType>,
@@ -136,7 +140,9 @@ type $ref_schema<
 			type: 'object',
 			required: ['$ref'],
 			additionalProperties: false,
-			properties: {
+			properties: (
+				& $defs_schema
+				& {
 				$ref: {
 					type: 'object',
 					required: ['type', 'pattern'],
@@ -151,8 +157,9 @@ type $ref_schema<
 							const: pattern<RefType>,
 						},
 					},
+					},
 				}
-			}
+			),
 		}
 	}
 }>;
@@ -230,8 +237,13 @@ export class $ref<
 			}
 	)): Promise<TypeReferenceNode> {
 		const $ref = (
-			options
-				? options.data.$ref
+			(
+				options
+				&& (
+					'data' in options
+				)
+			)
+				? options?.data?.$ref
 				: this.#required_as as $ref_type_by_mode<RefMode>
 		);
 
@@ -281,6 +293,12 @@ export class $ref<
 					required: ['$ref'],
 					additionalProperties: false,
 					properties: {
+						$defs: {
+							type: 'object',
+							additionalProperties: {
+								type: 'object',
+							},
+						},
 						$ref: {
 							type: 'object',
 							required: ['type', 'pattern'],

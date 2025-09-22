@@ -11,11 +11,13 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import type {
+	Node,
+	ObjectLiteralElementLike,
+	PropertyAssignment,
+} from 'typescript';
 import {
 	SyntaxKind,
-	type Node,
-	type ObjectLiteralElementLike,
-	type PropertyAssignment,
 } from 'typescript';
 
 import {
@@ -48,7 +50,11 @@ import type {
 
 import type {
 	ObjectLiteralExpression,
+	OmitIf,
 } from '../../../../src/types.ts';
+import {
+	PositiveIntegerOrZero,
+} from '../../../../src/guarded.ts';
 
 void describe('ObjectUnspecified', () => {
 	type DataSet<
@@ -70,9 +76,18 @@ void describe('ObjectUnspecified', () => {
 			undefined|(readonly ObjectLiteralElementLike [])
 		),
 	> = [
-		{
-			properties_mode: PropertiesMode,
-		},
+		(
+			& {
+				properties_mode: PropertiesMode,
+			}
+			& OmitIf<
+				{
+					$defs: Defs,
+				},
+				'$defs',
+				DefsMode
+			>
+		),
 		T,
 		object_type<
 			DefsMode,
@@ -87,7 +102,7 @@ void describe('ObjectUnspecified', () => {
 		ts_asserter<object_TypeLiteralNode<PropertiesMode>>,
 	];
 
-	function data_set<
+	function type_schema_for_data_set<
 		PropertiesMode extends object_properties_mode = object_properties_mode,
 		Defs extends SchemaObject = SchemaObject,
 		Required extends (
@@ -117,7 +132,7 @@ void describe('ObjectUnspecified', () => {
 				properties_mode: 'properties',
 			},
 			{foo: 'bar'},
-			data_set<
+			type_schema_for_data_set<
 				'properties'
 			>({
 				type: 'object',
@@ -186,6 +201,95 @@ void describe('ObjectUnspecified', () => {
 				})
 			},
 		],
+		/*
+		[
+			{
+				properties_mode: 'properties',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				type: 'object',
+				required: ['foo'],
+				$defs: {
+					foo: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+				properties: {
+					foo: {
+						type: 'object',
+						required: ['$ref'],
+						additionalProperties: false,
+						properties: {
+							$ref: {
+								type: 'string',
+								const: '#/$defs/foo',
+							},
+						},
+					},
+				},
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 1);
+				value.properties.forEach((property) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal('foo', property.name.text, message);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal('bar', property.initializer.text);
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isPropertySignature(member, message);
+					ts_assert.isIdentifier(member.name, message);
+					assert.equal(member.name.text, 'foo', message);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'Exclude',
+						message,
+					);
+					not_undefined(member.type.typeArguments, message);
+					assert.equal(member.type.typeArguments.length, 2);
+					ts_assert.isTokenWithExpectedKind(
+						member.type.typeArguments[0],
+						SyntaxKind.StringKeyword,
+						message,
+					);
+					ts_assert.isLiteralTypeNode(
+						member.type.typeArguments[1],
+						message,
+					);
+					ts_assert.isStringLiteral(
+						member.type.typeArguments[1].literal,
+						message,
+					);
+					assert.equal(
+						member.type.typeArguments[1].literal.text,
+						'',
+					);
+				})
+			},
+		],
+		*/
 	];
 
 	void describe('::generate_typescript_data()', () => {
@@ -264,6 +368,8 @@ void describe('ObjectUnspecified', () => {
 					typeof specific_options['properties_mode']
 				>,
 				schema_parser: SchemaParser,
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				index: ReturnType<typeof PositiveIntegerOrZero>,
 			) {
 				assert.ok(instance.check_type(type_schema));
 				const result = await instance.generate_typescript_type({
@@ -281,7 +387,11 @@ void describe('ObjectUnspecified', () => {
 					{ajv},
 				);
 
-				await do_test(instance, new SchemaParser());
+				await do_test(
+					instance,
+					new SchemaParser(),
+					PositiveIntegerOrZero(i),
+				);
 			})
 			void it(`behaves from schema parser with data_sets[${i}]`, async () => {
 				const schema_parser = new SchemaParser();
@@ -294,7 +404,11 @@ void describe('ObjectUnspecified', () => {
 					specific_options.properties_mode,
 				);
 
-				await do_test(instance, schema_parser);
+				await do_test(
+					instance,
+					schema_parser,
+					PositiveIntegerOrZero(i),
+				);
 			})
 		})
 	})
