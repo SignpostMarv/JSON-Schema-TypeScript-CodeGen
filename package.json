@@ -11,7 +11,6 @@
   "exports": "./index.js",
   "types": "./index.d.ts",
   "devDependencies": {
-    "@satisfactory-dev/custom-assert": "^0.2.3",
     "@signpostmarv/eslint-config": "^0.4.0",
     "@signpostmarv/ts-assert": "^0.4.1",
     "@types/eslint": "^9.6.1",
@@ -25,6 +24,7 @@
     "@typescript-eslint/parser": "^8.42.0"
   },
   "dependencies": {
+    "@satisfactory-dev/custom-assert": "^0.2.3",
     "@satisfactory-dev/predicates.ts": "^0.2.0",
     "ajv": "^8.17.1",
     "typescript": "~5.9.2"
