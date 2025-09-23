@@ -4,7 +4,6 @@ import type {
 
 import {
 	property_exists_on_object,
-	value_is_non_array_object,
 } from '@satisfactory-dev/predicates.ts';
 
 import type {
@@ -15,6 +14,7 @@ import {
 } from 'typescript';
 
 import type {
+	ObjectOfSchemas,
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	Type,
@@ -71,9 +71,7 @@ type pattern<
 type pattern_either = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_external = `^${ref_identifier}#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
-/*
 const sub_pattern:`^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
-*/
 const pattern_either:pattern_either = (
 	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
@@ -83,6 +81,7 @@ const pattern_external:pattern_external = (
 const pattern_local:pattern_local = (
 	'^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
+const regexp_sub = new RegExp(sub_pattern);
 const regexp_either = new RegExp(pattern_either);
 const regexp_external = new RegExp(pattern_external);
 const regexp_local = new RegExp(pattern_local);
@@ -174,7 +173,7 @@ export class $ref<
 	RefMode extends $ref_mode,
 	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
 > extends ConversionlessType<
-	{$ref: Value},
+	{$ref: Value, $defs?: ObjectOfSchemas},
 	$ref_type<RefMode>,
 	$ref_schema<RefMode>,
 	TypeReferenceNode
@@ -401,14 +400,10 @@ export class $ref<
 	}
 
 	static is_supported_$defs(
-		maybe: unknown,
+		maybe: {[key: string]: SchemaObject},
 	): maybe is {[key: $def]: SchemaObject} {
-		if (!value_is_non_array_object(maybe)) {
-			return false;
-		}
-
 		return Object.keys(maybe).every(
-			(k) => regexp_local.test(`#/$defs/${k}`),
+			(k) => regexp_sub.test(k),
 		);
 	}
 

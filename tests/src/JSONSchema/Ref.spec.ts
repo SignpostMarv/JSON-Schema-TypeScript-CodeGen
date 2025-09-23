@@ -31,12 +31,19 @@ import {
 	SchemaParser,
 } from '../../../src/SchemaParser.ts';
 
+import type {
+	ObjectOfSchemas,
+} from '../../../src/JSONSchema/Type.ts';
+
 void describe('$ref', () => {
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
+		TestValue = PassesCheckType extends true
+			? {$ref: string, $defs?: ObjectOfSchemas}
+			: unknown,
 		ResolvesTo = {[Symbol.hasInstance](instance: unknown): boolean},
 	> = [
-		unknown,
+		TestValue,
 		PassesCheckType,
 		PassesCheckType extends true ? string : undefined,
 		// $ref passes check_schema as const
@@ -121,13 +128,13 @@ void describe('$ref', () => {
 	}
 
 	const passes_check_type = subset(
-		([[, passes_check_type]]) => passes_check_type,
+		(settings): settings is [DataSet<true>, number] => {
+			return settings[0][1];
+		},
 	);
 
 	void describe('::check_schema()', () => {
-		subset((settings): settings is [DataSet<true>, number] => {
-			return settings[0][1];
-		})
+		passes_check_type
 			.forEach(([
 				[
 					value,
@@ -222,7 +229,7 @@ void describe('$ref', () => {
 						{ajv},
 					);
 					assert.ok(instance.check_type(has_$ref));
-					const $defs = '$defs' in has_$ref ? has_$ref.$defs : {};
+					const $defs = has_$ref.$defs || {};
 					assert.ok($ref.is_supported_$defs($defs));
 					try {
 						const result = instance
