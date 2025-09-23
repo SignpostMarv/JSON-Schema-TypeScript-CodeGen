@@ -7,7 +7,7 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
-import type {
+import {
 	ConversionlessType,
 } from './JSONSchema/Type.ts';
 import {
@@ -62,6 +62,8 @@ export type SchemaParserOptions = (
 
 export type share_ajv_callback<T> = (ajv: Ajv) => T;
 
+type empty_object = Record<string, never>;
+
 export class SchemaParser
 {
 	#ajv: Ajv;
@@ -79,18 +81,13 @@ export class SchemaParser
 		);
 	}
 
-	parse(
+	maybe_parse<
+		T extends ConversionlessType<unknown>
+	>(
 		schema: SchemaObject,
-		require_conversion: true,
-	): Type<unknown>;
-	parse(
-		schema: SchemaObject,
-		require_conversion?: false,
-	): ConversionlessType<unknown>;
-	parse(
-		schema: SchemaObject,
-		require_conversion?: boolean,
-	): ConversionlessType<unknown> {
+		must_be_of_type: typeof ConversionlessType<unknown>,
+	): T|undefined {
+		let result:T|undefined = undefined;
 		for (const type of this.types) {
 			const maybe: (
 				| undefined
@@ -98,16 +95,54 @@ export class SchemaParser
 			) = type.can_handle_schema(schema);
 
 			if (maybe) {
-				if (require_conversion && !Type.is_a(maybe)) {
-					throw new TypeError(
-						`schema resolved to the conversionless type ${
-							maybe.constructor.name
-						}`,
-					);
+				if (!must_be_of_type.is_a(maybe)) {
+					continue;
 				}
 
-				return maybe;
+				result = maybe as T;
+				break;
 			}
+		}
+
+		return result;
+	}
+
+	maybe_parse_by_type<
+		T extends ConversionlessType<unknown>
+	>(
+		schema: SchemaObject,
+		must_be_of_type: (maybe: unknown) => maybe is T,
+	): (T & typeof must_be_of_type)|undefined {
+		let result:(T & typeof must_be_of_type)|undefined = undefined;
+		for (const type of this.types) {
+			if (type.check_type(schema)) {
+				if (!must_be_of_type(type)) {
+					continue;
+				}
+
+				result = type as T & typeof must_be_of_type;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	parse<T extends boolean>(
+		schema: SchemaObject,
+		require_conversion?: T,
+	): T extends true ? Type<unknown> : ConversionlessType<unknown> {
+		const result = this.maybe_parse<
+			typeof require_conversion extends true
+				? Type<unknown>
+				: ConversionlessType<unknown>
+		>(
+			schema,
+			require_conversion ? Type : ConversionlessType,
+		);
+
+		if (result) {
+			return result;
 		}
 
 		throw new TypeError('Could not determine type for schema!');
@@ -134,7 +169,7 @@ export class SchemaParser
 		String<string>,
 		ConstString<undefined>,
 		NonEmptyString<'optional'>,
-		$ref<'neither'>,
+		$ref<empty_object, 'either'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'properties'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'pattern'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'both'>,
@@ -153,7 +188,7 @@ export class SchemaParser
 			new NonEmptyString({}, {ajv}),
 			new $ref(
 				{
-					mode: 'either',
+					$ref_mode: 'either',
 				},
 				{
 					ajv,

@@ -33,7 +33,7 @@ void describe('SchemaParser', () => {
 				const ajv = new Ajv({
 					strict: true,
 				});
-				const instance = new $ref({mode: 'either'}, {ajv});
+				const instance = new $ref({$ref_mode: 'either'}, {ajv});
 				const parser = new SchemaParser({
 					ajv,
 					types: [

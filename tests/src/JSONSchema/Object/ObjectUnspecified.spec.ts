@@ -201,7 +201,6 @@ void describe('ObjectUnspecified', () => {
 				})
 			},
 		],
-		/*
 		[
 			{
 				properties_mode: 'properties',
@@ -220,15 +219,7 @@ void describe('ObjectUnspecified', () => {
 				},
 				properties: {
 					foo: {
-						type: 'object',
-						required: ['$ref'],
-						additionalProperties: false,
-						properties: {
-							$ref: {
-								type: 'string',
-								const: '#/$defs/foo',
-							},
-						},
+						$ref: '#/$defs/foo',
 					},
 				},
 			}),
@@ -264,32 +255,12 @@ void describe('ObjectUnspecified', () => {
 					ts_assert.isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
-						'Exclude',
+						'foo',
 						message,
-					);
-					not_undefined(member.type.typeArguments, message);
-					assert.equal(member.type.typeArguments.length, 2);
-					ts_assert.isTokenWithExpectedKind(
-						member.type.typeArguments[0],
-						SyntaxKind.StringKeyword,
-						message,
-					);
-					ts_assert.isLiteralTypeNode(
-						member.type.typeArguments[1],
-						message,
-					);
-					ts_assert.isStringLiteral(
-						member.type.typeArguments[1].literal,
-						message,
-					);
-					assert.equal(
-						member.type.typeArguments[1].literal.text,
-						'',
 					);
 				})
 			},
 		],
-		*/
 	];
 
 	void describe('::generate_typescript_data()', () => {

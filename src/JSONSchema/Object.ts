@@ -13,6 +13,14 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+import {
+	is_instanceof,
+} from '@satisfactory-dev/custom-assert';
+
+import {
+	property_exists_on_object,
+} from '@satisfactory-dev/predicates.ts';
+
 import type {
 	IntersectionTypeNode,
 	OmitIf,
@@ -20,6 +28,7 @@ import type {
 } from '../types.ts';
 
 import type {
+	ConversionlessType,
 	ObjectOfSchemas,
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
@@ -47,6 +56,15 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+
+import type {
+	$def,
+	$ref_mode,
+	$ref_value_by_mode,
+} from './Ref.ts';
+import {
+	$ref,
+} from './Ref.ts';
 
 export type object_properties_mode = (
 	| 'neither'
@@ -755,17 +773,50 @@ abstract class ObjectUncertain<
 			property,
 			schema,
 		);
+
+		const $defs = this.#get_defs(schema, sub_schema);
+
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile<T>(sub_schema);
+		const validator = ajv.compile<T>({
+			...sub_schema,
+			$defs,
+		});
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by property!');
 		}
 
-		return schema_parser.parse(
+		let converter:(
+			| undefined
+			| Type<unknown>
+			| $ref<Record<string, never>, 'either'>
+		) = schema_parser.maybe_parse_by_type<
+			$ref<Record<string, never>, 'either'>
+		>(
 			sub_schema,
-			true,
-		).generate_typescript_data(
+			(
+				maybe: unknown,
+			): maybe is $ref<Record<string, never>, 'either'> => {
+				return $ref.is_a(maybe);
+			},
+		);
+
+		if (undefined === converter) {
+			converter = schema_parser.parse(sub_schema, true);
+		}
+
+		if (converter instanceof $ref) {
+			converter = converter.resolve_ref(
+				sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
+				$defs,
+				schema_parser,
+				true,
+			);
+		}
+
+		is_instanceof<Type<unknown>>(converter, Type);
+
+		return converter.generate_typescript_data(
 			value,
 			schema_parser,
 			sub_schema,
@@ -924,6 +975,34 @@ abstract class ObjectUncertain<
 		return result as object_TypeLiteralNode<PropertiesMode>;
 	}
 
+	static #get_defs(
+		schema: (
+			& SchemaObject
+			& {
+				$defs?: ObjectOfSchemas,
+			}
+		),
+		sub_schema: SchemaObject,
+	): {[key: $def]: SchemaObject} {
+		let $defs:{[key: $def]: SchemaObject} = {};
+
+		if (
+			'$ref' in sub_schema
+			&& '$defs' in schema
+			&& schema.$defs
+			&& !('$defs' in sub_schema)
+		) {
+			$defs = sub_schema.$defs = schema.$defs;
+		} else if (
+			property_exists_on_object(sub_schema, '$defs')
+			&& $ref.is_supported_$defs(sub_schema.$defs)
+		) {
+			$defs = sub_schema.$defs;
+		}
+
+		return $defs;
+	}
+
 	static async #generate_type<
 		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
@@ -950,10 +1029,28 @@ abstract class ObjectUncertain<
 			schema,
 		);
 
-		const matched = schema_parser.parse(
+		let matched:(
+			| undefined
+			| ConversionlessType<unknown>
+		) = schema_parser.maybe_parse_by_type<
+			$ref<Record<string, never>, 'either'>
+		>(
 			sub_schema,
-			false,
+			(
+				maybe: unknown,
+			): maybe is $ref<Record<string, never>, 'either'> => {
+				return $ref.is_a(maybe);
+			},
 		);
+
+		if (undefined === matched) {
+			matched = schema_parser.parse(sub_schema, true);
+		} else {
+			return matched.generate_typescript_type({
+				data: sub_schema,
+				schema_parser,
+			});
+		}
 
 		return matched.generate_typescript_type({
 			schema: sub_schema,

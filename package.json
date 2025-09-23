@@ -25,6 +25,7 @@
     "@typescript-eslint/parser": "^8.42.0"
   },
   "dependencies": {
+    "@satisfactory-dev/predicates.ts": "^0.2.0",
     "ajv": "^8.17.1",
     "typescript": "~5.9.2"
   }
