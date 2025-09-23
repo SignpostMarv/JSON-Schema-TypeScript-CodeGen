@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 
 import type {
 	Options,
-	SchemaObject,
 } from 'ajv/dist/2020.js';
 
 import {
@@ -44,6 +43,10 @@ import {
 import {
 	PositiveInteger,
 } from '../../../../src/guarded.ts';
+
+import type {
+	SchemaObject,
+} from '../../../../src/types.ts';
 
 void describe('identify non-empty String types as expected', () => {
 	const string_expectations: [

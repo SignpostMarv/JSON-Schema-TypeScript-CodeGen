@@ -1,6 +1,5 @@
 import type {
 	Options,
-	SchemaObject,
 } from 'ajv/dist/2020.js';
 
 import {
@@ -35,6 +34,10 @@ import {
 import {
 	PositiveIntegerOrZero,
 } from './guarded.ts';
+
+import type {
+	SchemaObject,
+} from './types.ts';
 
 export type supported_type = (
 	| ConversionlessType<unknown>

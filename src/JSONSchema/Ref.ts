@@ -1,7 +1,3 @@
-import type {
-	SchemaObject,
-} from 'ajv';
-
 import {
 	property_exists_on_object,
 } from '@satisfactory-dev/predicates.ts';
@@ -14,7 +10,6 @@ import {
 } from 'typescript';
 
 import type {
-	ObjectOfSchemas,
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	Type,
@@ -34,6 +29,11 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+
+import type {
+	ObjectOfSchemas,
+	SchemaObject,
+} from '../types.ts';
 
 export type $ref_mode = 'either'|'external'|'local';
 

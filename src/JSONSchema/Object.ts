@@ -1,8 +1,4 @@
 import type {
-	SchemaObject,
-} from 'ajv/dist/2020.js';
-
-import type {
 	IndexSignatureDeclaration,
 	ObjectLiteralExpression,
 	PropertySignature,
@@ -23,13 +19,14 @@ import {
 
 import type {
 	IntersectionTypeNode,
+	ObjectOfSchemas,
 	OmitIf,
+	SchemaObject,
 	TypeLiteralNode,
 } from '../types.ts';
 
 import type {
 	ConversionlessType,
-	ObjectOfSchemas,
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
 	TypeOptions,
@@ -995,6 +992,7 @@ abstract class ObjectUncertain<
 			$defs = sub_schema.$defs = schema.$defs;
 		} else if (
 			property_exists_on_object(sub_schema, '$defs')
+			&& undefined !== sub_schema.$defs
 			&& $ref.is_supported_$defs(sub_schema.$defs)
 		) {
 			$defs = sub_schema.$defs;

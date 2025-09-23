@@ -33,7 +33,7 @@ import {
 
 import type {
 	ObjectOfSchemas,
-} from '../../../src/JSONSchema/Type.ts';
+} from '../../../src/types.ts';
 
 void describe('$ref', () => {
 	type DataSet<

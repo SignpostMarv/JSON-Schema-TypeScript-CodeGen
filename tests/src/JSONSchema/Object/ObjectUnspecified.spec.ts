@@ -4,9 +4,6 @@ import {
 } from 'node:test';
 import assert from 'node:assert/strict';
 
-import type {
-	SchemaObject,
-} from 'ajv/dist/2020.js';
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
@@ -36,10 +33,6 @@ import {
 	ObjectUnspecified,
 } from '../../../../src/JSONSchema/Object.ts';
 
-import type {
-	ObjectOfSchemas,
-} from '../../../../src/JSONSchema/Type.ts';
-
 import {
 	SchemaParser,
 } from '../../../../src/SchemaParser.ts';
@@ -50,7 +43,9 @@ import type {
 
 import type {
 	ObjectLiteralExpression,
+	ObjectOfSchemas,
 	OmitIf,
+	SchemaObject,
 } from '../../../../src/types.ts';
 import {
 	PositiveIntegerOrZero,

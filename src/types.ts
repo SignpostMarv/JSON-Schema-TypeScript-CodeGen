@@ -1,4 +1,8 @@
 import type {
+	SchemaObject as AjvSchemaObject,
+} from 'ajv/dist/2020.js';
+
+import type {
 	BooleanLiteral,
 	Expression,
 	LiteralExpression,
@@ -17,6 +21,15 @@ import type {
 	TypeElement,
 	TypeNode,
 } from 'typescript';
+
+export type SchemaObject = (
+	& AjvSchemaObject
+	& {
+		$defs?: ObjectOfSchemas
+	}
+);
+
+export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 export type LiteralTypeNode<
 	T extends (

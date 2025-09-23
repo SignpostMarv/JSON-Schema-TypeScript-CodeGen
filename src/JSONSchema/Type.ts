@@ -1,6 +1,5 @@
 import type {
 	Ajv2020 as Ajv,
-	SchemaObject,
 	ValidateFunction,
 } from 'ajv/dist/2020.js';
 
@@ -17,7 +16,10 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-export type ObjectOfSchemas = {[key: string]: SchemaObject};
+import type {
+	ObjectOfSchemas,
+	SchemaObject,
+} from '../types.ts';
 
 export type SchemaDefinitionDefinition<
 	Required extends readonly [

@@ -6,7 +6,6 @@ import assert from 'node:assert/strict';
 
 import type {
 	Options,
-	SchemaObject,
 } from 'ajv/dist/2020.js';
 
 import {
@@ -34,6 +33,10 @@ import {
 import {
 	throws_Error,
 } from '../../../assertions.ts';
+
+import type {
+	SchemaObject,
+} from '../../../../src/types.ts';
 
 void describe('identify simple String types as expected', () => {
 	const string_expectations: [

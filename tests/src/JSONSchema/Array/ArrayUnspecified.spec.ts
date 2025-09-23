@@ -4,9 +4,6 @@ import {
 } from 'node:test';
 import assert from 'node:assert/strict';
 
-import type {
-	SchemaObject,
-} from 'ajv/dist/2020.js';
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
@@ -32,6 +29,7 @@ import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	LiteralTypeNode,
+	SchemaObject,
 	TupleTypeNode,
 } from '../../../../src/types.ts';
 import type {

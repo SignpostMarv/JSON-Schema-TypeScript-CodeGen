@@ -1,8 +1,4 @@
 import type {
-	SchemaObject,
-} from 'ajv/dist/2020.js';
-
-import type {
 	Expression,
 	TypeNode,
 } from 'typescript';
@@ -41,6 +37,7 @@ import type {
 	OmitFromTupleishIf,
 	OmitIf,
 	PartialPick,
+	SchemaObject,
 	TupleTypeNode,
 } from '../types.ts';
 

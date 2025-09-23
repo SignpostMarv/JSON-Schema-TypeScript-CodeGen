@@ -1,8 +1,4 @@
 import type {
-	SchemaObject,
-} from 'ajv/dist/2020.js';
-
-import type {
 	Expression,
 	KeywordTypeNode,
 	StringLiteral,
@@ -30,6 +26,7 @@ import {
 
 import type {
 	LiteralTypeNode,
+	SchemaObject,
 } from '../types.ts';
 
 import {
