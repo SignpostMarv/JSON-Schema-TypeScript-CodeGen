@@ -9,9 +9,16 @@ import Ajv from 'ajv/dist/2020.js';
 import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
+import {
+	object_has_property,
+} from '@satisfactory-dev/predicates.ts';
 
 import ts_assert from '@signpostmarv/ts-assert';
 
+import type {
+	$ref_mode,
+	$ref_value_by_mode,
+} from '../../../src/JSONSchema/Ref.ts';
 import {
 	$ref,
 } from '../../../src/JSONSchema/Ref.ts';
@@ -208,10 +215,10 @@ void describe('$ref', () => {
 				],
 				i,
 			]) => {
-				void it(`behaves with data_sets[${i}]`, () => {
+				function do_test($ref_mode: $ref_mode) {
 					const ajv = new Ajv({strict: true});
 					const instance = new $ref(
-						{$ref_mode: 'either'},
+						{$ref_mode},
 						{ajv},
 					);
 					assert.ok(instance.check_type(has_$ref));
@@ -242,6 +249,34 @@ void describe('$ref', () => {
 						} else {
 							assert.ok(true);
 						}
+					}
+
+					const failure_mode:$ref_mode =
+						has_$ref.$ref.startsWith('#')
+							? 'external'
+							: 'local';
+
+					assert.throws(() => (
+						new $ref({$ref_mode: failure_mode}, {ajv})
+					).resolve_ref(
+						has_$ref as {
+							$ref: $ref_value_by_mode<typeof failure_mode>,
+						},
+						$defs,
+						new SchemaParser({ajv}),
+					));
+				}
+				void it(`behaves with data_sets[${i}]`, () => {
+					do_test('either');
+					if (
+						object_has_property(has_$ref, '$ref')
+						&& 'string' === typeof has_$ref.$ref
+					) {
+						do_test(
+							has_$ref.$ref.startsWith('#')
+								? 'local'
+								: 'external',
+						);
 					}
 				});
 			})
