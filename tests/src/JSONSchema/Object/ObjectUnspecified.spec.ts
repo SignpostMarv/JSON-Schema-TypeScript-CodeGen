@@ -459,6 +459,111 @@ void describe('ObjectUnspecified', () => {
 		],
 		[
 			{
+				properties_mode: 'pattern',
+			},
+			{
+				foo: 'bar',
+				foo1: 'some',
+				foo2: 'valid',
+				foo3: 'string',
+				bar: 'bar',
+				bar1: 'bar',
+				bar2: 'bar',
+				bar3: 'bar',
+			},
+			type_schema_for_data_set<
+				'pattern'
+			>({
+				type: 'object',
+				required: ['foo'],
+				$defs: {
+					foo: {
+						type: 'string',
+						minLength: 1,
+					},
+					bar: {
+						type: 'string',
+						const: 'bar',
+					},
+				},
+				patternProperties: {
+					'^foo.*$': {
+						$ref: '#/$defs/foo',
+					},
+					'^bar.*$': {
+						$ref: '#/$defs/bar',
+					},
+				},
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 8);
+				value.properties.forEach((property, i) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal(
+						property.name.text,
+						[
+							'foo',
+							'foo1',
+							'foo2',
+							'foo3',
+							'bar',
+							'bar1',
+							'bar2',
+							'bar3',
+						][i],
+						message,
+					);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal(
+						property.initializer.text,
+						[
+							'bar',
+							'some',
+							'valid',
+							'string',
+							'bar',
+							'bar',
+							'bar',
+							'bar',
+						][i],
+						message,
+					);
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isIndexSignatureDeclaration(member, message);
+					not_undefined(member.type, message);
+					ts_assert.isUnionTypeNode(member.type, message);
+					assert.equal(2, member.type.types.length);
+					for (let i = 0; i < member.type.types.length; ++i) {
+						const sub_type:Node = member.type.types[i];
+						ts_assert.isTypeReferenceNode(sub_type, message);
+						ts_assert.isIdentifier(sub_type.typeName, message);
+						assert.equal(
+							sub_type.typeName.text,
+							0 === i ? 'foo' : 'bar',
+							message,
+						);
+					}
+				})
+			},
+		],
+		[
+			{
 				properties_mode: 'neither',
 			},
 			{foo: 'bar'},
