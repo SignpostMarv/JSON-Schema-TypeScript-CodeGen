@@ -308,6 +308,81 @@ void describe('ObjectUnspecified', () => {
 				value.members.forEach((member) => {
 					ts_assert.isPropertySignature(member, message);
 					ts_assert.isIdentifier(member.name, message);
+					assert.equal(member.questionToken, undefined);
+					assert.equal(member.name.text, 'foo', message);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'Exclude',
+						message,
+					);
+					not_undefined(member.type.typeArguments, message);
+					assert.equal(member.type.typeArguments.length, 2);
+					ts_assert.isTokenWithExpectedKind(
+						member.type.typeArguments[0],
+						SyntaxKind.StringKeyword,
+						message,
+					);
+					ts_assert.isLiteralTypeNode(
+						member.type.typeArguments[1],
+						message,
+					);
+					ts_assert.isStringLiteral(
+						member.type.typeArguments[1].literal,
+						message,
+					);
+					assert.equal(
+						member.type.typeArguments[1].literal.text,
+						'',
+					);
+				})
+			},
+		],
+		[
+			{
+				properties_mode: 'properties',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				type: 'object',
+				properties: {
+					foo: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 1);
+				value.properties.forEach((property) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal('foo', property.name.text, message);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal('bar', property.initializer.text);
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isPropertySignature(member, message);
+					ts_assert.isIdentifier(member.name, message);
+					not_undefined(member.questionToken);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
 					ts_assert.isTypeReferenceNode(member.type, message);

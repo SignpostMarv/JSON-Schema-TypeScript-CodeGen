@@ -760,8 +760,8 @@ export class ObjectUnspecified<
 						this.#is_schema_with_required(schema)
 						&& schema.required.includes(property)
 					)
-						? factory.createToken(SyntaxKind.QuestionToken)
-						: undefined
+						? undefined
+						: factory.createToken(SyntaxKind.QuestionToken)
 				),
 				await this.#generate_type(
 					properties_mode,
