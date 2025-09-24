@@ -36,7 +36,6 @@ import {
 } from './Type.ts';
 
 import type {
-	$defs_mode,
 	$defs_schema,
 } from './types.ts';
 
@@ -99,18 +98,12 @@ export type object_type<
 );
 
 type object_schema_required<
-	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 > = (
 	& readonly [string, ...string[]]
 	& [
 		'type',
-		...{
-			with: readonly ['$defs'],
-			without: readonly string[],
-			optional: readonly string[],
-		}[DefsMode],
 		...{
 			with: readonly ['required'],
 			without: readonly string[],
@@ -126,23 +119,18 @@ type object_schema_required<
 );
 
 export type object_schema<
-	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 > = SchemaDefinitionDefinition<
-	object_schema_required<DefsMode, RequiredMode, PropertiesMode>,
+	object_schema_required<RequiredMode, PropertiesMode>,
 	(
+		& $defs_schema
 		& {
 			type: {
 				type: 'string',
 				const: 'object',
 			}
 		}
-		& OmitIf<
-			$defs_schema,
-			'$defs',
-			DefsMode
-		>
 		& OmitIf<
 			{
 				required: {
@@ -231,7 +219,6 @@ type ObjectUncertain_options<
 
 abstract class ObjectUncertain<
 	T extends {[key: string]: unknown},
-	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject,
@@ -248,7 +235,6 @@ abstract class ObjectUncertain<
 		PatternProperties
 	>,
 	object_schema<
-		DefsMode,
 		RequiredMode,
 		PropertiesMode
 	>,
@@ -257,14 +243,12 @@ abstract class ObjectUncertain<
 > {
 	#adjust_name: adjust_name_callback;
 
-	readonly $defs_mode: DefsMode;
 	readonly properties_mode: PropertiesMode;
 	readonly required_mode: RequiredMode;
 
 	constructor(
 		options: {
 			adjust_name?: adjust_name_callback,
-			$defs_mode: DefsMode,
 			required_mode: RequiredMode,
 			properties_mode: PropertiesMode,
 			$defs?: Defs,
@@ -276,7 +260,6 @@ abstract class ObjectUncertain<
 			ajv,
 		}: ObjectUncertain_options<
 			object_schema<
-				DefsMode,
 				RequiredMode,
 				PropertiesMode
 			>,
@@ -302,7 +285,6 @@ abstract class ObjectUncertain<
 		});
 
 		this.#adjust_name = options?.adjust_name || adjust_name_default;
-		this.$defs_mode = options.$defs_mode;
 		this.required_mode = options.required_mode;
 		this.properties_mode = options.properties_mode;
 	}
@@ -348,32 +330,27 @@ abstract class ObjectUncertain<
 	}
 
 	static generate_default_schema_definition<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 	>({
-		$defs_mode,
 		required_mode,
 		properties_mode,
 	}: {
-		$defs_mode: DefsMode,
 		required_mode: RequiredMode,
 		properties_mode: PropertiesMode,
 	}): Readonly<object_schema<
-		DefsMode,
 		RequiredMode,
 		PropertiesMode
 	>> {
 		const required_for_partial = (
 			this.#generate_default_schema_definition_required(
-				$defs_mode,
 				required_mode,
 				properties_mode,
 			)
 		);
 
 		const properties_for_partial:Partial<
-			object_schema<'with', 'with', 'both'>['properties']
+			object_schema<'with', 'both'>['properties']
 		> = {
 			type: {
 				type: 'string',
@@ -381,14 +358,12 @@ abstract class ObjectUncertain<
 			},
 		};
 
-		if ('without' !== $defs_mode) {
 			properties_for_partial.$defs = {
 				type: 'object',
 				additionalProperties: {
 					type: 'object',
 				},
 			};
-		}
 
 		if ('without' !== required_mode) {
 			properties_for_partial.required = {
@@ -404,7 +379,6 @@ abstract class ObjectUncertain<
 		if ('pattern' !== properties_mode && 'neither' !== properties_mode) {
 			const properties: (
 				object_schema<
-					'with',
 					'with',
 					'properties'
 				>['properties']['properties']
@@ -424,7 +398,6 @@ abstract class ObjectUncertain<
 			const properties: (
 				object_schema<
 					'with',
-					'with',
 					'pattern'
 				>['properties']['patternProperties']
 			) = {
@@ -438,28 +411,23 @@ abstract class ObjectUncertain<
 		}
 
 		const unpartial_properties:object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['properties'] = properties_for_partial as object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['properties'];
 
 		const partial_required: object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['required'] = required_for_partial;
 		const partial_properties: object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['properties'] = unpartial_properties;
 
 		const result:object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		> = {
@@ -468,7 +436,6 @@ abstract class ObjectUncertain<
 			additionalProperties: false,
 			properties: partial_properties,
 		} as object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>;
@@ -477,27 +444,15 @@ abstract class ObjectUncertain<
 	}
 
 	static #generate_default_schema_definition_required<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 	>(
-		$defs_mode: DefsMode,
 		required_mode: RequiredMode,
 		properties_mode: PropertiesMode,
 	): object_schema<
-		DefsMode,
 		RequiredMode,
 		PropertiesMode
 	>['required'] {
-		const maybe_defs: {
-			with: readonly ['$defs'],
-			without: readonly string[],
-			optional: readonly string[],
-		}[DefsMode] = {
-			with: ['$defs'] as const,
-			without: [] as readonly string[],
-			optional: [] as readonly string[],
-		}[$defs_mode];
 		const maybe_required: {
 			with: readonly ['required'],
 			without: readonly string[],
@@ -520,16 +475,13 @@ abstract class ObjectUncertain<
 		}[properties_mode];
 
 		const required: object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['required'] = [
 			...['type'],
-			...maybe_defs,
 			...maybe_required,
 			...values_for_properties_mode,
 		] as object_schema<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode
 		>['required'];
@@ -1057,7 +1009,7 @@ abstract class ObjectUncertain<
 }
 
 export function generate_default_schema_definition<
-	DefsMode extends $defs_mode,
+	DefsMode extends 'optional',
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 >(options: {
@@ -1065,7 +1017,6 @@ export function generate_default_schema_definition<
 	required_mode: RequiredMode,
 	properties_mode: PropertiesMode,
 }): Readonly<object_schema<
-	DefsMode,
 	RequiredMode,
 	PropertiesMode
 >> {
@@ -1077,7 +1028,6 @@ export class ObjectUnspecified<
 	PropertiesMode extends object_properties_mode,
 > extends ObjectUncertain<
 	T,
-	'optional',
 	'optional',
 	PropertiesMode,
 	SchemaObject,
@@ -1101,7 +1051,6 @@ export class ObjectUnspecified<
 		}: ObjectUncertain_options<
 			object_schema<
 				'optional',
-				'optional',
 				PropertiesMode
 			>,
 			object_type<
@@ -1116,7 +1065,6 @@ export class ObjectUnspecified<
 		super(
 			{
 				adjust_name,
-				$defs_mode: 'optional',
 				required_mode: 'optional',
 				properties_mode,
 				$defs,

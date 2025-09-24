@@ -19,17 +19,15 @@ import {
 
 void describe('ObjectUncertain', () => {
 	type DataSet<
-		DefsMode extends $defs_mode = $defs_mode,
 		RequiredMode extends required_mode = required_mode,
 		PropertiesMode extends object_properties_mode = object_properties_mode,
 	> = [
-		DefsMode,
+		'optional',
 		RequiredMode,
 		PropertiesMode,
 	];
 
 	const full_schema_properties:Readonly<object_schema<
-		'with',
 		'with',
 		'both'
 	>['properties']> = Object.freeze({
@@ -71,7 +69,6 @@ void describe('ObjectUncertain', () => {
 			Record<
 				object_properties_mode,
 				object_schema<
-					$defs_mode,
 					required_mode,
 					object_properties_mode
 				>['required']
@@ -114,71 +111,17 @@ void describe('ObjectUncertain', () => {
 		},
 	};
 
-	const property_sets:Readonly<Record<
-		Exclude<$defs_mode, 'optional'>,
+	const property_sets:Readonly<
 		Record<
 			Exclude<required_mode, 'optional'>,
 			Record<
 				object_properties_mode,
 				object_schema<
-					$defs_mode,
 					required_mode,
 					object_properties_mode
 				>['properties']
 			>
-		>
 	>> = {
-		without: {
-			without: {
-				neither: {
-					type: full_schema_properties.type,
-				},
-				both: {
-					type: full_schema_properties.type,
-					properties: full_schema_properties.properties,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-				properties: {
-					type: full_schema_properties.type,
-					properties: full_schema_properties.properties,
-				},
-				pattern: {
-					type: full_schema_properties.type,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-			},
-			with: {
-				neither: {
-					type: full_schema_properties.type,
-					required: full_schema_properties.required,
-				},
-				both: {
-					type: full_schema_properties.type,
-					required: full_schema_properties.required,
-					properties: full_schema_properties.properties,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-				properties: {
-					type: full_schema_properties.type,
-					required: full_schema_properties.required,
-					properties: full_schema_properties.properties,
-				},
-				pattern: {
-					type: full_schema_properties.type,
-					required: full_schema_properties.required,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-			},
-		},
-		with: {
 			without: {
 				neither: {
 					type: full_schema_properties.type,
@@ -235,17 +178,14 @@ void describe('ObjectUncertain', () => {
 					),
 				},
 			},
-		},
 	};
 
 	void describe('::generate_default_schema_definition()', () => {
 		const data_sets:DataSet[] = [];
 
 		const $defs_modes:[
-			$defs_mode,
-			$defs_mode,
-			$defs_mode,
-		] = ['with', 'without', 'optional'];
+			'optional',
+		] = ['optional'];
 		const required_modes:[
 			required_mode,
 			required_mode,
@@ -307,10 +247,6 @@ void describe('ObjectUncertain', () => {
 					][properties_mode];
 
 					const properties = property_sets[
-						'optional' === $defs_mode
-							? 'with'
-							: $defs_mode
-					][
 						'optional' === required_mode
 							? 'with'
 							: required_mode
