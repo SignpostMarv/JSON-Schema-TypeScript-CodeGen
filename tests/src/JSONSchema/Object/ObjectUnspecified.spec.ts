@@ -85,7 +85,6 @@ void describe('ObjectUnspecified', () => {
 		),
 		T,
 		object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -109,7 +108,6 @@ void describe('ObjectUnspecified', () => {
 		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 	>(
 		type_schema: object_type<
-			'optional',
 			'optional',
 			PropertiesMode,
 			Defs,

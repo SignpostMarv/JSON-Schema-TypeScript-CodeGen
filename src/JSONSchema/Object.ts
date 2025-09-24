@@ -73,7 +73,6 @@ export type object_properties_mode = (
 export type required_mode = 'optional'|'with'|'without';
 
 export type object_type<
-	DefsMode extends $defs_mode,
 	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject,
@@ -82,15 +81,9 @@ export type object_type<
 	PatternProperties extends ObjectOfSchemas,
 > = (
 	& {
+		$defs?: Defs,
 		type: 'object'
 	}
-	& OmitIf<
-		{
-			$defs: Defs,
-		},
-		'$defs',
-		DefsMode
-	>
 	& OmitIf<
 		{
 			required: Required,
@@ -255,7 +248,6 @@ abstract class ObjectUncertain<
 > extends Type<
 	T,
 	object_type<
-		DefsMode,
 		RequiredMode,
 		PropertiesMode,
 		Defs,
@@ -297,7 +289,6 @@ abstract class ObjectUncertain<
 				PropertiesMode
 			>,
 			object_type<
-				DefsMode,
 				RequiredMode,
 				PropertiesMode,
 				Defs,
@@ -329,7 +320,6 @@ abstract class ObjectUncertain<
 		data: T,
 		schema_parser: SchemaParser,
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -352,7 +342,6 @@ abstract class ObjectUncertain<
 			schema_parser,
 		}: {
 			schema: object_type<
-				DefsMode,
 				RequiredMode,
 				PropertiesMode,
 				Defs,
@@ -560,7 +549,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #generate_default_type_definition<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -580,7 +568,6 @@ abstract class ObjectUncertain<
 		properties?: Properties,
 		patternProperties?: PatternProperties,
 	}): Readonly<object_type<
-		DefsMode,
 		RequiredMode,
 		PropertiesMode,
 		Defs,
@@ -589,7 +576,6 @@ abstract class ObjectUncertain<
 		PatternProperties
 	>> {
 		const partial:Partial<object_type<
-			'with',
 			'with',
 			'both',
 			Defs,
@@ -620,7 +606,6 @@ abstract class ObjectUncertain<
 		}
 
 		const frozen = Object.freeze(partial as object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -633,7 +618,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #is_schema_with_neither<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -641,7 +625,6 @@ abstract class ObjectUncertain<
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			object_properties_mode,
 			Defs,
@@ -650,7 +633,6 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		DefsMode,
 		RequiredMode,
 		'neither',
 		Defs,
@@ -662,7 +644,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #is_schema_with_properties<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -670,7 +651,6 @@ abstract class ObjectUncertain<
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			object_properties_mode,
 			Defs,
@@ -679,7 +659,6 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		DefsMode,
 		RequiredMode,
 		'both' | 'properties',
 		Defs,
@@ -691,7 +670,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #is_schema_with_pattern_properties<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -699,7 +677,6 @@ abstract class ObjectUncertain<
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			object_properties_mode,
 			Defs,
@@ -708,7 +685,6 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		DefsMode,
 		RequiredMode,
 		'both'|'pattern',
 		Defs,
@@ -723,7 +699,6 @@ abstract class ObjectUncertain<
 		Required extends readonly [string, ...string[]],
 	> (
 		schema: object_type<
-			$defs_mode,
 			required_mode,
 			object_properties_mode,
 			SchemaObject,
@@ -732,7 +707,6 @@ abstract class ObjectUncertain<
 			ObjectOfSchemas
 		>,
 	): schema is object_type<
-		$defs_mode,
 		'with',
 		object_properties_mode,
 		SchemaObject,
@@ -745,7 +719,6 @@ abstract class ObjectUncertain<
 
 	static #convert<
 		T,
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -756,7 +729,6 @@ abstract class ObjectUncertain<
 		value: unknown,
 		property: string,
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -822,7 +794,6 @@ abstract class ObjectUncertain<
 
 	static #createObjectLiteralExpression<
 		T extends {[key: string]: unknown},
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -832,7 +803,6 @@ abstract class ObjectUncertain<
 	>(
 		data: T,
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -866,7 +836,6 @@ abstract class ObjectUncertain<
 	}
 
 	static async #createTypeNode<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -875,7 +844,6 @@ abstract class ObjectUncertain<
 		PatternProperties extends ObjectOfSchemas,
 	>(
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -1002,7 +970,6 @@ abstract class ObjectUncertain<
 	}
 
 	static async #generate_type<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -1012,7 +979,6 @@ abstract class ObjectUncertain<
 	> (
 		property: string,
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -1080,7 +1046,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #sub_schema_for_property<
-		DefsMode extends $defs_mode,
 		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
@@ -1090,7 +1055,6 @@ abstract class ObjectUncertain<
 	>(
 		property: string,
 		schema: object_type<
-			DefsMode,
 			RequiredMode,
 			PropertiesMode,
 			Defs,
@@ -1177,7 +1141,6 @@ export class ObjectUnspecified<
 				PropertiesMode
 			>,
 			object_type<
-				'optional',
 				'optional',
 				PropertiesMode,
 				SchemaObject,
