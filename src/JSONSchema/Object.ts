@@ -759,13 +759,13 @@ export class ObjectUnspecified<
 					(sub_schema) => {
 						return this.#intercept_$ref(
 							this.#get_defs(schema, sub_schema),
-						sub_schema,
+							sub_schema,
 							schema_parser,
 							'$ref allowed',
-					).generate_typescript_type({
-						data: sub_schema,
-						schema: sub_schema,
-						schema_parser,
+						).generate_typescript_type({
+							data: sub_schema,
+							schema: sub_schema,
+							schema_parser,
 						});
 					},
 				),
