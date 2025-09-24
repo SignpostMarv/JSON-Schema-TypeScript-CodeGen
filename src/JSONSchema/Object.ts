@@ -341,14 +341,14 @@ abstract class ObjectUncertain<
 			},
 		};
 
-			properties_for_partial.required = {
-				type: 'array',
-				minItems: 1,
-				items: {
-					type: 'string',
-					minLength: 1,
-				},
-			};
+		properties_for_partial.required = {
+			type: 'array',
+			minItems: 1,
+			items: {
+				type: 'string',
+				minLength: 1,
+			},
+		};
 
 		if ('pattern' !== properties_mode && 'neither' !== properties_mode) {
 			const properties: (

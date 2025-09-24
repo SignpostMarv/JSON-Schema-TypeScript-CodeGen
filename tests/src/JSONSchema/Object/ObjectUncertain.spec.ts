@@ -59,10 +59,10 @@ void describe('ObjectUncertain', () => {
 					object_properties_mode
 				>['required']
 	> = {
-				neither: ['type'],
-				both: ['type', 'properties', 'patternProperties'],
-				properties: ['type', 'properties'],
-				pattern: ['type', 'patternProperties'],
+		neither: ['type'],
+		both: ['type', 'properties', 'patternProperties'],
+		properties: ['type', 'properties'],
+		pattern: ['type', 'patternProperties'],
 	};
 
 	const property_sets:Readonly<
@@ -72,34 +72,34 @@ void describe('ObjectUncertain', () => {
 					object_properties_mode
 				>['properties']
 	>> = {
-			neither: {
-				type: full_schema_properties.type,
-				$defs: full_schema_properties.$defs,
-				required: full_schema_properties.required,
-			},
-			both: {
-				type: full_schema_properties.type,
-				$defs: full_schema_properties.$defs,
-				required: full_schema_properties.required,
-				properties: full_schema_properties.properties,
-				patternProperties: (
-					full_schema_properties.patternProperties
-				),
-			},
-			properties: {
-				type: full_schema_properties.type,
-				$defs: full_schema_properties.$defs,
-				required: full_schema_properties.required,
-				properties: full_schema_properties.properties,
-			},
-			pattern: {
-				type: full_schema_properties.type,
-				$defs: full_schema_properties.$defs,
-				required: full_schema_properties.required,
-				patternProperties: (
-					full_schema_properties.patternProperties
-				),
-			},
+		neither: {
+			type: full_schema_properties.type,
+			$defs: full_schema_properties.$defs,
+			required: full_schema_properties.required,
+		},
+		both: {
+			type: full_schema_properties.type,
+			$defs: full_schema_properties.$defs,
+			required: full_schema_properties.required,
+			properties: full_schema_properties.properties,
+			patternProperties: (
+				full_schema_properties.patternProperties
+			),
+		},
+		properties: {
+			type: full_schema_properties.type,
+			$defs: full_schema_properties.$defs,
+			required: full_schema_properties.required,
+			properties: full_schema_properties.properties,
+		},
+		pattern: {
+			type: full_schema_properties.type,
+			$defs: full_schema_properties.$defs,
+			required: full_schema_properties.required,
+			patternProperties: (
+				full_schema_properties.patternProperties
+			),
+		},
 	};
 
 	void describe('::generate_default_schema_definition()', () => {
@@ -117,11 +117,11 @@ void describe('ObjectUncertain', () => {
 			'pattern',
 		];
 
-				for (const properties_mode of properties_modes) {
-					data_sets.push([
-						properties_mode,
-					]);
-				}
+		for (const properties_mode of properties_modes) {
+			data_sets.push([
+				properties_mode,
+			]);
+		}
 
 		data_sets.forEach(([
 			properties_mode,
