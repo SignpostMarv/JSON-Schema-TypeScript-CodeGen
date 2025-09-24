@@ -39,6 +39,10 @@ import type {
 	SchemaObject,
 } from './types.ts';
 
+import {
+	Unknown,
+} from './JSONSchema/Unknown.ts';
+
 export type supported_type = (
 	| ConversionlessType<unknown>
 	| Type<unknown>
@@ -113,7 +117,7 @@ export class SchemaParser
 	maybe_parse_by_type<
 		T extends ConversionlessType<unknown>
 	>(
-		schema: SchemaObject,
+		schema: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
 	): (T & typeof must_be_of_type)|undefined {
 		let result:(T & typeof must_be_of_type)|undefined = undefined;
@@ -182,6 +186,7 @@ export class SchemaParser
 			'items-only',
 			'no'
 		>,
+		Unknown,
 	] {
 		return [
 			new String({
@@ -222,6 +227,7 @@ export class SchemaParser
 				},
 				{ajv},
 			),
+			new Unknown({ajv}),
 		];
 	}
 }

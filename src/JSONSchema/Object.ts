@@ -58,6 +58,10 @@ import {
 	$ref,
 } from './Ref.ts';
 
+import type {
+	unknown_type,
+} from './Unknown.ts';
+
 export type object_properties_mode = (
 	| 'neither'
 	| 'both'
@@ -283,6 +287,7 @@ export class ObjectUnspecified<
 		>,
 	): ObjectLiteralExpression {
 		return ObjectUnspecified.#createObjectLiteralExpression(
+			this.properties_mode,
 			data,
 			schema,
 			schema_parser,
@@ -306,6 +311,7 @@ export class ObjectUnspecified<
 		},
 	): Promise<object_TypeLiteralNode<PropertiesMode>> {
 		return ObjectUnspecified.#createTypeNode(
+			this.properties_mode,
 			schema,
 			schema_parser,
 		);
@@ -603,6 +609,7 @@ export class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	> (
+		properties_mode: PropertiesMode,
 		value: unknown,
 		property: string,
 		schema: object_type<
@@ -614,9 +621,11 @@ export class ObjectUnspecified<
 		>,
 		schema_parser: SchemaParser,
 	) {
-		const sub_schema = this.#sub_schema_for_property(
+		let sub_schema = this.#sub_schema_for_property(
+			properties_mode,
 			property,
 			schema,
+			{},
 		);
 
 		const $defs = this.#get_defs(schema, sub_schema);
@@ -629,6 +638,14 @@ export class ObjectUnspecified<
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by property!');
+		}
+
+		if (0 === Object.keys(sub_schema).length) {
+			sub_schema = {
+				type: 'object',
+				additionalProperties: false,
+				maxProperties: 0,
+			};
 		}
 
 		return this.#intercept_$ref(
@@ -651,6 +668,7 @@ export class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		properties_mode: PropertiesMode,
 		data: T,
 		schema: object_type<
 			PropertiesMode,
@@ -670,6 +688,7 @@ export class ObjectUnspecified<
 				value,
 			]) => {
 				const type = this.#convert(
+					properties_mode,
 					value,
 					property,
 					schema,
@@ -691,6 +710,7 @@ export class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		properties_mode: PropertiesMode,
 		schema: object_type<
 			PropertiesMode,
 			Defs,
@@ -744,6 +764,7 @@ export class ObjectUnspecified<
 						: undefined
 				),
 				await this.#generate_type(
+					properties_mode,
 					property,
 					schema,
 					schema_parser,
@@ -829,6 +850,7 @@ export class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	> (
+		properties_mode: PropertiesMode,
 		property: string,
 		schema: object_type<
 			PropertiesMode,
@@ -840,8 +862,10 @@ export class ObjectUnspecified<
 		schema_parser: SchemaParser,
 	) {
 		const sub_schema = this.#sub_schema_for_property(
+			properties_mode,
 			property,
 			schema,
+			{},
 		);
 
 		let matched: (
@@ -1032,6 +1056,7 @@ export class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		properties_mode: PropertiesMode,
 		property: string,
 		schema: object_type<
 			PropertiesMode,
@@ -1040,6 +1065,7 @@ export class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
+		fallback_if_neither: Record<string, never>|unknown_type,
 	): SchemaObject {
 		if (
 			this.#is_schema_with_properties(schema)
@@ -1064,6 +1090,10 @@ export class ObjectUnspecified<
 			if (matching) {
 				return schema.patternProperties[matching];
 			}
+		}
+
+		if ('neither' === properties_mode) {
+			return fallback_if_neither;
 		}
 
 		throw new TypeError(`Property "${property}" has no match on the specified schema!`);

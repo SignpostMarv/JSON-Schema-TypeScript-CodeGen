@@ -457,6 +457,51 @@ void describe('ObjectUnspecified', () => {
 				})
 			},
 		],
+		[
+			{
+				properties_mode: 'neither',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'neither'
+			>({
+				type: 'object',
+				required: ['foo'],
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 1);
+				value.properties.forEach((property) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal('foo', property.name.text, message);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal('bar', property.initializer.text);
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isIndexSignatureDeclaration(member, message);
+					not_undefined(member.type, message);
+					ts_assert.isTokenWithExpectedKind(
+						member.type,
+						SyntaxKind.UnknownKeyword,
+						message,
+					);
+				})
+			},
+		],
 	];
 
 	void describe('::generate_typescript_data()', () => {
@@ -488,7 +533,7 @@ void describe('ObjectUnspecified', () => {
 				assert.throws(() => instance.generate_typescript_data(
 					Object.fromEntries(
 						Object.keys(input).map(
-							(property) => [property, new Date()],
+							(property) => [property, null],
 						),
 					),
 					schema_parser,
