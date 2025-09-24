@@ -358,12 +358,12 @@ abstract class ObjectUncertain<
 			},
 		};
 
-			properties_for_partial.$defs = {
+		properties_for_partial.$defs = {
+			type: 'object',
+			additionalProperties: {
 				type: 'object',
-				additionalProperties: {
-					type: 'object',
-				},
-			};
+			},
+		};
 
 		if ('without' !== required_mode) {
 			properties_for_partial.required = {

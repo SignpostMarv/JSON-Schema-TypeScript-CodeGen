@@ -122,62 +122,62 @@ void describe('ObjectUncertain', () => {
 				>['properties']
 			>
 	>> = {
-			without: {
-				neither: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-				},
-				both: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					properties: full_schema_properties.properties,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-				properties: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					properties: full_schema_properties.properties,
-				},
-				pattern: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
+		without: {
+			neither: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
 			},
-			with: {
-				neither: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					required: full_schema_properties.required,
-				},
-				both: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					required: full_schema_properties.required,
-					properties: full_schema_properties.properties,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
-				properties: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					required: full_schema_properties.required,
-					properties: full_schema_properties.properties,
-				},
-				pattern: {
-					type: full_schema_properties.type,
-					$defs: full_schema_properties.$defs,
-					required: full_schema_properties.required,
-					patternProperties: (
-						full_schema_properties.patternProperties
-					),
-				},
+			both: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				properties: full_schema_properties.properties,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
 			},
+			properties: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				properties: full_schema_properties.properties,
+			},
+			pattern: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
+			},
+		},
+		with: {
+			neither: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+			},
+			both: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				properties: full_schema_properties.properties,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
+			},
+			properties: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				properties: full_schema_properties.properties,
+			},
+			pattern: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
+			},
+		},
 	};
 
 	void describe('::generate_default_schema_definition()', () => {
