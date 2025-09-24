@@ -14,93 +14,97 @@ import {
 
 void describe('ObjectUncertain', () => {
 	void describe('::generate_default_schema_definition()', () => {
-	type DataSet<
-		PropertiesMode extends object_properties_mode = object_properties_mode,
-	> = [
-		PropertiesMode,
-	];
-
-	const full_schema_properties: Readonly<object_schema<
-		'both'
-	>['properties']> = Object.freeze({
-		$defs: {
-			type: 'object',
-			additionalProperties: {
-				type: 'object',
-			},
-		},
-		type: {type: 'string', const: 'object'},
-		required: {
-			type: 'array',
-			minItems: 1,
-			items: {
-				type: 'string',
-				minLength: 1,
-			},
-		},
-		properties: {
-			type: 'object',
-			minProperties: 1,
-			additionalProperties: {
-				type: 'object',
-			},
-		},
-		patternProperties: {
-			type: 'object',
-			minProperties: 1,
-			additionalProperties: {
-				type: 'object',
-			},
-		},
-	});
-
-	const expected_require_sets: Record<
-		object_properties_mode,
-		object_schema<
-			object_properties_mode
-		>['required']
-	> = {
-		neither: ['type'],
-		both: ['type', 'properties', 'patternProperties'],
-		properties: ['type', 'properties'],
-		pattern: ['type', 'patternProperties'],
-	};
-
-	const property_sets: Readonly<Record<
-		object_properties_mode,
-		object_schema<
-			object_properties_mode
-		>['properties']
-	>> = {
-		neither: {
-			type: full_schema_properties.type,
-			$defs: full_schema_properties.$defs,
-			required: full_schema_properties.required,
-		},
-		both: {
-			type: full_schema_properties.type,
-			$defs: full_schema_properties.$defs,
-			required: full_schema_properties.required,
-			properties: full_schema_properties.properties,
-			patternProperties: (
-				full_schema_properties.patternProperties
+		type DataSet<
+			PropertiesMode extends (
+				object_properties_mode
+			) = (
+				object_properties_mode
 			),
-		},
-		properties: {
-			type: full_schema_properties.type,
-			$defs: full_schema_properties.$defs,
-			required: full_schema_properties.required,
-			properties: full_schema_properties.properties,
-		},
-		pattern: {
-			type: full_schema_properties.type,
-			$defs: full_schema_properties.$defs,
-			required: full_schema_properties.required,
-			patternProperties: (
-				full_schema_properties.patternProperties
-			),
-		},
-	};
+		> = [
+			PropertiesMode,
+		];
+
+		const full_schema_properties: Readonly<object_schema<
+			'both'
+		>['properties']> = Object.freeze({
+			$defs: {
+				type: 'object',
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+			type: {type: 'string', const: 'object'},
+			required: {
+				type: 'array',
+				minItems: 1,
+				items: {
+					type: 'string',
+					minLength: 1,
+				},
+			},
+			properties: {
+				type: 'object',
+				minProperties: 1,
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+			patternProperties: {
+				type: 'object',
+				minProperties: 1,
+				additionalProperties: {
+					type: 'object',
+				},
+			},
+		});
+
+		const expected_require_sets: Record<
+			object_properties_mode,
+			object_schema<
+				object_properties_mode
+			>['required']
+		> = {
+			neither: ['type'],
+			both: ['type', 'properties', 'patternProperties'],
+			properties: ['type', 'properties'],
+			pattern: ['type', 'patternProperties'],
+		};
+
+		const property_sets: Readonly<Record<
+			object_properties_mode,
+			object_schema<
+				object_properties_mode
+			>['properties']
+		>> = {
+			neither: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+			},
+			both: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				properties: full_schema_properties.properties,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
+			},
+			properties: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				properties: full_schema_properties.properties,
+			},
+			pattern: {
+				type: full_schema_properties.type,
+				$defs: full_schema_properties.$defs,
+				required: full_schema_properties.required,
+				patternProperties: (
+					full_schema_properties.patternProperties
+				),
+			},
+		};
 
 		const data_sets: DataSet[] = [];
 
