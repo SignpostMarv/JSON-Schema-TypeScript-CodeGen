@@ -10,10 +10,6 @@ import {
 } from 'typescript';
 
 import {
-	is_instanceof,
-} from '@satisfactory-dev/custom-assert';
-
-import {
 	property_exists_on_object,
 } from '@satisfactory-dev/predicates.ts';
 
@@ -635,37 +631,12 @@ export class ObjectUnspecified<
 			throw new TypeError('Supplied value not supported by property!');
 		}
 
-		let converter: (
-			| undefined
-			| Type<unknown>
-			| $ref<Record<string, never>, 'either'>
-		) = schema_parser.maybe_parse_by_type<
-			$ref<Record<string, never>, 'either'>
-		>(
+		return this.#intercept_$ref(
+			$defs,
 			sub_schema,
-			(
-				maybe: unknown,
-			): maybe is $ref<Record<string, never>, 'either'> => {
-				return $ref.is_a(maybe);
-			},
-		);
-
-		if (undefined === converter) {
-			converter = schema_parser.parse(sub_schema, true);
-		}
-
-		if (converter instanceof $ref) {
-			converter = converter.resolve_ref(
-				sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
-				$defs,
-				schema_parser,
-				true,
-			);
-		}
-
-		is_instanceof<Type<unknown>>(converter, Type);
-
-		return converter.generate_typescript_data(
+			schema_parser,
+			'yes',
+		).generate_typescript_data(
 			value,
 			schema_parser,
 			sub_schema,
@@ -785,12 +756,18 @@ export class ObjectUnspecified<
 				Object.values(
 					schema.patternProperties,
 				).filter((maybe) => undefined !== maybe).map(
-					(sub_schema) => schema_parser.parse(
+					(sub_schema) => {
+						return this.#intercept_$ref(
+							this.#get_defs(schema, sub_schema),
 						sub_schema,
+							schema_parser,
+							'$ref allowed',
 					).generate_typescript_type({
+						data: sub_schema,
 						schema: sub_schema,
 						schema_parser,
-					}),
+						});
+					},
 				),
 			);
 		}
@@ -896,6 +873,133 @@ export class ObjectUnspecified<
 		});
 	}
 
+	static #intercept_$ref<
+		RequireConversion extends 'yes'|'no'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion,
+	): {
+		yes: Type<unknown>,
+		no: ConversionlessType<unknown>,
+		'$ref allowed': ConversionlessType<unknown>,
+	}[RequireConversion] {
+		const maybe_$ref: (
+			| undefined
+			| $ref<Record<string, never>, 'either'>
+		) = schema_parser.maybe_parse_by_type<
+			$ref<Record<string, never>, 'either'>
+		>(
+			sub_schema,
+			(
+				maybe: unknown,
+			): maybe is $ref<Record<string, never>, 'either'> => {
+				return $ref.is_a(maybe);
+			},
+		);
+
+		if (maybe_$ref && '$ref allowed' === require_conversion) {
+			return maybe_$ref as {
+				yes: Type<unknown>,
+				no: ConversionlessType<unknown>,
+				'$ref allowed': $ref<Record<string, never>, 'either'>,
+			}[RequireConversion];
+		}
+
+		const expect_convertible: (
+			RequireConversion extends 'yes'
+				? true
+				: false
+		) = ('yes' === require_conversion) as (
+			RequireConversion extends 'yes'
+				? true
+				: false
+		);
+
+		return this.#intercept_$ref_early_exit_failed<
+			RequireConversion extends 'yes'
+				? true
+				: false
+		>(
+			$defs,
+			sub_schema,
+			schema_parser,
+			expect_convertible,
+			maybe_$ref,
+		) as  {
+			yes: Type<unknown>,
+			no: ConversionlessType<unknown>,
+			'$ref allowed': $ref<Record<string, never>, 'either'>,
+		}[RequireConversion];
+	}
+
+	static #intercept_$ref_early_exit_failed<
+		RequireConversion extends boolean,
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion,
+		maybe_$ref: (
+			| undefined
+			| $ref<Record<string, never>, 'either'>
+		),
+	): (
+		RequireConversion extends true
+			? Type<unknown>
+			: ConversionlessType<unknown>
+	) {
+		let converter: (
+			| undefined
+			| ConversionlessType<unknown>
+			| (
+				RequireConversion extends true
+					? Type<unknown>
+					: ConversionlessType<unknown>
+			)
+		) = require_conversion ? (
+			maybe_$ref
+				? maybe_$ref.resolve_ref(
+					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
+					$defs,
+					schema_parser,
+					true,
+				)
+				: undefined
+		) : maybe_$ref;
+
+		if (undefined === converter) {
+			converter = schema_parser.parse<RequireConversion>(
+				sub_schema,
+				require_conversion,
+			);
+		}
+
+		let result: (
+			RequireConversion extends true
+				? Type<unknown>
+				: ConversionlessType<unknown>
+		);
+
+		if (converter instanceof $ref) {
+			result = converter.resolve_ref(
+				sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
+				$defs,
+				schema_parser,
+				require_conversion,
+			);
+		} else {
+			result = converter as (
+				RequireConversion extends true
+					? Type<unknown>
+					: ConversionlessType<unknown>
+			);
+		}
+
+		return result;
+	}
+
 	static #patterned_literal_node(
 		value: TypeNode[],
 	): TypeLiteralNode<IndexSignatureDeclaration> {
@@ -914,7 +1018,9 @@ export class ObjectUnspecified<
 						undefined,
 					),
 				],
-				factory.createUnionTypeNode(value),
+				1 === value.length
+					? value[0]
+					: factory.createUnionTypeNode(value),
 			),
 		]);
 	}

@@ -399,6 +399,64 @@ void describe('ObjectUnspecified', () => {
 				})
 			},
 		],
+		[
+			{
+				properties_mode: 'pattern',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'pattern'
+			>({
+				type: 'object',
+				required: ['foo'],
+				$defs: {
+					foo: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+				patternProperties: {
+					'^.+$': {
+						$ref: '#/$defs/foo',
+					},
+				},
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 1);
+				value.properties.forEach((property) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal('foo', property.name.text, message);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal('bar', property.initializer.text);
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isIndexSignatureDeclaration(member, message);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'foo',
+						message,
+					);
+				})
+			},
+		],
 	];
 
 	void describe('::generate_typescript_data()', () => {
