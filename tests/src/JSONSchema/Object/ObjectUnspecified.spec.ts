@@ -344,6 +344,90 @@ void describe('ObjectUnspecified', () => {
 			{
 				properties_mode: 'properties',
 			},
+			{'f o o': 'bar'},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				type: 'object',
+				required: ['f o o'],
+				properties: {
+					'f o o': {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+			}),
+			(
+				value: Node,
+				message?: string|Error,
+			): asserts value is ObjectLiteralExpression<[
+				PropertyAssignment
+			]> => {
+				ts_assert.isObjectLiteralExpression(value, message);
+				not_undefined(value.properties);
+				assert.equal(value.properties.length, 1);
+				value.properties.forEach((property) => {
+					ts_assert.isPropertyAssignment(property, message);
+					ts_assert.isIdentifier(property.name, message);
+					assert.equal(
+						property.name.text,
+						'f o o',
+						message,
+					);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal(property.initializer.text, 'bar');
+				});
+			},
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isPropertySignature(member, message);
+					ts_assert.isComputedPropertyName(member.name, message);
+					ts_assert.isStringLiteral(member.name.expression);
+					assert.equal(
+						member.name.expression.text,
+						'f o o',
+						message,
+					);
+					assert.equal(member.questionToken, undefined);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'Exclude',
+						message,
+					);
+					not_undefined(member.type.typeArguments, message);
+					assert.equal(member.type.typeArguments.length, 2);
+					ts_assert.isTokenWithExpectedKind(
+						member.type.typeArguments[0],
+						SyntaxKind.StringKeyword,
+						message,
+					);
+					ts_assert.isLiteralTypeNode(
+						member.type.typeArguments[1],
+						message,
+					);
+					ts_assert.isStringLiteral(
+						member.type.typeArguments[1].literal,
+						message,
+					);
+					assert.equal(
+						member.type.typeArguments[1].literal.text,
+						'',
+					);
+				})
+			},
+		],
+		[
+			{
+				properties_mode: 'properties',
+			},
 			{foo: 'bar'},
 			type_schema_for_data_set<
 				'properties'
