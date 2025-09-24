@@ -13,6 +13,7 @@ import {
 } from '../../../../src/JSONSchema/Object.ts';
 
 void describe('ObjectUncertain', () => {
+	void describe('::generate_default_schema_definition()', () => {
 	type DataSet<
 		PropertiesMode extends object_properties_mode = object_properties_mode,
 	> = [
@@ -101,7 +102,6 @@ void describe('ObjectUncertain', () => {
 		},
 	};
 
-	void describe('::generate_default_schema_definition()', () => {
 		const data_sets: DataSet[] = [];
 
 		const properties_modes: [
