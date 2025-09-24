@@ -9,7 +9,7 @@ import type {
 	object_schema,
 } from '../../../../src/JSONSchema/Object.ts';
 import {
-	generate_default_schema_definition,
+	ObjectUnspecified,
 } from '../../../../src/JSONSchema/Object.ts';
 
 void describe('ObjectUncertain', () => {
@@ -133,7 +133,8 @@ void describe('ObjectUncertain', () => {
 					properties_mode
 				}>)`,
 				() => {
-					const schema = generate_default_schema_definition({
+					const schema = ObjectUnspecified
+						.generate_default_schema_definition({
 						properties_mode,
 					});
 

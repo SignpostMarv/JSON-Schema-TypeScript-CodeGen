@@ -204,13 +204,17 @@ type ObjectUncertain_options<
 	>
 );
 
-abstract class ObjectUncertain<
+export class ObjectUnspecified<
 	T extends {[key: string]: unknown},
 	PropertiesMode extends object_properties_mode,
-	Defs extends SchemaObject,
-	Required extends readonly [string, ...string[]],
-	Properties extends ObjectOfSchemas,
-	PatternProperties extends ObjectOfSchemas,
+	Defs extends SchemaObject = SchemaObject,
+	Required extends (
+		readonly [string, ...string[]]
+	) = (
+		readonly [string, ...string[]]
+	),
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 > extends Type<
 	T,
 	object_type<
@@ -256,11 +260,12 @@ abstract class ObjectUncertain<
 	) {
 		super({
 			ajv,
-			type_definition: ObjectUncertain.#generate_default_type_definition(
+			type_definition: ObjectUnspecified
+				.#generate_default_type_definition(
 				options,
 			),
 			schema_definition: (
-				ObjectUncertain.generate_default_schema_definition(
+				ObjectUnspecified.generate_default_schema_definition(
 					options,
 				)
 			),
@@ -281,7 +286,7 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): ObjectLiteralExpression {
-		return ObjectUncertain.#createObjectLiteralExpression(
+		return ObjectUnspecified.#createObjectLiteralExpression(
 			data,
 			schema,
 			schema_parser,
@@ -304,7 +309,7 @@ abstract class ObjectUncertain<
 			schema_parser: SchemaParser,
 		},
 	): Promise<object_TypeLiteralNode<PropertiesMode>> {
-		return ObjectUncertain.#createTypeNode(
+		return ObjectUnspecified.#createTypeNode(
 			schema,
 			schema_parser,
 		);
@@ -956,65 +961,5 @@ abstract class ObjectUncertain<
 		}
 
 		throw new TypeError(`Property "${property}" has no match on the specified schema!`);
-	}
-}
-
-export function generate_default_schema_definition<
-	PropertiesMode extends object_properties_mode,
->(options: {
-	properties_mode: PropertiesMode,
-}): Readonly<object_schema<
-	PropertiesMode
->> {
-	return ObjectUncertain.generate_default_schema_definition(options);
-}
-
-export class ObjectUnspecified<
-	T extends {[key: string]: unknown},
-	PropertiesMode extends object_properties_mode,
-> extends ObjectUncertain<
-	T,
-	PropertiesMode,
-	SchemaObject,
-	readonly [string, ...string[]],
-	ObjectOfSchemas,
-	ObjectOfSchemas
-> {
-
-	constructor(
-		{
-			adjust_name,
-			properties_mode,
-			$defs,
-		}: {
-			adjust_name?: adjust_name_callback,
-			properties_mode: PropertiesMode,
-			$defs?: SchemaObject,
-		},
-		{
-			ajv,
-		}: ObjectUncertain_options<
-			object_schema<
-				PropertiesMode
-			>,
-			object_type<
-				PropertiesMode,
-				SchemaObject,
-				readonly [string, ...string[]],
-				ObjectOfSchemas,
-				ObjectOfSchemas
-			>
-		>,
-	) {
-		super(
-			{
-				adjust_name,
-				properties_mode,
-				$defs,
-			},
-			{
-				ajv,
-			},
-		);
 	}
 }
