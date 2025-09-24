@@ -123,14 +123,14 @@ export type object_schema<
 			}
 		}
 		& {
-				required: {
-					type: 'array',
-					minItems: 1,
-					items: {
-						type: 'string',
-						minLength: 1,
-					},
+			required: {
+				type: 'array',
+				minItems: 1,
+				items: {
+					type: 'string',
+					minLength: 1,
 				},
+			},
 		}
 		& OmitIf<
 			{
@@ -262,8 +262,8 @@ export class ObjectUnspecified<
 			ajv,
 			type_definition: ObjectUnspecified
 				.#generate_default_type_definition(
-				options,
-			),
+					options,
+				),
 			schema_definition: (
 				ObjectUnspecified.generate_default_schema_definition(
 					options,
@@ -330,7 +330,7 @@ export class ObjectUnspecified<
 			)
 		);
 
-		const properties_for_partial:Partial<
+		const properties_for_partial: Partial<
 			object_schema<'both'>['properties']
 		> = {
 			type: {
@@ -387,7 +387,7 @@ export class ObjectUnspecified<
 			properties_for_partial.patternProperties = properties;
 		}
 
-		const unpartial_properties:object_schema<
+		const unpartial_properties: object_schema<
 			PropertiesMode
 		>['properties'] = properties_for_partial as object_schema<
 			PropertiesMode
@@ -400,7 +400,7 @@ export class ObjectUnspecified<
 			PropertiesMode
 		>['properties'] = unpartial_properties;
 
-		const result:object_schema<
+		const result: object_schema<
 			PropertiesMode
 		> = {
 			type: 'object',
@@ -470,7 +470,7 @@ export class ObjectUnspecified<
 		Properties,
 		PatternProperties
 	>> {
-		const partial:Partial<object_type<
+		const partial: Partial<object_type<
 			'both',
 			Defs,
 			Required,
@@ -635,7 +635,7 @@ export class ObjectUnspecified<
 			throw new TypeError('Supplied value not supported by property!');
 		}
 
-		let converter:(
+		let converter: (
 			| undefined
 			| Type<unknown>
 			| $ref<Record<string, never>, 'either'>
@@ -747,8 +747,8 @@ export class ObjectUnspecified<
 			]) as object_TypeLiteralNode<PropertiesMode>;
 		}
 
-		let properties:PropertySignature[] = [];
-		let patterned:TypeNode[] = [];
+		let properties: PropertySignature[] = [];
+		let patterned: TypeNode[] = [];
 
 		if (this.#is_schema_with_properties(schema)) {
 			properties = await Promise.all(Object.keys(
@@ -795,7 +795,7 @@ export class ObjectUnspecified<
 			);
 		}
 
-		let result:object_TypeLiteralNode<
+		let result: object_TypeLiteralNode<
 			Exclude<
 				object_properties_mode,
 				'neither'
@@ -825,7 +825,7 @@ export class ObjectUnspecified<
 		),
 		sub_schema: SchemaObject,
 	): {[key: $def]: SchemaObject} {
-		let $defs:{[key: $def]: SchemaObject} = {};
+		let $defs: {[key: $def]: SchemaObject} = {};
 
 		if (
 			'$ref' in sub_schema
@@ -867,7 +867,7 @@ export class ObjectUnspecified<
 			schema,
 		);
 
-		let matched:(
+		let matched: (
 			| undefined
 			| ConversionlessType<unknown>
 		) = schema_parser.maybe_parse_by_type<

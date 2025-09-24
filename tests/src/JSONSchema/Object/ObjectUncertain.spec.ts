@@ -19,7 +19,7 @@ void describe('ObjectUncertain', () => {
 		PropertiesMode,
 	];
 
-	const full_schema_properties:Readonly<object_schema<
+	const full_schema_properties: Readonly<object_schema<
 		'both'
 	>['properties']> = Object.freeze({
 		$defs: {
@@ -53,11 +53,11 @@ void describe('ObjectUncertain', () => {
 		},
 	});
 
-	const expected_require_sets:Record<
-				object_properties_mode,
-				object_schema<
-					object_properties_mode
-				>['required']
+	const expected_require_sets: Record<
+		object_properties_mode,
+		object_schema<
+			object_properties_mode
+		>['required']
 	> = {
 		neither: ['type'],
 		both: ['type', 'properties', 'patternProperties'],
@@ -65,12 +65,11 @@ void describe('ObjectUncertain', () => {
 		pattern: ['type', 'patternProperties'],
 	};
 
-	const property_sets:Readonly<
-		Record<
-				object_properties_mode,
-				object_schema<
-					object_properties_mode
-				>['properties']
+	const property_sets: Readonly<Record<
+		object_properties_mode,
+		object_schema<
+			object_properties_mode
+		>['properties']
 	>> = {
 		neither: {
 			type: full_schema_properties.type,
@@ -103,7 +102,7 @@ void describe('ObjectUncertain', () => {
 	};
 
 	void describe('::generate_default_schema_definition()', () => {
-		const data_sets:DataSet[] = [];
+		const data_sets: DataSet[] = [];
 
 		const properties_modes: [
 			object_properties_mode,
@@ -135,8 +134,8 @@ void describe('ObjectUncertain', () => {
 				() => {
 					const schema = ObjectUnspecified
 						.generate_default_schema_definition({
-						properties_mode,
-					});
+							properties_mode,
+						});
 
 					const required = expected_require_sets[
 						properties_mode

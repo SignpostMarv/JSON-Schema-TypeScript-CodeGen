@@ -65,9 +65,9 @@ void describe('ObjectUnspecified', () => {
 		Properties extends ObjectOfSchemas = ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 		DataAssertProperties extends (
-			undefined|(readonly ObjectLiteralElementLike [])
-		) =  (
-			undefined|(readonly ObjectLiteralElementLike [])
+			undefined| (readonly ObjectLiteralElementLike[])
+		) = (
+			undefined | (readonly ObjectLiteralElementLike[])
 		),
 	> = [
 		(
