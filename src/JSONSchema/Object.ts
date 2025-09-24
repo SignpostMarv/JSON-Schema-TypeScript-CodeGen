@@ -73,7 +73,6 @@ export type object_properties_mode = (
 export type required_mode = 'optional'|'with'|'without';
 
 export type object_type<
-	RequiredMode extends required_mode,
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject,
 	Required extends readonly [string, ...string[]],
@@ -82,15 +81,9 @@ export type object_type<
 > = (
 	& {
 		$defs?: Defs,
-		type: 'object'
+		type: 'object',
+		required?: Required,
 	}
-	& OmitIf<
-		{
-			required: Required,
-		},
-		'required',
-		RequiredMode
-	>
 	& Omit<
 		{
 			properties: Properties,
@@ -248,7 +241,6 @@ abstract class ObjectUncertain<
 > extends Type<
 	T,
 	object_type<
-		RequiredMode,
 		PropertiesMode,
 		Defs,
 		Required,
@@ -289,7 +281,6 @@ abstract class ObjectUncertain<
 				PropertiesMode
 			>,
 			object_type<
-				RequiredMode,
 				PropertiesMode,
 				Defs,
 				Required,
@@ -320,7 +311,6 @@ abstract class ObjectUncertain<
 		data: T,
 		schema_parser: SchemaParser,
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -342,7 +332,6 @@ abstract class ObjectUncertain<
 			schema_parser,
 		}: {
 			schema: object_type<
-				RequiredMode,
 				PropertiesMode,
 				Defs,
 				Required,
@@ -549,7 +538,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #generate_default_type_definition<
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -568,7 +556,6 @@ abstract class ObjectUncertain<
 		properties?: Properties,
 		patternProperties?: PatternProperties,
 	}): Readonly<object_type<
-		RequiredMode,
 		PropertiesMode,
 		Defs,
 		Required,
@@ -576,7 +563,6 @@ abstract class ObjectUncertain<
 		PatternProperties
 	>> {
 		const partial:Partial<object_type<
-			'with',
 			'both',
 			Defs,
 			Required,
@@ -606,7 +592,6 @@ abstract class ObjectUncertain<
 		}
 
 		const frozen = Object.freeze(partial as object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -617,15 +602,13 @@ abstract class ObjectUncertain<
 		return frozen;
 	}
 
-	static #is_schema_with_neither<
-		RequiredMode extends required_mode,
+	static #is_schema_with_some_type_of_properties<
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			RequiredMode,
 			object_properties_mode,
 			Defs,
 			Required,
@@ -633,25 +616,22 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		RequiredMode,
-		'neither',
+		'both'|'properties'|'pattern',
 		Defs,
 		Required,
 		Properties,
 		PatternProperties
 	> {
-		return ! ('properties' in schema) && !('patternProperties' in schema);
+		return ('properties' in schema) || ('patternProperties' in schema);
 	}
 
 	static #is_schema_with_properties<
-		RequiredMode extends required_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			RequiredMode,
 			object_properties_mode,
 			Defs,
 			Required,
@@ -659,7 +639,6 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		RequiredMode,
 		'both' | 'properties',
 		Defs,
 		Required,
@@ -670,14 +649,12 @@ abstract class ObjectUncertain<
 	}
 
 	static #is_schema_with_pattern_properties<
-		RequiredMode extends required_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	> (
 		schema: object_type<
-			RequiredMode,
 			object_properties_mode,
 			Defs,
 			Required,
@@ -685,7 +662,6 @@ abstract class ObjectUncertain<
 			PatternProperties
 		>,
 	): schema is object_type<
-		RequiredMode,
 		'both'|'pattern',
 		Defs,
 		Required,
@@ -699,7 +675,6 @@ abstract class ObjectUncertain<
 		Required extends readonly [string, ...string[]],
 	> (
 		schema: object_type<
-			required_mode,
 			object_properties_mode,
 			SchemaObject,
 			Required,
@@ -707,19 +682,17 @@ abstract class ObjectUncertain<
 			ObjectOfSchemas
 		>,
 	): schema is object_type<
-		'with',
 		object_properties_mode,
 		SchemaObject,
 		Required,
 		ObjectOfSchemas,
 		ObjectOfSchemas
-	> {
+	> & {required: Required} {
 		return 'required' in schema;
 	}
 
 	static #convert<
 		T,
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -729,7 +702,6 @@ abstract class ObjectUncertain<
 		value: unknown,
 		property: string,
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -794,7 +766,6 @@ abstract class ObjectUncertain<
 
 	static #createObjectLiteralExpression<
 		T extends {[key: string]: unknown},
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -803,7 +774,6 @@ abstract class ObjectUncertain<
 	>(
 		data: T,
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -836,7 +806,6 @@ abstract class ObjectUncertain<
 	}
 
 	static async #createTypeNode<
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -844,7 +813,6 @@ abstract class ObjectUncertain<
 		PatternProperties extends ObjectOfSchemas,
 	>(
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -853,7 +821,7 @@ abstract class ObjectUncertain<
 		>,
 		schema_parser: SchemaParser,
 	): Promise<object_TypeLiteralNode<PropertiesMode>> {
-		if (this.#is_schema_with_neither(schema)) {
+		if (!this.#is_schema_with_some_type_of_properties(schema)) {
 			return type_literal_node([
 				factory.createIndexSignature(
 					undefined,
@@ -970,7 +938,6 @@ abstract class ObjectUncertain<
 	}
 
 	static async #generate_type<
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -979,7 +946,6 @@ abstract class ObjectUncertain<
 	> (
 		property: string,
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -1046,7 +1012,6 @@ abstract class ObjectUncertain<
 	}
 
 	static #sub_schema_for_property<
-		RequiredMode extends required_mode,
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],
@@ -1055,7 +1020,6 @@ abstract class ObjectUncertain<
 	>(
 		property: string,
 		schema: object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -1141,7 +1105,6 @@ export class ObjectUnspecified<
 				PropertiesMode
 			>,
 			object_type<
-				'optional',
 				PropertiesMode,
 				SchemaObject,
 				readonly [string, ...string[]],

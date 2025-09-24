@@ -55,7 +55,6 @@ void describe('ObjectUnspecified', () => {
 	type DataSet<
 		T extends {[key: string]: unknown} = {[key: string]: unknown},
 		DefsMode extends 'optional' = 'optional',
-		RequiredMode extends 'optional' = 'optional',
 		PropertiesMode extends object_properties_mode = object_properties_mode,
 		Defs extends SchemaObject = SchemaObject,
 		Required extends (
@@ -85,7 +84,6 @@ void describe('ObjectUnspecified', () => {
 		),
 		T,
 		object_type<
-			RequiredMode,
 			PropertiesMode,
 			Defs,
 			Required,
@@ -108,7 +106,6 @@ void describe('ObjectUnspecified', () => {
 		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 	>(
 		type_schema: object_type<
-			'optional',
 			PropertiesMode,
 			Defs,
 			Required,
