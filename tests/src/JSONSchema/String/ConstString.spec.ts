@@ -95,7 +95,7 @@ void describe('identify Const String types as expected', () => {
 				async () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
-						? parser.parse(schema, true)
+						? parser.parse(schema, 'yes')
 						: new ConstString(literal, {ajv: new Ajv({
 							...ajv_options,
 							strict: true,

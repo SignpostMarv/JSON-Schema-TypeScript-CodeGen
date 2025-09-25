@@ -883,7 +883,7 @@ export class ObjectUnspecified<
 		);
 
 		if (undefined === matched) {
-			matched = schema_parser.parse(sub_schema, true);
+			matched = schema_parser.parse(sub_schema, 'yes');
 		} else {
 			return matched.generate_typescript_type({
 				data: sub_schema,
@@ -931,20 +931,18 @@ export class ObjectUnspecified<
 			}[RequireConversion];
 		}
 
-		const expect_convertible: (
-			RequireConversion extends 'yes'
-				? true
-				: false
-		) = ('yes' === require_conversion) as (
-			RequireConversion extends 'yes'
-				? true
-				: false
-		);
+		const expect_convertible: {
+			yes: 'yes',
+			no: 'no',
+			'$ref allowed': 'no',
+		}[RequireConversion] = Object.freeze({
+			yes: 'yes',
+			no: 'no',
+			'$ref allowed': 'no',
+		})[require_conversion];
 
 		return this.#intercept_$ref_early_exit_failed<
-			RequireConversion extends 'yes'
-				? true
-				: false
+			typeof expect_convertible
 		>(
 			$defs,
 			sub_schema,
@@ -954,12 +952,12 @@ export class ObjectUnspecified<
 		) as  {
 			yes: Type<unknown>,
 			no: ConversionlessType<unknown>,
-			'$ref allowed': $ref<Record<string, never>, 'either'>,
+			'$ref allowed': ConversionlessType<unknown>,
 		}[RequireConversion];
 	}
 
 	static #intercept_$ref_early_exit_failed<
-		RequireConversion extends boolean,
+		RequireConversion extends 'yes'|'no',
 	>(
 		$defs: {[key: $def]: SchemaObject},
 		sub_schema: SchemaObject,
@@ -969,11 +967,10 @@ export class ObjectUnspecified<
 			| undefined
 			| $ref<Record<string, never>, 'either'>
 		),
-	): (
-		RequireConversion extends true
-			? Type<unknown>
-			: ConversionlessType<unknown>
-	) {
+	): {
+		yes: Type<unknown>,
+		no: ConversionlessType<unknown>,
+	}[RequireConversion] {
 		let converter: (
 			| undefined
 			| ConversionlessType<unknown>
@@ -988,7 +985,7 @@ export class ObjectUnspecified<
 					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
 					$defs,
 					schema_parser,
-					true,
+					'yes',
 				)
 				: undefined
 		) : maybe_$ref;
@@ -1000,11 +997,10 @@ export class ObjectUnspecified<
 			);
 		}
 
-		let result: (
-			RequireConversion extends true
-				? Type<unknown>
-				: ConversionlessType<unknown>
-		);
+		let result: {
+			yes: Type<unknown>,
+			no: ConversionlessType<unknown>,
+		}[RequireConversion];
 
 		if (converter instanceof $ref) {
 			result = converter.resolve_ref(
@@ -1014,11 +1010,10 @@ export class ObjectUnspecified<
 				require_conversion,
 			);
 		} else {
-			result = converter as (
-				RequireConversion extends true
-					? Type<unknown>
-					: ConversionlessType<unknown>
-			);
+			result = converter as {
+				yes: Type<unknown>,
+				no: ConversionlessType<unknown>,
+			}[RequireConversion];
 		}
 
 		return result;

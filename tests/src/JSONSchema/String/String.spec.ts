@@ -77,7 +77,7 @@ void describe('identify simple String types as expected', () => {
 				async () => {
 					const parser = new SchemaParser();
 					const instance = from_parser_default
-						? parser.parse(schema, true)
+						? parser.parse(schema, 'yes')
 						: new String(
 							{
 								ajv: new Ajv({

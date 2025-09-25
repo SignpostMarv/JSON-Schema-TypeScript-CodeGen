@@ -135,17 +135,21 @@ export class SchemaParser
 		return result;
 	}
 
-	parse<T extends boolean>(
+	parse<T extends 'yes'|'no'>(
 		schema: SchemaObject,
 		require_conversion?: T,
-	): T extends true ? Type<unknown> : ConversionlessType<unknown> {
+	): {
+		yes: Type<unknown>,
+		no: ConversionlessType<unknown>,
+	}[T] {
 		const result = this.maybe_parse<
-			typeof require_conversion extends true
-				? Type<unknown>
-				: ConversionlessType<unknown>
+			{
+				yes: Type<unknown>,
+				no: ConversionlessType<unknown>,
+			}[T]
 		>(
 			schema,
-			require_conversion ? Type : ConversionlessType,
+			'yes' === require_conversion ? Type : ConversionlessType,
 		);
 
 		if (result) {

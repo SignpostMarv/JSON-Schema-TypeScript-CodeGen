@@ -54,7 +54,7 @@ void describe('SchemaParser', () => {
 				};
 				assert.ok(instance.can_handle_schema(type_schema));
 				assert.doesNotThrow(() => parser.parse(type_schema));
-				assert.throws(() => parser.parse(type_schema, true));
+				assert.throws(() => parser.parse(type_schema, 'yes'));
 			},
 		);
 	})

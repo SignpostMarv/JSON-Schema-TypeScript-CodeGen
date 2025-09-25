@@ -304,13 +304,16 @@ export class $ref<
 	}
 
 	resolve_ref<
-		T extends boolean,
+		T extends 'yes'|'no',
 	>(
 		has_$ref: { $ref: Value; },
 		local_$defs: {[key: $def]: SchemaObject},
 		schema_parser: SchemaParser,
 		require_conversion?: T,
-	): T extends true ? Type<unknown> : ConversionlessType<unknown> {
+	): {
+		yes: Type<unknown>,
+		no: ConversionlessType<unknown>,
+	 }[T] {
 		return schema_parser.parse<T>(
 			this.resolve_def(
 				has_$ref,

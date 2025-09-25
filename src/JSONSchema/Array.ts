@@ -1002,7 +1002,7 @@ abstract class ArrayUncertain<
 
 		return schema_parser.parse(
 			sub_schema,
-			true,
+			'yes',
 		).generate_typescript_data(
 			value,
 			schema_parser,
