@@ -36,6 +36,7 @@ import {
 } from './guarded.ts';
 
 import type {
+	PartialPick,
 	SchemaObject,
 } from './types.ts';
 
@@ -84,6 +85,23 @@ export class SchemaParser
 			types
 			|| SchemaParser.#default_types(this.#ajv)
 		);
+	}
+
+	add_schema(
+		schema: (
+			& SchemaObject
+			& Required<PartialPick<SchemaObject, '$id'>>
+		),
+	) {
+		this.#ajv.addSchema(schema);
+		for (const inform_this of this.types.filter(
+			(maybe): maybe is $ref<'either'|'external'> => (
+				$ref.is_a(maybe)
+				&& maybe.$ref_mode !== 'local'
+			),
+		)) {
+			inform_this.remote_defs[schema.$id] = schema.$defs || {};
+		}
 	}
 
 	maybe_parse<

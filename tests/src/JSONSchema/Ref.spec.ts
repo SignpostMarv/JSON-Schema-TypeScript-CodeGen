@@ -35,6 +35,10 @@ import type {
 	ObjectOfSchemas,
 } from '../../../src/types.ts';
 
+import {
+	ConversionlessType,
+} from '../../../src/JSONSchema/Type.ts';
+
 void describe('$ref', () => {
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
@@ -211,6 +215,55 @@ void describe('$ref', () => {
 				});
 			})
 	})
+
+	void describe('::resolve_def()', () => {
+		void it('behaves with external $defs', () => {
+			const parser = new SchemaParser();
+
+			const instance = parser.maybe_parse_by_type(
+				{
+					$ref: 'foo#/$defs/bar',
+				},
+				(maybe) => ConversionlessType.is_a(maybe),
+			);
+
+			is_instanceof<$ref>(instance, $ref);
+
+			const $ref_value = {$ref: 'foo#/$defs/bar'};
+
+			assert.ok($ref.is_supported_$ref($ref_value));
+
+			assert.throws(() => instance.resolve_def($ref_value, {}));
+
+			parser.add_schema({
+				$id: 'foo',
+				$defs: {
+					bar: {
+						type: 'string',
+					},
+				},
+			});
+
+			assert.deepEqual(
+				instance.resolve_def($ref_value, {}),
+				{
+					type: 'string',
+				},
+			);
+
+			const $ref_value_2 = {$ref: 'bar#/$defs/bar'};
+
+			assert.ok($ref.is_supported_$ref($ref_value_2));
+
+			assert.throws(() => instance.resolve_def($ref_value_2, {}));
+
+			parser.add_schema({
+				$id: 'bar',
+			});
+
+			assert.throws(() => instance.resolve_def($ref_value_2, {}));
+		});
+	});
 
 	void describe('::resolve_ref()', () => {
 		passes_check_type

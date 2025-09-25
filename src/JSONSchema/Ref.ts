@@ -1,5 +1,7 @@
 import {
+	object_has_property,
 	property_exists_on_object,
+	value_is_non_array_object,
 } from '@satisfactory-dev/predicates.ts';
 
 import type {
@@ -167,13 +169,6 @@ type $ref_schema<
 
 export class $ref<
 	RefMode extends $ref_mode = 'either',
-	RemoteDefs extends (
-		| {[key: string]: {[key: $def]: SchemaObject}}
-		| Record<string, never>
-	) = (
-		| {[key: string]: {[key: $def]: SchemaObject}}
-		| Record<string, never>
-	),
 	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
 > extends ConversionlessType<
 	{$ref: Value, $defs?: ObjectOfSchemas},
@@ -184,7 +179,10 @@ export class $ref<
 	readonly #adjust_name: adjust_name_callback;
 
 	readonly $ref_mode: RefMode;
-	readonly remote_defs?: RemoteDefs = undefined;
+	readonly remote_defs: (
+		| {[key: string]: {[key: $def]: SchemaObject}}
+		| Record<string, never>
+	) = {};
 
 	constructor(
 		{
@@ -405,7 +403,7 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
-	static is_a(maybe: unknown): maybe is $ref
+	static is_a(maybe: unknown): maybe is $ref<$ref_mode>
 	{
 		return super.is_a(maybe);
 	}
@@ -415,6 +413,24 @@ export class $ref<
 	): maybe is {[key: $def]: SchemaObject} {
 		return Object.keys(maybe).every(
 			(k) => regexp_sub.test(k),
+		);
+	}
+
+	static is_supported_$ref<
+		RefMode extends $ref_mode = 'either',
+	>(
+		maybe: unknown,
+		$ref_mode?: RefMode,
+	): maybe is {$ref: $ref_value_by_mode<RefMode>} {
+		return (
+			value_is_non_array_object(maybe)
+			&& object_has_property(maybe, '$ref')
+			&& 'string' === typeof maybe.$ref
+			&& {
+				either: regexp_either,
+				external: regexp_external,
+				local: regexp_local,
+			}[$ref_mode || 'either'].test(maybe.$ref)
 		);
 	}
 
