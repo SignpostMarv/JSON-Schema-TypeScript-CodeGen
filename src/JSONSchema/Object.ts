@@ -648,7 +648,7 @@ export class ObjectUnspecified<
 			};
 		}
 
-		return this.#intercept_$ref(
+		return this.intercept_$ref(
 			$defs,
 			sub_schema,
 			schema_parser,
@@ -778,7 +778,7 @@ export class ObjectUnspecified<
 					schema.patternProperties,
 				).filter((maybe) => undefined !== maybe).map(
 					(sub_schema) => {
-						return this.#intercept_$ref(
+						return this.intercept_$ref(
 							this.#get_defs(schema, sub_schema),
 							sub_schema,
 							schema_parser,
@@ -897,38 +897,46 @@ export class ObjectUnspecified<
 		});
 	}
 
-	static #intercept_$ref<
+	private static intercept_$ref<
+		RequireConversion extends 'yes'|'no'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion & 'yes',
+	): Type<unknown>;
+	private static intercept_$ref<
+		RequireConversion extends 'yes'|'no'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: Exclude<RequireConversion, 'yes'>,
+	): ConversionlessType<unknown>;
+	private static intercept_$ref<
 		RequireConversion extends 'yes'|'no'|'$ref allowed',
 	>(
 		$defs: {[key: $def]: SchemaObject},
 		sub_schema: SchemaObject,
 		schema_parser: SchemaParser,
 		require_conversion: RequireConversion,
-	): {
-		yes: Type<unknown>,
-		no: ConversionlessType<unknown>,
-		'$ref allowed': ConversionlessType<unknown>,
-	}[RequireConversion] {
+	): ConversionlessType<unknown> {
 		const maybe_$ref: (
 			| undefined
-			| $ref
+			| ConversionlessType<unknown>
 		) = schema_parser.maybe_parse_by_type<
-			$ref
+			ConversionlessType<unknown>
 		>(
 			sub_schema,
 			(
 				maybe: unknown,
-			): maybe is $ref => {
+			): maybe is ConversionlessType<unknown> => {
 				return $ref.is_a(maybe);
 			},
 		);
 
 		if (maybe_$ref && '$ref allowed' === require_conversion) {
-			return maybe_$ref as {
-				yes: Type<unknown>,
-				no: ConversionlessType<unknown>,
-				'$ref allowed': $ref,
-			}[RequireConversion];
+			return maybe_$ref;
 		}
 
 		const expect_convertible: {
@@ -949,11 +957,7 @@ export class ObjectUnspecified<
 			schema_parser,
 			expect_convertible,
 			maybe_$ref,
-		) as  {
-			yes: Type<unknown>,
-			no: ConversionlessType<unknown>,
-			'$ref allowed': ConversionlessType<unknown>,
-		}[RequireConversion];
+		);
 	}
 
 	static #intercept_$ref_early_exit_failed<
@@ -965,22 +969,18 @@ export class ObjectUnspecified<
 		require_conversion: RequireConversion,
 		maybe_$ref: (
 			| undefined
-			| $ref
+			| ConversionlessType<unknown>
 		),
-	): {
-		yes: Type<unknown>,
-		no: ConversionlessType<unknown>,
-	}[RequireConversion] {
+	) {
 		let converter: (
 			| undefined
 			| ConversionlessType<unknown>
-			| (
-				RequireConversion extends true
-					? Type<unknown>
-					: ConversionlessType<unknown>
-			)
+			| {
+				yes: Type<unknown>
+				no: ConversionlessType<unknown>
+			}[RequireConversion]
 		) = require_conversion ? (
-			maybe_$ref
+			$ref.is_a(maybe_$ref)
 				? maybe_$ref.resolve_ref(
 					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
 					$defs,
@@ -997,26 +997,16 @@ export class ObjectUnspecified<
 			);
 		}
 
-		let result: {
-			yes: Type<unknown>,
-			no: ConversionlessType<unknown>,
-		}[RequireConversion];
-
 		if (converter instanceof $ref) {
-			result = converter.resolve_ref(
+			return converter.resolve_ref(
 				sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
 				$defs,
 				schema_parser,
 				require_conversion,
 			);
-		} else {
-			result = converter as {
-				yes: Type<unknown>,
-				no: ConversionlessType<unknown>,
-			}[RequireConversion];
 		}
 
-		return result;
+		return converter;
 	}
 
 	static #patterned_literal_node(

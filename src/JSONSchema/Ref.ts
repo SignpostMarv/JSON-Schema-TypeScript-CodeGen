@@ -405,6 +405,11 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
+	static is_a(maybe: unknown): maybe is $ref
+	{
+		return super.is_a(maybe);
+	}
+
 	static is_supported_$defs(
 		maybe: {[key: string]: SchemaObject},
 	): maybe is {[key: $def]: SchemaObject} {
