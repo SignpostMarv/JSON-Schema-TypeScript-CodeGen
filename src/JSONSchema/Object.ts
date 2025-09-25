@@ -898,7 +898,7 @@ export class ObjectUnspecified<
 	}
 
 	private static intercept_$ref<
-		RequireConversion extends 'yes'|'no'|'$ref allowed',
+		RequireConversion extends 'yes'|'$ref allowed',
 	>(
 		$defs: {[key: $def]: SchemaObject},
 		sub_schema: SchemaObject,
@@ -906,7 +906,7 @@ export class ObjectUnspecified<
 		require_conversion: RequireConversion & 'yes',
 	): Type<unknown>;
 	private static intercept_$ref<
-		RequireConversion extends 'yes'|'no'|'$ref allowed',
+		RequireConversion extends 'yes'|'$ref allowed',
 	>(
 		$defs: {[key: $def]: SchemaObject},
 		sub_schema: SchemaObject,
@@ -914,7 +914,7 @@ export class ObjectUnspecified<
 		require_conversion: Exclude<RequireConversion, 'yes'>,
 	): ConversionlessType<unknown>;
 	private static intercept_$ref<
-		RequireConversion extends 'yes'|'no'|'$ref allowed',
+		RequireConversion extends 'yes'|'$ref allowed',
 	>(
 		$defs: {[key: $def]: SchemaObject},
 		sub_schema: SchemaObject,
