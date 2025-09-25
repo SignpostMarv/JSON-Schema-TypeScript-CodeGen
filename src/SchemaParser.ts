@@ -135,15 +135,15 @@ export class SchemaParser
 	>(
 		schema: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
-	): (T & typeof must_be_of_type)|undefined {
-		let result:(T & typeof must_be_of_type)|undefined = undefined;
+	): T|undefined {
+		let result:T|undefined = undefined;
 		for (const type of this.types) {
 			if (type.check_type(schema)) {
 				if (!must_be_of_type(type)) {
 					continue;
 				}
 
-				result = type as T & typeof must_be_of_type;
+				result = type;
 				break;
 			}
 		}
