@@ -200,6 +200,251 @@ void describe('ObjectUnspecified', () => {
 		})
 	});
 
+	void describe('::#generate_default_type_definition()', () => {
+		type DataSet = [
+			ObjectOfSchemas,
+			[string, ...string[]],
+			// expectation of both
+			[
+				ObjectOfSchemas,
+				[string, ...string[]],
+				ObjectOfSchemas,
+				ObjectOfSchemas,
+			],
+			// expectation of $defs only
+			[
+				ObjectOfSchemas,
+				undefined,
+				ObjectOfSchemas,
+				ObjectOfSchemas,
+			],
+			// expectation of required only
+			[
+				undefined,
+				[string, ...string[]],
+				ObjectOfSchemas,
+				ObjectOfSchemas,
+			],
+			// expectation of neither
+			[
+				undefined,
+				undefined,
+				ObjectOfSchemas,
+				ObjectOfSchemas,
+			],
+		];
+
+		const foo = class extends ObjectUnspecified<
+			{[key: string]: unknown},
+			object_properties_mode,
+			SchemaObject,
+			readonly [string, ...string[]],
+			ObjectOfSchemas,
+			ObjectOfSchemas
+		> {
+			get schema_def()
+			{
+				return this.schema_definition;
+			}
+
+			get type_def()
+			{
+				return this.type_definition;
+			}
+		}
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[
+				{
+					foo: {
+						type: 'string',
+					},
+				},
+				['foo', 'bar', 'baz'],
+				[
+					{
+						foo: {
+							type: 'string',
+						},
+					},
+					['foo', 'bar', 'baz'],
+					{
+						foo: {
+							$ref: '#/$defs/foo',
+						},
+						bar: {
+							$ref: '#/$defs/foo',
+						},
+						baz: {
+							$ref: '#/$defs/foo',
+						},
+					},
+					{
+						'^foo.+$': {
+							$ref: '#/$defs/foo',
+						},
+					},
+				],
+				[
+					{
+						foo: {
+							type: 'string',
+						},
+					},
+					undefined,
+					{
+						foo: {
+							$ref: '#/$defs/foo',
+						},
+						bar: {
+							$ref: '#/$defs/foo',
+						},
+						baz: {
+							$ref: '#/$defs/foo',
+						},
+					},
+					{
+						'^foo.+$': {
+							$ref: '#/$defs/foo',
+						},
+					},
+				],
+				[
+					undefined,
+					['foo', 'bar', 'baz'],
+					{
+						foo: {
+							type: 'string',
+						},
+						bar: {
+							type: 'string',
+						},
+						baz: {
+							type: 'string',
+						},
+					},
+					{
+						'^foo.+$': {
+							type: 'string',
+						},
+					},
+				],
+				[
+					undefined,
+					undefined,
+					{
+						foo: {
+							type: 'string',
+						},
+						bar: {
+							type: 'string',
+						},
+						baz: {
+							type: 'string',
+						},
+					},
+					{
+						'^foo.+$': {
+							type: 'string',
+						},
+					},
+				],
+			],
+		];
+
+		data_sets.forEach(([
+			$defs,
+			required,
+			...expectations
+		], i) => {
+			for (const properties_mode of [
+				'both',
+				'neither',
+				'pattern',
+				'properties',
+			] as const) {
+				const messages = [
+					`behaves with data_sets[${
+						i
+					}], property mode "${
+						properties_mode
+					}" and both $defs & required`,
+					`behaves with data_sets[${
+						i
+					}], property mode "${
+						properties_mode
+					}" and only $defs`,
+					`behaves with data_sets[${
+						i
+					}], property mode "${
+						properties_mode
+					}" and only required`,
+					`behaves with data_sets[${
+						i
+					}], property mode "${
+						properties_mode
+					}" and neither $defs nor required`,
+				];
+				expectations.forEach(([
+					expected_$defs,
+					expected_required,
+					properties,
+					patternProperties,
+				], j) => {
+					if (
+						'neither' === properties_mode
+						|| 'pattern' === properties_mode
+					) {
+						expected_required = undefined;
+					}
+
+					void it(messages[j], () => {
+						const specific_options = {
+							properties_mode,
+							...(
+								undefined === expected_$defs
+									? {}
+									: {$defs}
+							),
+							...(
+								(
+									undefined === expected_required
+								)
+									? {}
+									: {required}
+							),
+							...(
+								undefined !== properties
+									? {properties}
+									: {}
+							),
+							...(
+								undefined !== patternProperties
+									? {patternProperties}
+									: {}
+							),
+						};
+						const instance = new foo(
+							specific_options,
+							{
+								ajv: new Ajv({strict: true}),
+							},
+						);
+
+						assert.deepEqual(
+							instance.type_def.$defs,
+							expected_$defs,
+						);
+						assert.deepEqual(
+							instance.type_def.required,
+							expected_required,
+						);
+					})
+				})
+			}
+		})
+	});
+
 	type DataSet<
 		T extends {[key: string]: unknown} = {[key: string]: unknown},
 		DefsMode extends 'optional' = 'optional',
