@@ -1203,6 +1203,34 @@ void describe('ObjectUnspecified', () => {
 				do_test(instance, schema_parser);
 			})
 		})
+
+		void it('fails when expected', () => {
+			const ajv = new Ajv({strict: true});
+			const instance = new ObjectUnspecified(
+				{
+					properties_mode: 'properties',
+				},
+				{
+					ajv,
+				},
+			);
+
+			assert.throws(() => instance.generate_typescript_data(
+				{
+					foo: 'bar',
+				},
+				new SchemaParser({ajv}),
+				{
+					type: 'object',
+					required: ['bar'],
+					properties: {
+						bar: {
+							type: 'string',
+						},
+					},
+				},
+			))
+		})
 	});
 
 	void describe('::generate_typescript_type()', () => {
