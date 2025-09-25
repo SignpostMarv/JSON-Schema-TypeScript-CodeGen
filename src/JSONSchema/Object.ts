@@ -872,12 +872,12 @@ export class ObjectUnspecified<
 			| undefined
 			| ConversionlessType<unknown>
 		) = schema_parser.maybe_parse_by_type<
-			$ref<Record<string, never>, 'either'>
+			$ref
 		>(
 			sub_schema,
 			(
 				maybe: unknown,
-			): maybe is $ref<Record<string, never>, 'either'> => {
+			): maybe is $ref => {
 				return $ref.is_a(maybe);
 			},
 		);
@@ -911,14 +911,14 @@ export class ObjectUnspecified<
 	}[RequireConversion] {
 		const maybe_$ref: (
 			| undefined
-			| $ref<Record<string, never>, 'either'>
+			| $ref
 		) = schema_parser.maybe_parse_by_type<
-			$ref<Record<string, never>, 'either'>
+			$ref
 		>(
 			sub_schema,
 			(
 				maybe: unknown,
-			): maybe is $ref<Record<string, never>, 'either'> => {
+			): maybe is $ref => {
 				return $ref.is_a(maybe);
 			},
 		);
@@ -927,7 +927,7 @@ export class ObjectUnspecified<
 			return maybe_$ref as {
 				yes: Type<unknown>,
 				no: ConversionlessType<unknown>,
-				'$ref allowed': $ref<Record<string, never>, 'either'>,
+				'$ref allowed': $ref,
 			}[RequireConversion];
 		}
 
@@ -965,7 +965,7 @@ export class ObjectUnspecified<
 		require_conversion: RequireConversion,
 		maybe_$ref: (
 			| undefined
-			| $ref<Record<string, never>, 'either'>
+			| $ref
 		),
 	): {
 		yes: Type<unknown>,

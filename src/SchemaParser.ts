@@ -69,8 +69,6 @@ export type SchemaParserOptions = (
 
 export type share_ajv_callback<T> = (ajv: Ajv) => T;
 
-type empty_object = Record<string, never>;
-
 export class SchemaParser
 {
 	#ajv: Ajv;
@@ -180,7 +178,7 @@ export class SchemaParser
 		String<string>,
 		ConstString<undefined>,
 		NonEmptyString<'optional'>,
-		$ref<empty_object, 'either'>,
+		$ref,
 		ObjectUnspecified<{[key: string]: unknown}, 'properties'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'pattern'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'both'>,

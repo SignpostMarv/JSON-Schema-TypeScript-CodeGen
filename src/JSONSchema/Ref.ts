@@ -166,11 +166,14 @@ type $ref_schema<
 >
 
 export class $ref<
+	RefMode extends $ref_mode = 'either',
 	RemoteDefs extends (
 		| {[key: string]: {[key: $def]: SchemaObject}}
 		| Record<string, never>
+	) = (
+		| {[key: string]: {[key: $def]: SchemaObject}}
+		| Record<string, never>
 	),
-	RefMode extends $ref_mode,
 	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
 > extends ConversionlessType<
 	{$ref: Value, $defs?: ObjectOfSchemas},
