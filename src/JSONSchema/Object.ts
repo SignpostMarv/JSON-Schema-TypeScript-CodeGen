@@ -995,17 +995,14 @@ export class ObjectUnspecified<
 		}
 
 		if (undefined === converter) {
+			// if we reach here either:
+			// * we didn't get a $ref
+			// * or we require conversion
+			// if we require conversion, this won't be $ref
+			// if we don't require conversion,
+			//	this should've been caught by intercept_$ref
 			converter = schema_parser.parse<RequireConversion>(
 				sub_schema,
-				require_conversion,
-			);
-		}
-
-		if (converter instanceof $ref) {
-			return converter.resolve_ref(
-				sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
-				$defs,
-				schema_parser,
 				require_conversion,
 			);
 		}
