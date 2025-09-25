@@ -25,14 +25,69 @@ export function object_keys<
 	return Object.keys(value) as T[];
 }
 
+// eslint-disable-next-line max-len
+// refer to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords
+const reserved_words = new Set([
+	'break',
+	'case',
+	'catch',
+	'class',
+	'const',
+	'continue',
+	'debugger',
+	'default',
+	'delete',
+	'do',
+	'else',
+	'export',
+	'extends',
+	'false',
+	'finally',
+	'for',
+	'function',
+	'if',
+	'import',
+	'in',
+	'instanceof',
+	'new',
+	'null',
+	'return',
+	'super',
+	'switch',
+	'this',
+	'throw',
+	'true',
+	'try',
+	'typeof',
+	'var',
+	'void',
+	'while',
+	'with',
+	'let',
+	'static',
+	'yield',
+	'await',
+	'enum',
+	'implements',
+	'interface',
+	'package',
+	'private',
+	'protected',
+	'public',
+	'arguments',
+	'as',
+	'async',
+	'eval',
+	'from',
+	'get',
+	'of',
+	'set',
+]);
+
 export function adjust_name_default(value: string): string
 {
-	if ('boolean' === value) {
-		return '__boolean';
-	}
-
-	if ('class' === value) {
-		return '__class';
+	if (reserved_words.has(value)) {
+		return `__${value}`;
 	}
 
 	if (value.match(/^\d+(\.\d+)+$/)) {
@@ -50,7 +105,13 @@ export function adjust_name_finisher(
 	value: string,
 	callback: (value: string) => string = adjust_name_default,
 ): string {
-	return callback(value).replace(/[^A-Za-z_\d ]/g, '_');
+	const result = callback(value).replace(/[^A-Za-z_\d ]/g, '_');
+
+	if (/^\d+/.test(result)) {
+		return `_${result}`;
+	}
+
+	return result;
 }
 
 export function type_literal_node<
