@@ -979,16 +979,20 @@ export class ObjectUnspecified<
 				yes: Type<unknown>
 				no: ConversionlessType<unknown>
 			}[RequireConversion]
-		) = require_conversion ? (
-			$ref.is_a(maybe_$ref)
-				? maybe_$ref.resolve_ref(
+		) = maybe_$ref;
+
+		if (require_conversion) {
+			if ($ref.is_a(maybe_$ref)) {
+				converter = maybe_$ref.resolve_ref(
 					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
 					$defs,
 					schema_parser,
 					'yes',
-				)
-				: undefined
-		) : maybe_$ref;
+				);
+			} else {
+				maybe_$ref = undefined;
+			}
+		}
 
 		if (undefined === converter) {
 			converter = schema_parser.parse<RequireConversion>(
