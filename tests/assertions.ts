@@ -42,12 +42,12 @@ export function is_Error<
 		(
 			message
 			|| `Expecting instance of ${
-					expected.name
-				}, receieved ${
-					actual instanceof Error
-						? actual.constructor.name
-						: typeof actual
-				}`
+				expected.name
+			}, receieved ${
+				actual instanceof Error
+					? actual.constructor.name
+					: typeof actual
+			}`
 		),
 	);
 	if (undefined !== expected_message) {
@@ -78,12 +78,12 @@ export function throws_Error(
 			(
 				message
 				|| `No ${
-						expected.name
-					} thrown, found ${
-						(result instanceof Function)
-							? `instance of ${result.name}`
-							: `type ${typeof result}`
-					}`
+					expected.name
+				} thrown, found ${
+					(result instanceof Function)
+						? `instance of ${result.name}`
+						: `type ${typeof result}`
+				}`
 			),
 		);
 	} catch (e) {

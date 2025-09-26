@@ -241,8 +241,8 @@ export type array_schema<
 		}
 		& {
 			yes: {
-			uniqueItems: {
-				type: 'boolean',
+				uniqueItems: {
+					type: 'boolean',
 					const: true,
 				},
 			},
@@ -443,28 +443,29 @@ export type ArrayUnspecified_options<
 	UniqueItems_mode extends unique_items_mode,
 	Items extends SchemaObject,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
-> = PartialPick<Omit<
-	ArrayUncertain_options<
-		unknown[],
-		Expression,
-		Expression[],
-		'optional',
-		ArrayMode,
-		'optional',
-		'optional',
-		UniqueItems_mode,
-		SchemaObject,
-		MinItemsType,
-		MaxItemsType,
-		Items,
-		PrefixItems
+> = PartialPick<
+	Omit<
+		ArrayUncertain_options<
+			unknown[],
+			Expression,
+			Expression[],
+			'optional',
+			ArrayMode,
+			'optional',
+			'optional',
+			UniqueItems_mode,
+			SchemaObject,
+			MinItemsType,
+			MaxItemsType,
+			Items,
+			PrefixItems
+		>,
+		(
+			| '$defs_mode'
+			| 'minItems_mode'
+			| 'maxItems_mode'
+		)
 	>,
-	(
-		| '$defs_mode'
-		| 'minItems_mode'
-		| 'maxItems_mode'
-	)
->,
 	(
 		| 'expression_at_index_verifier'
 	)
@@ -1460,16 +1461,16 @@ export class ArrayUnspecified<
 		{
 			ajv,
 		}: ArrayUncertain_TypeOptions<
-				'optional',
-				ArrayMode,
-				'optional',
-				'optional',
-				UniqueItems_mode,
-				SchemaObject,
-				MinItemsType,
-				MaxItemsType,
-				Items,
-				PrefixItems
+			'optional',
+			ArrayMode,
+			'optional',
+			'optional',
+			UniqueItems_mode,
+			SchemaObject,
+			MinItemsType,
+			MaxItemsType,
+			Items,
+			PrefixItems
 		>,
 	) {
 		super(
