@@ -46,6 +46,10 @@ import type {
 	$defs_schema,
 } from './types.ts';
 
+import {
+	$ref,
+} from './Ref.ts';
+
 export type array_mode = 'both'|'items-only'|'prefix-only';
 
 export type unique_items_mode = 'yes'|'no';
@@ -88,6 +92,7 @@ export type array_type<
 		DefsMode
 	>
 	& {
+		$defs?: Defs,
 		type: 'array',
 	}
 	& OmitIf<
@@ -377,7 +382,8 @@ function expression_at_index_verifier_default<
 ): expression is (Expression[])[Index] {
 	return true;
 }
-type createTypeNode<
+
+export type createTypeNode<
 	T1 extends TypeNode,
 	T2 extends [T1, ...T1[]],
 	MinItems_mode extends MinItemsType_mode,
@@ -776,7 +782,7 @@ abstract class ArrayUncertain<
 			},
 		};
 
-		if ('with' === $defs_mode) {
+		if ('without' !== $defs_mode) {
 			partial.properties.$defs = {
 				type: 'object',
 				additionalProperties: {
@@ -998,8 +1004,10 @@ abstract class ArrayUncertain<
 			throw new TypeError('Supplied value not supported by index!');
 		}
 
-		return schema_parser.parse(
+		return $ref.intercept_$ref(
+			$ref.get_defs(schema, sub_schema),
 			sub_schema,
+			schema_parser,
 			'yes',
 		).generate_typescript_data(
 			value,
@@ -1125,15 +1133,18 @@ abstract class ArrayUncertain<
 		ArrayMode
 	>> {
 		const tuple_members: TypeNode[] = [];
-		const sub_type = schema_parser.parse(
+		const sub_type = $ref.intercept_$ref(
+			$ref.get_defs(schema, schema.items),
 			schema.items,
+			schema_parser,
+			'$ref allowed',
 		);
 
 		let i = 0;
 		while (tuple_members.length < schema.minItems && i < data.length) {
 			tuple_members.push(
 				await sub_type.generate_typescript_type({
-					data: data[i],
+					data: schema.items,
 					schema: schema.items,
 					schema_parser,
 				}),
@@ -1143,6 +1154,7 @@ abstract class ArrayUncertain<
 
 		tuple_members.push(factory.createRestTypeNode(
 			await sub_type.generate_typescript_type({
+				data: schema.items,
 				schema: schema.items,
 				schema_parser,
 			}),
@@ -1189,11 +1201,15 @@ abstract class ArrayUncertain<
 		MinItems_mode,
 		ArrayMode
 	>> {
-		const sub_type = schema_parser.parse(
+		const sub_type = $ref.intercept_$ref(
+			$ref.get_defs(schema, schema.items),
 			schema.items,
+			schema_parser,
+			'$ref allowed',
 		);
 
 		return array_type_node(await sub_type.generate_typescript_type({
+			data: schema.items,
 			schema: schema.items,
 			schema_parser,
 		}) as T2);
@@ -1227,31 +1243,34 @@ abstract class ArrayUncertain<
 	): Promise<TupleTypeNode<T2, T3>> {
 		const tuple_members: TypeNode[] = [];
 
-		let i = 0;
 		for (const sub_schema of schema.prefixItems) {
-			const sub_data = (i < data.length) ? data[i] : undefined;
-			const sub_type = await schema_parser.parse(
+			const sub_type = await $ref.intercept_$ref(
+				$ref.get_defs(schema, sub_schema),
 				sub_schema,
+				schema_parser,
+				'$ref allowed',
 			).generate_typescript_type({
-				data: sub_data,
+				data: sub_schema,
 				schema: sub_schema,
 				schema_parser,
 			});
 
 			tuple_members.push(sub_type);
-
-			++i;
 		}
 
 		if (ArrayUncertain.#is_items_type(schema)) {
-			const sub_type = schema_parser.parse(
+			const sub_type = $ref.intercept_$ref(
+				$ref.get_defs(schema, schema.items),
 				schema.items,
+				schema_parser,
+				'$ref allowed',
 			);
 
 			if (ArrayUncertain.#is_minItems_required_type(schema)) {
 				while (tuple_members.length < schema.minItems) {
 					tuple_members.push(
 						await sub_type.generate_typescript_type({
+							data: schema.items,
 							schema: schema.items,
 							schema_parser,
 						}),

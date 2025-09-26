@@ -9,10 +9,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import {
-	property_exists_on_object,
-} from '@satisfactory-dev/predicates.ts';
-
 import type {
 	IntersectionTypeNode,
 	ObjectOfSchemas,
@@ -49,11 +45,6 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-import type {
-	$def,
-	$ref_mode,
-	$ref_value_by_mode,
-} from './Ref.ts';
 import {
 	$ref,
 } from './Ref.ts';
@@ -629,7 +620,7 @@ export class ObjectUnspecified<
 			{},
 		);
 
-		const $defs = this.#get_defs(schema, sub_schema);
+		const $defs = $ref.get_defs(schema, sub_schema);
 
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
 		const validator = ajv.compile<T>({
@@ -649,7 +640,7 @@ export class ObjectUnspecified<
 			};
 		}
 
-		return this.intercept_$ref(
+		return $ref.intercept_$ref(
 			$defs,
 			sub_schema,
 			schema_parser,
@@ -779,8 +770,8 @@ export class ObjectUnspecified<
 					schema.patternProperties,
 				).filter((maybe) => undefined !== maybe).map(
 					(sub_schema) => {
-						return this.intercept_$ref(
-							this.#get_defs(schema, sub_schema),
+						return $ref.intercept_$ref(
+							$ref.get_defs(schema, sub_schema),
 							sub_schema,
 							schema_parser,
 							'$ref allowed',
@@ -813,35 +804,6 @@ export class ObjectUnspecified<
 		}
 
 		return result as object_TypeLiteralNode<PropertiesMode>;
-	}
-
-	static #get_defs(
-		schema: (
-			& SchemaObject
-			& {
-				$defs?: ObjectOfSchemas,
-			}
-		),
-		sub_schema: SchemaObject,
-	): {[key: $def]: SchemaObject} {
-		let $defs: {[key: $def]: SchemaObject} = {};
-
-		if (
-			'$ref' in sub_schema
-			&& '$defs' in schema
-			&& schema.$defs
-			&& !('$defs' in sub_schema)
-		) {
-			$defs = sub_schema.$defs = schema.$defs;
-		} else if (
-			property_exists_on_object(sub_schema, '$defs')
-			&& undefined !== sub_schema.$defs
-			&& $ref.is_supported_$defs(sub_schema.$defs)
-		) {
-			$defs = sub_schema.$defs;
-		}
-
-		return $defs;
 	}
 
 	static async #generate_type<
@@ -896,119 +858,6 @@ export class ObjectUnspecified<
 			schema: sub_schema,
 			schema_parser,
 		});
-	}
-
-	private static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion & 'yes',
-	): Type<unknown>;
-	private static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: Exclude<RequireConversion, 'yes'>,
-	): ConversionlessType<unknown>;
-	private static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion,
-	): ConversionlessType<unknown> {
-		const maybe_$ref: (
-			| undefined
-			| ConversionlessType<unknown>
-		) = schema_parser.maybe_parse_by_type<
-			ConversionlessType<unknown>
-		>(
-			sub_schema,
-			(
-				maybe: unknown,
-			): maybe is ConversionlessType<unknown> => {
-				return $ref.is_a(maybe);
-			},
-		);
-
-		if (maybe_$ref && '$ref allowed' === require_conversion) {
-			return maybe_$ref;
-		}
-
-		const expect_convertible: {
-			yes: 'yes',
-			no: 'no',
-			'$ref allowed': 'no',
-		}[RequireConversion] = Object.freeze({
-			yes: 'yes',
-			no: 'no',
-			'$ref allowed': 'no',
-		})[require_conversion];
-
-		return this.#intercept_$ref_early_exit_failed<
-			typeof expect_convertible
-		>(
-			$defs,
-			sub_schema,
-			schema_parser,
-			expect_convertible,
-			maybe_$ref,
-		);
-	}
-
-	static #intercept_$ref_early_exit_failed<
-		RequireConversion extends 'yes'|'no',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion,
-		maybe_$ref: (
-			| undefined
-			| ConversionlessType<unknown>
-		),
-	) {
-		let converter: (
-			| undefined
-			| ConversionlessType<unknown>
-			| {
-				yes: Type<unknown>,
-				no: ConversionlessType<unknown>,
-			}[RequireConversion]
-		) = maybe_$ref;
-
-		if (require_conversion) {
-			if ($ref.is_a(maybe_$ref)) {
-				converter = maybe_$ref.resolve_ref(
-					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
-					$defs,
-					schema_parser,
-					'yes',
-				);
-			} else {
-				maybe_$ref = undefined;
-			}
-		}
-
-		if (undefined === converter) {
-			// if we reach here either:
-			// * we didn't get a $ref
-			// * or we require conversion
-			// if we require conversion, this won't be $ref
-			// if we don't require conversion,
-			//    this should've been caught by intercept_$ref
-			converter = schema_parser.parse<RequireConversion>(
-				sub_schema,
-				require_conversion,
-			);
-		}
-
-		return converter;
 	}
 
 	static #patterned_literal_node(

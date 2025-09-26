@@ -405,6 +405,148 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
+	static get_defs(
+		schema: (
+			& SchemaObject
+			& {
+				$defs?: ObjectOfSchemas,
+			}
+		),
+		sub_schema: SchemaObject,
+	): {[key: $def]: SchemaObject} {
+		let $defs: {[key: $def]: SchemaObject} = {};
+
+		if (
+			'$ref' in sub_schema
+			&& '$defs' in schema
+			&& schema.$defs
+			&& !('$defs' in sub_schema)
+		) {
+			$defs = sub_schema.$defs = schema.$defs;
+		} else if (
+			property_exists_on_object(sub_schema, '$defs')
+			&& undefined !== sub_schema.$defs
+			&& $ref.is_supported_$defs(sub_schema.$defs)
+		) {
+			$defs = sub_schema.$defs;
+		}
+
+		return $defs;
+	}
+
+	static intercept_$ref<
+		RequireConversion extends 'yes'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion & 'yes',
+	): Type<unknown>;
+	static intercept_$ref<
+		RequireConversion extends 'yes'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: Exclude<RequireConversion, 'yes'>,
+	): ConversionlessType<unknown>;
+	static intercept_$ref<
+		RequireConversion extends 'yes'|'$ref allowed',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion,
+	): ConversionlessType<unknown> {
+		const maybe_$ref: (
+			| undefined
+			| ConversionlessType<unknown>
+		) = schema_parser.maybe_parse_by_type<
+			ConversionlessType<unknown>
+		>(
+			sub_schema,
+			(
+				maybe: unknown,
+			): maybe is ConversionlessType<unknown> => {
+				return $ref.is_a(maybe);
+			},
+		);
+
+		if (maybe_$ref && '$ref allowed' === require_conversion) {
+			return maybe_$ref;
+		}
+
+		const expect_convertible: {
+			yes: 'yes',
+			no: 'no',
+			'$ref allowed': 'no',
+		}[RequireConversion] = Object.freeze({
+			yes: 'yes',
+			no: 'no',
+			'$ref allowed': 'no',
+		})[require_conversion];
+
+		return this.#intercept_$ref_early_exit_failed<
+			typeof expect_convertible
+		>(
+			$defs,
+			sub_schema,
+			schema_parser,
+			expect_convertible,
+			maybe_$ref,
+		);
+	}
+
+	static #intercept_$ref_early_exit_failed<
+		RequireConversion extends 'yes'|'no',
+	>(
+		$defs: {[key: $def]: SchemaObject},
+		sub_schema: SchemaObject,
+		schema_parser: SchemaParser,
+		require_conversion: RequireConversion,
+		maybe_$ref: (
+			| undefined
+			| ConversionlessType<unknown>
+		),
+	) {
+		let converter: (
+			| undefined
+			| ConversionlessType<unknown>
+			| {
+				yes: Type<unknown>,
+				no: ConversionlessType<unknown>,
+			}[RequireConversion]
+		) = maybe_$ref;
+
+		if (require_conversion) {
+			if ($ref.is_a(maybe_$ref)) {
+				converter = maybe_$ref.resolve_ref(
+					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
+					$defs,
+					schema_parser,
+					'yes',
+				);
+			} else {
+				maybe_$ref = undefined;
+			}
+		}
+
+		if (undefined === converter) {
+			// if we reach here either:
+			// * we didn't get a $ref
+			// * or we require conversion
+			// if we require conversion, this won't be $ref
+			// if we don't require conversion,
+			//    this should've been caught by intercept_$ref
+			converter = schema_parser.parse<RequireConversion>(
+				sub_schema,
+				require_conversion,
+			);
+		}
+
+		return converter;
+	}
+
 	static is_a(maybe: unknown): maybe is $ref<$ref_mode> {
 		return super.is_a(maybe);
 	}

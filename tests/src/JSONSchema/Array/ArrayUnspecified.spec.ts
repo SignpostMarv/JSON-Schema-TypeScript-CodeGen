@@ -13,6 +13,7 @@ import type {
 	Node,
 	StringLiteral,
 	TypeNode,
+	TypeReferenceNode,
 } from 'typescript';
 import {
 	SyntaxKind,
@@ -48,6 +49,7 @@ import {
 
 import type {
 	ArrayUnspecified_options,
+	createTypeNode,
 } from '../../../../src/JSONSchema/Array.ts';
 import {
 	ArrayUnspecified,
@@ -721,6 +723,136 @@ void describe('ArrayUnspecified', () => {
 
 			test_generate_typescript_type(instance, schema_parser);
 			test_generate_typescript_data(instance, schema_parser);
+		});
+	});
+
+	void describe('::generate_typescript_type()', () => {
+		type asserter = (
+			value: Node,
+			message?: string|Error,
+		) => asserts value is createTypeNode<
+			TypeNode,
+			[TypeNode, ...TypeNode[]],
+			MinItemsType_mode,
+			array_mode
+		>;
+
+		type DataSet<
+			ArrayMode extends array_mode = array_mode,
+			MinItems_mode extends MinItemsType_mode = MinItemsType_mode,
+		> = [
+			unknown[],
+			array_type<
+				$defs_mode,
+				ArrayMode,
+				MinItems_mode,
+				MaxItemsType_mode
+			>,
+			asserter,
+		];
+
+		function array_type_node_asserter<
+			T extends TypeNode,
+		>(
+			asserter: ts_asserter<T>,
+		): (
+			value: Node,
+			message?: string|Error,
+		) => asserts value is createTypeNode<
+			TypeNode,
+			[TypeNode, ...TypeNode[]],
+			MinItemsType_mode,
+			array_mode
+		> {
+			return (value, message) => {
+				ts_assert.isArrayTypeNode(value, message);
+				asserter(value.elementType, message);
+			};
+		}
+
+		function reference_type_asserter(
+			name: string,
+		): ts_asserter<TypeReferenceNode> {
+			return (
+				value: Node,
+				message?: string|Error,
+			): asserts value is TypeReferenceNode => {
+				ts_assert.isTypeReferenceNode(value, message);
+				ts_assert.isIdentifier(
+					value.typeName,
+					message,
+				);
+				assert.equal(
+					value.typeName.text,
+					name,
+					message,
+				);
+				assert.equal(
+					value.typeArguments,
+					undefined,
+				);
+			};
+		}
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[
+				['foo'],
+				{
+					$defs: {
+						foo: {
+							type: 'string',
+						},
+					},
+					type: 'array',
+					items: {
+						$ref: '#/$defs/foo',
+					},
+				},
+				array_type_node_asserter(
+					reference_type_asserter('foo'),
+				),
+			],
+			[
+				['foo'],
+				{
+					type: 'array',
+					items: {
+						$ref: 'foo#/$defs/foo',
+					},
+				},
+				array_type_node_asserter(
+					reference_type_asserter('foo_foo'),
+				),
+			],
+		];
+
+		data_sets.forEach(([
+			data,
+			schema,
+			asserter,
+		], i) => {
+			void it(`behaves with data_sets[${i}]`, async () => {
+				const schema_parser = new SchemaParser({ajv_options: {}});
+				const instance = schema_parser.parse(
+					schema,
+				);
+
+				not_undefined(instance);
+
+				const promise = instance.generate_typescript_type({
+					data,
+					schema,
+					schema_parser,
+				});
+
+				await assert.doesNotReject(() => promise);
+
+				const result = await promise;
+
+				const foo: asserter = asserter;
+
+				foo(result, `data_sets[${i}] asserter failed!`);
+			});
 		});
 	});
 
