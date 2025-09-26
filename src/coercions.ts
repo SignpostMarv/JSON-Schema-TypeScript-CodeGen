@@ -18,14 +18,14 @@ import type {
 } from './types.ts';
 
 export function object_keys<
-	T extends string
+	T extends string,
 >(
 	value: {[key in T]: unknown},
 ): T[] {
 	return Object.keys(value) as T[];
 }
 
-// eslint-disable-next-line max-len
+// eslint-disable-next-line @stylistic/max-len
 // refer to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords
 const reserved_words = new Set([
 	'break',
@@ -84,8 +84,7 @@ const reserved_words = new Set([
 	'set',
 ]);
 
-export function adjust_name_default(value: string): string
-{
+export function adjust_name_default(value: string): string {
 	if (reserved_words.has(value)) {
 		return `__${value}`;
 	}
@@ -115,7 +114,7 @@ export function adjust_name_finisher(
 }
 
 export function type_literal_node<
-	T extends TypeElement
+	T extends TypeElement,
 >(
 	value: T[],
 ): TypeLiteralNode<T> {
@@ -159,7 +158,7 @@ export function array_literal_expression<
 	T1 extends Expression,
 	T2 extends T1[],
 	T3 extends boolean,
-> (elements: T2, multiLine: T3): ArrayLiteralExpression<T1, T2, T3> {
+>(elements: T2, multiLine: T3): ArrayLiteralExpression<T1, T2, T3> {
 	return factory.createArrayLiteralExpression(
 		elements,
 		multiLine,
@@ -169,7 +168,7 @@ export function array_literal_expression<
 export function object_literal_expression<
 	T1 extends undefined|(readonly ObjectLiteralElementLike []),
 	T2 extends undefined|boolean,
-> (
+>(
 	properties?: T1,
 	multiLine?: T2,
 ): ObjectLiteralExpression<T1, T2> {

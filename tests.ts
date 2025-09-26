@@ -11,7 +11,7 @@ import {
 	promisify,
 } from 'node:util';
 
-const glob: (spec:string) => Promise<string[]> = promisify(_glob);
+const glob: (spec: string) => Promise<string[]> = promisify(_glob);
 
 const ac = new AbortController();
 

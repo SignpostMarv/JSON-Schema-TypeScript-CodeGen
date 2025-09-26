@@ -39,7 +39,9 @@ import {
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [
 		{type: 'string', const?: string},
-		Omit< // Ajv Options
+
+		// Ajv Options
+		Omit<
 			Options,
 			(
 				| 'strict'
@@ -79,7 +81,7 @@ void describe('identify Const String types as expected', () => {
 		conversion_value,
 		converted_expectation_value,
 	], i) => {
-		const from_parser_defaults:boolean[] = [false];
+		const from_parser_defaults: boolean[] = [false];
 
 		if ('const' in schema) {
 			from_parser_defaults.push(true);
@@ -150,7 +152,7 @@ void describe('identify Const String types as expected', () => {
 				() => instance.parse(schema),
 				TypeError,
 			);
-		})
+		});
 	});
 
 	void it('ConstString::check_type() behaves', () => {
@@ -174,8 +176,9 @@ void describe('identify Const String types as expected', () => {
 			assert.equal(
 				instance.check_type(test_value),
 				expectation,
+				// eslint-disable-next-line @stylistic/max-len
 				`ConstString::check_type(test_value) failed to behave with datasets[${i}]`,
 			);
 		});
 	});
-})
+});

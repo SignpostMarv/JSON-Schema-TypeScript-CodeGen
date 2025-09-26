@@ -50,8 +50,10 @@ void describe('$ref', () => {
 		TestValue,
 		PassesCheckType,
 		PassesCheckType extends true ? string : undefined,
+
 		// $ref passes check_schema as const
 		PassesCheckType extends true ? boolean : undefined,
+
 		// ref resolves to
 		PassesCheckType extends true ? (ResolvesTo|undefined) : undefined,
 	];
@@ -124,7 +126,7 @@ void describe('$ref', () => {
 	];
 
 	function subset(
-		filter:(maybe:[DataSet, number]) => boolean,
+		filter: (maybe: [DataSet, number]) => boolean,
 	): [DataSet, number][] {
 		return data_sets
 			.map((e, i): [DataSet, number] => [e, i])
@@ -168,9 +170,9 @@ void describe('$ref', () => {
 						}),
 						expectation,
 					);
-				})
+				});
 			});
-	})
+	});
 
 	void describe('::check_type()', () => {
 		data_sets.forEach(([
@@ -187,8 +189,8 @@ void describe('$ref', () => {
 					expectation,
 				);
 			});
-		})
-	})
+		});
+	});
 
 	void describe('::generate_typescript_type()', () => {
 		passes_check_type
@@ -213,8 +215,8 @@ void describe('$ref', () => {
 					ts_assert.isIdentifier(result.typeName);
 					assert.equal(result.typeName.text, expectation);
 				});
-			})
-	})
+			});
+	});
 
 	void describe('::resolve_def()', () => {
 		void it('behaves with external $defs', () => {
@@ -311,10 +313,11 @@ void describe('$ref', () => {
 						}
 					}
 
-					const failure_mode:$ref_mode =
+					const failure_mode: $ref_mode = (
 						has_$ref.$ref.startsWith('#')
 							? 'external'
-							: 'local';
+							: 'local'
+					);
 
 					assert.throws(() => (
 						new $ref({$ref_mode: failure_mode}, {ajv})
@@ -339,6 +342,6 @@ void describe('$ref', () => {
 						);
 					}
 				});
-			})
-	})
-})
+			});
+	});
+});

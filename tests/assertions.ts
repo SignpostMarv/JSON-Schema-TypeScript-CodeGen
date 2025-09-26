@@ -101,6 +101,7 @@ export function bool_throw<
 ): value is T {
 	try {
 		callback(value, undefined, context);
+
 		return true;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (_) {
@@ -153,7 +154,7 @@ export function is_TupleTypeNode<
 	>,
 	last_is_rest: boolean,
 	message?: string|Error,
-): asserts value is TupleTypeNode<T1, T2>
+): asserts value is TupleTypeNode<T1, T2>;
 export function is_TupleTypeNode<
 	T1 extends (TypeNode | NamedTupleMember),
 	T2 extends [T1, ...T1[]],
@@ -178,7 +179,7 @@ export function is_TupleTypeNode<
 	}
 	ts_assert.isTupleTypeNode(value, message);
 	const elements = [...value.elements];
-	let last:TypeNode|NamedTupleMember|undefined;
+	let last: TypeNode|NamedTupleMember|undefined;
 	if (last_is_rest) {
 		last = elements.pop();
 	}
@@ -194,7 +195,7 @@ export function is_TupleTypeNode<
 		message,
 	);
 
-	if (last_is_rest)  {
+	if (last_is_rest) {
 		not_undefined(last);
 		ts_assert.isRestTypeNode(last, message);
 		assert.doesNotThrow(() => predicate(last.type, message, {
@@ -205,7 +206,7 @@ export function is_TupleTypeNode<
 }
 
 export function is_ArrayTypeNode<
-	T extends TypeNode
+	T extends TypeNode,
 >(
 	value: Node,
 	predicate: ts_asserter<T>,
@@ -236,7 +237,7 @@ export function is_ArrayLiteralExpression<
 		);
 	}
 
-	for (let i=0; i<value.elements.length; ++i) {
+	for (let i = 0; i < value.elements.length; ++i) {
 		element_asserter(value.elements[i], message);
 	}
 }

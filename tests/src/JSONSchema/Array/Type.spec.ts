@@ -41,7 +41,7 @@ void describe('ArrayUncertain', () => {
 			>,
 		];
 
-		const data_sets:[DataSet, ...DataSet[]] = [
+		const data_sets: [DataSet, ...DataSet[]] = [
 			[
 				'without',
 				'items-only',
@@ -279,7 +279,7 @@ void describe('ArrayUncertain', () => {
 					});
 
 				assert.deepEqual(result, expectation);
-			})
-		})
-	})
-})
+			});
+		});
+	});
+});

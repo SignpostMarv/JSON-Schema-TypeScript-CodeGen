@@ -50,10 +50,10 @@ type string_schema<
 			},
 		}
 	)
->
+>;
 
 type const_type<
-	T extends string|undefined = undefined
+	T extends string|undefined = undefined,
 > = (
 	T extends string
 		? {
@@ -90,7 +90,7 @@ type const_schema<
 							type: 'string',
 						}
 				),
-			}
+			},
 		}
 	)
 >;
@@ -132,13 +132,13 @@ type non_empty_string_schema<
 					required: {
 						type: 'integer',
 						const: MinLength,
-					}
+					},
 					optional: {
 						type: 'integer',
 						minimum: 1,
 					},
 				}[Mode],
-			}
+			},
 		}
 	)
 >;
@@ -151,24 +151,26 @@ abstract class BaseString<
 	) = SchemaDefinitionDefinition,
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
-> extends Type<
-	T,
-	TypeDefinition,
-	SchemaDefinition,
-	SchemaTo,
-	DataTo
-> {
+> extends
+	Type<
+		T,
+		TypeDefinition,
+		SchemaDefinition,
+		SchemaTo,
+		DataTo
+	> {
 }
 
 export class String<
 	T extends string,
-> extends BaseString<
-	T,
-	{type: 'string'},
-	string_schema,
-	KeywordTypeNode<SyntaxKind.StringKeyword>,
-	StringLiteral
-> {
+> extends
+	BaseString<
+		T,
+		{type: 'string'},
+		string_schema,
+		KeywordTypeNode<SyntaxKind.StringKeyword>,
+		StringLiteral
+	> {
 	constructor(options: SchemalessTypeOptions) {
 		super({
 			...options,
@@ -206,24 +208,25 @@ export class String<
 
 export class ConstString<
 	T extends string|undefined = undefined,
-> extends BaseString<
-	T extends string ? T : string,
-	const_type<T>,
-	const_schema<T>,
-	const_generate_typescript_type<T>,
-	StringLiteral
-> {
+> extends
+	BaseString<
+		T extends string ? T : string,
+		const_type<T>,
+		const_schema<T>,
+		const_generate_typescript_type<T>,
+		StringLiteral
+	> {
 	constructor(
 		literal: T,
 		options: SchemalessTypeOptions,
 	) {
-		const type_definition:Partial<const_type<string>> = {
+		const type_definition: Partial<const_type<string>> = {
 			type: 'string',
 		};
 		if ('string' === typeof literal) {
 			type_definition.const = literal;
 		}
-		const coerced:const_type<T> = type_definition as const_type<T>;
+		const coerced: const_type<T> = type_definition as const_type<T>;
 		super({
 			...options,
 			schema_definition: ConstString.generate_default_schema_definition({
@@ -254,7 +257,7 @@ export class ConstString<
 	}
 
 	static generate_default_schema_definition<
-		T extends string|undefined = undefined
+		T extends string|undefined = undefined,
 	>({literal}: {literal: T}): Readonly<
 		const_schema<T>
 	> {
@@ -295,14 +298,15 @@ export class ConstString<
 
 export class NonEmptyString<
 	Mode extends min_length_mode,
-	T extends Exclude<string, ''> = Exclude<string, ''>
-> extends BaseString<
-	T,
-	non_empty_string_type<MinLength_type>,
-	non_empty_string_schema<Mode, MinLength_type>,
-	TypeReferenceNode,
-	StringLiteral
-> {
+	T extends Exclude<string, ''> = Exclude<string, ''>,
+> extends
+	BaseString<
+		T,
+		non_empty_string_type<MinLength_type>,
+		non_empty_string_schema<Mode, MinLength_type>,
+		TypeReferenceNode,
+		StringLiteral
+	> {
 	constructor(
 		specific_options: {
 			required: {
@@ -318,7 +322,7 @@ export class NonEmptyString<
 		const minLength = 'minLength' in specific_options
 			? specific_options.minLength
 			: undefined;
-		const type_definition:non_empty_string_type<MinLength_type> = {
+		const type_definition: non_empty_string_type<MinLength_type> = {
 			type: 'string',
 			minLength: minLength || PositiveInteger(1),
 		};
@@ -349,8 +353,8 @@ export class NonEmptyString<
 	}
 
 	static generate_default_schema_definition<
-		Mode extends min_length_mode
-	> ({
+		Mode extends min_length_mode,
+	>({
 		minLength,
 	}: {
 		minLength?: MinLength_type,

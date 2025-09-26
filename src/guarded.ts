@@ -6,7 +6,7 @@ type NonZero = (
 );
 
 type Positive<
-	T extends number
+	T extends number,
 > = (
 	& NonZero
 	& (

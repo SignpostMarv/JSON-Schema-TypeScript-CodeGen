@@ -57,7 +57,7 @@ type UniqueItemsType_by_mode<
 }[Mode];
 
 export type MinItemsType_mode = 'with'|'optional'|'without';
-export type MaxItemsType_mode = 'with'|'optional'|'without';;
+export type MaxItemsType_mode = 'with'|'optional'|'without';
 
 type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
 type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
@@ -74,10 +74,10 @@ export type array_type<
 	Items extends SchemaObject = SchemaObject,
 	PrefixItems extends [
 		SchemaObject,
-		...SchemaObject[]
+		...SchemaObject[],
 	] = [
 		SchemaObject,
-		...SchemaObject[]
+		...SchemaObject[],
 	],
 > = (
 	& OmitIf<
@@ -134,7 +134,7 @@ type base_required = [
 	'prefixItems',
 	'minItems',
 	'maxItems',
-	'uniqueItems'
+	'uniqueItems',
 ];
 
 type if_DefsMode<
@@ -180,11 +180,7 @@ type ArrayMode_handler<
 			MaxItems_mode
 		>,
 		'items',
-		{
-			both: 'with',
-			'items-only': 'with',
-			'prefix-only': 'with',
-		}[ArrayMode] // yes, this is effectively a no-op
+		'with'
 	>,
 	'prefixItems',
 	{
@@ -299,7 +295,7 @@ export type array_schema<
 			'prefix-only': {
 				items?: {
 					type: 'boolean',
-					const: false
+					const: false,
 				},
 				prefixItems: {
 					type: 'array',
@@ -363,7 +359,7 @@ type ExpressionAtIndexVerifier<
 		typeof PositiveIntegerOrZero<number>
 	> = ReturnType<
 		typeof PositiveIntegerOrZero<number>
-	>
+	>,
 > = (
 	data: Data,
 	expression: Expression,
@@ -487,30 +483,31 @@ abstract class ArrayUncertain<
 	MaxItems extends MaxItemsType,
 	Items extends SchemaObject,
 	PrefixItems extends [SchemaObject, ...SchemaObject[]],
-> extends Type<
-	T1,
-	array_type<
-		DefsMode,
-		ArrayMode,
-		MinItems_mode,
-		MaxItems_mode,
-		UniqueItems_mode,
-		Defs,
-		MinItems,
-		MaxItems,
-		Items,
-		PrefixItems
-	>,
-	array_schema<
-		DefsMode,
-		ArrayMode,
-		MinItems_mode,
-		MaxItems_mode,
-		UniqueItems_mode
-	>,
-	createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
-	ArrayLiteralExpression<T4, T5, true>
-> {
+> extends
+	Type<
+		T1,
+		array_type<
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			Defs,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
+		>,
+		array_schema<
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode
+		>,
+		createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
+		ArrayLiteralExpression<T4, T5, true>
+	> {
 	#expression_at_index_verifier: ExpressionAtIndexVerifier<T1, T4, T5>;
 
 	constructor(
@@ -967,10 +964,10 @@ abstract class ArrayUncertain<
 		Items extends SchemaObject = SchemaObject,
 		PrefixItems extends [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		] = [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		],
 		N extends number = number,
 	>(
@@ -1026,12 +1023,12 @@ abstract class ArrayUncertain<
 		Items extends SchemaObject = SchemaObject,
 		PrefixItems extends [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		] = [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		],
-	> (
+	>(
 		data: T1,
 		schema: array_type<
 			DefsMode,
@@ -1101,12 +1098,12 @@ abstract class ArrayUncertain<
 		Items extends SchemaObject = SchemaObject,
 		PrefixItems extends [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		] = [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		],
-	> (
+	>(
 		data: T1,
 		schema: array_type<
 			DefsMode,
@@ -1167,12 +1164,12 @@ abstract class ArrayUncertain<
 		Items extends SchemaObject = SchemaObject,
 		PrefixItems extends [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		] = [
 			SchemaObject,
-			...SchemaObject[]
+			...SchemaObject[],
 		],
-	> (
+	>(
 		schema: array_type<
 			DefsMode,
 			ArrayMode,
@@ -1214,7 +1211,7 @@ abstract class ArrayUncertain<
 		Defs extends SchemaObject = SchemaObject,
 		MinItems extends MinItemsType = MinItemsType,
 		MaxItems extends MaxItemsType = MaxItemsType,
-	> (
+	>(
 		data: T1,
 		schema: array_type<
 			DefsMode,
@@ -1282,7 +1279,7 @@ abstract class ArrayUncertain<
 		Defs extends SchemaObject,
 		MinItems extends MinItemsType,
 		MaxItems extends MaxItemsType,
-	> (
+	>(
 		schema: array_type<
 			DefsMode,
 			ArrayMode,
@@ -1356,7 +1353,7 @@ abstract class ArrayUncertain<
 		Defs extends SchemaObject,
 		MinItems extends MinItemsType,
 		MaxItems extends MaxItemsType,
-	> (
+	>(
 		schema: array_type<
 			DefsMode,
 			ArrayMode,
@@ -1392,7 +1389,7 @@ abstract class ArrayUncertain<
 		Items extends SchemaObject,
 		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 		N extends number,
-	> (
+	>(
 		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
 		schema: array_type<
 			DefsMode,
@@ -1429,28 +1426,29 @@ export class ArrayUnspecified<
 	Items extends SchemaObject = SchemaObject,
 	PrefixItems extends [
 		SchemaObject,
-		...SchemaObject[]
+		...SchemaObject[],
 	] = [
 		SchemaObject,
-		...SchemaObject[]
+		...SchemaObject[],
 	],
-> extends ArrayUncertain<
-	T,
-	TypeNode,
-	[TypeNode, ...TypeNode[]],
-	Expression,
-	Expression[],
-	'optional',
-	ArrayMode,
-	'optional',
-	'optional',
-	UniqueItems_mode,
-	SchemaObject,
-	MinItemsType,
-	MaxItemsType,
-	Items,
-	PrefixItems
-> {
+> extends
+	ArrayUncertain<
+		T,
+		TypeNode,
+		[TypeNode, ...TypeNode[]],
+		Expression,
+		Expression[],
+		'optional',
+		ArrayMode,
+		'optional',
+		'optional',
+		UniqueItems_mode,
+		SchemaObject,
+		MinItemsType,
+		MaxItemsType,
+		Items,
+		PrefixItems
+	> {
 	constructor(
 		options: ArrayUnspecified_options<
 			ArrayMode,

@@ -25,7 +25,7 @@ void describe('SchemaParser', () => {
 			const parser = new SchemaParser();
 
 			assert.throws(() => parser.parse({}));
-		})
+		});
 
 		void it(
 			'fails when requiring conversion with non-convertible types',
@@ -47,7 +47,7 @@ void describe('SchemaParser', () => {
 					properties: {
 						$ref: {
 							type: 'string',
-							// eslint-disable-next-line max-len
+							// eslint-disable-next-line @stylistic/max-len
 							pattern: '^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$',
 						},
 					},
@@ -57,12 +57,13 @@ void describe('SchemaParser', () => {
 				assert.throws(() => parser.parse(type_schema, 'yes'));
 			},
 		);
-	})
+	});
 
 	void describe('.share_ajv()', () => {
 		// intended to return the same instance as input
 		type DataSetSameReturn<T> = [
 			share_ajv_callback<T>,
+
 			// considered a pass or a fail if it returns the same input
 			boolean,
 		];
@@ -109,6 +110,6 @@ void describe('SchemaParser', () => {
 					assert.equal(result_invoked, data_set[2]);
 				}
 			});
-		})
-	})
-})
+		});
+	});
+});

@@ -73,14 +73,14 @@ type pattern<
 type pattern_either = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_external = `^${ref_identifier}#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
-const sub_pattern:`^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
-const pattern_either:pattern_either = (
+const sub_pattern: `^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
+const pattern_either: pattern_either = (
 	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
-const pattern_external:pattern_external = (
+const pattern_external: pattern_external = (
 	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
-const pattern_local:pattern_local = (
+const pattern_local: pattern_local = (
 	'^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
 const regexp_sub = new RegExp(sub_pattern);
@@ -165,20 +165,22 @@ type $ref_schema<
 			},
 		},
 	}
->
+>;
 
 export class $ref<
 	RefMode extends $ref_mode = 'either',
 	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
-> extends ConversionlessType<
-	{$ref: Value, $defs?: ObjectOfSchemas},
-	$ref_type<RefMode>,
-	$ref_schema<RefMode>,
-	TypeReferenceNode
-> {
+> extends
+	ConversionlessType<
+		{$ref: Value, $defs?: ObjectOfSchemas},
+		$ref_type<RefMode>,
+		$ref_schema<RefMode>,
+		TypeReferenceNode
+	> {
 	readonly #adjust_name: adjust_name_callback;
 
 	readonly $ref_mode: RefMode;
+
 	readonly remote_defs: (
 		| {[key: string]: {[key: $def]: SchemaObject}}
 		| Record<string, never>
@@ -234,7 +236,7 @@ export class $ref<
 	resolve_def(
 		{
 			$ref,
-		}: { $ref: Value; },
+		}: { $ref: Value },
 		local_$defs: {[key: $def]: SchemaObject},
 	) {
 		let external_id: string|undefined;
@@ -307,14 +309,14 @@ export class $ref<
 	resolve_ref<
 		T extends 'yes'|'no',
 	>(
-		has_$ref: { $ref: Value; },
+		has_$ref: { $ref: Value },
 		local_$defs: {[key: $def]: SchemaObject},
 		schema_parser: SchemaParser,
 		require_conversion?: T,
 	): {
 		yes: Type<unknown>,
 		no: ConversionlessType<unknown>,
-	 }[T] {
+	}[T] {
 		return schema_parser.parse<T>(
 			this.resolve_def(
 				has_$ref,
@@ -331,7 +333,7 @@ export class $ref<
 	}: {
 		$ref_mode: RefMode,
 	}): Readonly<$ref_schema<RefMode>> {
-		const schema:$ref_schema<RefMode> = {
+		const schema: $ref_schema<RefMode> = {
 			type: 'object',
 			required: [
 				'type',
@@ -403,8 +405,7 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
-	static is_a(maybe: unknown): maybe is $ref<$ref_mode>
-	{
+	static is_a(maybe: unknown): maybe is $ref<$ref_mode> {
 		return super.is_a(maybe);
 	}
 
@@ -439,7 +440,7 @@ export class $ref<
 	>(
 		$ref_mode: RefMode,
 	): Readonly<$ref_type<RefMode>> {
-		const schema:$ref_type<RefMode> = {
+		const schema: $ref_type<RefMode> = {
 			type: 'object',
 			additionalProperties: false,
 			required: ['$ref'],

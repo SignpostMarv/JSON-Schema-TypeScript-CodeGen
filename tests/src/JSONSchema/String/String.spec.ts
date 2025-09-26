@@ -41,7 +41,8 @@ import type {
 void describe('identify simple String types as expected', () => {
 	const string_expectations: [
 		SchemaObject, // input for SchemaParser
-		Omit< // Ajv Options
+		// Ajv Options
+		Omit<
 			Options,
 			(
 				| 'strict'
@@ -127,7 +128,7 @@ void describe('identify simple String types as expected', () => {
 					() => instance.parse(schema),
 					TypeError,
 				);
-			})
+			});
 		}
 	});
 
@@ -154,5 +155,5 @@ void describe('identify simple String types as expected', () => {
 				true,
 			)),
 		);
-	})
-})
+	});
+});

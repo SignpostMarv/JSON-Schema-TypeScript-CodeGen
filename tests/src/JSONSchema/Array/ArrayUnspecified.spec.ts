@@ -109,14 +109,18 @@ void describe('ArrayUnspecified', () => {
 			SchemaObject,
 			[SchemaObject, ...SchemaObject[]]
 		>,
-		boolean, // will or won't fail on default
+
+		// will or won't fail on default
+		boolean,
+
 		// ArrayUnspecified::generate_typescript_type() asserter
 		ts_asserter<T2>,
+
 		// ArrayUnspecified::generate_typescript_data() asserter
 		ts_asserter<ArrayLiteralExpression<T3, T4, boolean>>,
 	];
 
-	const prefixItems_foo_bar:Pick<array_type<
+	const prefixItems_foo_bar: Pick<array_type<
 		$defs_mode,
 		'prefix-only',
 		MinItemsType_mode,
@@ -135,9 +139,9 @@ void describe('ArrayUnspecified', () => {
 		],
 	};
 
-	const data_sets:[
+	const data_sets: [
 		DataSet,
-		...DataSet[]
+		...DataSet[],
 	] = [
 		[
 			'optional',
@@ -547,33 +551,45 @@ void describe('ArrayUnspecified', () => {
 			>,
 			schema_parser: SchemaParser,
 		) {
-			void it(`::generate_typescript_type() behaves with data_sets[${i}]`, async () => {
-				assert.ok(
-					instance.check_type(data),
-					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
-				);
-				const generated = await instance.generate_typescript_type({
-					data,
-					schema,
-					schema_parser,
-				});
-				assert.doesNotThrow(() => generate_typescript_type_asserter(
-					generated,
-					`Did not pass type asserter on data_set[${i}]`,
-				));
-				await assert.rejects(
-					() => (
-						instance as Type<unknown>
-					).generate_typescript_type({
+			void it(
+				`::generate_typescript_type() behaves with data_sets[${
+					i
+				}]`,
+				async () => {
+					assert.ok(
+						instance.check_type(data),
+						`ArrayUnspecified::check_type(data_set[${
+							i
+						}][0]) failed`,
+					);
+					const generated = await instance.generate_typescript_type({
 						data,
-						schema: {
-							type: 'string',
-						},
+						schema,
 						schema_parser,
-					}),
-					`Incorrectly matched array against string on data_set[${i}]`,
-				);
-			})
+					});
+					assert.doesNotThrow(
+						() => generate_typescript_type_asserter(
+							generated,
+							`Did not pass type asserter on data_set[${i}]`,
+						),
+					);
+					await assert.rejects(
+						() => (
+							instance as Type<unknown>
+						).generate_typescript_type({
+							data,
+							schema: {
+								type: 'string',
+							},
+							schema_parser,
+						}),
+						// eslint-disable-next-line @stylistic/max-len
+						`Incorrectly matched array against string on data_set[${
+							i
+						}]`,
+					);
+				},
+			);
 		}
 
 		function test_generate_typescript_data(
@@ -583,47 +599,54 @@ void describe('ArrayUnspecified', () => {
 			>,
 			schema_parser: SchemaParser,
 		) {
-			void it(`::generate_typescript_data() behaves with data_sets[${i}]`, () => {
-				assert.ok(
-					instance.check_type(data),
-					`ArrayUnspecified::check_type(data_set[${i}][0]) failed`,
-				);
-				const generated = instance.generate_typescript_data(
-					data,
-					schema_parser,
-					schema,
-				);
-				assert.doesNotThrow(() => generate_typescript_data_asserter(
-					generated,
-					`Did not pass data asserter on data_set[${i}]`,
-				));
-				const call = 0 === data.length ? 'doesNotThrow' : 'throws';
-				assert[call](() => (
-					new ArrayUnspecified<
-						typeof data,
-						array_mode
-					>({
-						...ctor_args,
-						expression_at_index_verifier: <
-							Data extends unknown[],
-							T1 extends Expression,
-							Result extends T1[],
-							Index extends ReturnType<
-								typeof PositiveIntegerOrZero<number>
-							> = ReturnType<
-								typeof PositiveIntegerOrZero<number>
-							>
-						> (
-							data: Data,
-							expression: Expression,
-						):  expression is Result[Index] => false,
-					}, {ajv})
-				).generate_typescript_data(
-					data,
-					schema_parser,
-					schema,
-				));
-			})
+			void it(
+				`::generate_typescript_data() behaves with data_sets[${i}]`,
+				() => {
+					assert.ok(
+						instance.check_type(data),
+						`ArrayUnspecified::check_type(data_set[${
+							i
+						}][0]) failed`,
+					);
+					const generated = instance.generate_typescript_data(
+						data,
+						schema_parser,
+						schema,
+					);
+					assert.doesNotThrow(
+						() => generate_typescript_data_asserter(
+							generated,
+							`Did not pass data asserter on data_set[${i}]`,
+						),
+					);
+					const call = 0 === data.length ? 'doesNotThrow' : 'throws';
+					assert[call](() => (
+						new ArrayUnspecified<
+							typeof data,
+							array_mode
+						>({
+							...ctor_args,
+							expression_at_index_verifier: <
+								Data extends unknown[],
+								T1 extends Expression,
+								Result extends T1[],
+								Index extends ReturnType<
+									typeof PositiveIntegerOrZero<number>
+								> = ReturnType<
+									typeof PositiveIntegerOrZero<number>
+								>,
+							> (
+								data: Data,
+								expression: Expression,
+							): expression is Result[Index] => false,
+						}, {ajv})
+					).generate_typescript_data(
+						data,
+						schema_parser,
+						schema,
+					));
+				},
+			);
 		}
 
 		void describe(`directly instantiate with data_sets[${i}]`, () => {
@@ -639,25 +662,34 @@ void describe('ArrayUnspecified', () => {
 
 			test_generate_typescript_type(instance, new SchemaParser({ajv}));
 			test_generate_typescript_data(instance, new SchemaParser({ajv}));
-		})
+		});
 
-		void describe(`directly instantiate with data_sets[${i}] & forced blank-$defs`, () => {
-			const instance = new ArrayUnspecified<
-				typeof data,
-				array_mode
-			>({
-				...ctor_args,
-				$defs: {},
-			}, {ajv});
+		void describe(
+			`directly instantiate with data_sets[${i}] & forced blank-$defs`,
+			() => {
+				const instance = new ArrayUnspecified<
+					typeof data,
+					array_mode
+				>({
+					...ctor_args,
+					$defs: {},
+				}, {ajv});
 
-			assert.ok(
-				instance.check_schema(schema),
-				`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
-			);
+				assert.ok(
+					instance.check_schema(schema),
+					`ArrayUnspecified::check_schema(data_set[${i}][1]) failed`,
+				);
 
-			test_generate_typescript_type(instance, new SchemaParser({ajv}));
-			test_generate_typescript_data(instance, new SchemaParser({ajv}));
-		})
+				test_generate_typescript_type(
+					instance,
+					new SchemaParser({ajv}),
+				);
+				test_generate_typescript_data(
+					instance,
+					new SchemaParser({ajv}),
+				);
+			},
+		);
 
 		void describe(`instantiated from parser with data_sets[${i}]`, () => {
 			const schema_parser = new SchemaParser({ajv});
@@ -689,7 +721,7 @@ void describe('ArrayUnspecified', () => {
 
 			test_generate_typescript_type(instance, schema_parser);
 			test_generate_typescript_data(instance, schema_parser);
-		})
+		});
 	});
 
 	void describe('::generate_typescript_data()', () => {
@@ -730,6 +762,6 @@ void describe('ArrayUnspecified', () => {
 				schema_parser,
 				{} as typeof schema,
 			));
-		})
-	})
-})
+		});
+	});
+});

@@ -64,15 +64,18 @@ export type SchemaParserOptions = (
 		}
 	)
 	& {
-		types?: [ConversionlessType<unknown>, ...ConversionlessType<unknown>[]]
+		types?: [
+			ConversionlessType<unknown>,
+			...ConversionlessType<unknown>[],
+		],
 	}
-)
+);
 
 export type share_ajv_callback<T> = (ajv: Ajv) => T;
 
-export class SchemaParser
-{
+export class SchemaParser {
 	#ajv: Ajv;
+
 	types: [ConversionlessType<unknown>, ...ConversionlessType<unknown>[]];
 
 	constructor(options: SchemaParserOptions = {
@@ -105,12 +108,12 @@ export class SchemaParser
 	}
 
 	maybe_parse<
-		T extends ConversionlessType<unknown>
+		T extends ConversionlessType<unknown>,
 	>(
 		schema: SchemaObject,
 		must_be_of_type: typeof ConversionlessType<unknown>,
 	): T|undefined {
-		let result:T|undefined = undefined;
+		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			const maybe: (
 				| undefined
@@ -131,12 +134,12 @@ export class SchemaParser
 	}
 
 	maybe_parse_by_type<
-		T extends ConversionlessType<unknown>
+		T extends ConversionlessType<unknown>,
 	>(
 		schema: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
 	): T|undefined {
-		let result:T|undefined = undefined;
+		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			if (type.check_type(schema)) {
 				if (!must_be_of_type(type)) {

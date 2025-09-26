@@ -24,10 +24,10 @@ import type {
 export type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
-		...string[]
+		...string[],
 	] = readonly [
 		string,
-		...string[]
+		...string[],
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = (
@@ -64,9 +64,8 @@ export type SchemalessTypeOptions = Omit<
 	)
 >;
 
-export class VerboseMatchError extends TypeError
-{
-	readonly ajv_errors:ValidateFunction['errors'];
+export class VerboseMatchError extends TypeError {
+	readonly ajv_errors: ValidateFunction['errors'];
 
 	constructor(
 		message: string,
@@ -87,9 +86,11 @@ export abstract class ConversionlessType<
 	TSType extends TypeNode = TypeNode,
 > {
 	protected schema_definition: SchemaDefinition;
+
 	protected type_definition: TypeDefinition;
 
 	#check_type: ValidateFunction<T>;
+
 	#check_schema: ValidateFunction<TypeDefinition>;
 
 	constructor({
@@ -165,8 +166,7 @@ export abstract class ConversionlessType<
 		throw new Error('Not implemented!');
 	}
 
-	static is_a(maybe: unknown): maybe is ConversionlessType<unknown>
-	{
+	static is_a(maybe: unknown): maybe is ConversionlessType<unknown> {
 		return maybe instanceof this;
 	}
 }
@@ -179,20 +179,20 @@ export abstract class Type<
 	) = SchemaDefinitionDefinition,
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
-> extends ConversionlessType<
-	T,
-	TypeDefinition,
-	SchemaDefinition,
-	SchemaTo
-> {
+> extends
+	ConversionlessType<
+		T,
+		TypeDefinition,
+		SchemaDefinition,
+		SchemaTo
+	> {
 	abstract generate_typescript_data(
 		data: T,
 		schema_parser: SchemaParser,
 		schema: TypeDefinition,
 	): DataTo;
 
-	static is_a(maybe: unknown): maybe is Type<unknown>
-	{
+	static is_a(maybe: unknown): maybe is Type<unknown> {
 		return super.is_a(maybe);
 	}
 }
@@ -201,10 +201,10 @@ export type TypedSchemaDefinition<
 	TypeProperty extends string,
 	Required extends [
 		'type',
-		...string[]
+		...string[],
 	] = [
 		'type',
-		...string[]
+		...string[],
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = SchemaDefinitionDefinition<
@@ -215,7 +215,7 @@ export type TypedSchemaDefinition<
 			type: {
 				type: 'string',
 				const: TypeProperty,
-			}
+			},
 		}
 	)
 >;
@@ -224,10 +224,10 @@ export type TypedSchemaDefinition_without_$defs<
 	TypeProperty extends string,
 	Required extends [
 		'type',
-		...Exclude<string, '$defs'>[]
+		...Exclude<string, '$defs'>[],
 	] = [
 		'type',
-		...Exclude<string, '$defs'>[]
+		...Exclude<string, '$defs'>[],
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = TypedSchemaDefinition<
@@ -241,11 +241,11 @@ export type TypeDefinition_with_$defs<
 	Required extends [
 		'type',
 		'$defs',
-		...string[]
+		...string[],
 	] = [
 		'type',
 		'$defs',
-		...string[]
+		...string[],
 	],
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = TypedSchemaDefinition<
@@ -295,11 +295,12 @@ export abstract class TypeWithDefs<
 	) = SchemaDefinition_with_$defs,
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
-> extends Type<
-	T,
-	TypeDefinition,
-	SchemaDefinition,
-	SchemaTo,
-	DataTo
-> {
+> extends
+	Type<
+		T,
+		TypeDefinition,
+		SchemaDefinition,
+		SchemaTo,
+		DataTo
+	> {
 }

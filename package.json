@@ -12,8 +12,9 @@
   "types": "./index.d.ts",
   "devDependencies": {
     "@satisfactory-dev/custom-assert": "^0.2.3",
-    "@signpostmarv/eslint-config": "^0.4.0",
+    "@signpostmarv/eslint-config": "^0.5.0",
     "@signpostmarv/ts-assert": "^0.4.1",
+    "@stylistic/eslint-plugin": "^5.4.0",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.13.10",
     "c8": "^10.1.3",

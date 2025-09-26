@@ -27,7 +27,7 @@ void describe('Unknown', () => {
 
 		const instance = parser.maybe_parse_by_type(
 			{},
-			(maybe:unknown) => Unknown.is_a(maybe),
+			(maybe: unknown) => Unknown.is_a(maybe),
 		);
 
 		is_instanceof(instance, Unknown);
@@ -41,6 +41,6 @@ void describe('Unknown', () => {
 				await instance.generate_typescript_type(),
 				SyntaxKind.UnknownKeyword,
 			);
-		})
+		});
 	});
-})
+});

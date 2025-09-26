@@ -197,13 +197,14 @@ void describe('ObjectUnspecified', () => {
 					assert.deepEqual(schema, expected_schema);
 				},
 			);
-		})
+		});
 	});
 
 	void describe('::#generate_default_type_definition()', () => {
 		type DataSet = [
 			ObjectOfSchemas,
 			[string, ...string[]],
+
 			// expectation of both
 			[
 				ObjectOfSchemas,
@@ -211,6 +212,7 @@ void describe('ObjectUnspecified', () => {
 				ObjectOfSchemas,
 				ObjectOfSchemas,
 			],
+
 			// expectation of $defs only
 			[
 				ObjectOfSchemas,
@@ -218,6 +220,7 @@ void describe('ObjectUnspecified', () => {
 				ObjectOfSchemas,
 				ObjectOfSchemas,
 			],
+
 			// expectation of required only
 			[
 				undefined,
@@ -225,6 +228,7 @@ void describe('ObjectUnspecified', () => {
 				ObjectOfSchemas,
 				ObjectOfSchemas,
 			],
+
 			// expectation of neither
 			[
 				undefined,
@@ -242,16 +246,14 @@ void describe('ObjectUnspecified', () => {
 			ObjectOfSchemas,
 			ObjectOfSchemas
 		> {
-			get schema_def()
-			{
+			get schema_def() {
 				return this.schema_definition;
 			}
 
-			get type_def()
-			{
+			get type_def() {
 				return this.type_definition;
 			}
-		}
+		};
 
 		const data_sets: [DataSet, ...DataSet[]] = [
 			[
@@ -439,10 +441,10 @@ void describe('ObjectUnspecified', () => {
 							instance.type_def.required,
 							expected_required,
 						);
-					})
-				})
+					});
+				});
 			}
-		})
+		});
 	});
 
 	type DataSet<
@@ -531,7 +533,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -582,7 +584,7 @@ void describe('ObjectUnspecified', () => {
 						member.type.typeArguments[1].literal.text,
 						'',
 					);
-				})
+				});
 			},
 		],
 		[
@@ -606,7 +608,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -666,7 +668,7 @@ void describe('ObjectUnspecified', () => {
 						member.type.typeArguments[1].literal.text,
 						'',
 					);
-				})
+				});
 			},
 		],
 		[
@@ -689,7 +691,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -740,7 +742,7 @@ void describe('ObjectUnspecified', () => {
 						member.type.typeArguments[1].literal.text,
 						'',
 					);
-				})
+				});
 			},
 		],
 		[
@@ -769,7 +771,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -800,7 +802,7 @@ void describe('ObjectUnspecified', () => {
 						'foo',
 						message,
 					);
-				})
+				});
 			},
 		],
 		[
@@ -814,7 +816,7 @@ void describe('ObjectUnspecified', () => {
 				type: 'object',
 				required: ['foo'],
 				$defs: {
-					'1': {
+					['1']: {
 						type: 'string',
 						minLength: 1,
 					},
@@ -829,7 +831,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -860,7 +862,7 @@ void describe('ObjectUnspecified', () => {
 						'_1',
 						message,
 					);
-				})
+				});
 			},
 		],
 		[
@@ -874,7 +876,7 @@ void describe('ObjectUnspecified', () => {
 				type: 'object',
 				required: ['foo'],
 				$defs: {
-					'1.1': {
+					['1.1']: {
 						type: 'string',
 						minLength: 1,
 					},
@@ -889,7 +891,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -920,7 +922,7 @@ void describe('ObjectUnspecified', () => {
 						'v1_1',
 						message,
 					);
-				})
+				});
 			},
 		],
 		[
@@ -934,7 +936,7 @@ void describe('ObjectUnspecified', () => {
 				type: 'object',
 				required: ['foo'],
 				$defs: {
-					'class': {
+					class: {
 						type: 'string',
 						minLength: 1,
 					},
@@ -949,7 +951,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -980,7 +982,7 @@ void describe('ObjectUnspecified', () => {
 						'__class',
 						message,
 					);
-				})
+				});
 			},
 		],
 		[
@@ -1009,7 +1011,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -1038,7 +1040,7 @@ void describe('ObjectUnspecified', () => {
 						'foo',
 						message,
 					);
-				})
+				});
 			},
 		],
 		[
@@ -1083,7 +1085,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -1134,7 +1136,7 @@ void describe('ObjectUnspecified', () => {
 					ts_assert.isUnionTypeNode(member.type, message);
 					assert.equal(2, member.type.types.length);
 					for (let i = 0; i < member.type.types.length; ++i) {
-						const sub_type:Node = member.type.types[i];
+						const sub_type: Node = member.type.types[i];
 						ts_assert.isTypeReferenceNode(sub_type, message);
 						ts_assert.isIdentifier(sub_type.typeName, message);
 						assert.equal(
@@ -1143,7 +1145,7 @@ void describe('ObjectUnspecified', () => {
 							message,
 						);
 					}
-				})
+				});
 			},
 		],
 		[
@@ -1193,7 +1195,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -1256,7 +1258,7 @@ void describe('ObjectUnspecified', () => {
 						message,
 					);
 					assert.equal(member.type.typeArguments, undefined);
-				})
+				});
 
 				ts_assert.isTypeLiteralNode(value.types[1], message);
 				assert.equal(1, value.types[1].members.length, message);
@@ -1266,7 +1268,7 @@ void describe('ObjectUnspecified', () => {
 					ts_assert.isUnionTypeNode(member.type, message);
 					assert.equal(2, member.type.types.length);
 					for (let i = 0; i < member.type.types.length; ++i) {
-						const sub_type:Node = member.type.types[i];
+						const sub_type: Node = member.type.types[i];
 						ts_assert.isTypeReferenceNode(sub_type, message);
 						ts_assert.isIdentifier(sub_type.typeName, message);
 						assert.equal(
@@ -1275,7 +1277,7 @@ void describe('ObjectUnspecified', () => {
 							message,
 						);
 					}
-				})
+				});
 			},
 		],
 		[
@@ -1293,7 +1295,7 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment
+				PropertyAssignment,
 			]> => {
 				ts_assert.isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
@@ -1320,7 +1322,7 @@ void describe('ObjectUnspecified', () => {
 						SyntaxKind.UnknownKeyword,
 						message,
 					);
-				})
+				});
 			},
 		],
 	];
@@ -1347,7 +1349,7 @@ void describe('ObjectUnspecified', () => {
 					type_schema,
 				);
 				const foo: ts_asserter<ObjectLiteralExpression<[
-					PropertyAssignment
+					PropertyAssignment,
 				]>> = data_asserter;
 				foo(data);
 
@@ -1368,7 +1370,7 @@ void describe('ObjectUnspecified', () => {
 				);
 
 				do_test(instance, new SchemaParser());
-			})
+			});
 			void it(`behaves from schema parser with data_sets[${i}]`, () => {
 				const schema_parser = new SchemaParser();
 				const instance = schema_parser.parse(type_schema);
@@ -1381,8 +1383,8 @@ void describe('ObjectUnspecified', () => {
 				);
 
 				do_test(instance, schema_parser);
-			})
-		})
+			});
+		});
 
 		void it('fails when expected', () => {
 			const ajv = new Ajv({strict: true});
@@ -1409,8 +1411,8 @@ void describe('ObjectUnspecified', () => {
 						},
 					},
 				},
-			))
-		})
+			));
+		});
 	});
 
 	void describe('::generate_typescript_type()', () => {
@@ -1453,24 +1455,27 @@ void describe('ObjectUnspecified', () => {
 					new SchemaParser(),
 					PositiveIntegerOrZero(i),
 				);
-			})
-			void it(`behaves from schema parser with data_sets[${i}]`, async () => {
-				const schema_parser = new SchemaParser();
-				const instance = schema_parser.parse(type_schema);
-				is_instanceof<
-					ObjectUnspecified<typeof input, object_properties_mode>
-				>(instance, ObjectUnspecified);
-				assert.equal(
-					instance.properties_mode,
-					specific_options.properties_mode,
-				);
+			});
+			void it(
+				`behaves from schema parser with data_sets[${i}]`,
+				async () => {
+					const schema_parser = new SchemaParser();
+					const instance = schema_parser.parse(type_schema);
+					is_instanceof<
+						ObjectUnspecified<typeof input, object_properties_mode>
+					>(instance, ObjectUnspecified);
+					assert.equal(
+						instance.properties_mode,
+						specific_options.properties_mode,
+					);
 
-				await do_test(
-					instance,
-					schema_parser,
-					PositiveIntegerOrZero(i),
-				);
-			})
-		})
-	})
-})
+					await do_test(
+						instance,
+						schema_parser,
+						PositiveIntegerOrZero(i),
+					);
+				},
+			);
+		});
+	});
+});

@@ -84,7 +84,7 @@ export type object_type<
 	& Omit<
 		{
 			properties: Properties,
-			patternProperties: PatternProperties
+			patternProperties: PatternProperties,
 		},
 		{
 			both: '',
@@ -120,7 +120,7 @@ export type object_schema<
 			type: {
 				type: 'string',
 				const: 'object',
-			}
+			},
 		}
 		& {
 			required: {
@@ -215,21 +215,22 @@ export class ObjectUnspecified<
 	),
 	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 	PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
-> extends Type<
-	T,
-	object_type<
-		PropertiesMode,
-		Defs,
-		Required,
-		Properties,
-		PatternProperties
-	>,
-	object_schema<
-		PropertiesMode
-	>,
-	object_TypeLiteralNode<PropertiesMode>,
-	ObjectLiteralExpression
-> {
+> extends
+	Type<
+		T,
+		object_type<
+			PropertiesMode,
+			Defs,
+			Required,
+			Properties,
+			PatternProperties
+		>,
+		object_schema<
+			PropertiesMode
+		>,
+		object_TypeLiteralNode<PropertiesMode>,
+		ObjectLiteralExpression
+	> {
 	#adjust_name: adjust_name_callback;
 
 	readonly properties_mode: PropertiesMode;
@@ -517,7 +518,7 @@ export class ObjectUnspecified<
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
-	> (
+	>(
 		schema: object_type<
 			object_properties_mode,
 			Defs,
@@ -540,7 +541,7 @@ export class ObjectUnspecified<
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
-	> (
+	>(
 		schema: object_type<
 			object_properties_mode,
 			Defs,
@@ -563,7 +564,7 @@ export class ObjectUnspecified<
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
-	> (
+	>(
 		schema: object_type<
 			object_properties_mode,
 			Defs,
@@ -583,7 +584,7 @@ export class ObjectUnspecified<
 
 	static #is_schema_with_required<
 		Required extends readonly [string, ...string[]],
-	> (
+	>(
 		schema: object_type<
 			object_properties_mode,
 			SchemaObject,
@@ -608,7 +609,7 @@ export class ObjectUnspecified<
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
-	> (
+	>(
 		properties_mode: PropertiesMode,
 		value: unknown,
 		property: string,
@@ -849,7 +850,7 @@ export class ObjectUnspecified<
 		Required extends readonly [string, ...string[]],
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
-	> (
+	>(
 		properties_mode: PropertiesMode,
 		property: string,
 		schema: object_type<
@@ -976,8 +977,8 @@ export class ObjectUnspecified<
 			| undefined
 			| ConversionlessType<unknown>
 			| {
-				yes: Type<unknown>
-				no: ConversionlessType<unknown>
+				yes: Type<unknown>,
+				no: ConversionlessType<unknown>,
 			}[RequireConversion]
 		) = maybe_$ref;
 
@@ -1000,7 +1001,7 @@ export class ObjectUnspecified<
 			// * or we require conversion
 			// if we require conversion, this won't be $ref
 			// if we don't require conversion,
-			//	this should've been caught by intercept_$ref
+			//    this should've been caught by intercept_$ref
 			converter = schema_parser.parse<RequireConversion>(
 				sub_schema,
 				require_conversion,
@@ -1082,6 +1083,8 @@ export class ObjectUnspecified<
 			return fallback_if_neither;
 		}
 
-		throw new TypeError(`Property "${property}" has no match on the specified schema!`);
+		throw new TypeError(
+			`Property "${property}" has no match on the specified schema!`,
+		);
 	}
 }

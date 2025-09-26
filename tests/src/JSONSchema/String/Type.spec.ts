@@ -16,5 +16,5 @@ void describe('Type.generate_default_schema_definition()', () => {
 			Error,
 			'Not implemented!',
 		);
-	})
-})
+	});
+});

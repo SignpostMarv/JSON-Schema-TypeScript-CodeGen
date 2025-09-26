@@ -108,6 +108,6 @@ export class Unknown extends Type<
 					const: 0,
 				},
 			},
-		} as const)
+		} as const);
 	}
 }

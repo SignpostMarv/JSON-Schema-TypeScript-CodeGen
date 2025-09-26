@@ -25,7 +25,7 @@ import type {
 export type SchemaObject = (
 	& AjvSchemaObject
 	& {
-		$defs?: ObjectOfSchemas
+		$defs?: ObjectOfSchemas,
 	}
 );
 
@@ -37,11 +37,11 @@ export type LiteralTypeNode<
 		| BooleanLiteral
 		| LiteralExpression
 		| PrefixUnaryExpression
-	)
+	),
 > = TSLiteralTypeNode & {literal: T};
 
 export type TypeLiteralNode<
-	T extends TypeElement
+	T extends TypeElement,
 > = (
 	& TSTypeLiteralNode
 	& {
@@ -89,7 +89,7 @@ export type TupleTypeNode<
 export type ArrayLiteralExpression<
 	T1 extends Expression,
 	T2 extends T1[],
-	T3 extends boolean
+	T3 extends boolean,
 > = (
 	& TSArrayLiteralExpression
 	& {
@@ -97,9 +97,9 @@ export type ArrayLiteralExpression<
 		readonly elements: (
 			& TSArrayLiteralExpression['elements']
 			& T2
-		)
+		),
 	}
-)
+);
 
 export type ObjectLiteralExpression<
 	Properties extends (
@@ -119,7 +119,7 @@ export type ObjectLiteralExpression<
 // @see https://stackoverflow.com/a/64034671/1498831
 export type OmitFromTupleish<
 	T1 extends unknown[],
-	T2
+	T2,
 > = (
 	T1 extends []
 		? []
@@ -137,7 +137,7 @@ export type OmitFromTupleish<
 export type OmitFromTupleishIf<
 	T1 extends unknown[],
 	T2,
-	If extends 'with'|'without'|'optional'
+	If extends 'with'|'without'|'optional',
 > = If extends 'without'
 	? OmitFromTupleish<T1, T2>
 	: (
@@ -157,7 +157,7 @@ export type PartialPick<
 export type OmitIf<
 	T,
 	K extends keyof T,
-	If extends 'with'|'without'|'optional'
+	If extends 'with'|'without'|'optional',
 > = If extends 'without'
 	? Omit<T, K>
 	: (

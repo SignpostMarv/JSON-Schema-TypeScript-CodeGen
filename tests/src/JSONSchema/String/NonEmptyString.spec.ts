@@ -51,13 +51,15 @@ import type {
 void describe('identify non-empty String types as expected', () => {
 	const string_expectations: [
 		SchemaObject, // input for SchemaParser
-		Omit< // Ajv Options
+
+		// Ajv Options
+		Omit<
 			Options,
 			(
 				| 'strict'
 			)
 		>,
-		(  // minLength
+		( // minLength
 			| undefined
 			| ReturnType<typeof PositiveInteger<number>>
 		),
@@ -107,7 +109,7 @@ void describe('identify non-empty String types as expected', () => {
 					const instance = from_parser_default
 						? parser.parse(schema, 'yes')
 						: new NonEmptyString(
-							minLength ? {minLength}: {mode: 'optional'},
+							minLength ? {minLength} : {mode: 'optional'},
 							{
 								ajv: new Ajv({
 									...ajv_options,
@@ -176,7 +178,7 @@ void describe('identify non-empty String types as expected', () => {
 					() => instance.parse(schema),
 					TypeError,
 				);
-			})
+			});
 		}
 	});
-})
+});
