@@ -511,6 +511,41 @@ void describe('ObjectUnspecified', () => {
 		return type_schema;
 	}
 
+	function object_literal_expression_asserter(
+		from: {[key: string]: string},
+	): (
+		value: Node,
+		message?: string|Error,
+	) => asserts value is ObjectLiteralExpression<[
+		PropertyAssignment,
+		...PropertyAssignment[],
+	]> {
+		const entries = Object.entries(from);
+
+		return (
+			value: Node,
+			message?: string|Error,
+		): asserts value is ObjectLiteralExpression<[
+			PropertyAssignment,
+			...PropertyAssignment[],
+		]> => {
+			ts_assert.isObjectLiteralExpression(value, message);
+			not_undefined(value.properties, message);
+			assert.equal(value.properties.length, entries.length, message);
+			value.properties.forEach((property, i) => {
+				ts_assert.isPropertyAssignment(property, message);
+				ts_assert.isIdentifier(property.name, message);
+				assert.equal(property.name.text, entries[i][0], message);
+				ts_assert.isStringLiteral(property.initializer, message);
+				assert.equal(
+					property.initializer.text,
+					entries[i][1],
+					message,
+				);
+			});
+		};
+	}
+
 	const data_sets: [DataSet, ...DataSet[]] = [
 		[
 			{
@@ -529,23 +564,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -687,23 +706,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -767,23 +770,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -827,23 +814,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -887,23 +858,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -947,23 +902,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -1007,23 +946,7 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
@@ -1291,23 +1214,7 @@ void describe('ObjectUnspecified', () => {
 				type: 'object',
 				required: ['foo'],
 			}),
-			(
-				value: Node,
-				message?: string|Error,
-			): asserts value is ObjectLiteralExpression<[
-				PropertyAssignment,
-			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
-				not_undefined(value.properties);
-				assert.equal(value.properties.length, 1);
-				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
-					assert.equal('foo', property.name.text, message);
-					ts_assert.isStringLiteral(property.initializer, message);
-					assert.equal('bar', property.initializer.text);
-				});
-			},
+			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
 				message?: string|Error,
