@@ -29,6 +29,11 @@ export type SchemaObject = (
 	}
 );
 
+export type SchemaObjectWith$id = (
+	& SchemaObject
+	& Required<PartialPick<SchemaObject, '$id'>>
+);
+
 export type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 export type LiteralTypeNode<

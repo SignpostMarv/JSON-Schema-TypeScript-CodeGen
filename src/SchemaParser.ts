@@ -36,8 +36,8 @@ import {
 } from './guarded.ts';
 
 import type {
-	PartialPick,
 	SchemaObject,
+	SchemaObjectWith$id,
 } from './types.ts';
 
 import {
@@ -91,10 +91,7 @@ export class SchemaParser {
 	}
 
 	add_schema(
-		schema: (
-			& SchemaObject
-			& Required<PartialPick<SchemaObject, '$id'>>
-		),
+		schema: SchemaObjectWith$id,
 	) {
 		this.#ajv.addSchema(schema);
 		for (const inform_this of this.types.filter(
