@@ -19,7 +19,6 @@ import type {
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 } from './Type.ts';
-
 import {
 	Type,
 } from './Type.ts';
@@ -32,6 +31,10 @@ import type {
 import {
 	PositiveInteger,
 } from '../guarded.ts';
+
+import {
+	type_reference_node,
+} from '../coercions.ts';
 
 type string_schema<
 	Schema extends SchemaObject = SchemaObject,
@@ -343,7 +346,7 @@ export class NonEmptyString<
 	}
 
 	generate_typescript_type(): Promise<TypeReferenceNode> {
-		return Promise.resolve(factory.createTypeReferenceNode(
+		return Promise.resolve(type_reference_node(
 			'Exclude',
 			[
 				factory.createKeywordTypeNode(SyntaxKind.StringKeyword),

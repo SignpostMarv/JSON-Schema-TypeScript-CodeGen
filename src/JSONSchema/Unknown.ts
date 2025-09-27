@@ -67,18 +67,12 @@ export class Unknown extends Type<
 		schema_parser: SchemaParser,
 		schema: unknown_type,
 	): Expression {
-		const maybe = schema_parser.maybe_parse_by_type<
+		const maybe = schema_parser.parse_by_type<
 			Exclude<Type<unknown>, Unknown>
 		>(
 			data,
 			(maybe: unknown) => Type.is_a(maybe) && !Unknown.is_a(maybe),
 		);
-
-		if (!maybe) {
-			throw new TypeError(
-				'Could not determine supported handler for data conversion!',
-			);
-		}
 
 		return maybe.generate_typescript_data(data, schema_parser, schema);
 	}

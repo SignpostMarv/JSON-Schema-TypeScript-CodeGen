@@ -5,13 +5,6 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import type {
-	TypeReferenceNode,
-} from 'typescript';
-import {
-	factory,
-} from 'typescript';
-
-import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	Type,
@@ -26,6 +19,7 @@ import type {
 import {
 	adjust_name_default,
 	adjust_name_finisher,
+	type_reference_node,
 } from '../coercions.ts';
 
 import type {
@@ -35,6 +29,7 @@ import type {
 import type {
 	ObjectOfSchemas,
 	SchemaObject,
+	TypeReferenceNode,
 } from '../types.ts';
 
 export type $ref_mode = 'either'|'external'|'local';
@@ -170,9 +165,14 @@ type $ref_schema<
 export class $ref<
 	RefMode extends $ref_mode = 'either',
 	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
+	T extends (
+		{$ref: Value, $defs?: ObjectOfSchemas}
+	) = (
+		{$ref: Value, $defs?: ObjectOfSchemas}
+	),
 > extends
 	ConversionlessType<
-		{$ref: Value, $defs?: ObjectOfSchemas},
+		T,
 		$ref_type<RefMode>,
 		$ref_schema<RefMode>,
 		TypeReferenceNode
@@ -214,12 +214,10 @@ export class $ref<
 				$ref,
 			},
 		}: {
-			data: {
-				$ref: Value,
-			},
+			data: T,
 		},
 	): Promise<TypeReferenceNode> {
-		return Promise.resolve(factory.createTypeReferenceNode(
+		return Promise.resolve(type_reference_node(
 			adjust_name_finisher(
 				$ref.replace(
 					/^#\/\$defs\//,

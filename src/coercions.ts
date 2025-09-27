@@ -15,6 +15,7 @@ import type {
 	ObjectLiteralExpression,
 	TupleTypeNode,
 	TypeLiteralNode,
+	TypeReferenceNode,
 } from './types.ts';
 
 export function object_keys<
@@ -176,4 +177,29 @@ export function object_literal_expression<
 		properties,
 		multiLine,
 	) as ObjectLiteralExpression<T1, T2>;
+}
+
+export function type_reference_node<
+	T1 extends string,
+	T2 extends [TypeNode, ...TypeNode[]],
+>(
+	name: string,
+	type_arguments: [TypeNode, ...TypeNode[]],
+): TypeReferenceNode<T1, T2>;
+export function type_reference_node<
+	T1 extends string,
+>(
+	name: string,
+): TypeReferenceNode<T1, never[]>;
+export function type_reference_node<
+	T1 extends string,
+	T2 extends never[]|[TypeNode, ...TypeNode[]],
+>(
+	name: string,
+	type_arguments?: [TypeNode, ...TypeNode[]],
+): TypeReferenceNode<T1, T2> {
+	return factory.createTypeReferenceNode(
+		name,
+		type_arguments ? type_arguments : undefined,
+	) as TypeReferenceNode<T1, T2>;
 }

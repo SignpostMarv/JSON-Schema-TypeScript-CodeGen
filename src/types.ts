@@ -13,11 +13,13 @@ import type {
 	PrefixUnaryExpression,
 	ArrayLiteralExpression as TSArrayLiteralExpression,
 	ArrayTypeNode as TSArrayTypeNode,
+	Identifier as TSIdentifier,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
 	ObjectLiteralExpression as TSObjectLiteralExpression,
 	TupleTypeNode as TSTupleTypeNode,
 	TypeLiteralNode as TSTypeLiteralNode,
+	TypeReferenceNode as TSTypeReferenceNode,
 	TypeElement,
 	TypeNode,
 } from 'typescript';
@@ -119,6 +121,37 @@ export type ObjectLiteralExpression<
 		readonly properties: Properties,
 		readonly __guard_multiLine: MultiLine,
 	}
+);
+
+export type Identifier<
+	Name extends string,
+> = (
+	& TSIdentifier
+	& {
+		readonly text: Name,
+	}
+);
+
+export type TypeReferenceNode<
+	Name extends string = string,
+	Arguments extends (
+		| never[]
+		| [TypeNode, ...TypeNode[]]
+	) = never[],
+> = (
+	& TSTypeReferenceNode
+	& {
+		readonly typeName: Identifier<Name>,
+	}
+	& (
+		Arguments extends [TypeNode, ...TypeNode[]]
+			? {
+				readonly typeArguments: Arguments,
+			}
+			: {
+				readonly typeArguments: undefined,
+			}
+	)
 );
 
 // @see https://stackoverflow.com/a/64034671/1498831

@@ -135,10 +135,24 @@ export class SchemaParser {
 	>(
 		schema: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
-	): T|undefined {
+	): T|undefined;
+	maybe_parse_by_type(
+		schema: unknown,
+		must_be_of_type?: undefined,
+	): ConversionlessType<unknown>|undefined;
+	maybe_parse_by_type<
+		T extends ConversionlessType<unknown>,
+	>(
+		schema: unknown,
+		must_be_of_type?: (maybe: unknown) => maybe is T,
+	): ConversionlessType<unknown>|T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			if (type.check_type(schema)) {
+				if (!must_be_of_type) {
+					return type;
+				}
+
 				if (!must_be_of_type(type)) {
 					continue;
 				}
@@ -173,6 +187,35 @@ export class SchemaParser {
 		}
 
 		throw new TypeError('Could not determine type for schema!');
+	}
+
+	parse_by_type<
+		T extends ConversionlessType<unknown>,
+	>(
+		schema: unknown,
+		must_be_of_type: (maybe: unknown) => maybe is T,
+	): T;
+	parse_by_type(
+		schema: unknown,
+		must_be_of_type?: undefined,
+	): ConversionlessType<unknown>;
+	parse_by_type<
+		T extends ConversionlessType<unknown>,
+	>(
+		schema: unknown,
+		must_be_of_type?: (maybe: unknown) => maybe is T,
+	): ConversionlessType<unknown>|T {
+		const result = must_be_of_type
+			? this.maybe_parse_by_type(schema, must_be_of_type)
+			: this.maybe_parse_by_type(schema);
+
+		if (undefined === result) {
+			throw new TypeError(
+				'Could not determine type for schema!',
+			);
+		}
+
+		return result;
 	}
 
 	share_ajv<T>(

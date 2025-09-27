@@ -35,10 +35,6 @@ import type {
 	ObjectOfSchemas,
 } from '../../../src/types.ts';
 
-import {
-	ConversionlessType,
-} from '../../../src/JSONSchema/Type.ts';
-
 void describe('$ref', () => {
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
@@ -222,11 +218,10 @@ void describe('$ref', () => {
 		void it('behaves with external $defs', () => {
 			const parser = new SchemaParser();
 
-			const instance = parser.maybe_parse_by_type(
+			const instance = parser.parse_by_type(
 				{
 					$ref: 'foo#/$defs/bar',
 				},
-				(maybe) => ConversionlessType.is_a(maybe),
 			);
 
 			is_instanceof<$ref>(instance, $ref);
