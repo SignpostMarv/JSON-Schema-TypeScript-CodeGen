@@ -35,4 +35,8 @@ export abstract class KeywordType<
 	static ajv_keyword(ajv: Ajv): void {
 		throw new Error('Not implemented!');
 	}
+
+	static configure_ajv(ajv: Ajv): void {
+		this.ajv_keyword(ajv);
+	}
 }
