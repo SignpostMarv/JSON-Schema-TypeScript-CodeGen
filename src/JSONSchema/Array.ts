@@ -504,6 +504,21 @@ abstract class ArrayUncertain<
 			Items,
 			PrefixItems
 		>,
+		ArrayUncertain_options<
+			T1,
+			T4,
+			T5,
+			DefsMode,
+			ArrayMode,
+			MinItems_mode,
+			MaxItems_mode,
+			UniqueItems_mode,
+			Defs,
+			MinItems,
+			MaxItems,
+			Items,
+			PrefixItems
+		>,
 		array_schema<
 			DefsMode,
 			ArrayMode,
@@ -556,9 +571,7 @@ abstract class ArrayUncertain<
 	) {
 		super({
 			ajv,
-			type_definition: ArrayUncertain.#generate_default_type_definition(
-				options,
-			),
+			type_definition: options,
 			schema_definition: options,
 		});
 		this.#expression_at_index_verifier = (
@@ -851,7 +864,7 @@ abstract class ArrayUncertain<
 		>);
 	}
 
-	static #generate_default_type_definition<
+	static generate_type_definition<
 		T1 extends unknown[],
 		T4 extends Expression,
 		T5 extends T4[],

@@ -216,6 +216,13 @@ export class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
+		{
+			properties_mode: PropertiesMode,
+			$defs?: Defs,
+			required?: Required,
+			properties?: Properties,
+			patternProperties?: PatternProperties,
+		},
 		object_schema<
 			PropertiesMode
 		>,
@@ -255,10 +262,7 @@ export class ObjectUnspecified<
 	) {
 		super({
 			ajv,
-			type_definition: ObjectUnspecified
-				.#generate_default_type_definition(
-					options,
-				),
+			type_definition: options,
 			schema_definition: options,
 		});
 
@@ -438,7 +442,7 @@ export class ObjectUnspecified<
 		return required;
 	}
 
-	static #generate_default_type_definition<
+	static generate_type_definition<
 		PropertiesMode extends object_properties_mode,
 		Defs extends SchemaObject,
 		Required extends readonly [string, ...string[]],

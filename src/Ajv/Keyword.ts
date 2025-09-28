@@ -18,6 +18,11 @@ import {
 export abstract class KeywordType<
 	T,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
@@ -32,6 +37,7 @@ export abstract class KeywordType<
 	extends Type<
 		T,
 		TypeDefinition,
+		TypeDefinitionOptions,
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		SchemaTo,

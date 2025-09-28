@@ -149,6 +149,11 @@ type non_empty_string_schema<
 abstract class BaseString<
 	T extends string = string,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
@@ -163,6 +168,7 @@ abstract class BaseString<
 	Type<
 		T,
 		TypeDefinition,
+		TypeDefinitionOptions,
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		SchemaTo,
@@ -176,6 +182,7 @@ export class String<
 	BaseString<
 		T,
 		{type: 'string'},
+		Record<string, never>,
 		string_schema,
 		Record<string, never>,
 		KeywordTypeNode<SyntaxKind.StringKeyword>,
@@ -185,9 +192,7 @@ export class String<
 		super({
 			...options,
 			schema_definition: {},
-			type_definition: Object.freeze({
-				type: 'string',
-			}),
+			type_definition: {},
 		});
 	}
 
@@ -214,6 +219,12 @@ export class String<
 			},
 		});
 	}
+
+	static generate_type_definition(): Readonly<{type: 'string'}> {
+		return Object.freeze({
+			type: 'string',
+		});
+	}
 }
 
 export class ConstString<
@@ -222,8 +233,9 @@ export class ConstString<
 	BaseString<
 		T extends string ? T : string,
 		const_type<T>,
+		{literal?: string},
 		const_schema<T>,
-		{literal: string|undefined},
+		{literal?: string},
 		const_generate_typescript_type<T>,
 		StringLiteral
 	> {
@@ -231,17 +243,10 @@ export class ConstString<
 		literal: T,
 		options: SchemalessTypeOptions,
 	) {
-		const type_definition: Partial<const_type<string>> = {
-			type: 'string',
-		};
-		if ('string' === typeof literal) {
-			type_definition.const = literal;
-		}
-		const coerced: const_type<T> = type_definition as const_type<T>;
 		super({
 			...options,
 			schema_definition: {literal},
-			type_definition: Object.freeze(coerced),
+			type_definition: {literal},
 		});
 	}
 
@@ -303,6 +308,22 @@ export class ConstString<
 			properties: coerced,
 		});
 	}
+
+	static generate_type_definition<
+		T extends string|undefined = undefined,
+	>(
+		{literal}: {literal?: string},
+	): Readonly<const_type<T>> {
+		const type_definition: Partial<const_type<string>> = {
+			type: 'string',
+		};
+		if ('string' === typeof literal) {
+			type_definition.const = literal;
+		}
+		const coerced: const_type<T> = type_definition as const_type<T>;
+
+		return Object.freeze(coerced);
+	}
 }
 
 export class NonEmptyString<
@@ -312,6 +333,15 @@ export class NonEmptyString<
 	BaseString<
 		T,
 		non_empty_string_type<MinLength_type>,
+		{
+			required: {
+				mode?: Mode,
+				minLength: MinLength_type,
+			},
+			optional: {
+				mode?: Mode,
+			},
+		}[Mode],
 		non_empty_string_schema<Mode, MinLength_type>,
 		{
 			minLength?: MinLength_type,
@@ -334,15 +364,11 @@ export class NonEmptyString<
 		const minLength = 'minLength' in specific_options
 			? specific_options.minLength
 			: undefined;
-		const type_definition: non_empty_string_type<MinLength_type> = {
-			type: 'string',
-			minLength: minLength || PositiveInteger(1),
-		};
 
 		super({
 			...options,
 			schema_definition: {minLength},
-			type_definition,
+			type_definition: specific_options,
 		});
 	}
 
@@ -399,5 +425,29 @@ export class NonEmptyString<
 			additionalProperties: false,
 			properties: coerced,
 		});
+	}
+
+	static generate_type_definition<
+		Mode extends min_length_mode,
+	>(
+		specific_options: {
+			required: {
+				mode?: Mode,
+				minLength: MinLength_type,
+			},
+			optional: {
+				mode?: Mode,
+			},
+		}[Mode],
+	): Readonly<non_empty_string_type<MinLength_type>> {
+		const minLength = 'minLength' in specific_options
+			? specific_options.minLength
+			: undefined;
+		const type_definition: non_empty_string_type<MinLength_type> = {
+			type: 'string',
+			minLength: minLength || PositiveInteger(1),
+		};
+
+		return Object.freeze(type_definition);
 	}
 }

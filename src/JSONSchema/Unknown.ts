@@ -46,6 +46,7 @@ type unknown_schema = SchemaDefinitionDefinition<
 export class Unknown extends Type<
 	unknown,
 	unknown_type,
+	Record<string, never>,
 	unknown_schema,
 	Record<string, never>,
 	KeywordTypeNode<SyntaxKind.UnknownKeyword>,
@@ -55,11 +56,7 @@ export class Unknown extends Type<
 		super({
 			...options,
 			schema_definition: {},
-			type_definition: Object.freeze({
-				type: 'object',
-				additionalProperties: false,
-				maxProperties: 0,
-			}),
+			type_definition: {},
 		});
 	}
 
@@ -104,5 +101,13 @@ export class Unknown extends Type<
 				},
 			},
 		} as const);
+	}
+
+	static generate_type_definition(): Readonly<unknown_type> {
+		return Object.freeze({
+			type: 'object',
+			additionalProperties: false,
+			maxProperties: 0,
+		});
 	}
 }

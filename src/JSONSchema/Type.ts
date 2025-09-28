@@ -49,11 +49,11 @@ export type TypeDefinitionSchema<
 
 export type TypeOptions<
 	SchemaDefinitionOptions extends {[key: string]: unknown},
-	Type extends TypeDefinitionSchema,
+	TypeDefinitionOptions extends {[key: string]: unknown},
 > = {
 	ajv: Ajv,
 	schema_definition: SchemaDefinitionOptions,
-	type_definition: Readonly<Type>,
+	type_definition: TypeDefinitionOptions,
 };
 
 export type SchemalessTypeOptions = Omit<
@@ -80,6 +80,11 @@ export class VerboseMatchError extends TypeError {
 export abstract class ConversionlessType<
 	T,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
@@ -102,18 +107,21 @@ export abstract class ConversionlessType<
 		ajv,
 		schema_definition,
 		type_definition,
-	}: TypeOptions<SchemaDefinitionOptions, TypeDefinition>) {
-		this.type_definition = type_definition;
-
+	}: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
 		const static_class = (
 			this.constructor as typeof ConversionlessType<
 				T,
 				TypeDefinition,
+				TypeDefinitionOptions,
 				SchemaDefinition,
 				SchemaDefinitionOptions,
 				TSType
 			>
 		);
+
+		this.type_definition = static_class.generate_type_definition(
+			type_definition,
+		) as TypeDefinition;
 
 		this.schema_definition = static_class.generate_schema_definition(
 			schema_definition,
@@ -123,7 +131,7 @@ export abstract class ConversionlessType<
 		this.#check_schema = ajv.compile<TypeDefinition>(
 			this.schema_definition,
 		);
-		this.#check_type = ajv.compile<T>(type_definition);
+		this.#check_type = ajv.compile<T>(this.type_definition);
 	}
 
 	can_handle_schema(
@@ -192,6 +200,13 @@ export abstract class ConversionlessType<
 		throw new Error('Not implemented!');
 	}
 
+	static generate_type_definition(
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		_: {[key: string]: unknown},
+	): Readonly<TypeDefinitionSchema> {
+		throw new Error('Not implemented!');
+	}
+
 	static is_a(maybe: unknown): maybe is ConversionlessType<unknown> {
 		return maybe instanceof this;
 	}
@@ -200,6 +215,11 @@ export abstract class ConversionlessType<
 export abstract class Type<
 	T,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
@@ -214,6 +234,7 @@ export abstract class Type<
 	ConversionlessType<
 		T,
 		TypeDefinition,
+		TypeDefinitionOptions,
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		SchemaTo
@@ -322,6 +343,11 @@ export abstract class TypeWithDefs<
 	) = (
 		TypeDefinition_with_$defs<SchemaDefinitionType>
 	),
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaDefinition extends (
 		SchemaDefinition_with_$defs
 	) = SchemaDefinition_with_$defs,
@@ -336,6 +362,7 @@ export abstract class TypeWithDefs<
 	Type<
 		T,
 		TypeDefinition,
+		TypeDefinitionOptions,
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		SchemaTo,

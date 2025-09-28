@@ -53,6 +53,9 @@ export class StringStartsWith<
 	extends KeywordType<
 		StartsWith,
 		string_starts_with_type<StartsWith>,
+		{
+			prefix: StartsWith,
+		},
 		string_starts_with_schema,
 		Record<string, never>,
 		TemplateLiteralTypeNode,
@@ -63,10 +66,9 @@ export class StringStartsWith<
 	constructor(prefix: StartsWith, options: SchemalessTypeOptions) {
 		super({
 			...options,
-			type_definition: Object.freeze({
-				type: 'string',
-				starts_with: prefix,
-			}),
+			type_definition: {
+				prefix,
+			},
 			schema_definition: {},
 		});
 	}
@@ -149,5 +151,20 @@ export class StringStartsWith<
 		};
 
 		return Object.freeze(definition);
+	}
+
+	static generate_type_definition<
+		StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
+	>(
+		{
+			prefix,
+		}: {
+			prefix: StartsWith,
+		},
+	): Readonly<string_starts_with_type<StartsWith>> {
+		return Object.freeze({
+			type: 'string',
+			starts_with: prefix,
+		});
 	}
 }

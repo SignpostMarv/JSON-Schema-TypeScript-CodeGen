@@ -174,6 +174,9 @@ export class $ref<
 	ConversionlessType<
 		T,
 		$ref_type<RefMode>,
+		{
+			$ref_mode: RefMode,
+		},
 		$ref_schema<RefMode>,
 		{
 			$ref_mode: RefMode,
@@ -204,7 +207,9 @@ export class $ref<
 			schema_definition: {
 				$ref_mode,
 			},
-			type_definition: $ref.#type_definition($ref_mode),
+			type_definition: {
+				$ref_mode,
+			},
 		});
 
 		this.$ref_mode = $ref_mode;
@@ -406,6 +411,38 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
+	static generate_type_definition<
+		RefMode extends $ref_mode,
+	>({
+		$ref_mode,
+	}: {
+		$ref_mode: RefMode,
+	}): Readonly<$ref_type<RefMode>> {
+		const schema: $ref_type<RefMode> = {
+			type: 'object',
+			additionalProperties: false,
+			required: ['$ref'],
+			properties: {
+				$ref: {
+					type: 'string',
+					pattern: {
+						either: pattern_either,
+						external: pattern_external,
+						local: pattern_local,
+					}[$ref_mode],
+				},
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
+			},
+		};
+
+		return Object.freeze(schema);
+	}
+
 	static get_defs(
 		schema: (
 			& SchemaObject
@@ -576,35 +613,5 @@ export class $ref<
 				local: regexp_local,
 			}[$ref_mode || 'either'].test(maybe.$ref)
 		);
-	}
-
-	static #type_definition<
-		RefMode extends $ref_mode,
-	>(
-		$ref_mode: RefMode,
-	): Readonly<$ref_type<RefMode>> {
-		const schema: $ref_type<RefMode> = {
-			type: 'object',
-			additionalProperties: false,
-			required: ['$ref'],
-			properties: {
-				$ref: {
-					type: 'string',
-					pattern: {
-						either: pattern_either,
-						external: pattern_external,
-						local: pattern_local,
-					}[$ref_mode],
-				},
-				$defs: {
-					type: 'object',
-					additionalProperties: {
-						type: 'object',
-					},
-				},
-			},
-		};
-
-		return Object.freeze(schema);
 	}
 }

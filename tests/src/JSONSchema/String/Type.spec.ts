@@ -18,3 +18,13 @@ void describe('Type.generate_schema_definition()', () => {
 		);
 	});
 });
+
+void describe('Type.generate_type_definition()', () => {
+	void it('will always fail', () => {
+		throws_Error(
+			() => Type.generate_type_definition({}),
+			Error,
+			'Not implemented!',
+		);
+	});
+});
