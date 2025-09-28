@@ -8,6 +8,16 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import {
+	SyntaxKind,
+} from 'typescript';
+
+import {
+	not_undefined,
+} from '@satisfactory-dev/custom-assert';
+
+import ts_assert from '@signpostmarv/ts-assert';
+
 import type {
 	share_ajv_callback,
 } from '../../src/SchemaParser.ts';
@@ -18,6 +28,14 @@ import {
 import {
 	$ref,
 } from '../../src/JSONSchema/Ref.ts';
+
+import {
+	StringStartsWith,
+} from '../../src/Ajv/StringStartsWith.ts';
+
+import {
+	bool_throw,
+} from '../assertions.ts';
 
 void describe('SchemaParser', () => {
 	void describe('.parse()', () => {
@@ -57,6 +75,104 @@ void describe('SchemaParser', () => {
 				assert.throws(() => parser.parse(type_schema, 'yes'));
 			},
 		);
+
+		void describe('.generate_typescript_type()', () => {
+			void it(
+				'gives String and StringStartsWith when expected',
+				async () => {
+					const schema = {
+						type: 'object',
+						required: ['foo', 'bar'],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+							bar: {
+								type: 'string',
+								starts_with: 'bar',
+							},
+						},
+					};
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					schema_parser.types.push(
+						new StringStartsWith('bar', {ajv}),
+					);
+					const instance = schema_parser.parse(schema);
+
+					const type_promise = instance.generate_typescript_type({
+						schema,
+						schema_parser,
+					});
+
+					await assert.doesNotReject(() => type_promise);
+
+					const type = await type_promise;
+
+					ts_assert.isTypeLiteralNode(type);
+
+					assert.equal(type.members.length, 2);
+					assert.ok(type.members.every(
+						(maybe) => bool_throw(
+							maybe,
+							ts_assert.isPropertySignature,
+						),
+					));
+
+					ts_assert.isIdentifier(type.members[0].name);
+					assert.equal(type.members[0].name.text, 'foo');
+
+					ts_assert.isIdentifier(type.members[1].name);
+					assert.equal(type.members[1].name.text, 'bar');
+
+					not_undefined(type.members[0].type);
+					not_undefined(type.members[1].type);
+
+					ts_assert.isTokenWithExpectedKind(
+						type.members[0].type,
+						SyntaxKind.StringKeyword,
+					);
+					ts_assert.isTemplateLiteralTypeNode(
+						type.members[1].type,
+					);
+
+					assert.equal(
+						type.members[1].type.head.text,
+						'',
+					);
+
+					assert.equal(
+						type.members[1].type.templateSpans.length,
+						2,
+					);
+
+					ts_assert.isTemplateMiddle(
+						type.members[1].type.templateSpans[0].literal,
+					);
+
+					ts_assert.isTemplateTail(
+						type.members[1].type.templateSpans[1].literal,
+					);
+
+					ts_assert.isLiteralTypeNode(
+						type.members[1].type.templateSpans[0].type,
+					);
+					ts_assert.isStringLiteral(
+						type.members[1].type.templateSpans[0].type.literal,
+					);
+					assert.equal(
+						type.members[1]
+							.type.templateSpans[0].type.literal.text,
+						'bar',
+					);
+
+					ts_assert.isTokenWithExpectedKind(
+						type.members[1].type.templateSpans[1].type,
+						SyntaxKind.StringKeyword,
+					);
+				},
+			);
+		});
 	});
 
 	void describe('.share_ajv()', () => {

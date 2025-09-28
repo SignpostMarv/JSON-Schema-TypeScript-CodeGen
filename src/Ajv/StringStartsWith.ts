@@ -1,0 +1,145 @@
+import type {
+	TemplateExpression,
+	TemplateLiteralTypeNode,
+} from 'typescript';
+import {
+	factory,
+	SyntaxKind,
+} from 'typescript';
+
+import type {
+	Ajv2020 as Ajv,
+} from 'ajv/dist/2020.js';
+
+import type {
+	SchemalessTypeOptions,
+	TypeDefinitionSchema,
+} from '../JSONSchema/Type.ts';
+
+import {
+	KeywordType,
+} from './Keyword.ts';
+
+import type {
+} from 'regexp.escape/auto';
+
+type string_starts_with_type<
+	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
+> = {
+	type: 'string',
+	starts_with: StartsWith,
+};
+
+type string_starts_with_schema = TypeDefinitionSchema<{
+	type: 'object',
+	required: ['type', 'starts_with'],
+	additionalProperties: false,
+	properties: {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		starts_with: {
+			type: 'string',
+			minLength: 1,
+		},
+	},
+}>;
+
+export class StringStartsWith<
+	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
+>
+	extends KeywordType<
+		StartsWith,
+		string_starts_with_type<StartsWith>,
+		string_starts_with_schema,
+		TemplateLiteralTypeNode,
+		TemplateExpression
+	> {
+	static #ajv_check: WeakSet<Ajv> = new WeakSet();
+
+	constructor(prefix: StartsWith, options: SchemalessTypeOptions) {
+		super({
+			...options,
+			schema_definition: Object.freeze({
+				type: 'object',
+				required: ['type', 'starts_with'],
+				additionalProperties: false,
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					starts_with: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+			}),
+			type_definition: Object.freeze({
+				type: 'string',
+				starts_with: prefix,
+			}),
+		});
+	}
+
+	generate_typescript_data(
+		data: StartsWith,
+	): TemplateExpression {
+		return factory.createTemplateExpression(
+			factory.createTemplateHead(''),
+			[
+				factory.createTemplateSpan(
+					factory.createStringLiteral(data),
+					factory.createTemplateMiddle(''),
+				),
+				factory.createTemplateSpan(
+					factory.createIdentifier('string'),
+					factory.createTemplateTail(''),
+				),
+			],
+		);
+	}
+
+	generate_typescript_type(
+		{
+			schema,
+		}: (
+			| { schema: string_starts_with_type<StartsWith> }
+		),
+	): Promise<TemplateLiteralTypeNode> {
+		return Promise.resolve(factory.createTemplateLiteralType(
+			factory.createTemplateHead(''),
+			[
+				factory.createTemplateLiteralTypeSpan(
+					factory.createLiteralTypeNode(
+						factory.createStringLiteral(schema.starts_with),
+					),
+					factory.createTemplateMiddle(''),
+				),
+				factory.createTemplateLiteralTypeSpan(
+					factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+					factory.createTemplateTail(''),
+				),
+			],
+		));
+	}
+
+	static ajv_keyword(ajv: Ajv): void {
+		if (StringStartsWith.#ajv_check.has(ajv)) {
+			return;
+		}
+
+		ajv.addKeyword({
+			keyword: 'starts_with',
+			type: 'string',
+			macro: (starts_with: string) => (
+				{
+					pattern: `^${RegExp.escape(starts_with)}.+$`,
+				}
+			),
+		});
+
+		StringStartsWith.#ajv_check.add(ajv);
+	}
+}

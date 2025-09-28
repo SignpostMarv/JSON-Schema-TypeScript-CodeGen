@@ -83,7 +83,7 @@ const regexp_either = new RegExp(pattern_either);
 const regexp_external = new RegExp(pattern_external);
 const regexp_local = new RegExp(pattern_local);
 
-type $ref_type<
+export type $ref_type<
 	RefMode extends $ref_mode,
 > = {
 	type: 'object',

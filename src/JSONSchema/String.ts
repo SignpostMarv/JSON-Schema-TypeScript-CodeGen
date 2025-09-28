@@ -55,7 +55,7 @@ type string_schema<
 	)
 >;
 
-type const_type<
+export type const_type<
 	T extends string|undefined = undefined,
 > = (
 	T extends string
@@ -110,7 +110,7 @@ type MinLength_type<
 
 export type min_length_mode = 'required'|'optional';
 
-type non_empty_string_type<
+export type non_empty_string_type<
 	MinLength extends MinLength_type = MinLength_type,
 > = {
 	type: 'string',

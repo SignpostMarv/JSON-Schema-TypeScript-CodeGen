@@ -21,6 +21,10 @@ import type {
 	SchemaObject,
 } from '../types.ts';
 
+import type {
+	KeywordType,
+} from '../Ajv/Keyword.ts';
+
 export type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
@@ -100,6 +104,11 @@ export abstract class ConversionlessType<
 	}: TypeOptions<SchemaDefinition, TypeDefinition>) {
 		this.type_definition = type_definition;
 		this.schema_definition = schema_definition;
+		if ('ajv_keyword' in this.constructor) {
+			(
+				this.constructor as typeof KeywordType<unknown>
+			).ajv_keyword(ajv);
+		}
 		this.#check_schema = ajv.compile<TypeDefinition>(schema_definition);
 		this.#check_type = ajv.compile<T>(type_definition);
 	}
