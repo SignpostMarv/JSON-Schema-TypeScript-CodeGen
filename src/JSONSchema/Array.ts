@@ -511,6 +511,13 @@ abstract class ArrayUncertain<
 			MaxItems_mode,
 			UniqueItems_mode
 		>,
+		{
+			$defs_mode: DefsMode,
+			array_mode: ArrayMode,
+			minItems_mode: MinItems_mode,
+			maxItems_mode: MaxItems_mode,
+			uniqueItems_mode: UniqueItems_mode,
+		},
 		createTypeNode<T2, T3, MinItems_mode, ArrayMode>,
 		ArrayLiteralExpression<T4, T5, true>
 	> {
@@ -552,11 +559,7 @@ abstract class ArrayUncertain<
 			type_definition: ArrayUncertain.#generate_default_type_definition(
 				options,
 			),
-			schema_definition: (
-				ArrayUncertain.generate_default_schema_definition(
-					options,
-				)
-			),
+			schema_definition: options,
 		});
 		this.#expression_at_index_verifier = (
 			options.expression_at_index_verifier
@@ -653,7 +656,7 @@ abstract class ArrayUncertain<
 		throw new TypeError('Unsupported schema found!');
 	}
 
-	static generate_default_schema_definition<
+	static generate_schema_definition<
 		DefsMode extends $defs_mode,
 		ArrayMode extends array_mode,
 		MinItems_mode extends MinItemsType_mode,

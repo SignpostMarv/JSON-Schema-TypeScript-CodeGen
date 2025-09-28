@@ -47,13 +47,14 @@ export class Unknown extends Type<
 	unknown,
 	unknown_type,
 	unknown_schema,
+	Record<string, never>,
 	KeywordTypeNode<SyntaxKind.UnknownKeyword>,
 	Expression
 > {
 	constructor(options: SchemalessTypeOptions) {
 		super({
 			...options,
-			schema_definition: Unknown.generate_default_schema_definition(),
+			schema_definition: {},
 			type_definition: Object.freeze({
 				type: 'object',
 				additionalProperties: false,
@@ -83,7 +84,7 @@ export class Unknown extends Type<
 		);
 	}
 
-	static generate_default_schema_definition() {
+	static generate_schema_definition() {
 		return Object.freeze({
 			type: 'object',
 			required: ['type', 'additionalProperties', 'maxProperties'],

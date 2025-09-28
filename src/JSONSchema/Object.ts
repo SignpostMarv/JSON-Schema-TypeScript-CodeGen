@@ -219,6 +219,9 @@ export class ObjectUnspecified<
 		object_schema<
 			PropertiesMode
 		>,
+		{
+			properties_mode: PropertiesMode,
+		},
 		object_TypeLiteralNode<PropertiesMode>,
 		ObjectLiteralExpression
 	> {
@@ -256,11 +259,7 @@ export class ObjectUnspecified<
 				.#generate_default_type_definition(
 					options,
 				),
-			schema_definition: (
-				ObjectUnspecified.generate_default_schema_definition(
-					options,
-				)
-			),
+			schema_definition: options,
 		});
 
 		this.#adjust_name = options?.adjust_name || adjust_name_default;
@@ -309,7 +308,7 @@ export class ObjectUnspecified<
 		);
 	}
 
-	static generate_default_schema_definition<
+	static generate_schema_definition<
 		PropertiesMode extends object_properties_mode,
 	>({
 		properties_mode,
@@ -319,7 +318,7 @@ export class ObjectUnspecified<
 		PropertiesMode
 	>> {
 		const required_for_partial = (
-			this.#generate_default_schema_definition_required(
+			this.#generate_schema_definition_required(
 				properties_mode,
 			)
 		);
@@ -408,7 +407,7 @@ export class ObjectUnspecified<
 		return Object.freeze(result);
 	}
 
-	static #generate_default_schema_definition_required<
+	static #generate_schema_definition_required<
 		PropertiesMode extends object_properties_mode,
 	>(
 		properties_mode: PropertiesMode,

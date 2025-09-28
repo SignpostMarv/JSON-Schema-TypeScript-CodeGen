@@ -21,6 +21,11 @@ export abstract class KeywordType<
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
 >
@@ -28,6 +33,7 @@ export abstract class KeywordType<
 		T,
 		TypeDefinition,
 		SchemaDefinition,
+		SchemaDefinitionOptions,
 		SchemaTo,
 		DataTo
 	> {

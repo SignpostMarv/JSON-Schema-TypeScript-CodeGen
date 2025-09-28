@@ -152,6 +152,11 @@ abstract class BaseString<
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
 > extends
@@ -159,6 +164,7 @@ abstract class BaseString<
 		T,
 		TypeDefinition,
 		SchemaDefinition,
+		SchemaDefinitionOptions,
 		SchemaTo,
 		DataTo
 	> {
@@ -171,13 +177,14 @@ export class String<
 		T,
 		{type: 'string'},
 		string_schema,
+		Record<string, never>,
 		KeywordTypeNode<SyntaxKind.StringKeyword>,
 		StringLiteral
 	> {
 	constructor(options: SchemalessTypeOptions) {
 		super({
 			...options,
-			schema_definition: String.generate_default_schema_definition(),
+			schema_definition: {},
 			type_definition: Object.freeze({
 				type: 'string',
 			}),
@@ -194,7 +201,7 @@ export class String<
 		);
 	}
 
-	static generate_default_schema_definition() {
+	static generate_schema_definition() {
 		return Object.freeze<string_schema>({
 			type: 'object',
 			required: ['type'],
@@ -216,6 +223,7 @@ export class ConstString<
 		T extends string ? T : string,
 		const_type<T>,
 		const_schema<T>,
+		{literal: string|undefined},
 		const_generate_typescript_type<T>,
 		StringLiteral
 	> {
@@ -232,9 +240,7 @@ export class ConstString<
 		const coerced: const_type<T> = type_definition as const_type<T>;
 		super({
 			...options,
-			schema_definition: ConstString.generate_default_schema_definition({
-				literal,
-			}),
+			schema_definition: {literal},
 			type_definition: Object.freeze(coerced),
 		});
 	}
@@ -259,7 +265,7 @@ export class ConstString<
 		) as const_generate_typescript_type<T>);
 	}
 
-	static generate_default_schema_definition<
+	static generate_schema_definition<
 		T extends string|undefined = undefined,
 	>({literal}: {literal: T}): Readonly<
 		const_schema<T>
@@ -307,6 +313,9 @@ export class NonEmptyString<
 		T,
 		non_empty_string_type<MinLength_type>,
 		non_empty_string_schema<Mode, MinLength_type>,
+		{
+			minLength?: MinLength_type,
+		},
 		TypeReferenceNode,
 		StringLiteral
 	> {
@@ -332,11 +341,7 @@ export class NonEmptyString<
 
 		super({
 			...options,
-			schema_definition: (
-				NonEmptyString.generate_default_schema_definition<Mode>({
-					minLength,
-				})
-			),
+			schema_definition: {minLength},
 			type_definition,
 		});
 	}
@@ -355,7 +360,7 @@ export class NonEmptyString<
 		));
 	}
 
-	static generate_default_schema_definition<
+	static generate_schema_definition<
 		Mode extends min_length_mode,
 	>({
 		minLength,

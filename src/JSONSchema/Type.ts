@@ -48,11 +48,11 @@ export type TypeDefinitionSchema<
 );
 
 export type TypeOptions<
-	Schema extends SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends {[key: string]: unknown},
 	Type extends TypeDefinitionSchema,
 > = {
 	ajv: Ajv,
-	schema_definition: Readonly<Schema>,
+	schema_definition: SchemaDefinitionOptions,
 	type_definition: Readonly<Type>,
 };
 
@@ -83,6 +83,11 @@ export abstract class ConversionlessType<
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	TSType extends TypeNode = TypeNode,
 > {
 	protected schema_definition: SchemaDefinition;
@@ -97,13 +102,27 @@ export abstract class ConversionlessType<
 		ajv,
 		schema_definition,
 		type_definition,
-	}: TypeOptions<SchemaDefinition, TypeDefinition>) {
+	}: TypeOptions<SchemaDefinitionOptions, TypeDefinition>) {
 		this.type_definition = type_definition;
-		this.schema_definition = schema_definition;
-		(
-			this.constructor as typeof ConversionlessType<unknown>
-		).configure_ajv(ajv);
-		this.#check_schema = ajv.compile<TypeDefinition>(schema_definition);
+
+		const static_class = (
+			this.constructor as typeof ConversionlessType<
+				T,
+				TypeDefinition,
+				SchemaDefinition,
+				SchemaDefinitionOptions,
+				TSType
+			>
+		);
+
+		this.schema_definition = static_class.generate_schema_definition(
+			schema_definition,
+		) as SchemaDefinition;
+
+		static_class.configure_ajv(ajv);
+		this.#check_schema = ajv.compile<TypeDefinition>(
+			this.schema_definition,
+		);
 		this.#check_type = ajv.compile<T>(type_definition);
 	}
 
@@ -166,9 +185,9 @@ export abstract class ConversionlessType<
 	static configure_ajv(ajv: Ajv) {
 	}
 
-	static generate_default_schema_definition(
+	static generate_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		_: {[k: string]: unknown} = {},
+		_: {[key: string]: unknown},
 	): Readonly<SchemaDefinitionDefinition> {
 		throw new Error('Not implemented!');
 	}
@@ -184,6 +203,11 @@ export abstract class Type<
 	SchemaDefinition extends (
 		SchemaDefinitionDefinition
 	) = SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
 > extends
@@ -191,6 +215,7 @@ export abstract class Type<
 		T,
 		TypeDefinition,
 		SchemaDefinition,
+		SchemaDefinitionOptions,
 		SchemaTo
 	> {
 	abstract generate_typescript_data(
@@ -300,6 +325,11 @@ export abstract class TypeWithDefs<
 	SchemaDefinition extends (
 		SchemaDefinition_with_$defs
 	) = SchemaDefinition_with_$defs,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
 > extends
@@ -307,6 +337,7 @@ export abstract class TypeWithDefs<
 		T,
 		TypeDefinition,
 		SchemaDefinition,
+		SchemaDefinitionOptions,
 		SchemaTo,
 		DataTo
 	> {

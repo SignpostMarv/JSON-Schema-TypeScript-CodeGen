@@ -175,6 +175,9 @@ export class $ref<
 		T,
 		$ref_type<RefMode>,
 		$ref_schema<RefMode>,
+		{
+			$ref_mode: RefMode,
+		},
 		TypeReferenceNode
 	> {
 	readonly #adjust_name: adjust_name_callback;
@@ -198,9 +201,9 @@ export class $ref<
 	) {
 		super({
 			...options,
-			schema_definition: $ref.generate_default_schema_definition({
+			schema_definition: {
 				$ref_mode,
-			}),
+			},
 			type_definition: $ref.#type_definition($ref_mode),
 		});
 
@@ -324,7 +327,7 @@ export class $ref<
 		);
 	}
 
-	static generate_default_schema_definition<
+	static generate_schema_definition<
 		RefMode extends $ref_mode,
 	>({
 		$ref_mode,

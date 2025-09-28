@@ -19,7 +19,7 @@ import {
 } from '../../../../src/JSONSchema/Array.ts';
 
 void describe('ArrayUncertain', () => {
-	void describe('::generate_default_schema_definition()', () => {
+	void describe('::generate_schema_definition()', () => {
 		type DataSet<
 			DefsMode extends $defs_mode = $defs_mode,
 			ArrayMode extends array_mode = array_mode,
@@ -270,7 +270,7 @@ void describe('ArrayUncertain', () => {
 		], i) => {
 			void it(`behaves as expected with data_sets[${i}]`, () => {
 				const result = ArrayUnspecified
-					.generate_default_schema_definition({
+					.generate_schema_definition({
 						$defs_mode,
 						array_mode,
 						minItems_mode,

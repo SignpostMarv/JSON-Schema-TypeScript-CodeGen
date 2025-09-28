@@ -53,7 +53,7 @@ import {
 } from '../../../../src/guarded.ts';
 
 void describe('ObjectUnspecified', () => {
-	void describe('::generate_default_schema_definition()', () => {
+	void describe('::generate_schema_definition()', () => {
 		type DataSet<
 			PropertiesMode extends (
 				object_properties_mode
@@ -177,7 +177,7 @@ void describe('ObjectUnspecified', () => {
 				}>)`,
 				() => {
 					const schema = ObjectUnspecified
-						.generate_default_schema_definition({
+						.generate_schema_definition({
 							properties_mode,
 						});
 
@@ -252,6 +252,20 @@ void describe('ObjectUnspecified', () => {
 
 			get type_def() {
 				return this.type_definition;
+			}
+
+			static generate_schema_definition<
+				PropertiesMode extends object_properties_mode,
+			>({
+				properties_mode,
+			}: {
+				properties_mode: PropertiesMode,
+			}): Readonly<object_schema<
+				PropertiesMode
+			>> {
+				return ObjectUnspecified.generate_schema_definition({
+					properties_mode,
+				});
 			}
 		};
 

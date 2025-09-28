@@ -12,6 +12,7 @@ import type {
 } from 'ajv/dist/2020.js';
 
 import type {
+	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 } from '../JSONSchema/Type.ts';
@@ -53,6 +54,7 @@ export class StringStartsWith<
 		StartsWith,
 		string_starts_with_type<StartsWith>,
 		string_starts_with_schema,
+		Record<string, never>,
 		TemplateLiteralTypeNode,
 		TemplateExpression
 	> {
@@ -61,25 +63,11 @@ export class StringStartsWith<
 	constructor(prefix: StartsWith, options: SchemalessTypeOptions) {
 		super({
 			...options,
-			schema_definition: Object.freeze({
-				type: 'object',
-				required: ['type', 'starts_with'],
-				additionalProperties: false,
-				properties: {
-					type: {
-						type: 'string',
-						const: 'string',
-					},
-					starts_with: {
-						type: 'string',
-						minLength: 1,
-					},
-				},
-			}),
 			type_definition: Object.freeze({
 				type: 'string',
 				starts_with: prefix,
 			}),
+			schema_definition: {},
 		});
 	}
 
@@ -141,5 +129,25 @@ export class StringStartsWith<
 		});
 
 		StringStartsWith.#ajv_check.add(ajv);
+	}
+
+	static generate_schema_definition(): Readonly<SchemaDefinitionDefinition> {
+		const definition: string_starts_with_schema = {
+			type: 'object',
+			required: ['type', 'starts_with'],
+			additionalProperties: false,
+			properties: {
+				type: {
+					type: 'string',
+					const: 'string',
+				},
+				starts_with: {
+					type: 'string',
+					minLength: 1,
+				},
+			},
+		};
+
+		return Object.freeze(definition);
 	}
 }
