@@ -18,7 +18,7 @@ import type {
 import type {
 	IntersectionTypeNode,
 	TypeLiteralNode,
-} from '../typescript-types.ts';
+} from '../typescript/types.ts';
 
 import type {
 	ConversionlessType,

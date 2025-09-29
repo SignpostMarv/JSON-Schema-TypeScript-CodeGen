@@ -1,9 +1,5 @@
 import type {
-	Expression,
 	KeywordTypeNode,
-	StringLiteral,
-	TypeNode,
-	TypeReferenceNode,
 } from 'typescript';
 
 import {
@@ -17,46 +13,915 @@ import {
 import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
-	TypeDefinitionSchema,
 } from './Type.ts';
 import {
 	Type,
 } from './Type.ts';
 
 import type {
-	SchemaObject,
+	ObjectOfSchemas,
 } from '../types.ts';
 
 import type {
+	CallExpression,
+	Identifier,
 	LiteralTypeNode,
-} from '../typescript-types.ts';
+	StringLiteral,
+	TypeReferenceNode,
+	UnionTypeNode,
+} from '../typescript/types.ts';
 
 import {
 	PositiveInteger,
 } from '../guarded.ts';
+import {
+	PositiveIntegerOrZero,
+} from '../guarded.ts';
 
 import {
+	StringTupleToLiteralTypeNodeTuple,
+} from '../coercions.ts';
+import {
+	call_expression,
+	identifier,
+	literal_type_node,
+	string_literal,
 	type_reference_node,
+	union_type_node,
 } from '../coercions.ts';
 
-type string_schema<
-	Schema extends SchemaObject = SchemaObject,
-> = TypeDefinitionSchema<
-	(
-		& Schema
-		& {
-			type: 'object',
-			required: ['type'],
-			additionalProperties: false,
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-			},
+import type {
+	SchemaParser,
+} from '../SchemaParser.ts';
+
+type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
+
+type string_options<
+	StringMode extends string_mode = string_mode,
+	Enum extends [string, string, ...string[]]|never[] = never[],
+	Pattern extends string|undefined = undefined,
+	MinLength extends MinLength_type = MinLength_type<1>,
+	Const extends string|undefined = string|undefined,
+> = {
+	basic: {
+		string_mode: 'basic',
+		minLength?: MinLengthOrZero_type<0>|MinLength,
+	},
+	enum: {
+		string_mode: 'enum',
+		enum: Enum,
+	},
+	pattern: {
+		string_mode: 'pattern',
+		pattern: Pattern,
+	},
+	'non-empty': {
+		string_mode: 'non-empty',
+		minLength: MinLength,
+	},
+	const: {
+		string_mode: 'const',
+		const: Const,
+	},
+}[StringMode];
+
+type string_type<
+	StringMode extends string_mode,
+	Enum extends [string, string, ...string[]] = [string, string, ...string[]],
+	Pattern extends string = string,
+	MinLength extends MinLength_type = MinLength_type<1>,
+	Const extends string|undefined = string|undefined,
+> = {
+	basic: {
+		type: 'string',
+		minLength?: MinLengthOrZero_type<0>|MinLength,
+	},
+	enum: {
+		type: 'string',
+		enum: Enum,
+	},
+	pattern: {
+		type: 'string',
+		pattern: Pattern,
+	},
+	'non-empty': {
+		type: 'string',
+		minLength: MinLength,
+	},
+	const: Const extends undefined
+		? {
+			type: 'string',
 		}
-	)
+		: {
+			type: 'string',
+			const: Const,
+		},
+}[StringMode];
+
+type string_schema_Properties<
+	StringMode extends string_mode,
+	Enum extends [string, string, ...string[]]|never[] = never[],
+	Pattern extends string|undefined = undefined,
+	MinLength extends MinLength_type|undefined = MinLength_type<1>,
+	Const extends string|undefined = undefined,
+> = {
+	basic: {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		minLength: {
+			type: 'integer',
+			const: ReturnType<typeof PositiveIntegerOrZero<0>>,
+		},
+	},
+	enum: {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		enum: (
+			Enum extends [string, string, ...string[]]
+				? {
+					type: 'array',
+					const: Enum,
+				}
+				: {
+					type: 'array',
+					minItems: 1,
+					uniqueItems: true,
+					items: {
+						type: 'string',
+					},
+				}
+		),
+	},
+	pattern: {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		pattern: (
+			Pattern extends undefined
+				? {
+					type: 'string',
+				}
+				: {
+					type: 'string',
+					const: Pattern,
+				}
+		),
+	},
+	'non-empty': {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		minLength: {
+			type: 'integer',
+			const: MinLength,
+		},
+	},
+	const: {
+		type: {
+			type: 'string',
+			const: 'string',
+		},
+		const: (
+			Const extends undefined
+				? {
+					type: 'string',
+				}
+				: {
+					type: 'string',
+					const: Const,
+				}
+		),
+	},
+}[StringMode];
+
+type base_string_schema<
+	StringMode extends string_mode,
+	Enum extends [string, string, ...string[]]|never[] = never[],
+	Pattern extends string|undefined = undefined,
+	MinLength extends MinLength_type = MinLength_type<1>,
+	Const extends string|undefined = undefined,
+> = SchemaDefinitionDefinition<
+	{
+		basic: ['type'],
+		enum: ['type', 'enum'],
+		pattern: ['type', 'pattern'],
+		'non-empty': ['type', 'minLength'],
+		const: ['type', 'const'],
+	}[StringMode],
+	ObjectOfSchemas & string_schema_Properties<
+		StringMode,
+		Enum,
+		Pattern,
+		MinLength,
+		Const
+	>
 >;
+
+class BaseString<
+	T extends string = string,
+	StringMode extends string_mode = string_mode,
+	Enum extends [string, string, ...string[]]|never[] = never[],
+	Pattern extends string|undefined = undefined,
+	MinLength extends MinLength_type = MinLength_type<1>,
+	Const extends string|undefined = string|undefined,
+> extends
+	Type<
+		T,
+		string_type<
+			StringMode,
+			Exclude<Enum, never[]>,
+			Exclude<Pattern, undefined>,
+			MinLength,
+			Const
+		>,
+		string_options<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>,
+		base_string_schema<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>,
+		string_options<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>,
+		{
+			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
+			enum: UnionTypeNode<
+				StringTupleToLiteralTypeNodeTuple<
+					Exclude<Enum, never[]>
+				>
+			>,
+			pattern: TypeReferenceNode<
+				'StringPassesRegex',
+				[LiteralTypeNode<StringLiteral>]
+			>,
+			'non-empty': TypeReferenceNode<
+				'Exclude',
+				[
+					KeywordTypeNode,
+					LiteralTypeNode<StringLiteral>,
+				]
+			>,
+			const: (
+				Const extends undefined
+					? KeywordTypeNode<SyntaxKind.StringKeyword>
+					: LiteralTypeNode<StringLiteral<Exclude<Const, undefined>>>
+			),
+		}[StringMode],
+		{
+			basic: StringLiteral,
+			enum: StringLiteral,
+			pattern: CallExpression<
+				Identifier<'StringPassesRegex'>,
+				'no',
+				never[],
+				[
+					StringLiteral<Exclude<Pattern, undefined>>,
+					StringLiteral,
+				]
+			>,
+			'non-empty': StringLiteral,
+			const: StringLiteral,
+		}[StringMode]
+	> {
+	generate_typescript_data(
+		data: T,
+		schema_parser: SchemaParser,
+		schema: string_type<
+			StringMode,
+			Exclude<Enum, never[]>,
+			Exclude<Pattern, undefined>,
+			MinLength,
+			Const
+		>,
+	): {
+		basic: StringLiteral<T>,
+		enum: StringLiteral<T>,
+		pattern: CallExpression<
+			Identifier<'StringPassesRegex'>,
+			'no',
+			never[],
+			[
+				StringLiteral<Exclude<Pattern, undefined>>,
+				StringLiteral<T>,
+			]
+		>,
+		'non-empty': StringLiteral<T>,
+		const: StringLiteral<T>,
+	}[StringMode] {
+		let result: {
+			basic: StringLiteral<T>,
+			enum: StringLiteral<T>,
+			pattern: CallExpression<
+				Identifier<'StringPassesRegex'>,
+				'no',
+				never[],
+				[
+					StringLiteral<Exclude<Pattern, undefined>>,
+					StringLiteral<T>,
+				]
+			>,
+			'non-empty': StringLiteral<T>,
+			const: StringLiteral<T>,
+		}[StringMode];
+
+		if (!('pattern' in schema)) {
+			const sanity_check: StringLiteral<T> = string_literal(data);
+
+			result = sanity_check as typeof result;
+		} else {
+			const sanity_check: CallExpression<
+				Identifier<'StringPassesRegex'>,
+				'no',
+				never[],
+				[
+					StringLiteral<Exclude<Pattern, undefined>>,
+					StringLiteral<T>,
+				]
+			> = call_expression<
+				Identifier<'StringPassesRegex'>,
+				never[],
+				[
+					StringLiteral<Exclude<Pattern, undefined>>,
+					StringLiteral<T>,
+				]
+			>(
+				identifier('StringPassesRegex'),
+				[],
+				[
+					string_literal(schema.pattern),
+					string_literal(data),
+				],
+			);
+
+			result = sanity_check as typeof result;
+		}
+
+		return result;
+	}
+
+	generate_typescript_type(
+		{
+			schema,
+		}: {
+			schema: string_type<
+				StringMode,
+				Exclude<Enum, never[]>,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				Const
+			>,
+		},
+	): Promise<{
+		basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
+		enum: UnionTypeNode<
+			StringTupleToLiteralTypeNodeTuple<
+				Exclude<Enum, never[]>
+			>
+		>,
+		pattern: TypeReferenceNode<
+			'StringPassesRegex',
+			[LiteralTypeNode<StringLiteral>]
+		>,
+		'non-empty': TypeReferenceNode<
+			'Exclude',
+			[
+				KeywordTypeNode,
+				LiteralTypeNode<StringLiteral>,
+			]
+		>,
+		const: (
+			Const extends undefined
+				? KeywordTypeNode<SyntaxKind.StringKeyword>
+				: LiteralTypeNode<StringLiteral<Exclude<Const, undefined>>>
+		),
+	}[StringMode]> {
+		let result: {
+			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
+			enum: UnionTypeNode<
+				StringTupleToLiteralTypeNodeTuple<
+					Exclude<Enum, never[]>
+				>
+			>,
+			pattern: TypeReferenceNode<
+				'StringPassesRegex',
+				[LiteralTypeNode<StringLiteral>]
+			>,
+			'non-empty': TypeReferenceNode<
+				'Exclude',
+				[
+					KeywordTypeNode,
+					LiteralTypeNode<StringLiteral>,
+				]
+			>,
+			const: (
+				Const extends undefined
+					? KeywordTypeNode<SyntaxKind.StringKeyword>
+					: LiteralTypeNode<StringLiteral<Exclude<Const, undefined>>>
+			),
+		}[StringMode];
+
+		if ('enum' in schema) {
+			const sanity_check: UnionTypeNode<
+				StringTupleToLiteralTypeNodeTuple<
+					Exclude<Enum, never[]>
+				>
+			> = union_type_node(StringTupleToLiteralTypeNodeTuple(
+				schema.enum,
+			));
+
+			result = sanity_check as typeof result;
+		} else if ('pattern' in schema) {
+			const sanity_check: TypeReferenceNode<
+				'StringPassesRegex',
+				[LiteralTypeNode<StringLiteral>]
+			> = type_reference_node(
+				'StringPassesRegex',
+				[
+					factory.createLiteralTypeNode(
+						string_literal(schema.pattern),
+					),
+				],
+			);
+
+			result = sanity_check as typeof result;
+		} else if ('const' in schema) {
+			let double_sanity_check: (
+				Const extends undefined
+					? KeywordTypeNode<SyntaxKind.StringKeyword>
+					: LiteralTypeNode<StringLiteral<Exclude<Const, undefined>>>
+			);
+
+			if (undefined === schema.const) {
+				const sanity_check: KeywordTypeNode<
+					SyntaxKind.StringKeyword
+				> = factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
+
+				double_sanity_check = sanity_check as (
+					typeof double_sanity_check
+				);
+			} else {
+				const sanity_check: LiteralTypeNode<
+					StringLiteral<Exclude<Const, undefined>>
+				> = literal_type_node(
+					string_literal(schema.const as Exclude<Const, undefined>),
+				);
+
+				double_sanity_check = sanity_check as (
+					typeof double_sanity_check
+				);
+			}
+
+			result = double_sanity_check as typeof result;
+		} else if (
+			'minLength' in schema
+			&& undefined !== schema.minLength
+			&& schema.minLength > 0
+		) {
+			const sanity_check: TypeReferenceNode<
+				'Exclude',
+				[
+					KeywordTypeNode,
+					LiteralTypeNode<StringLiteral>,
+				]
+			> = type_reference_node(
+				'Exclude',
+				[
+					factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+					literal_type_node(string_literal('')),
+				],
+			);
+
+			result = sanity_check as typeof result;
+		} else {
+			const sanity_check: KeywordTypeNode<
+				SyntaxKind.StringKeyword
+			> = factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
+
+			result = sanity_check as typeof result;
+		}
+
+		return Promise.resolve(result);
+	}
+
+	static generate_schema_definition<
+		StringMode extends string_mode = string_mode,
+		Enum extends [string, string, ...string[]]|never[] = never[],
+		Pattern extends string|undefined = undefined,
+		MinLength extends MinLength_type = MinLength_type<1>,
+		Const extends string|undefined = undefined,
+	>(
+		options: string_options<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>,
+	): Readonly<SchemaDefinitionDefinition> {
+		let result: base_string_schema<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>;
+
+		if ('basic' === options.string_mode) {
+			const sanity_check: base_string_schema<
+				StringMode & 'basic',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			> = {
+				type: 'object',
+				additionalProperties: false,
+				required: ['type'],
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					minLength: {
+						type: 'integer',
+						const: 0,
+					},
+				},
+			};
+
+			result = sanity_check;
+		} else if ('enum' === options.string_mode) {
+			let double_sanity_check: base_string_schema<
+				StringMode & 'enum',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			>['properties']['enum'];
+
+			if (options.enum.length < 2) {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'enum',
+					never[],
+					Pattern,
+					MinLength,
+					Const
+				>['properties']['enum'] = {
+					type: 'array',
+					minItems: 1,
+					uniqueItems: true,
+					items: {
+						type: 'string',
+					},
+				};
+
+				double_sanity_check = triple_sanity_check as (
+					typeof double_sanity_check
+				);
+			} else {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'enum',
+					[string, string, ...string[]],
+					Pattern,
+					MinLength,
+					Const
+				>['properties']['enum'] = {
+					type: 'array',
+					const: options.enum as [string, string, ...string[]],
+				};
+
+				double_sanity_check = triple_sanity_check as (
+					typeof double_sanity_check
+				);
+			}
+
+			const sanity_check: base_string_schema<
+				StringMode & 'enum',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			> = {
+				type: 'object',
+				additionalProperties: false,
+				required: ['type', 'enum'],
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					enum: double_sanity_check,
+				},
+			};
+
+			result = sanity_check;
+		} else if ('pattern' === options.string_mode) {
+			let double_sanity_check: base_string_schema<
+				StringMode & 'pattern',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			>['properties'];
+
+			if (undefined === options.pattern) {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'pattern',
+					Enum,
+					undefined,
+					MinLength,
+					Const
+				>['properties'] = {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					pattern: {
+						type: 'string',
+					},
+				};
+
+				double_sanity_check = (
+					triple_sanity_check as base_string_schema<
+						StringMode & 'pattern',
+						Enum,
+						Pattern,
+						MinLength,
+						Const
+					>['properties']
+				);
+			} else {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'pattern',
+					Enum,
+					string,
+					MinLength,
+					Const
+				>['properties'] = {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					pattern: {
+						type: 'string',
+						const: options.pattern,
+					},
+				};
+
+				double_sanity_check = (
+					triple_sanity_check as base_string_schema<
+						StringMode & 'pattern',
+						Enum,
+						Pattern,
+						MinLength,
+						Const
+					>['properties']
+				);
+			}
+
+			const sanity_check: base_string_schema<
+				StringMode & 'pattern',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			> = {
+				type: 'object',
+				additionalProperties: false,
+				required: ['type', 'pattern'],
+				properties: double_sanity_check,
+			};
+
+			result = sanity_check;
+		} else if ('non-empty' === options.string_mode) {
+			const sanity_check: base_string_schema<
+				StringMode & 'non-empty',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			> = {
+				type: 'object',
+				additionalProperties: false,
+				required: ['type', 'minLength'],
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					minLength: {
+						type: 'integer',
+						const: options.minLength,
+					},
+				},
+			};
+
+			result = sanity_check;
+		} else {
+			let double_sanity_check: base_string_schema<
+				StringMode & 'const',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			>['properties']['const'];
+
+			if (undefined === options.const) {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'const',
+					Enum,
+					Pattern,
+					MinLength,
+					undefined
+				>['properties']['const'] = {
+					type: 'string',
+				};
+
+				double_sanity_check = triple_sanity_check as (
+					typeof double_sanity_check
+				);
+			} else {
+				const triple_sanity_check: base_string_schema<
+					StringMode & 'const',
+					Enum,
+					Pattern,
+					MinLength,
+					string
+				>['properties']['const'] = {
+					type: 'string',
+					const: options.const,
+				};
+
+				double_sanity_check = triple_sanity_check as (
+					typeof double_sanity_check
+				);
+			}
+
+			const sanity_check: base_string_schema<
+				StringMode & 'const',
+				Enum,
+				Pattern,
+				MinLength,
+				Const
+			> = {
+				type: 'object',
+				additionalProperties: false,
+				required: ['type', 'const'],
+				properties: {
+					type: {
+						type: 'string',
+						const: 'string',
+					},
+					const: double_sanity_check,
+				},
+			};
+
+			result = sanity_check;
+		}
+
+		return Object.freeze(result);
+	}
+
+	static generate_type_definition<
+		StringMode extends string_mode = string_mode,
+		Enum extends [
+			string,
+			string,
+			...string[],
+		] = [
+			string,
+			string,
+			...string[],
+		],
+		Pattern extends string = string,
+		MinLength extends MinLength_type = MinLength_type<1>,
+		Const extends string|undefined = string|undefined,
+	>(
+		options: string_options<
+			StringMode,
+			Enum,
+			Pattern,
+			MinLength,
+			Const
+		>,
+	): Readonly<string_type<
+		StringMode,
+		Enum,
+		Pattern,
+		MinLength,
+		Const
+	>> {
+		let result: string_type<
+			StringMode,
+			Enum,
+			Exclude<Pattern, undefined>,
+			MinLength,
+			Const
+		>;
+
+		if ('basic' === options.string_mode) {
+			const sanity_check: string_type<
+				StringMode & 'basic',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				Const
+			> = {
+				type: 'string',
+			};
+
+			if (undefined !== options.minLength) {
+				sanity_check.minLength = options.minLength;
+			}
+
+			result = sanity_check;
+		} else if ('enum' === options.string_mode) {
+			const sanity_check: string_type<
+				StringMode & 'enum',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				Const
+			> = {
+				type: 'string',
+				enum: options.enum,
+			};
+
+			result = sanity_check;
+		} else if ('pattern' === options.string_mode) {
+			const sanity_check: string_type<
+				StringMode & 'pattern',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				Const
+			> = {
+				type: 'string',
+				pattern: options.pattern,
+			};
+
+			result = sanity_check;
+		} else if ('non-empty' === options.string_mode) {
+			const sanity_check: string_type<
+				StringMode & 'non-empty',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				Const
+			> = {
+				type: 'string',
+				minLength: options.minLength,
+			};
+
+			result = sanity_check;
+		} else if (undefined !== options.const) {
+			const sanity_check: string_type<
+				StringMode & 'const',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				string
+			> = {
+				type: 'string',
+				const: options.const,
+			};
+
+			result = sanity_check as typeof result;
+		} else {
+			const sanity_check: string_type<
+				StringMode & 'const',
+				Enum,
+				Exclude<Pattern, undefined>,
+				MinLength,
+				undefined
+			> = {
+				type: 'string',
+			};
+
+			result = sanity_check as typeof result;
+		}
+
+		return Object.freeze(result);
+	}
+}
 
 export type const_type<
 	T extends string|undefined = undefined,
@@ -71,386 +936,133 @@ export type const_type<
 		}
 );
 
-type const_schema<
-	T extends string|undefined = undefined,
-	Schema extends SchemaObject = SchemaObject,
-> = TypeDefinitionSchema<
-	(
-		& Schema
-		& {
-			type: 'object',
-			required: ['type', 'const'],
-			additionalProperties: false,
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-				const: (
-					T extends Exclude<T, undefined>
-						? {
-							type: 'string',
-							const: T,
-						}
-						: {
-							type: 'string',
-						}
-				),
-			},
-		}
-	)
->;
-
-type const_generate_typescript_type<T extends string|undefined> = (
-	T extends string
-		? LiteralTypeNode<StringLiteral>
-		: KeywordTypeNode<SyntaxKind.StringKeyword>
-);
 
 type MinLength_type<
 	T extends number = number,
 > = ReturnType<typeof PositiveInteger<T>>;
 
-export type min_length_mode = 'required'|'optional';
+type MinLengthOrZero_type<
+	T extends number = number,
+> = ReturnType<typeof PositiveIntegerOrZero<T>>;
 
-export type non_empty_string_type<
-	MinLength extends MinLength_type = MinLength_type,
-> = {
-	type: 'string',
-	minLength: MinLength,
-};
-
-type non_empty_string_schema<
-	Mode extends min_length_mode,
-	MinLength extends MinLength_type = MinLength_type,
-> = TypeDefinitionSchema<
-	(
-		& {
-			type: 'object',
-			required: ['type', 'minLength'],
-			additionalProperties: false,
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-				minLength: {
-					required: {
-						type: 'integer',
-						const: MinLength,
-					},
-					optional: {
-						type: 'integer',
-						minimum: 1,
-					},
-				}[Mode],
-			},
-		}
-	)
+export type basic_string_type = string_type<
+	'basic',
+	[string, string, ...string[]],
+	string,
+	MinLength_type<1>,
+	string
 >;
 
-abstract class BaseString<
-	T extends string = string,
-	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
-	TypeDefinitionOptions extends (
-		{[key: string]: unknown}
-	) = (
-		{[key: string]: unknown}
-	),
-	SchemaDefinition extends (
-		SchemaDefinitionDefinition
-	) = SchemaDefinitionDefinition,
-	SchemaDefinitionOptions extends (
-		{[key: string]: unknown}
-	) = (
-		{[key: string]: unknown}
-	),
-	SchemaTo extends TypeNode = TypeNode,
-	DataTo extends Expression = Expression,
-> extends
-	Type<
-		T,
-		TypeDefinition,
-		TypeDefinitionOptions,
-		SchemaDefinition,
-		SchemaDefinitionOptions,
-		SchemaTo,
-		DataTo
-	> {
-}
-
 export class String<
-	T extends string,
+	T extends string = string,
 > extends
 	BaseString<
 		T,
-		{type: 'string'},
-		Record<string, never>,
-		string_schema,
-		Record<string, never>,
-		KeywordTypeNode<SyntaxKind.StringKeyword>,
-		StringLiteral
+		'basic',
+		never[],
+		undefined,
+		MinLength_type<1>,
+		string
 	> {
 	constructor(options: SchemalessTypeOptions) {
+		const specific_options = Object.freeze({
+			string_mode: 'basic',
+			minLength: PositiveIntegerOrZero(0),
+		});
+
 		super({
 			...options,
-			schema_definition: {},
-			type_definition: {},
-		});
-	}
-
-	generate_typescript_data(data: string) {
-		return factory.createStringLiteral(data);
-	}
-
-	generate_typescript_type() {
-		return Promise.resolve(
-			factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-		);
-	}
-
-	static generate_schema_definition() {
-		return Object.freeze<string_schema>({
-			type: 'object',
-			required: ['type'],
-			additionalProperties: false,
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-			},
-		});
-	}
-
-	static generate_type_definition(): Readonly<{type: 'string'}> {
-		return Object.freeze({
-			type: 'string',
+			type_definition: specific_options,
+			schema_definition: specific_options,
 		});
 	}
 }
+
+export type const_string_type<
+	Const extends string|undefined = string|undefined,
+> = string_type<
+	'const',
+	[string, string, ...string[]],
+	string,
+	MinLength_type<1>,
+	Const
+>;
+
+export type const_string_schema<
+	Const extends string|undefined = string|undefined,
+> = base_string_schema<
+	'const',
+	[string, string, ...string[]],
+	string,
+	MinLength_type<1>,
+	Const
+>;
 
 export class ConstString<
-	T extends string|undefined = undefined,
+	T extends string|undefined = string|undefined,
 > extends
 	BaseString<
-		T extends string ? T : string,
-		const_type<T>,
-		{literal?: string},
-		const_schema<T>,
-		{literal?: string},
-		const_generate_typescript_type<T>,
-		StringLiteral
+		string,
+		'const',
+		never[],
+		undefined,
+		MinLength_type<1>,
+		T
 	> {
 	constructor(
-		literal: T,
+		specific: T,
 		options: SchemalessTypeOptions,
 	) {
+		const specific_options: string_options<
+			'const',
+			never[],
+			undefined,
+			MinLength_type<1>,
+			T
+		> = {
+			string_mode: 'const',
+			const: specific,
+		};
+
 		super({
 			...options,
-			schema_definition: {literal},
-			type_definition: {literal},
+			type_definition: specific_options,
+			schema_definition: specific_options,
 		});
-	}
-
-	generate_typescript_data(data: string) {
-		return factory.createStringLiteral(data);
-	}
-
-	generate_typescript_type({
-		schema,
-	}: {
-		schema: const_type<T>,
-	}): Promise<const_generate_typescript_type<T>> {
-		if ('const' in schema) {
-			return Promise.resolve(factory.createLiteralTypeNode(
-				factory.createStringLiteral(schema.const),
-			) as const_generate_typescript_type<T>);
-		}
-
-		return Promise.resolve(factory.createKeywordTypeNode(
-			SyntaxKind.StringKeyword,
-		) as const_generate_typescript_type<T>);
-	}
-
-	static generate_schema_definition<
-		T extends string|undefined = undefined,
-	>({literal}: {literal: T}): Readonly<
-		const_schema<T>
-	> {
-		const properties:(
-			Partial<
-				const_schema<
-					| string
-					| undefined
-				>['properties']
-			>
-		) = {
-			type: {
-				type: 'string',
-				const: 'string',
-			},
-		};
-		if ('string' === typeof literal) {
-			properties.const = {
-				type: 'string',
-				const: literal,
-			};
-		} else {
-			properties.const = {
-				type: 'string',
-			};
-		}
-
-		const coerced = properties as const_schema<T>['properties'];
-
-		return Object.freeze<const_schema<T>>({
-			type: 'object',
-			required: ['type', 'const'],
-			additionalProperties: false,
-			properties: coerced,
-		});
-	}
-
-	static generate_type_definition<
-		T extends string|undefined = undefined,
-	>(
-		{literal}: {literal?: string},
-	): Readonly<const_type<T>> {
-		const type_definition: Partial<const_type<string>> = {
-			type: 'string',
-		};
-		if ('string' === typeof literal) {
-			type_definition.const = literal;
-		}
-		const coerced: const_type<T> = type_definition as const_type<T>;
-
-		return Object.freeze(coerced);
 	}
 }
 
+export type non_empty_string_type<
+	MinLength extends MinLength_type = MinLength_type<1>,
+> = string_type<
+	'non-empty',
+	[string, string, ...string[]],
+	string,
+	MinLength,
+	undefined
+>;
+
 export class NonEmptyString<
-	Mode extends min_length_mode,
 	T extends Exclude<string, ''> = Exclude<string, ''>,
 > extends
 	BaseString<
 		T,
-		non_empty_string_type<MinLength_type>,
-		{
-			required: {
-				mode?: Mode,
-				minLength: MinLength_type,
-			},
-			optional: {
-				mode?: Mode,
-			},
-		}[Mode],
-		non_empty_string_schema<Mode, MinLength_type>,
-		{
-			minLength?: MinLength_type,
-		},
-		TypeReferenceNode,
-		StringLiteral
+		'non-empty',
+		never[],
+		undefined,
+		MinLength_type<1>,
+		string
 	> {
-	constructor(
-		specific_options: {
-			required: {
-				mode?: Mode,
-				minLength: MinLength_type,
-			},
-			optional: {
-				mode?: Mode,
-			},
-		}[Mode],
-		options: SchemalessTypeOptions,
-	) {
-		const minLength = 'minLength' in specific_options
-			? specific_options.minLength
-			: undefined;
+	constructor(options: SchemalessTypeOptions) {
+		const specific_options = Object.freeze({
+			string_mode: 'non-empty',
+			minLength: PositiveInteger(1),
+		});
 
 		super({
 			...options,
-			schema_definition: {minLength},
 			type_definition: specific_options,
+			schema_definition: specific_options,
 		});
-	}
-
-	generate_typescript_data(data: string) {
-		return factory.createStringLiteral(data);
-	}
-
-	generate_typescript_type(): Promise<TypeReferenceNode> {
-		return Promise.resolve(type_reference_node(
-			'Exclude',
-			[
-				factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-				factory.createLiteralTypeNode(factory.createStringLiteral('')),
-			],
-		));
-	}
-
-	static generate_schema_definition<
-		Mode extends min_length_mode,
-	>({
-		minLength,
-	}: {
-		minLength?: MinLength_type,
-	}) {
-		const properties:(
-			Partial<
-				non_empty_string_schema<min_length_mode>['properties']
-			>
-		) = {
-			type: {
-				type: 'string',
-				const: 'string',
-			},
-		};
-		if (undefined !== minLength) {
-			properties.minLength = {
-				type: 'integer',
-				const: minLength,
-			};
-		} else {
-			properties.minLength = {
-				type: 'integer',
-				minimum: 1,
-			};
-		}
-
-		const coerced = (
-			properties as non_empty_string_schema<Mode>['properties']
-		);
-
-		return Object.freeze<non_empty_string_schema<Mode>>({
-			type: 'object',
-			required: ['type', 'minLength'],
-			additionalProperties: false,
-			properties: coerced,
-		});
-	}
-
-	static generate_type_definition<
-		Mode extends min_length_mode,
-	>(
-		specific_options: {
-			required: {
-				mode?: Mode,
-				minLength: MinLength_type,
-			},
-			optional: {
-				mode?: Mode,
-			},
-		}[Mode],
-	): Readonly<non_empty_string_type<MinLength_type>> {
-		const minLength = 'minLength' in specific_options
-			? specific_options.minLength
-			: undefined;
-		const type_definition: non_empty_string_type<MinLength_type> = {
-			type: 'string',
-			minLength: minLength || PositiveInteger(1),
-		};
-
-		return Object.freeze(type_definition);
 	}
 }

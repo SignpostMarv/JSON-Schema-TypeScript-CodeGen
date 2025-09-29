@@ -1,7 +1,9 @@
 import type {
 	Expression,
+	LeftHandSideExpression,
 	NamedTupleMember,
 	ObjectLiteralElementLike,
+	LiteralTypeNode as TSLiteralTypeNode,
 	TypeElement,
 	TypeNode,
 } from 'typescript';
@@ -12,12 +14,17 @@ import {
 import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
+	CallExpression,
+	Identifier,
 	IntersectionTypeNode,
+	LiteralTypeNode,
 	ObjectLiteralExpression,
+	StringLiteral,
 	TupleTypeNode,
 	TypeLiteralNode,
 	TypeReferenceNode,
-} from './typescript-types.ts';
+	UnionTypeNode,
+} from './typescript/types.ts';
 
 export function object_keys<
 	T extends string,
@@ -203,4 +210,78 @@ export function type_reference_node<
 		name,
 		type_arguments ? type_arguments : undefined,
 	) as TypeReferenceNode<T1, T2>;
+}
+
+export type StringTupleToLiteralTypeNodeTuple<
+	T1 extends readonly string[],
+> = T1 extends [string, ...string[]]
+	? {
+		[K in keyof T1]: T1[K] extends string
+			? LiteralTypeNode<StringLiteral<T1[K]>>
+			: never
+	}
+	: LiteralTypeNode<StringLiteral<T1[0]>>[];
+
+export function StringTupleToLiteralTypeNodeTuple<
+	T1 extends readonly string[],
+>(value: T1): StringTupleToLiteralTypeNodeTuple<T1> {
+	const enum_as_literal = value.map(
+		(item) => literal_type_node(string_literal(item)),
+	);
+
+	return enum_as_literal as StringTupleToLiteralTypeNodeTuple<T1>;
+}
+
+export function union_type_node<
+	T extends [TypeNode, TypeNode, ...TypeNode[]],
+>(value: T): UnionTypeNode<T> {
+	return factory.createUnionTypeNode(value) as UnionTypeNode<T>;
+}
+
+export function literal_type_node<
+	T extends TSLiteralTypeNode['literal'],
+>(value: T): LiteralTypeNode<T> {
+	return factory.createLiteralTypeNode(value) as LiteralTypeNode<T>;
+}
+
+export function identifier<T extends string>(value: T): Identifier<T> {
+	return factory.createIdentifier(value) as Identifier<T>;
+}
+
+export function call_expression<
+	T1 extends LeftHandSideExpression,
+	TypeArguments extends (
+		| never[]
+		| [TypeNode, ...TypeNode[]]
+	) = never[],
+	Arguments extends (
+		| never[]
+		| [Expression, ...Expression[]]
+	) = never[],
+>(
+	expression: T1,
+	typeArguments: TypeArguments,
+	args: Arguments,
+): CallExpression<
+	T1,
+	'no',
+	TypeArguments,
+	Arguments
+> {
+	return factory.createCallExpression(
+		expression,
+		typeArguments,
+		args,
+	) as CallExpression<
+		T1,
+		'no',
+		TypeArguments,
+		Arguments
+	>;
+}
+
+export function string_literal<
+	T extends string,
+>(value: T): StringLiteral<T> {
+	return factory.createStringLiteral(value) as StringLiteral<T>;
 }

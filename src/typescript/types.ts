@@ -1,21 +1,27 @@
 import type {
 	BooleanLiteral,
 	Expression,
+	LeftHandSideExpression,
 	LiteralExpression,
 	NamedTupleMember,
 	NodeArray,
 	NullLiteral,
 	ObjectLiteralElementLike,
 	PrefixUnaryExpression,
+	QuestionDotToken,
 	ArrayLiteralExpression as TSArrayLiteralExpression,
 	ArrayTypeNode as TSArrayTypeNode,
+	AsExpression as TSAsExpression,
+	CallExpression as TSCallExpression,
 	Identifier as TSIdentifier,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
 	ObjectLiteralExpression as TSObjectLiteralExpression,
+	StringLiteral as TSStringLiteral,
 	TupleTypeNode as TSTupleTypeNode,
 	TypeLiteralNode as TSTypeLiteralNode,
 	TypeReferenceNode as TSTypeReferenceNode,
+	UnionTypeNode as TSUnionTypeNode,
 	TypeElement,
 	TypeNode,
 } from 'typescript';
@@ -54,6 +60,61 @@ export type ArrayTypeNode<
 	& TSArrayTypeNode
 	& {
 		readonly elementType: T,
+	}
+);
+
+export type AsExpression<
+	T1 extends Expression,
+	T2 extends TypeNode,
+> = (
+	& TSAsExpression
+	& {
+		readonly expression: T1,
+		readonly type: T2,
+	}
+);
+
+export type CallExpression<
+	T1 extends LeftHandSideExpression,
+	HasQuestionDotToken extends 'yes'|'no',
+	TypeArguments extends (
+		| never[]
+		| [TypeNode, ...TypeNode[]]
+	) = never[],
+	Arguments extends (
+		| never[]
+		| [Expression, ...Expression[]]
+	) = never[],
+> = (
+	& TSCallExpression
+	& {
+		readonly expression: T1,
+		readonly questionDotToken: {
+			yes: QuestionDotToken,
+			no: undefined,
+		}[HasQuestionDotToken],
+		readonly typeArguments: (
+			TypeArguments extends Exclude<
+				(
+					| never[]
+					| [TypeNode, ...TypeNode[]]
+				),
+				never[]
+			>
+				? TypeArguments
+				: undefined
+		),
+		readonly arguments: (
+			Arguments extends Exclude<
+				(
+					| never[]
+					| [Expression, ...Expression[]]
+				),
+				never[]
+			>
+				? Arguments
+				: undefined
+		),
 	}
 );
 
@@ -106,6 +167,15 @@ export type ObjectLiteralExpression<
 	}
 );
 
+export type StringLiteral<
+	Value extends string = string,
+> = (
+	& TSStringLiteral
+	& {
+		readonly text: Value,
+	}
+);
+
 export type Identifier<
 	Name extends string,
 > = (
@@ -135,4 +205,21 @@ export type TypeReferenceNode<
 				readonly typeArguments: undefined,
 			}
 	)
+);
+
+export type UnionTypeNode<
+	Types extends [
+		TypeNode,
+		TypeNode,
+		...TypeNode[],
+	] = [
+		TypeNode,
+		TypeNode,
+		...TypeNode[],
+	],
+> = (
+	& TSUnionTypeNode
+	& {
+		readonly types: Types,
+	}
 );

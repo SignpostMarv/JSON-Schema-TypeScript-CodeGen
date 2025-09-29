@@ -13,10 +13,6 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
-	SyntaxKind,
-} from 'typescript';
-
-import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
@@ -26,19 +22,24 @@ import {
 	SchemaParser,
 } from '../../../../src/SchemaParser.ts';
 
+import type {
+	const_string_type,
+} from '../../../../src/JSONSchema/String.ts';
 import {
 	ConstString,
 } from '../../../../src/JSONSchema/String.ts';
+
 import {
 	throws_Error,
 } from '../../../assertions.ts';
+
 import {
 	ObjectUnspecified,
 } from '../../../../src/JSONSchema/Object.ts';
 
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [
-		{type: 'string', const?: string},
+		const_string_type,
 
 		// Ajv Options
 		Omit<
@@ -62,16 +63,6 @@ void describe('identify Const String types as expected', () => {
 			'foo',
 			'foo',
 		],
-		[
-			{
-				type: 'string',
-			},
-			{
-			},
-			'foo',
-			'foo',
-			'foo',
-		],
 	];
 
 	const_expectations.forEach(([
@@ -81,11 +72,7 @@ void describe('identify Const String types as expected', () => {
 		conversion_value,
 		converted_expectation_value,
 	], i) => {
-		const from_parser_defaults: boolean[] = [false];
-
-		if ('const' in schema) {
-			from_parser_defaults.push(true);
-		}
+		const from_parser_defaults: boolean[] = [false, true];
 
 		for (const from_parser_default of from_parser_defaults) {
 			void it(
@@ -103,7 +90,7 @@ void describe('identify Const String types as expected', () => {
 							strict: true,
 						})});
 
-					is_instanceof(instance, ConstString);
+					is_instanceof<ConstString>(instance, ConstString);
 
 					const typed = await instance.generate_typescript_type({
 						schema,
@@ -111,17 +98,14 @@ void describe('identify Const String types as expected', () => {
 
 					if ('const' in schema) {
 						ts_assert.isLiteralTypeNode(typed);
-					} else {
-						ts_assert.isTokenWithExpectedKind(
-							typed,
-							SyntaxKind.StringKeyword,
-						);
 					}
 
 					const get_converted = () => (
 						instance as ConstString
 					).generate_typescript_data(
 						conversion_value,
+						parser,
+						schema,
 					);
 
 					assert.doesNotThrow(get_converted);

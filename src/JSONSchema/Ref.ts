@@ -33,7 +33,7 @@ import type {
 
 import type {
 	TypeReferenceNode,
-} from '../typescript-types.ts';
+} from '../typescript/types.ts';
 
 export type $ref_mode = 'either'|'external'|'local';
 

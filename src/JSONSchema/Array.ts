@@ -42,7 +42,7 @@ import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	TupleTypeNode,
-} from '../typescript-types.ts';
+} from '../typescript/types.ts';
 
 import type {
 	$defs_mode,

@@ -35,7 +35,7 @@ import type {
 	ArrayTypeNode,
 	LiteralTypeNode,
 	TupleTypeNode,
-} from '../../../../src/typescript-types.ts';
+} from '../../../../src/typescript/types.ts';
 
 import type {
 	ts_asserter,

@@ -29,7 +29,7 @@ import {
 } from '../../../../src/SchemaParser.ts';
 
 import type {
-	min_length_mode,
+	non_empty_string_type,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	ConstString,
@@ -44,13 +44,9 @@ import {
 	PositiveInteger,
 } from '../../../../src/guarded.ts';
 
-import type {
-	SchemaObject,
-} from '../../../../src/types.ts';
-
 void describe('identify non-empty String types as expected', () => {
 	const string_expectations: [
-		SchemaObject, // input for SchemaParser
+		non_empty_string_type, // input for SchemaParser
 
 		// Ajv Options
 		Omit<
@@ -69,7 +65,7 @@ void describe('identify non-empty String types as expected', () => {
 		[
 			{
 				type: 'string',
-				minLength: 1,
+				minLength: PositiveInteger(1),
 			},
 			{
 			},
@@ -80,7 +76,7 @@ void describe('identify non-empty String types as expected', () => {
 		[
 			{
 				type: 'string',
-				minLength: 1,
+				minLength: PositiveInteger(1),
 			},
 			{
 			},
@@ -93,6 +89,7 @@ void describe('identify non-empty String types as expected', () => {
 	string_expectations.forEach(([
 		schema,
 		ajv_options,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		minLength,
 		conversion_value,
 		converted_expectation_value,
@@ -109,7 +106,6 @@ void describe('identify non-empty String types as expected', () => {
 					const instance = from_parser_default
 						? parser.parse(schema, 'yes')
 						: new NonEmptyString(
-							minLength ? {minLength} : {mode: 'optional'},
 							{
 								ajv: new Ajv({
 									...ajv_options,
@@ -118,11 +114,14 @@ void describe('identify non-empty String types as expected', () => {
 							},
 						);
 
-					is_instanceof(instance, NonEmptyString);
+					is_instanceof<NonEmptyString>(instance, NonEmptyString);
 
-					const typed = await (
-						instance as NonEmptyString<min_length_mode>
-					).generate_typescript_type();
+					const typed = await instance.generate_typescript_type({
+						schema: {
+							...schema,
+							minLength: PositiveInteger(1),
+						},
+					});
 					ts_assert.isTypeReferenceNode(typed);
 					ts_assert.isIdentifier(
 						typed.typeName,
@@ -148,11 +147,12 @@ void describe('identify non-empty String types as expected', () => {
 						'',
 					);
 
-					const get_converted = () => (
-						instance as NonEmptyString<min_length_mode>
-					).generate_typescript_data(
-						conversion_value,
-					);
+					const get_converted = () => instance
+						.generate_typescript_data(
+							conversion_value,
+							parser,
+							schema,
+						);
 
 					assert.doesNotThrow(get_converted);
 

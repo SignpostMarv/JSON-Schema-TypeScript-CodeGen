@@ -50,7 +50,7 @@ import type {
 
 import type {
 	ObjectLiteralExpression,
-} from '../../../../src/typescript-types.ts';
+} from '../../../../src/typescript/types.ts';
 
 import {
 	PositiveIntegerOrZero,

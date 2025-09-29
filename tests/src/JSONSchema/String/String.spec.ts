@@ -26,21 +26,21 @@ import {
 	SchemaParser,
 } from '../../../../src/SchemaParser.ts';
 
+import type {
+	basic_string_type,
+} from '../../../../src/JSONSchema/String.ts';
 import {
 	ConstString,
 	String,
 } from '../../../../src/JSONSchema/String.ts';
+
 import {
 	throws_Error,
 } from '../../../assertions.ts';
 
-import type {
-	SchemaObject,
-} from '../../../../src/types.ts';
-
 void describe('identify simple String types as expected', () => {
 	const string_expectations: [
-		SchemaObject, // input for SchemaParser
+		basic_string_type, // input for SchemaParser
 		// Ajv Options
 		Omit<
 			Options,
@@ -88,11 +88,11 @@ void describe('identify simple String types as expected', () => {
 							},
 						);
 
-					is_instanceof(instance, String);
+					is_instanceof<String>(instance, String);
 
-					const typed = await (
-						instance as String<string>
-					).generate_typescript_type();
+					const typed = await instance.generate_typescript_type({
+						schema,
+					});
 					ts_assert.isTokenWithExpectedKind(
 						typed,
 						SyntaxKind.StringKeyword,
@@ -102,6 +102,8 @@ void describe('identify simple String types as expected', () => {
 						instance as String<string>
 					).generate_typescript_data(
 						conversion_value,
+						parser,
+						schema,
 					);
 
 					assert.doesNotThrow(get_converted);

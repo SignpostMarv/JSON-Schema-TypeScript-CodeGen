@@ -237,8 +237,8 @@ export class SchemaParser {
 
 	static #default_types(ajv: Ajv): [
 		String<string>,
-		ConstString<undefined>,
-		NonEmptyString<'optional'>,
+		ConstString,
+		NonEmptyString,
 		$ref,
 		ObjectUnspecified<{[key: string]: unknown}, 'properties'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'pattern'>,
@@ -256,7 +256,7 @@ export class SchemaParser {
 				ajv,
 			}),
 			new ConstString(undefined, {ajv}),
-			new NonEmptyString({}, {ajv}),
+			new NonEmptyString({ajv}),
 			new $ref(
 				{
 					$ref_mode: 'either',
