@@ -66,3 +66,56 @@ export type OmitIf<
 			? PartialPick<T, K>
 			: T
 	);
+
+export type NonZero = (
+	& number
+	& {
+		_guard_NonZero: never,
+	}
+);
+
+export type Positive<
+	T extends number,
+> = (
+	& NonZero
+	& (
+		`${T}` extends `-${string}`
+			? never
+			: T
+	)
+	& {
+		_guard_Positive: never,
+	}
+);
+
+export type Integer<T extends number> = (
+	& (
+		`${T}` extends `${string}.${string}`
+			? never
+			: T
+	)
+	& {
+		_guard_Integer: never,
+	}
+);
+
+export type PositiveInteger<T extends number> = (
+	& Integer<T>
+	& Positive<T>
+);
+
+export type PositiveIntegerOrZero<T extends number> = (
+	| 0
+	| PositiveInteger<T>
+);
+
+export type StringPassesRegex<
+	Regex extends string,
+	Value extends string = string,
+> = (
+	& Value
+	& {
+		__guard_StringPassesRegex: never,
+		__regex_StringPassesRegex: Regex,
+	}
+);

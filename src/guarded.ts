@@ -1,44 +1,8 @@
-type NonZero = (
-	& number
-	& {
-		_guard_NonZero: never,
-	}
-);
-
-type Positive<
-	T extends number,
-> = (
-	& NonZero
-	& (
-		`${T}` extends `-${string}`
-			? never
-			: T
-	)
-	& {
-		_guard_Positive: never,
-	}
-);
-
-type Integer<T extends number> = (
-	& (
-		`${T}` extends `${string}.${string}`
-			? never
-			: T
-	)
-	& {
-		_guard_Integer: never,
-	}
-);
-
-type PositiveInteger<T extends number> = (
-	& Integer<T>
-	& Positive<T>
-);
-
-type PositiveIntegerOrZero<T extends number> = (
-	| 0
-	| PositiveInteger<T>
-);
+import type {
+	PositiveInteger,
+	PositiveIntegerOrZero,
+	StringPassesRegex,
+} from './types.ts';
 
 export function PositiveInteger<
 	T extends number,
@@ -69,4 +33,14 @@ export function PositiveIntegerOrZero<
 	),
 ): PositiveIntegerOrZero<T> {
 	return value as PositiveIntegerOrZero<T>;
+}
+
+export function StringPassesRegex<
+	Regex extends string,
+	Value extends string,
+>(
+	value: Value,
+	pattern: Regex,
+): value is StringPassesRegex<Regex, Value> {
+	return (new RegExp(pattern)).test(value);
 }
