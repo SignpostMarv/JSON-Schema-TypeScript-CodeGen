@@ -94,7 +94,7 @@ type string_type<
 		| [string, string, ...string[]]
 		| never[]
 	),
-	Pattern extends string = string,
+	Pattern extends string|undefined = undefined,
 	MinLength extends MinLength_type = MinLength_type<1>,
 	Const extends string|undefined = string|undefined,
 > = {
@@ -110,10 +110,14 @@ type string_type<
 		: {
 			type: 'string',
 		},
-	pattern: {
-		type: 'string',
-		pattern: Pattern,
-	},
+	pattern: Pattern extends string
+		? {
+			type: 'string',
+			pattern: Pattern,
+		}
+		: {
+			type: 'string',
+		},
 	'non-empty': {
 		type: 'string',
 		minLength: MinLength,
@@ -246,7 +250,7 @@ class BaseString<
 		string_type<
 			StringMode,
 			Enum,
-			Exclude<Pattern, undefined>,
+			Pattern,
 			MinLength,
 			Const
 		>,
@@ -319,7 +323,7 @@ class BaseString<
 		schema: string_type<
 			StringMode,
 			Enum,
-			Exclude<Pattern, undefined>,
+			Pattern,
 			MinLength,
 			Const
 		>,
@@ -380,7 +384,9 @@ class BaseString<
 				factory.createIdentifier('StringPassesRegex'),
 				[],
 				[
-					factory.createStringLiteral(schema.pattern),
+					factory.createStringLiteral(
+						schema.pattern as Exclude<Pattern, undefined>,
+					),
 					factory.createStringLiteral(data),
 				],
 			);
@@ -398,7 +404,7 @@ class BaseString<
 			schema: string_type<
 				StringMode,
 				Enum,
-				Exclude<Pattern, undefined>,
+				Pattern,
 				MinLength,
 				Const
 			>,
@@ -850,7 +856,7 @@ class BaseString<
 		let result: string_type<
 			StringMode,
 			Enum,
-			Exclude<Pattern, undefined>,
+			Pattern,
 			MinLength,
 			Const
 		>;
@@ -859,9 +865,9 @@ class BaseString<
 			const sanity_check: string_type<
 				StringMode & 'basic',
 				Enum,
-				Exclude<Pattern, undefined>,
+				undefined,
 				MinLength,
-				Const
+				undefined
 			> = {
 				type: 'string',
 			};
@@ -870,23 +876,23 @@ class BaseString<
 				sanity_check.minLength = options.minLength;
 			}
 
-			result = sanity_check;
+			result = sanity_check as typeof result;
 		} else if ('enum' === options.string_mode) {
 			let sanity_check: string_type<
 				StringMode & 'enum',
 				Enum,
-				Exclude<Pattern, undefined>,
+				undefined,
 				MinLength,
-				Const
+				undefined
 			>;
 
 			if (options.enum.length < 2) {
 				const double_sanity_check: string_type<
 					StringMode & 'enum',
 					never[],
-					Exclude<Pattern, undefined>,
+					undefined,
 					MinLength,
-					Const
+					undefined
 				> = {
 					type: 'string',
 				};
@@ -896,9 +902,9 @@ class BaseString<
 				const double_sanity_check: string_type<
 					StringMode & 'enum',
 					[string, string, ...string[]],
-					Exclude<Pattern, undefined>,
+					undefined,
 					MinLength,
-					Const
+					undefined
 				> = {
 					type: 'string',
 					enum: options.enum as Exclude<Enum, never[]>,
@@ -907,27 +913,51 @@ class BaseString<
 				sanity_check = double_sanity_check as typeof sanity_check;
 			}
 
-			result = sanity_check;
+			result = sanity_check as typeof result;
 		} else if ('pattern' === options.string_mode) {
-			const sanity_check: string_type<
+			let sanity_check: string_type<
 				StringMode & 'pattern',
 				never[],
-				Exclude<Pattern, undefined>,
+				Pattern,
 				MinLength,
-				Const
-			> = {
-				type: 'string',
-				pattern: options.pattern,
-			};
+				undefined
+			>;
+
+			if (undefined === options.pattern) {
+				const double_sanity_check: string_type<
+					StringMode & 'pattern',
+					never[],
+					undefined,
+					MinLength,
+					undefined
+				> = {
+					type: 'string',
+				};
+
+				sanity_check = double_sanity_check as typeof sanity_check;
+			} else {
+				const double_sanity_check: string_type<
+					StringMode & 'pattern',
+					never[],
+					string,
+					MinLength,
+					undefined
+				> = {
+					type: 'string',
+					pattern: options.pattern,
+				};
+
+				sanity_check = double_sanity_check as typeof sanity_check;
+			}
 
 			result = sanity_check as typeof result;
 		} else if ('non-empty' === options.string_mode) {
 			const sanity_check: string_type<
 				StringMode & 'non-empty',
 				never[],
-				Exclude<Pattern, undefined>,
+				undefined,
 				MinLength,
-				Const
+				undefined
 			> = {
 				type: 'string',
 				minLength: options.minLength,
@@ -938,7 +968,7 @@ class BaseString<
 			const sanity_check: string_type<
 				StringMode & 'const',
 				Enum,
-				Exclude<Pattern, undefined>,
+				undefined,
 				MinLength,
 				string
 			> = {
@@ -951,7 +981,7 @@ class BaseString<
 			const sanity_check: string_type<
 				StringMode & 'const',
 				never[],
-				Exclude<Pattern, undefined>,
+				undefined,
 				MinLength,
 				undefined
 			> = {
@@ -1009,7 +1039,7 @@ export type enum_string_type<
 > = string_type<
 	'enum',
 	Enum,
-	string,
+	undefined,
 	MinLength_type<1>,
 	undefined
 >;
@@ -1051,7 +1081,7 @@ export type non_empty_string_type<
 > = string_type<
 	'non-empty',
 	never[],
-	string,
+	undefined,
 	MinLength,
 	undefined
 >;
@@ -1086,7 +1116,7 @@ export type const_string_type<
 > = string_type<
 	'const',
 	never[],
-	string,
+	undefined,
 	MinLength_type<1>,
 	Const
 >;
@@ -1096,7 +1126,7 @@ export type const_string_schema<
 > = base_string_schema<
 	'const',
 	[string, string, ...string[]],
-	string,
+	undefined,
 	MinLength_type<1>,
 	Const
 >;
