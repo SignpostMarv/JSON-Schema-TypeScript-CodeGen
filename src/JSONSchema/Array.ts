@@ -616,7 +616,7 @@ abstract class ArrayUncertain<
 				}
 
 				return element;
-			}) as T5,
+			}),
 			true,
 		);
 	}
