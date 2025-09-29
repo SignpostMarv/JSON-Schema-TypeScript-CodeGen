@@ -307,13 +307,13 @@ class BaseString<
 			pattern: (
 				Pattern extends string
 					? CallExpression<
-				Identifier<'StringPassesRegex'>,
-				'no',
-				never[],
-				[
-					StringLiteral<Exclude<Pattern, undefined>>,
-					StringLiteral,
-				]
+						Identifier<'StringPassesRegex'>,
+						'no',
+						never[],
+						[
+							StringLiteral<Exclude<Pattern, undefined>>,
+							StringLiteral,
+						]
 					>
 					: StringLiteral
 			),
@@ -337,13 +337,13 @@ class BaseString<
 		pattern: (
 			Pattern extends string
 				? CallExpression<
-			Identifier<'StringPassesRegex'>,
-			'no',
-			never[],
-			[
-				StringLiteral<Exclude<Pattern, undefined>>,
-				StringLiteral<T>,
-			]
+					Identifier<'StringPassesRegex'>,
+					'no',
+					never[],
+					[
+						StringLiteral<Exclude<Pattern, undefined>>,
+						StringLiteral<T>,
+					]
 				>
 				: StringLiteral<T>
 		),
@@ -356,13 +356,13 @@ class BaseString<
 			pattern: (
 				Pattern extends string
 					? CallExpression<
-				Identifier<'StringPassesRegex'>,
-				'no',
-				never[],
-				[
-					StringLiteral<Exclude<Pattern, undefined>>,
-					StringLiteral<T>,
-				]
+						Identifier<'StringPassesRegex'>,
+						'no',
+						never[],
+						[
+							StringLiteral<Exclude<Pattern, undefined>>,
+							StringLiteral<T>,
+						]
 					>
 					: StringLiteral<T>
 			),
