@@ -29,8 +29,11 @@ import type {
 import type {
 	ObjectOfSchemas,
 	SchemaObject,
-	TypeReferenceNode,
 } from '../types.ts';
+
+import type {
+	TypeReferenceNode,
+} from '../typescript-types.ts';
 
 export type $ref_mode = 'either'|'external'|'local';
 

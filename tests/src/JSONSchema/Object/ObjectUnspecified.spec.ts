@@ -43,11 +43,15 @@ import type {
 } from '../../../types.ts';
 
 import type {
-	ObjectLiteralExpression,
 	ObjectOfSchemas,
 	OmitIf,
 	SchemaObject,
 } from '../../../../src/types.ts';
+
+import type {
+	ObjectLiteralExpression,
+} from '../../../../src/typescript-types.ts';
+
 import {
 	PositiveIntegerOrZero,
 } from '../../../../src/guarded.ts';

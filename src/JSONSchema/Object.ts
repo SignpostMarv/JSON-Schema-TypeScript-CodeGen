@@ -10,12 +10,15 @@ import {
 } from 'typescript';
 
 import type {
-	IntersectionTypeNode,
 	ObjectOfSchemas,
 	OmitIf,
 	SchemaObject,
-	TypeLiteralNode,
 } from '../types.ts';
+
+import type {
+	IntersectionTypeNode,
+	TypeLiteralNode,
+} from '../typescript-types.ts';
 
 import type {
 	ConversionlessType,

@@ -8,6 +8,7 @@ import type {
 import {
 	factory,
 } from 'typescript';
+
 import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
@@ -16,7 +17,7 @@ import type {
 	TupleTypeNode,
 	TypeLiteralNode,
 	TypeReferenceNode,
-} from './types.ts';
+} from './typescript-types.ts';
 
 export function object_keys<
 	T extends string,

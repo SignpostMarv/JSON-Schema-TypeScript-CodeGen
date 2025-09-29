@@ -32,14 +32,17 @@ import {
 } from '../coercions.ts';
 
 import type {
-	ArrayLiteralExpression,
-	ArrayTypeNode,
 	OmitFromTupleishIf,
 	OmitIf,
 	PartialPick,
 	SchemaObject,
-	TupleTypeNode,
 } from '../types.ts';
+
+import type {
+	ArrayLiteralExpression,
+	ArrayTypeNode,
+	TupleTypeNode,
+} from '../typescript-types.ts';
 
 import type {
 	$defs_mode,

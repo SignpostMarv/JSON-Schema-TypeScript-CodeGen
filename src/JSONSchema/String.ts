@@ -24,9 +24,12 @@ import {
 } from './Type.ts';
 
 import type {
-	LiteralTypeNode,
 	SchemaObject,
 } from '../types.ts';
+
+import type {
+	LiteralTypeNode,
+} from '../typescript-types.ts';
 
 import {
 	PositiveInteger,

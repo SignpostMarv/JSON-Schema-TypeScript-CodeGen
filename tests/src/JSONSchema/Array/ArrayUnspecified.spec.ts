@@ -27,12 +27,16 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	SchemaObject,
+} from '../../../../src/types.ts';
+
+import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	LiteralTypeNode,
-	SchemaObject,
 	TupleTypeNode,
-} from '../../../../src/types.ts';
+} from '../../../../src/typescript-types.ts';
+
 import type {
 	ts_asserter,
 } from '../../../types.ts';

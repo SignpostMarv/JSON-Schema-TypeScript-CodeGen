@@ -19,7 +19,7 @@ import type {
 	ArrayTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
-} from '../src/types.ts';
+} from '../src/typescript-types.ts';
 
 import type {
 	ts_asserter,
