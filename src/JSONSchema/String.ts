@@ -104,8 +104,8 @@ type string_type<
 	},
 	enum: Enum extends [string, string, ...string[]]
 		? {
-		type: 'string',
-		enum: Enum,
+			type: 'string',
+			enum: Enum,
 		}
 		: {
 			type: 'string',
@@ -275,9 +275,9 @@ class BaseString<
 			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			enum: Enum extends [string, string, ...string[]]
 				? UnionTypeNode<
-				StringTupleToLiteralTypeNodeTuple<
-					Exclude<Enum, never[]>
-				>
+					StringTupleToLiteralTypeNodeTuple<
+						Exclude<Enum, never[]>
+					>
 				>
 				: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			pattern: TypeReferenceNode<
@@ -407,9 +407,9 @@ class BaseString<
 		basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
 		enum: Enum extends [string, string, ...string[]]
 			? UnionTypeNode<
-			StringTupleToLiteralTypeNodeTuple<
-				Exclude<Enum, never[]>
-			>
+				StringTupleToLiteralTypeNodeTuple<
+					Exclude<Enum, never[]>
+				>
 			>
 			: KeywordTypeNode<SyntaxKind.StringKeyword>,
 		pattern: TypeReferenceNode<
@@ -433,9 +433,9 @@ class BaseString<
 			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			enum: Enum extends [string, string, ...string[]]
 				? UnionTypeNode<
-				StringTupleToLiteralTypeNodeTuple<
-					Exclude<Enum, never[]>
-				>
+					StringTupleToLiteralTypeNodeTuple<
+						Exclude<Enum, never[]>
+					>
 				>
 				: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			pattern: TypeReferenceNode<
@@ -459,7 +459,7 @@ class BaseString<
 		if ('enum' in schema) {
 			const sanity_check = factory.createUnionTypeNode(
 				StringTupleToLiteralTypeNodeTuple(
-				schema.enum,
+					schema.enum,
 				),
 			);
 
