@@ -41,6 +41,7 @@ import {
 import {
 	StringTupleToLiteralTypeNodeTuple,
 } from '../coercions.ts';
+
 import {
 	call_expression,
 	identifier,
@@ -48,7 +49,7 @@ import {
 	string_literal,
 	type_reference_node,
 	union_type_node,
-} from '../coercions.ts';
+} from '../typescript/coercions.ts';
 
 import type {
 	SchemaParser,

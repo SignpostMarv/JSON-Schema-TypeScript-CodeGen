@@ -19,8 +19,11 @@ import type {
 import {
 	adjust_name_default,
 	adjust_name_finisher,
-	type_reference_node,
 } from '../coercions.ts';
+
+import {
+	type_reference_node,
+} from '../typescript/coercions.ts';
 
 import type {
 	SchemaParser,

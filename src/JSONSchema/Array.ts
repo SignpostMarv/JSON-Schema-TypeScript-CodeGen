@@ -29,7 +29,7 @@ import {
 	array_literal_expression,
 	array_type_node,
 	tuple_type_node,
-} from '../coercions.ts';
+} from '../typescript/coercions.ts';
 
 import type {
 	OmitFromTupleishIf,

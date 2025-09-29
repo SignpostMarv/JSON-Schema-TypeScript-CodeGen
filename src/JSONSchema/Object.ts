@@ -39,11 +39,15 @@ import type {
 } from '../coercions.ts';
 import {
 	adjust_name_default,
-	intersection_type_node,
 	object_keys,
+} from '../coercions.ts';
+
+import {
+	intersection_type_node,
 	object_literal_expression,
 	type_literal_node,
-} from '../coercions.ts';
+} from '../typescript/coercions.ts';
+
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
