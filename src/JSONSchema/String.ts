@@ -87,7 +87,13 @@ type string_options<
 
 type string_type<
 	StringMode extends string_mode,
-	Enum extends [string, string, ...string[]] = [string, string, ...string[]],
+	Enum extends (
+		| [string, string, ...string[]]
+		| never[]
+	) = (
+		| [string, string, ...string[]]
+		| never[]
+	),
 	Pattern extends string = string,
 	MinLength extends MinLength_type = MinLength_type<1>,
 	Const extends string|undefined = string|undefined,
@@ -96,10 +102,14 @@ type string_type<
 		type: 'string',
 		minLength?: MinLengthOrZero_type<0>|MinLength,
 	},
-	enum: {
+	enum: Enum extends [string, string, ...string[]]
+		? {
 		type: 'string',
 		enum: Enum,
-	},
+		}
+		: {
+			type: 'string',
+		},
 	pattern: {
 		type: 'string',
 		pattern: Pattern,
@@ -235,7 +245,7 @@ class BaseString<
 		T,
 		string_type<
 			StringMode,
-			Exclude<Enum, never[]>,
+			Enum,
 			Exclude<Pattern, undefined>,
 			MinLength,
 			Const
@@ -263,11 +273,13 @@ class BaseString<
 		>,
 		{
 			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
-			enum: UnionTypeNode<
+			enum: Enum extends [string, string, ...string[]]
+				? UnionTypeNode<
 				StringTupleToLiteralTypeNodeTuple<
 					Exclude<Enum, never[]>
 				>
-			>,
+				>
+				: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			pattern: TypeReferenceNode<
 				'StringPassesRegex',
 				[LiteralTypeNode<StringLiteral>]
@@ -306,7 +318,7 @@ class BaseString<
 		schema_parser: SchemaParser,
 		schema: string_type<
 			StringMode,
-			Exclude<Enum, never[]>,
+			Enum,
 			Exclude<Pattern, undefined>,
 			MinLength,
 			Const
@@ -385,7 +397,7 @@ class BaseString<
 		}: {
 			schema: string_type<
 				StringMode,
-				Exclude<Enum, never[]>,
+				Enum,
 				Exclude<Pattern, undefined>,
 				MinLength,
 				Const
@@ -393,11 +405,13 @@ class BaseString<
 		},
 	): Promise<{
 		basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
-		enum: UnionTypeNode<
+		enum: Enum extends [string, string, ...string[]]
+			? UnionTypeNode<
 			StringTupleToLiteralTypeNodeTuple<
 				Exclude<Enum, never[]>
 			>
-		>,
+			>
+			: KeywordTypeNode<SyntaxKind.StringKeyword>,
 		pattern: TypeReferenceNode<
 			'StringPassesRegex',
 			[LiteralTypeNode<StringLiteral>]
@@ -417,11 +431,13 @@ class BaseString<
 	}[StringMode]> {
 		let result: {
 			basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
-			enum: UnionTypeNode<
+			enum: Enum extends [string, string, ...string[]]
+				? UnionTypeNode<
 				StringTupleToLiteralTypeNodeTuple<
 					Exclude<Enum, never[]>
 				>
-			>,
+				>
+				: KeywordTypeNode<SyntaxKind.StringKeyword>,
 			pattern: TypeReferenceNode<
 				'StringPassesRegex',
 				[LiteralTypeNode<StringLiteral>]
@@ -441,13 +457,11 @@ class BaseString<
 		}[StringMode];
 
 		if ('enum' in schema) {
-			const sanity_check: UnionTypeNode<
-				StringTupleToLiteralTypeNodeTuple<
-					Exclude<Enum, never[]>
-				>
-			> = factory.createUnionTypeNode(StringTupleToLiteralTypeNodeTuple(
+			const sanity_check = factory.createUnionTypeNode(
+				StringTupleToLiteralTypeNodeTuple(
 				schema.enum,
-			));
+				),
+			);
 
 			result = sanity_check as typeof result;
 		} else if ('pattern' in schema) {
@@ -808,15 +822,13 @@ class BaseString<
 
 	static generate_type_definition<
 		StringMode extends string_mode = string_mode,
-		Enum extends [
-			string,
-			string,
-			...string[],
-		] = [
-			string,
-			string,
-			...string[],
-		],
+		Enum extends (
+			| [string, string, ...string[]]
+			| never[]
+		) = (
+			| [string, string, ...string[]]
+			| never[]
+		),
 		Pattern extends string = string,
 		MinLength extends MinLength_type = MinLength_type<1>,
 		Const extends string|undefined = string|undefined,
@@ -860,22 +872,46 @@ class BaseString<
 
 			result = sanity_check;
 		} else if ('enum' === options.string_mode) {
-			const sanity_check: string_type<
+			let sanity_check: string_type<
 				StringMode & 'enum',
 				Enum,
 				Exclude<Pattern, undefined>,
 				MinLength,
 				Const
-			> = {
-				type: 'string',
-				enum: options.enum,
-			};
+			>;
+
+			if (options.enum.length < 2) {
+				const double_sanity_check: string_type<
+					StringMode & 'enum',
+					never[],
+					Exclude<Pattern, undefined>,
+					MinLength,
+					Const
+				> = {
+					type: 'string',
+				};
+
+				sanity_check = double_sanity_check as typeof sanity_check;
+			} else {
+				const double_sanity_check: string_type<
+					StringMode & 'enum',
+					[string, string, ...string[]],
+					Exclude<Pattern, undefined>,
+					MinLength,
+					Const
+				> = {
+					type: 'string',
+					enum: options.enum as Exclude<Enum, never[]>,
+				};
+
+				sanity_check = double_sanity_check as typeof sanity_check;
+			}
 
 			result = sanity_check;
 		} else if ('pattern' === options.string_mode) {
 			const sanity_check: string_type<
 				StringMode & 'pattern',
-				Enum,
+				never[],
 				Exclude<Pattern, undefined>,
 				MinLength,
 				Const
@@ -884,11 +920,11 @@ class BaseString<
 				pattern: options.pattern,
 			};
 
-			result = sanity_check;
+			result = sanity_check as typeof result;
 		} else if ('non-empty' === options.string_mode) {
 			const sanity_check: string_type<
 				StringMode & 'non-empty',
-				Enum,
+				never[],
 				Exclude<Pattern, undefined>,
 				MinLength,
 				Const
@@ -897,7 +933,7 @@ class BaseString<
 				minLength: options.minLength,
 			};
 
-			result = sanity_check;
+			result = sanity_check as typeof result;
 		} else if (undefined !== options.const) {
 			const sanity_check: string_type<
 				StringMode & 'const',
@@ -914,7 +950,7 @@ class BaseString<
 		} else {
 			const sanity_check: string_type<
 				StringMode & 'const',
-				Enum,
+				never[],
 				Exclude<Pattern, undefined>,
 				MinLength,
 				undefined
@@ -931,7 +967,7 @@ class BaseString<
 
 export type basic_string_type = string_type<
 	'basic',
-	[string, string, ...string[]],
+	never[],
 	string,
 	MinLength_type<1>,
 	string
@@ -962,11 +998,59 @@ export class String<
 	}
 }
 
+export type enum_string_type<
+	Enum extends (
+		| [string, string, ...string[]]
+		| never[]
+	) = (
+		| [string, string, ...string[]]
+		| never[]
+	),
+> = string_type<
+	'enum',
+	Enum,
+	string,
+	MinLength_type<1>,
+	undefined
+>;
+
+export class EnumString<
+	T extends string = string,
+	Enum extends (
+		| [string, string, ...string[]]
+		| never[]
+	) = (
+		| [string, string, ...string[]]
+		| never[]
+	),
+> extends
+	BaseString<
+		T,
+		'enum',
+		Enum,
+		undefined,
+		MinLength_type<1>,
+		undefined
+	> {
+	constructor(permissible: Enum, options: SchemalessTypeOptions) {
+		const specific_options = Object.freeze({
+			string_mode: 'enum',
+			enum: permissible,
+		});
+
+		super({
+			...options,
+			type_definition: specific_options,
+			schema_definition: specific_options,
+		});
+	}
+}
+
 export type non_empty_string_type<
 	MinLength extends MinLength_type = MinLength_type<1>,
 > = string_type<
 	'non-empty',
-	[string, string, ...string[]],
+	never[],
 	string,
 	MinLength,
 	undefined
@@ -1001,7 +1085,7 @@ export type const_string_type<
 	Const extends string|undefined = string|undefined,
 > = string_type<
 	'const',
-	[string, string, ...string[]],
+	never[],
 	string,
 	MinLength_type<1>,
 	Const
