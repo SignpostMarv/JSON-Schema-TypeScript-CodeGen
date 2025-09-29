@@ -15,6 +15,7 @@ import {
 
 import {
 	ConstString,
+	EnumString,
 	NonEmptyString,
 	String,
 } from './JSONSchema/String.ts';
@@ -237,6 +238,7 @@ export class SchemaParser {
 
 	static #default_types(ajv: Ajv): [
 		String<string>,
+		EnumString<string, never[]>,
 		ConstString,
 		NonEmptyString,
 		$ref,
@@ -255,6 +257,7 @@ export class SchemaParser {
 			new String({
 				ajv,
 			}),
+			new EnumString([], {ajv}),
 			new ConstString(undefined, {ajv}),
 			new NonEmptyString({ajv}),
 			new $ref(
