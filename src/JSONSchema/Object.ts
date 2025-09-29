@@ -775,7 +775,7 @@ export class ObjectUnspecified<
 			patterned = await Promise.all(
 				(
 					Object.values(
-					schema.patternProperties,
+						schema.patternProperties,
 					) as [SchemaObject, ...SchemaObject[]]
 				).map(
 					(sub_schema) => {
