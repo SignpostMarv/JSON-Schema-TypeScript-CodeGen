@@ -304,7 +304,9 @@ class BaseString<
 		{
 			basic: StringLiteral,
 			enum: StringLiteral,
-			pattern: CallExpression<
+			pattern: (
+				Pattern extends string
+					? CallExpression<
 				Identifier<'StringPassesRegex'>,
 				'no',
 				never[],
@@ -312,7 +314,9 @@ class BaseString<
 					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral,
 				]
-			>,
+					>
+					: StringLiteral
+			),
 			'non-empty': StringLiteral,
 			const: StringLiteral,
 		}[StringMode]
@@ -330,7 +334,9 @@ class BaseString<
 	): {
 		basic: StringLiteral<T>,
 		enum: StringLiteral<T>,
-		pattern: CallExpression<
+		pattern: (
+			Pattern extends string
+				? CallExpression<
 			Identifier<'StringPassesRegex'>,
 			'no',
 			never[],
@@ -338,14 +344,18 @@ class BaseString<
 				StringLiteral<Exclude<Pattern, undefined>>,
 				StringLiteral<T>,
 			]
-		>,
+				>
+				: StringLiteral<T>
+		),
 		'non-empty': StringLiteral<T>,
 		const: StringLiteral<T>,
 	}[StringMode] {
 		let result: {
 			basic: StringLiteral<T>,
 			enum: StringLiteral<T>,
-			pattern: CallExpression<
+			pattern: (
+				Pattern extends string
+					? CallExpression<
 				Identifier<'StringPassesRegex'>,
 				'no',
 				never[],
@@ -353,7 +363,9 @@ class BaseString<
 					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral<T>,
 				]
-			>,
+					>
+					: StringLiteral<T>
+			),
 			'non-empty': StringLiteral<T>,
 			const: StringLiteral<T>,
 		}[StringMode];
@@ -1066,6 +1078,42 @@ export class EnumString<
 		const specific_options = Object.freeze({
 			string_mode: 'enum',
 			enum: permissible,
+		});
+
+		super({
+			...options,
+			type_definition: specific_options,
+			schema_definition: specific_options,
+		});
+	}
+}
+
+export type pattern_string_type<
+	Pattern extends string|undefined = undefined,
+> = string_type<
+	'pattern',
+	never[],
+	Pattern,
+	MinLength_type<1>,
+	undefined
+>;
+
+export class PatternString<
+	T extends string = string,
+	Pattern extends string|undefined = undefined,
+> extends
+	BaseString<
+		T,
+		'pattern',
+		never[],
+		Pattern,
+		MinLength_type<1>,
+		string
+	> {
+	constructor(pattern: Pattern, options: SchemalessTypeOptions) {
+		const specific_options = Object.freeze({
+			string_mode: 'pattern',
+			pattern,
 		});
 
 		super({
