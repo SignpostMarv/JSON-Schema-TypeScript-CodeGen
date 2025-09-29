@@ -48,6 +48,14 @@ import type {
 
 type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
 
+type MinLength_type<
+	T extends number = number,
+> = ReturnType<typeof PositiveInteger<T>>;
+
+type MinLengthOrZero_type<
+	T extends number = number,
+> = ReturnType<typeof PositiveIntegerOrZero<T>>;
+
 type string_options<
 	StringMode extends string_mode = string_mode,
 	Enum extends [string, string, ...string[]]|never[] = never[],
@@ -921,28 +929,6 @@ class BaseString<
 	}
 }
 
-export type const_type<
-	T extends string|undefined = undefined,
-> = (
-	T extends string
-		? {
-			type: 'string',
-			const: T,
-		}
-		: {
-			type: 'string',
-		}
-);
-
-
-type MinLength_type<
-	T extends number = number,
-> = ReturnType<typeof PositiveInteger<T>>;
-
-type MinLengthOrZero_type<
-	T extends number = number,
-> = ReturnType<typeof PositiveIntegerOrZero<T>>;
-
 export type basic_string_type = string_type<
 	'basic',
 	[string, string, ...string[]],
@@ -966,6 +952,41 @@ export class String<
 		const specific_options = Object.freeze({
 			string_mode: 'basic',
 			minLength: PositiveIntegerOrZero(0),
+		});
+
+		super({
+			...options,
+			type_definition: specific_options,
+			schema_definition: specific_options,
+		});
+	}
+}
+
+export type non_empty_string_type<
+	MinLength extends MinLength_type = MinLength_type<1>,
+> = string_type<
+	'non-empty',
+	[string, string, ...string[]],
+	string,
+	MinLength,
+	undefined
+>;
+
+export class NonEmptyString<
+	T extends Exclude<string, ''> = Exclude<string, ''>,
+> extends
+	BaseString<
+		T,
+		'non-empty',
+		never[],
+		undefined,
+		MinLength_type<1>,
+		string
+	> {
+	constructor(options: SchemalessTypeOptions) {
+		const specific_options = Object.freeze({
+			string_mode: 'non-empty',
+			minLength: PositiveInteger(1),
 		});
 
 		super({
@@ -1021,41 +1042,6 @@ export class ConstString<
 			string_mode: 'const',
 			const: specific,
 		};
-
-		super({
-			...options,
-			type_definition: specific_options,
-			schema_definition: specific_options,
-		});
-	}
-}
-
-export type non_empty_string_type<
-	MinLength extends MinLength_type = MinLength_type<1>,
-> = string_type<
-	'non-empty',
-	[string, string, ...string[]],
-	string,
-	MinLength,
-	undefined
->;
-
-export class NonEmptyString<
-	T extends Exclude<string, ''> = Exclude<string, ''>,
-> extends
-	BaseString<
-		T,
-		'non-empty',
-		never[],
-		undefined,
-		MinLength_type<1>,
-		string
-	> {
-	constructor(options: SchemalessTypeOptions) {
-		const specific_options = Object.freeze({
-			string_mode: 'non-empty',
-			minLength: PositiveInteger(1),
-		});
 
 		super({
 			...options,
