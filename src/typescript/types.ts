@@ -26,31 +26,18 @@ import type {
 	TypeNode,
 } from 'typescript';
 
-
-export type LiteralTypeNode<
-	T extends (
-		| NullLiteral
-		| BooleanLiteral
-		| LiteralExpression
-		| PrefixUnaryExpression
-	),
-> = TSLiteralTypeNode & {literal: T};
-
-export type TypeLiteralNode<
-	T extends TypeElement,
+export type ArrayLiteralExpression<
+	T1 extends Expression,
+	T2 extends T1[],
+	T3 extends boolean,
 > = (
-	& TSTypeLiteralNode
+	& TSArrayLiteralExpression
 	& {
-		readonly members: NodeArray<T>,
-	}
-);
-
-export type IntersectionTypeNode<
-	T extends [TypeNode, ...TypeNode[]],
-> = (
-	& TSIntersectionTypeNode
-	& {
-		readonly types: T,
+		readonly __guard_multiLine: T3,
+		readonly elements: (
+			& TSArrayLiteralExpression['elements']
+			& T2
+		),
 	}
 );
 
@@ -118,39 +105,32 @@ export type CallExpression<
 	}
 );
 
-export type TupleTypeNode<
-	T1 extends (
-		| TypeNode
-		| NamedTupleMember
-	) = (
-		| TypeNode
-		| NamedTupleMember
-	),
-	T2 extends [T1, ...T1[]] = [T1, ...T1[]],
+export type Identifier<
+	Name extends string,
 > = (
-	& TSTupleTypeNode
+	& TSIdentifier
 	& {
-		readonly elements: (
-			& TSTupleTypeNode['elements']
-			& T2
-		),
+		readonly text: Name,
 	}
 );
 
-export type ArrayLiteralExpression<
-	T1 extends Expression,
-	T2 extends T1[],
-	T3 extends boolean,
+export type IntersectionTypeNode<
+	T extends [TypeNode, ...TypeNode[]],
 > = (
-	& TSArrayLiteralExpression
+	& TSIntersectionTypeNode
 	& {
-		readonly __guard_multiLine: T3,
-		readonly elements: (
-			& TSArrayLiteralExpression['elements']
-			& T2
-		),
+		readonly types: T,
 	}
 );
+
+export type LiteralTypeNode<
+	T extends (
+		| NullLiteral
+		| BooleanLiteral
+		| LiteralExpression
+		| PrefixUnaryExpression
+	),
+> = TSLiteralTypeNode & {literal: T};
 
 export type ObjectLiteralExpression<
 	Properties extends (
@@ -176,12 +156,31 @@ export type StringLiteral<
 	}
 );
 
-export type Identifier<
-	Name extends string,
+export type TupleTypeNode<
+	T1 extends (
+		| TypeNode
+		| NamedTupleMember
+	) = (
+		| TypeNode
+		| NamedTupleMember
+	),
+	T2 extends [T1, ...T1[]] = [T1, ...T1[]],
 > = (
-	& TSIdentifier
+	& TSTupleTypeNode
 	& {
-		readonly text: Name,
+		readonly elements: (
+			& TSTupleTypeNode['elements']
+			& T2
+		),
+	}
+);
+
+export type TypeLiteralNode<
+	T extends TypeElement,
+> = (
+	& TSTypeLiteralNode
+	& {
+		readonly members: NodeArray<T>,
 	}
 );
 
