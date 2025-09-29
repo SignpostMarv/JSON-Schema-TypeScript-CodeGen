@@ -8,12 +8,22 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import {
+	SyntaxKind,
+} from 'typescript';
+
+import ts_assert from '@signpostmarv/ts-assert';
+
 import type {
 	enum_string_type,
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	EnumString,
 } from '../../../../src/JSONSchema/String.ts';
+
+import type {
+	ts_asserter,
+} from '../../../types.ts';
 
 void describe('EnumString', () => {
 	void describe('::check_type()', () => {
@@ -68,6 +78,59 @@ void describe('EnumString', () => {
 							assert.ok(b.check_type(value));
 						},
 				);
+			});
+		});
+	});
+
+	void describe('::generate_typescript_type()', () => {
+		type DataSet = [
+			enum_string_type,
+			ts_asserter<Awaited<
+				ReturnType<EnumString['generate_typescript_type']>
+			>>,
+		];
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[
+				{
+					type: 'string',
+					enum: ['foo', 'bar'],
+				},
+				ts_assert.isUnionTypeNode,
+			],
+			[
+				{
+					type: 'string',
+				},
+				(value) => {
+					ts_assert.isTokenWithExpectedKind(
+						value,
+						SyntaxKind.StringKeyword,
+					);
+				},
+			],
+		];
+
+		data_sets.forEach(([
+			type_schema,
+			asserter,
+		], i) => {
+			const ajv = new Ajv({strict: true});
+			const instance = new EnumString(
+				'enum' in type_schema ? type_schema.enum : [],
+				{ajv},
+			);
+
+			void it(`behaves with data_sets[${i}]`, async () => {
+				const promise = instance.generate_typescript_type({
+					schema: type_schema,
+				});
+
+				await assert.doesNotReject(() => promise);
+
+				const result = await promise;
+
+				assert.doesNotThrow(() => asserter(result));
 			});
 		});
 	});
