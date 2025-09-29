@@ -38,7 +38,6 @@ import type {
 } from '../coercions.ts';
 import {
 	adjust_name_default,
-	object_keys,
 } from '../coercions.ts';
 
 import {
@@ -929,7 +928,7 @@ export class ObjectUnspecified<
 		if (
 			this.#is_schema_with_pattern_properties(schema)
 		) {
-			const matching = object_keys(
+			const matching = Object.keys(
 				schema.patternProperties,
 			).find((maybe) => {
 				return (

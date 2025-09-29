@@ -8,14 +8,6 @@ import {
 	factory,
 } from './typescript/factory.ts';
 
-export function object_keys<
-	T extends string,
->(
-	value: {[key in T]: unknown},
-): T[] {
-	return Object.keys(value) as T[];
-}
-
 // eslint-disable-next-line @stylistic/max-len
 // refer to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#keywords
 const reserved_words = new Set([
