@@ -25,6 +25,10 @@ import type {
 	ts_asserter,
 } from '../../../types.ts';
 
+import {
+	SchemaParser,
+} from '../../../../src/SchemaParser.ts';
+
 void describe('EnumString', () => {
 	void describe('::check_type()', () => {
 		type DataSet = [
@@ -131,6 +135,19 @@ void describe('EnumString', () => {
 				const result = await promise;
 
 				assert.doesNotThrow(() => asserter(result));
+
+				const value = 'enum' in type_schema
+					? type_schema.enum[0]
+					: 'foo';
+
+				const data = instance.generate_typescript_data(
+					value,
+					new SchemaParser({ajv}),
+					type_schema,
+				);
+
+				ts_assert.isStringLiteral(data);
+				assert.equal(data.text, value);
 			});
 		});
 	});
