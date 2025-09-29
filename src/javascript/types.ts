@@ -1,3 +1,7 @@
+import type {
+	StringPassesRegex,
+} from '../types.ts';
+
 export {};
 
 declare global {
@@ -11,5 +15,13 @@ declare global {
 			K = (keyof T & string),
 		>(o: T): K[];
 		keys(o: object): string[];
+	}
+
+	interface RegExp
+	{
+		test<T extends string>(string: T): string is StringPassesRegex<
+			this,
+			T
+		>;
 	}
 }

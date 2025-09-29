@@ -110,7 +110,7 @@ export type PositiveIntegerOrZero<T extends number> = (
 );
 
 export type StringPassesRegex<
-	Regex extends string,
+	Regex extends string|RegExp,
 	Value extends string = string,
 > = (
 	& Value

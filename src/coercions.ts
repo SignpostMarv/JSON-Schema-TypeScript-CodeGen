@@ -118,4 +118,17 @@ export function StringTupleToLiteralTypeNodeTuple<
 	return enum_as_literal as StringTupleToLiteralTypeNodeTuple<T1>;
 }
 
+export function StringPassesRegex<
+	Regex extends RegExp|string,
+	Value extends string,
+>(
+	value: Value,
+	pattern: Regex,
+) {
+	if (!(new RegExp(pattern)).test(value)) {
+		throw new TypeError('value did not pass the supplied pattern!');
+	}
+
+	return value;
+}
 

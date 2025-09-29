@@ -1,7 +1,6 @@
 import type {
 	PositiveInteger,
 	PositiveIntegerOrZero,
-	StringPassesRegex,
 } from './types.ts';
 
 export function PositiveInteger<
@@ -33,14 +32,4 @@ export function PositiveIntegerOrZero<
 	),
 ): PositiveIntegerOrZero<T> {
 	return value as PositiveIntegerOrZero<T>;
-}
-
-export function StringPassesRegex<
-	Regex extends string,
-	Value extends string,
->(
-	value: Value,
-	pattern: Regex,
-): value is StringPassesRegex<Regex, Value> {
-	return (new RegExp(pattern)).test(value);
 }
