@@ -2,9 +2,6 @@ import type {
 	Expression,
 	TypeNode,
 } from 'typescript';
-import {
-	factory,
-} from 'typescript';
 
 import type {
 	SchemaDefinitionDefinition,
@@ -26,10 +23,8 @@ import {
 } from '../guarded.ts';
 
 import {
-	array_literal_expression,
-	array_type_node,
-	tuple_type_node,
-} from '../typescript/coercions.ts';
+	factory,
+} from '../typescript/factory.ts';
 
 import type {
 	OmitFromTupleishIf,
@@ -598,7 +593,7 @@ abstract class ArrayUncertain<
 			PrefixItems
 		>,
 	): ArrayLiteralExpression<T4, T5, true> {
-		return array_literal_expression(
+		return factory.createArrayLiteralExpression(
 			data.map((value, i): T4 => {
 				const index = PositiveIntegerOrZero(i);
 				const element = ArrayUncertain.#convert(
@@ -1179,7 +1174,7 @@ abstract class ArrayUncertain<
 			}),
 		));
 
-		return tuple_type_node<T2, T3>(tuple_members as T3);
+		return factory.createTupleTypeNode<T2, T3>(tuple_members as T3);
 	}
 
 	static async #generate_typescript_type_has_items_only<
@@ -1227,11 +1222,13 @@ abstract class ArrayUncertain<
 			'$ref allowed',
 		);
 
-		return array_type_node(await sub_type.generate_typescript_type({
+		return factory.createArrayTypeNode(
+			await sub_type.generate_typescript_type({
 			data: schema.items,
 			schema: schema.items,
 			schema_parser,
-		}) as T2);
+			}) as T2,
+		);
 	}
 
 	static async #generate_typescript_type_has_prefixItems<
@@ -1305,7 +1302,7 @@ abstract class ArrayUncertain<
 			));
 		}
 
-		return tuple_type_node<T2, T3>(tuple_members as T3);
+		return factory.createTupleTypeNode<T2, T3>(tuple_members as T3);
 	}
 
 	static #is_items_type<

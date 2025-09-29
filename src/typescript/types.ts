@@ -1,5 +1,6 @@
 import type {
 	BooleanLiteral,
+	EntityName,
 	Expression,
 	LeftHandSideExpression,
 	LiteralExpression,
@@ -185,7 +186,7 @@ export type TypeLiteralNode<
 );
 
 export type TypeReferenceNode<
-	Name extends string = string,
+	Name extends string|EntityName = string|EntityName,
 	Arguments extends (
 		| never[]
 		| [TypeNode, ...TypeNode[]]
@@ -193,7 +194,7 @@ export type TypeReferenceNode<
 > = (
 	& TSTypeReferenceNode
 	& {
-		readonly typeName: Identifier<Name>,
+		readonly typeName: Name extends string ? Identifier<Name> : Name,
 	}
 	& (
 		Arguments extends [TypeNode, ...TypeNode[]]

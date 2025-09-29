@@ -5,9 +5,8 @@ import type {
 } from './typescript/types.ts';
 
 import {
-	literal_type_node,
-	string_literal,
-} from './typescript/coercions.ts';
+	factory,
+} from './typescript/factory.ts';
 
 export function object_keys<
 	T extends string,
@@ -119,7 +118,9 @@ export function StringTupleToLiteralTypeNodeTuple<
 	T1 extends readonly string[],
 >(value: T1): StringTupleToLiteralTypeNodeTuple<T1> {
 	const enum_as_literal = value.map(
-		(item) => literal_type_node(string_literal(item)),
+		(item) => factory.createLiteralTypeNode(
+			factory.createStringLiteral(item),
+		),
 	);
 
 	return enum_as_literal as StringTupleToLiteralTypeNodeTuple<T1>;

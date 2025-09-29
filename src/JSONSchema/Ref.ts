@@ -21,10 +21,6 @@ import {
 	adjust_name_finisher,
 } from '../coercions.ts';
 
-import {
-	type_reference_node,
-} from '../typescript/coercions.ts';
-
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
@@ -33,6 +29,10 @@ import type {
 	ObjectOfSchemas,
 	SchemaObject,
 } from '../types.ts';
+
+import {
+	factory,
+} from '../typescript/factory.ts';
 
 import type {
 	TypeReferenceNode,
@@ -231,7 +231,7 @@ export class $ref<
 			data: T,
 		},
 	): Promise<TypeReferenceNode> {
-		return Promise.resolve(type_reference_node(
+		return Promise.resolve(factory.createTypeReferenceNode(
 			adjust_name_finisher(
 				$ref.replace(
 					/^#\/\$defs\//,

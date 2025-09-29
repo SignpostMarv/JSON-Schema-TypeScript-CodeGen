@@ -6,10 +6,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import {
-	factory,
-} from 'typescript';
-
 import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
@@ -43,13 +39,8 @@ import {
 } from '../coercions.ts';
 
 import {
-	call_expression,
-	identifier,
-	literal_type_node,
-	string_literal,
-	type_reference_node,
-	union_type_node,
-} from '../typescript/coercions.ts';
+	factory,
+} from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
@@ -344,7 +335,9 @@ class BaseString<
 		}[StringMode];
 
 		if (!('pattern' in schema)) {
-			const sanity_check: StringLiteral<T> = string_literal(data);
+			const sanity_check: StringLiteral<
+				T
+			> = factory.createStringLiteral(data);
 
 			result = sanity_check as typeof result;
 		} else {
@@ -356,7 +349,7 @@ class BaseString<
 					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral<T>,
 				]
-			> = call_expression<
+			> = factory.createCallExpression<
 				Identifier<'StringPassesRegex'>,
 				never[],
 				[
@@ -364,11 +357,11 @@ class BaseString<
 					StringLiteral<T>,
 				]
 			>(
-				identifier('StringPassesRegex'),
+				factory.createIdentifier('StringPassesRegex'),
 				[],
 				[
-					string_literal(schema.pattern),
-					string_literal(data),
+					factory.createStringLiteral(schema.pattern),
+					factory.createStringLiteral(data),
 				],
 			);
 
@@ -444,7 +437,7 @@ class BaseString<
 				StringTupleToLiteralTypeNodeTuple<
 					Exclude<Enum, never[]>
 				>
-			> = union_type_node(StringTupleToLiteralTypeNodeTuple(
+			> = factory.createUnionTypeNode(StringTupleToLiteralTypeNodeTuple(
 				schema.enum,
 			));
 
@@ -453,11 +446,11 @@ class BaseString<
 			const sanity_check: TypeReferenceNode<
 				'StringPassesRegex',
 				[LiteralTypeNode<StringLiteral>]
-			> = type_reference_node(
+			> = factory.createTypeReferenceNode(
 				'StringPassesRegex',
 				[
 					factory.createLiteralTypeNode(
-						string_literal(schema.pattern),
+						factory.createStringLiteral(schema.pattern),
 					),
 				],
 			);
@@ -481,8 +474,10 @@ class BaseString<
 			} else {
 				const sanity_check: LiteralTypeNode<
 					StringLiteral<Exclude<Const, undefined>>
-				> = literal_type_node(
-					string_literal(schema.const as Exclude<Const, undefined>),
+				> = factory.createLiteralTypeNode(
+					factory.createStringLiteral(
+						schema.const as Exclude<Const, undefined>,
+					),
 				);
 
 				double_sanity_check = sanity_check as (
@@ -502,11 +497,13 @@ class BaseString<
 					KeywordTypeNode,
 					LiteralTypeNode<StringLiteral>,
 				]
-			> = type_reference_node(
+			> = factory.createTypeReferenceNode(
 				'Exclude',
 				[
 					factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-					literal_type_node(string_literal('')),
+					factory.createLiteralTypeNode(
+						factory.createStringLiteral(''),
+					),
 				],
 			);
 

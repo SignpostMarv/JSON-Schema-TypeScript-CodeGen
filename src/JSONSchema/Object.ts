@@ -5,7 +5,6 @@ import type {
 	TypeNode,
 } from 'typescript';
 import {
-	factory,
 	SyntaxKind,
 } from 'typescript';
 
@@ -43,10 +42,8 @@ import {
 } from '../coercions.ts';
 
 import {
-	intersection_type_node,
-	object_literal_expression,
-	type_literal_node,
-} from '../typescript/coercions.ts';
+	factory,
+} from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
@@ -682,7 +679,7 @@ export class ObjectUnspecified<
 		schema_parser: SchemaParser,
 		adjust_name: adjust_name_callback,
 	): ObjectLiteralExpression {
-		return object_literal_expression(
+		return factory.createObjectLiteralExpression(
 			Object.entries(
 				data,
 			).map(([
@@ -723,7 +720,7 @@ export class ObjectUnspecified<
 		schema_parser: SchemaParser,
 	): Promise<object_TypeLiteralNode<PropertiesMode>> {
 		if (!this.#is_schema_with_some_type_of_properties(schema)) {
-			return type_literal_node([
+			return factory.createTypeLiteralNode([
 				factory.createIndexSignature(
 					undefined,
 					[
@@ -741,7 +738,7 @@ export class ObjectUnspecified<
 		}
 
 		let properties: PropertySignature[] = [];
-		let patterned: TypeNode[] = [];
+		let patterned: [TypeNode, ...TypeNode[]]|never[] = [];
 
 		if (this.#is_schema_with_properties(schema)) {
 			properties = await Promise.all(Object.keys(
@@ -776,9 +773,11 @@ export class ObjectUnspecified<
 
 		if (this.#is_schema_with_pattern_properties(schema)) {
 			patterned = await Promise.all(
-				Object.values(
+				(
+					Object.values(
 					schema.patternProperties,
-				).filter((maybe) => undefined !== maybe).map(
+					) as [SchemaObject, ...SchemaObject[]]
+				).map(
 					(sub_schema) => {
 						return $ref.intercept_$ref(
 							$ref.get_defs(schema, sub_schema),
@@ -791,7 +790,7 @@ export class ObjectUnspecified<
 							schema_parser,
 						});
 					},
-				),
+				) as [Promise<TypeNode>, ...Promise<TypeNode>[]],
 			);
 		}
 
@@ -803,14 +802,18 @@ export class ObjectUnspecified<
 		>;
 
 		if (properties.length > 0 && patterned.length > 0) {
-			result = intersection_type_node([
-				type_literal_node(properties),
-				this.#patterned_literal_node(patterned),
+			result = factory.createIntersectionTypeNode([
+				factory.createTypeLiteralNode(properties),
+				this.#patterned_literal_node(
+					patterned as [TypeNode, ...TypeNode[]],
+				),
 			]);
 		} else if (properties.length > 0) {
-			result = type_literal_node(properties);
+			result = factory.createTypeLiteralNode(properties);
 		} else {
-			result = this.#patterned_literal_node(patterned);
+			result = this.#patterned_literal_node(
+				patterned as [TypeNode, ...TypeNode[]],
+			);
 		}
 
 		return result as object_TypeLiteralNode<PropertiesMode>;
@@ -871,9 +874,9 @@ export class ObjectUnspecified<
 	}
 
 	static #patterned_literal_node(
-		value: TypeNode[],
+		value: [TypeNode, ...TypeNode[]],
 	): TypeLiteralNode<IndexSignatureDeclaration> {
-		return type_literal_node([
+		return factory.createTypeLiteralNode([
 			factory.createIndexSignature(
 				undefined,
 				[
@@ -890,7 +893,9 @@ export class ObjectUnspecified<
 				],
 				1 === value.length
 					? value[0]
-					: factory.createUnionTypeNode(value),
+					: factory.createUnionTypeNode(
+						value as [TypeNode, TypeNode, ...TypeNode[]],
+					),
 			),
 		]);
 	}
