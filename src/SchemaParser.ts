@@ -21,6 +21,9 @@ import {
 	String,
 } from './JSONSchema/String.ts';
 
+import type {
+	$ref_mode,
+} from './JSONSchema/Ref.ts';
 import {
 	$ref,
 } from './JSONSchema/Ref.ts';
@@ -98,7 +101,7 @@ export class SchemaParser {
 		this.#ajv.addSchema(schema);
 		for (const inform_this of this.types.filter(
 			(maybe): maybe is $ref<'either'|'external'> => (
-				$ref.is_a(maybe)
+				$ref.is_a<$ref<$ref_mode>>(maybe)
 				&& maybe.$ref_mode !== 'local'
 			),
 		)) {

@@ -7,10 +7,13 @@ import assert from 'node:assert/strict';
 import type {
 	Options,
 } from 'ajv/dist/2020.js';
-
 import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
+
+import {
+	SyntaxKind,
+} from 'typescript';
 
 import {
 	is_instanceof,
@@ -27,6 +30,7 @@ import type {
 } from '../../../../src/JSONSchema/String.ts';
 import {
 	ConstString,
+	String,
 } from '../../../../src/JSONSchema/String.ts';
 
 import {
@@ -36,6 +40,10 @@ import {
 import {
 	ObjectUnspecified,
 } from '../../../../src/JSONSchema/Object.ts';
+
+import type {
+	Type,
+} from '../../../../src/JSONSchema/Type.ts';
 
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [
@@ -63,6 +71,17 @@ void describe('identify Const String types as expected', () => {
 			'foo',
 			'foo',
 		],
+		[
+			{
+				type: 'string',
+				const: undefined,
+			},
+			{
+			},
+			'foo',
+			'foo',
+			'foo',
+		],
 	];
 
 	const_expectations.forEach(([
@@ -83,21 +102,35 @@ void describe('identify Const String types as expected', () => {
 				} with dataset item ${i}`,
 				async () => {
 					const parser = new SchemaParser();
-					const instance = from_parser_default
+					let instance: undefined|Type<unknown> = from_parser_default
 						? parser.parse(schema, 'yes')
 						: new ConstString(literal, {ajv: new Ajv({
 							...ajv_options,
 							strict: true,
 						})});
 
+					if (!('const' in schema) && from_parser_default) {
+						is_instanceof(instance, String);
+						instance = parser.maybe_parse<ConstString>(
+							schema,
+							ConstString as unknown as typeof Type<
+								unknown
+							>,
+						);
+					}
 					is_instanceof<ConstString>(instance, ConstString);
 
 					const typed = await instance.generate_typescript_type({
 						schema,
 					});
 
-					if ('const' in schema) {
+					if ('const' in schema && undefined !== schema.const) {
 						ts_assert.isLiteralTypeNode(typed);
+					} else {
+						ts_assert.isTokenWithExpectedKind(
+							typed,
+							SyntaxKind.StringKeyword,
+						);
 					}
 
 					const get_converted = () => (

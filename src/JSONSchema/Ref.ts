@@ -563,7 +563,7 @@ export class $ref<
 		) = maybe_$ref;
 
 		if (require_conversion) {
-			if ($ref.is_a(maybe_$ref)) {
+			if ($ref.is_a<$ref<$ref_mode>>(maybe_$ref)) {
 				converter = maybe_$ref.resolve_ref(
 					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
 					$defs,
@@ -589,10 +589,6 @@ export class $ref<
 		}
 
 		return converter;
-	}
-
-	static is_a(maybe: unknown): maybe is $ref<$ref_mode> {
-		return super.is_a(maybe);
 	}
 
 	static is_supported_$defs(

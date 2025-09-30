@@ -30,13 +30,16 @@ import type {
 	basic_string_type,
 } from '../../../../src/JSONSchema/String.ts';
 import {
-	ConstString,
 	String,
 } from '../../../../src/JSONSchema/String.ts';
 
 import {
 	throws_Error,
 } from '../../../assertions.ts';
+
+import {
+	ObjectUnspecified,
+} from '../../../../src/JSONSchema/Object.ts';
 
 void describe('identify simple String types as expected', () => {
 	const string_expectations: [
@@ -123,7 +126,12 @@ void describe('identify simple String types as expected', () => {
 				const ajv = new Ajv();
 				const instance = new SchemaParser({
 					ajv,
-					types: [new ConstString(undefined, {ajv})],
+					types: [
+						new ObjectUnspecified(
+							{properties_mode: 'both'},
+							{ajv},
+						),
+					],
 				});
 
 				throws_Error(

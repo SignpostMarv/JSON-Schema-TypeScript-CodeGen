@@ -203,7 +203,9 @@ export abstract class ConversionlessType<
 		throw new Error('Not implemented!');
 	}
 
-	static is_a(maybe: unknown): maybe is ConversionlessType<unknown> {
+	static is_a<
+		T extends ConversionlessType<unknown>,
+	>(maybe: unknown): maybe is T {
 		return maybe instanceof this;
 	}
 }
@@ -240,8 +242,4 @@ export abstract class Type<
 		schema_parser: SchemaParser,
 		schema: TypeDefinition,
 	): DataTo;
-
-	static is_a(maybe: unknown): maybe is Type<unknown> {
-		return super.is_a(maybe);
-	}
 }

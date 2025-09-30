@@ -79,6 +79,10 @@ import {
 	PositiveIntegerOrZero,
 } from '../../../../src/guarded.ts';
 
+import {
+	String,
+} from '../../../../src/JSONSchema/String.ts';
+
 void describe('ArrayUnspecified', () => {
 	type DataSet<
 		T1 extends TypeNode = TypeNode,
@@ -898,6 +902,26 @@ void describe('ArrayUnspecified', () => {
 				schema_parser,
 				{} as typeof schema,
 			));
+		});
+	});
+
+	void describe('::is_a()', () => {
+		void it('behaves as expected', () => {
+			const ajv = new Ajv({strict: true});
+			assert.ok(ArrayUnspecified.is_a(
+				new ArrayUnspecified(
+					{
+						array_mode: 'items-only',
+						uniqueItems_mode: 'yes',
+						items: {
+							type: 'string',
+						},
+					},
+					{ajv},
+				),
+			));
+			assert.ok(!ArrayUnspecified.is_a(undefined));
+			assert.ok(!ArrayUnspecified.is_a(new String({ajv})));
 		});
 	});
 });

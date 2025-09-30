@@ -35,6 +35,10 @@ import type {
 	ObjectOfSchemas,
 } from '../../../src/types.ts';
 
+import {
+	ArrayUnspecified,
+} from '../../../src/JSONSchema/Array.ts';
+
 void describe('$ref', () => {
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
@@ -338,5 +342,26 @@ void describe('$ref', () => {
 					}
 				});
 			});
+	});
+
+	void describe('::is_a()', () => {
+		void it('behaves as expected', () => {
+			const ajv = new Ajv({strict: true});
+			assert.ok($ref.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
+			assert.ok(!$ref.is_a(
+				new ArrayUnspecified(
+					{
+						array_mode: 'items-only',
+						uniqueItems_mode: 'yes',
+						items: {
+							type: 'string',
+						},
+					},
+					{ajv},
+				),
+			));
+			assert.ok(!$ref.is_a(undefined));
+			assert.ok(!$ref.is_a(new String({ajv})));
+		});
 	});
 });

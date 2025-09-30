@@ -226,7 +226,7 @@ type base_string_schema<
 		enum: ['type', 'enum'],
 		pattern: ['type', 'pattern'],
 		'non-empty': ['type', 'minLength'],
-		const: ['type', 'const'],
+		const: ['type'],
 	}[StringMode],
 	ObjectOfSchemas & string_schema_Properties<
 		StringMode,
@@ -822,7 +822,7 @@ class BaseString<
 			> = {
 				type: 'object',
 				additionalProperties: false,
-				required: ['type', 'const'],
+				required: ['type'],
 				properties: {
 					type: {
 						type: 'string',
