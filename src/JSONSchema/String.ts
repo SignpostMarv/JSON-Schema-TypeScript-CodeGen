@@ -234,7 +234,8 @@ type base_string_schema<
 		Pattern,
 		MinLength,
 		Const
-	>
+	>,
+	'yes'
 >;
 
 class BaseString<
@@ -585,10 +586,10 @@ class BaseString<
 		if ('basic' === options.string_mode) {
 			const sanity_check: base_string_schema<
 				StringMode & 'basic',
-				Enum,
-				Pattern,
+				[],
+				undefined,
 				MinLength,
-				Const
+				undefined
 			> = {
 				type: 'object',
 				additionalProperties: false,
@@ -605,7 +606,7 @@ class BaseString<
 				},
 			};
 
-			result = sanity_check;
+			result = sanity_check as typeof result;
 		} else if ('enum' === options.string_mode) {
 			let double_sanity_check: base_string_schema<
 				StringMode & 'enum',

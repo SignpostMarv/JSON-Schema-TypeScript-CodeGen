@@ -21,20 +21,41 @@ export type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
 		...string[],
-	] = readonly [
+	]|never[] = readonly [
 		string,
 		...string[],
-	],
-	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+	]|never[],
+	Properties extends (
+		| ObjectOfSchemas
+		| Record<string, never>
+	) = (
+		| ObjectOfSchemas
+		| Record<string, never>
+	),
+	HasProperties extends 'yes'|'no' = 'yes'|'no',
 > = (
 	& SchemaObject
-	& {
+	& (
+		{
+			yes: {
 		type: 'object',
 		required: Required,
 		additionalProperties: false,
 		properties: Properties,
-	}
+			},
+			no: {
+				type: 'object',
+				minProperties: 1,
+				additionalProperties: Record<string, never>,
+			},
+		}[HasProperties]
+	)
 );
+
+export type SchemaObjectDefinition = SchemaDefinitionDefinition<
+	[],
+	Record<string, never>
+>;
 
 export type TypeDefinitionSchema<
 	Schema extends SchemaObject = SchemaObject,

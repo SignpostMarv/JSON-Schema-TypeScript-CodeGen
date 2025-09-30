@@ -312,7 +312,8 @@ export type array_schema<
 				},
 			},
 		}[ArrayMode]
-	)
+	),
+	'yes'
 >;
 
 type ArrayUncertain_TypeOptions<
