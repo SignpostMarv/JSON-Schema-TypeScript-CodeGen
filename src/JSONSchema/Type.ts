@@ -38,10 +38,10 @@ export type SchemaDefinitionDefinition<
 	& (
 		{
 			yes: {
-		type: 'object',
-		required: Required,
-		additionalProperties: false,
-		properties: Properties,
+				type: 'object',
+				required: Required,
+				additionalProperties: false,
+				properties: Properties,
 			},
 			no: {
 				type: 'object',
