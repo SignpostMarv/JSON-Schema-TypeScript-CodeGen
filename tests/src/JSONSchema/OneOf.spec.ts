@@ -246,6 +246,16 @@ void describe('OneOf', () => {
 					const foo: ts_asserter<Expression> = asserter;
 
 					foo(result);
+
+					if (undefined !== data) {
+						assert.throws(() => instance.generate_typescript_data(
+							undefined,
+							new SchemaParser({ajv}),
+							OneOf.generate_type_definition(
+								type_definition,
+							),
+						));
+					}
 				});
 			});
 		});
