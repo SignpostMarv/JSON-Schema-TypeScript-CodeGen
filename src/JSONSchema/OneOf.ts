@@ -11,6 +11,7 @@ import {
 } from 'typescript';
 
 import type {
+	ObjectOfSchemas,
 	SchemaObject,
 } from '../types.ts';
 
@@ -26,6 +27,10 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
+import {
+	$ref,
+} from './Ref.ts';
+
 export type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 
 export type one_of_mode = 'specified'|'unspecified';
@@ -33,18 +38,24 @@ export type one_of_mode = 'specified'|'unspecified';
 type one_of_type<
 	Mode extends one_of_mode = one_of_mode,
 	Choices extends type_choices = type_choices,
+	Defs extends ObjectOfSchemas = ObjectOfSchemas,
 > = {
-	specified: {oneOf: Choices},
+	specified: {
+		$defs?: Defs,
+		oneOf: Choices,
+	},
 	unspecified: Record<string, never>,
 }[Mode];
 
 export type one_of_type_options<
 	Mode extends one_of_mode = one_of_mode,
 	Choices extends type_choices = type_choices,
+	Defs extends ObjectOfSchemas = ObjectOfSchemas,
 > = {
 	specified: {
 		mode: Mode,
 		choices: Choices,
+		$defs?: Defs,
 	},
 	unspecified: {
 		mode: Mode,
@@ -159,9 +170,13 @@ export class OneOf<
 				schema,
 				sub_schema,
 			)).map((sub_schema) => {
-				return schema_parser.parse(
+				return $ref.intercept_$ref(
+					this.#maybe_add_$defs(schema, sub_schema)['$defs'] || {},
 					sub_schema,
+					schema_parser,
+					'$ref allowed',
 				).generate_typescript_type({
+					data: sub_schema,
 					schema: sub_schema,
 					schema_parser,
 				});
@@ -215,8 +230,10 @@ export class OneOf<
 			return validator(data);
 		}) as SchemaObject;
 
-		return schema_parser.parse(
+		return $ref.intercept_$ref(
+			sub_schema.$defs || {},
 			sub_schema,
+			schema_parser,
 			'yes',
 		);
 	}
@@ -281,12 +298,14 @@ export class OneOf<
 	static generate_type_definition<
 		Mode extends one_of_mode = one_of_mode,
 		Choices extends type_choices = type_choices,
+		Defs extends ObjectOfSchemas = ObjectOfSchemas,
 	>(
-		{
+		options: one_of_type_options<Mode, Choices, Defs>,
+	): Readonly<one_of_type<Mode, Choices, Defs>> {
+		let result: one_of_type<Mode, Choices, Defs>;
+		const {
 			choices,
-		}: one_of_type_options<Mode, Choices>,
-	): Readonly<one_of_type<Mode, Choices>> {
-		let result: one_of_type<Mode, Choices>;
+		} = options;
 
 		if ((choices || []).length < 2) {
 			const sanity_check: one_of_type<'unspecified'> = {};
@@ -299,6 +318,10 @@ export class OneOf<
 			> = {oneOf: (choices as Choices)};
 
 			result = sanity_check as typeof result;
+
+			if ('$defs' in options) {
+				result.$defs = options.$defs;
+			}
 		}
 
 		return Object.freeze(result);

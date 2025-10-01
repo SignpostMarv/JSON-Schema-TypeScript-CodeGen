@@ -57,13 +57,18 @@ import {
 	SchemaParser,
 } from '../../../src/SchemaParser.ts';
 
+import type {
+	ObjectOfSchemas,
+} from '../../../src/types.ts';
+
 void describe('OneOf', () => {
 	type DataSet<
 		Mode extends one_of_mode = one_of_mode,
 		TypeChoices extends type_choices = type_choices,
 		SchemaChoices extends schema_choices = schema_choices,
+		Defs extends ObjectOfSchemas = ObjectOfSchemas,
 	> = [
-		one_of_type_options<Mode, TypeChoices>,
+		one_of_type_options<Mode, TypeChoices, Defs>,
 		one_of_schema_options<Mode, SchemaChoices>,
 		[
 			unknown,
@@ -118,6 +123,52 @@ void describe('OneOf', () => {
 					{type: 'string', const: 'foo'},
 					{type: 'string', pattern: '^(?!foo)'},
 				],
+			},
+			{
+				mode: 'specified',
+				choices: [
+					ConstString.generate_schema_definition<
+						'const',
+						never[],
+						undefined,
+						ReturnType<typeof PositiveInteger<1>>,
+						'foo'
+					>({
+						string_mode: 'const',
+						const: 'foo',
+					}),
+					PatternString.generate_schema_definition<
+						'pattern',
+						never[],
+						'^(?!foo)',
+						ReturnType<typeof PositiveInteger<1>>,
+						undefined
+					>({
+						string_mode: 'pattern',
+						pattern: '^(?!foo)',
+					}),
+				],
+			},
+			[
+				[
+					'foo',
+					ts_assert.isStringLiteral,
+					ts_assert.isUnionTypeNode,
+				],
+			],
+			[],
+		]),
+		sanity_check<'specified'>([
+			{
+				mode: 'specified',
+				choices: [
+					{$ref: '#/$defs/foo'},
+					{$ref: '#/$defs/bar'},
+				],
+				$defs: {
+					foo: {type: 'string', const: 'foo'},
+					bar: {type: 'string', pattern: '^(?!foo)'},
+				},
 			},
 			{
 				mode: 'specified',
