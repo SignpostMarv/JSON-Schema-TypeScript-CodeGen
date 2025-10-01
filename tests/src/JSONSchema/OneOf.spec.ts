@@ -8,6 +8,13 @@ import {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+import type {
+	one_of_mode,
+	one_of_schema_options,
+	one_of_type_options,
+	schema_choices,
+	type_choices,
+} from '../../../src/JSONSchema/OneOf.ts';
 import {
 	OneOf,
 } from '../../../src/JSONSchema/OneOf.ts';
@@ -19,20 +26,57 @@ import {
 	$ref,
 } from '../../../src/JSONSchema/Ref.ts';
 
+import type {
+	ConversionlessType,
+} from '../../../src/JSONSchema/Type.ts';
+
 void describe('OneOf', () => {
 	void describe('::is_a()', () => {
-		void it('behaves as expected', () => {
-			const ajv = new Ajv({strict: true});
+		type DataSet<
+			Mode extends one_of_mode = one_of_mode,
+			TypeChoices extends type_choices = type_choices,
+			SchemaChoices extends schema_choices = schema_choices,
+		> = [
+			one_of_type_options<Mode, TypeChoices>,
+			one_of_schema_options<Mode, SchemaChoices>,
+			[
+				(ajv: Ajv) => ConversionlessType<unknown>,
+				boolean,
+			][],
+		];
 
-			assert.ok(OneOf.is_a(new OneOf<unknown, 'unspecified'>({
-				ajv,
-				type_definition: {
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[
+				{
 					mode: 'unspecified',
 				},
-				schema_definition: {
+				{
 					mode: 'unspecified',
 				},
-			})));
+				[
+					[
+						(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
+						false,
+					],
+				],
+			],
+		];
+
+		data_sets.forEach(([
+			type_definition,
+			schema_definition,
+			additional_checks,
+		], i) => {
+			void it(`behaves with data_sets[${i}]`, () => {
+				const ajv = new Ajv({strict: true});
+
+				const instance = new OneOf({
+					ajv,
+					type_definition,
+					schema_definition,
+				});
+
+				assert.ok(OneOf.is_a(instance));
 			assert.ok(OneOf.is_a<$ref<$ref_mode>>(
 				new OneOf<unknown, 'unspecified'>({
 					ajv,
@@ -44,10 +88,24 @@ void describe('OneOf', () => {
 					},
 				}),
 			));
-			assert.ok(!OneOf.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
 			assert.ok(!OneOf.is_a<OneOf<unknown>>(
 				new $ref({$ref_mode: 'either'}, {ajv}),
 			));
+			});
+
+			additional_checks.forEach(([
+				generator,
+				passes,
+			], j) => {
+				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
+					const ajv = new Ajv({strict: true});
+
+					assert.equal(
+						OneOf.is_a(generator(ajv)),
+						passes,
+					);
+				});
+			});
 		});
 	});
 });

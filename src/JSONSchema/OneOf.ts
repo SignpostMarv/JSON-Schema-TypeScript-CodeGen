@@ -27,9 +27,9 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
+export type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 
-type one_of_mode = 'specified'|'unspecified';
+export type one_of_mode = 'specified'|'unspecified';
 
 type one_of_type<
 	Mode extends one_of_mode = one_of_mode,
@@ -39,7 +39,7 @@ type one_of_type<
 	unspecified: Record<string, never>,
 }[Mode];
 
-type one_of_type_options<
+export type one_of_type_options<
 	Mode extends one_of_mode = one_of_mode,
 	Choices extends type_choices = type_choices,
 > = {
@@ -53,13 +53,13 @@ type one_of_type_options<
 	},
 }[Mode];
 
-type schema_choices = [
+export type schema_choices = [
 	SchemaObjectDefinition,
 	SchemaObjectDefinition,
 	...SchemaObjectDefinition[],
 ];
 
-type one_of_schema_options<
+export type one_of_schema_options<
 	Mode extends one_of_mode = one_of_mode,
 	Choices extends schema_choices = schema_choices,
 > = {
