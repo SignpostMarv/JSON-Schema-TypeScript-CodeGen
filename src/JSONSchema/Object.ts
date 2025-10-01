@@ -162,7 +162,8 @@ export type object_schema<
 				pattern: 'with',
 			}[PropertiesMode]
 		>
-	)
+	),
+	'yes'
 >;
 
 export type object_TypeLiteralNode<
