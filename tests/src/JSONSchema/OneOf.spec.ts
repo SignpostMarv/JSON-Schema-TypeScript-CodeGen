@@ -67,7 +67,7 @@ void describe('OneOf', () => {
 		one_of_schema_options<Mode, SchemaChoices>,
 		[
 			unknown,
-			ts_asserter<Expression>,
+			ts_asserter<Expression>|false,
 			ts_asserter<TypeNode>,
 		][],
 		[
@@ -153,6 +153,11 @@ void describe('OneOf', () => {
 						SyntaxKind.StringKeyword,
 					),
 				],
+				[
+					undefined,
+					false,
+					ts_assert.isUnionTypeNode,
+				],
 			],
 			[],
 		]),
@@ -164,10 +169,20 @@ void describe('OneOf', () => {
 			schema_definition,
 			generate_type_checks,
 		], i) => {
-			generate_type_checks.forEach(([
+			generate_type_checks.map((subset, j) => [
+				...subset,
+				j,
+			]).filter((maybe): maybe is [
+				unknown,
+				ts_asserter<Expression>,
+				ts_asserter<TypeNode>,
+				number,
+			] => false !== maybe[1]).forEach(([
 				data,
 				asserter,
-			], j) => {
+				,
+				j,
+			]) => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
 					const ajv = new Ajv({strict: true});
 
