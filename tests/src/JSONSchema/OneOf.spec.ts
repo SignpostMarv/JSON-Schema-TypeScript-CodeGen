@@ -58,42 +58,42 @@ import {
 } from '../../../src/SchemaParser.ts';
 
 void describe('OneOf', () => {
-		type DataSet<
-			Mode extends one_of_mode = one_of_mode,
-			TypeChoices extends type_choices = type_choices,
-			SchemaChoices extends schema_choices = schema_choices,
-		> = [
-			one_of_type_options<Mode, TypeChoices>,
-			one_of_schema_options<Mode, SchemaChoices>,
+	type DataSet<
+		Mode extends one_of_mode = one_of_mode,
+		TypeChoices extends type_choices = type_choices,
+		SchemaChoices extends schema_choices = schema_choices,
+	> = [
+		one_of_type_options<Mode, TypeChoices>,
+		one_of_schema_options<Mode, SchemaChoices>,
 		[
 			unknown,
 			ts_asserter<Expression>,
 			ts_asserter<TypeNode>,
 		][],
-			[
-				(ajv: Ajv) => ConversionlessType<unknown>,
-				boolean,
-			][],
-		];
+		[
+			(ajv: Ajv) => ConversionlessType<unknown>,
+			boolean,
+		][],
+	];
 
-		function sanity_check<
-			Mode extends one_of_mode = one_of_mode,
-			TypeChoices extends type_choices = type_choices,
-			SchemaChoices extends schema_choices = schema_choices,
-		>(
-			entry: DataSet<Mode, TypeChoices, SchemaChoices>,
-		): DataSet<Mode, TypeChoices, SchemaChoices> {
-			return entry;
-		}
+	function sanity_check<
+		Mode extends one_of_mode = one_of_mode,
+		TypeChoices extends type_choices = type_choices,
+		SchemaChoices extends schema_choices = schema_choices,
+	>(
+		entry: DataSet<Mode, TypeChoices, SchemaChoices>,
+	): DataSet<Mode, TypeChoices, SchemaChoices> {
+		return entry;
+	}
 
-		const data_sets: [DataSet, ...DataSet[]] = [
-			sanity_check<'unspecified'>([
-				{
-					mode: 'unspecified',
-				},
-				{
-					mode: 'unspecified',
-				},
+	const data_sets: [DataSet, ...DataSet[]] = [
+		sanity_check<'unspecified'>([
+			{
+				mode: 'unspecified',
+			},
+			{
+				mode: 'unspecified',
+			},
 			[
 				[
 					'foo',
@@ -104,46 +104,46 @@ void describe('OneOf', () => {
 					),
 				],
 			],
+			[
 				[
-					[
-						(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
-						false,
-					],
+					(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
+					false,
 				],
-			]),
-			sanity_check<'specified'>([
-				{
-					mode: 'specified',
-					choices: [
-						{type: 'string', const: 'foo'},
+			],
+		]),
+		sanity_check<'specified'>([
+			{
+				mode: 'specified',
+				choices: [
+					{type: 'string', const: 'foo'},
 					{type: 'string', pattern: '^(?!foo)'},
-					],
-				},
-				{
-					mode: 'specified',
-					choices: [
-						ConstString.generate_schema_definition<
-							'const',
-							never[],
-							undefined,
-							ReturnType<typeof PositiveInteger<1>>,
-							'foo'
-						>({
-							string_mode: 'const',
-							const: 'foo',
-						}),
-						PatternString.generate_schema_definition<
-							'pattern',
-							never[],
+				],
+			},
+			{
+				mode: 'specified',
+				choices: [
+					ConstString.generate_schema_definition<
+						'const',
+						never[],
+						undefined,
+						ReturnType<typeof PositiveInteger<1>>,
+						'foo'
+					>({
+						string_mode: 'const',
+						const: 'foo',
+					}),
+					PatternString.generate_schema_definition<
+						'pattern',
+						never[],
 						'^(?!foo)',
-							ReturnType<typeof PositiveInteger<1>>,
-							undefined
-						>({
-							string_mode: 'pattern',
+						ReturnType<typeof PositiveInteger<1>>,
+						undefined
+					>({
+						string_mode: 'pattern',
 						pattern: '^(?!foo)',
-						}),
-					],
-				},
+					}),
+				],
+			},
 			[
 				[
 					'foo',
@@ -154,9 +154,9 @@ void describe('OneOf', () => {
 					),
 				],
 			],
-				[],
-			]),
-		];
+			[],
+		]),
+	];
 
 	void describe('::generate_typescript_data()', () => {
 		data_sets.forEach(([
