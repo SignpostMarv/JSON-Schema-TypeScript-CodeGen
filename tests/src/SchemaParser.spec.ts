@@ -38,7 +38,7 @@ import {
 } from '../assertions.ts';
 
 void describe('SchemaParser', () => {
-	void describe('.parse()', () => {
+	void describe('::parse()', () => {
 		void it('fails with {}', () => {
 			const parser = new SchemaParser();
 
@@ -76,7 +76,7 @@ void describe('SchemaParser', () => {
 			},
 		);
 
-		void describe('.generate_typescript_type()', () => {
+		void describe('::generate_typescript_type()', () => {
 			void it(
 				'gives String and StringStartsWith when expected',
 				async () => {
@@ -175,7 +175,7 @@ void describe('SchemaParser', () => {
 		});
 	});
 
-	void describe('.share_ajv()', () => {
+	void describe('::share_ajv()', () => {
 		// intended to return the same instance as input
 		type DataSetSameReturn<T> = [
 			share_ajv_callback<T>,
