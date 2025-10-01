@@ -37,6 +37,10 @@ import {
 	bool_throw,
 } from '../assertions.ts';
 
+import {
+	OneOf,
+} from '../../src/JSONSchema/OneOf.ts';
+
 void describe('SchemaParser', () => {
 	void describe('::parse()', () => {
 		void it('fails with {}', () => {
@@ -172,6 +176,18 @@ void describe('SchemaParser', () => {
 					);
 				},
 			);
+		});
+	});
+
+	void describe('::parse_by_type()', () => {
+		void it('fails as expected', () => {
+			const parser = new SchemaParser();
+			const ajv = new Ajv({strict: true});
+			assert.ok(!OneOf.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
+			assert.throws(() => parser.parse_by_type(
+				{$ref: '#/$defs/foo'},
+				(maybe) => OneOf.is_a(maybe),
+			));
 		});
 	});
 
