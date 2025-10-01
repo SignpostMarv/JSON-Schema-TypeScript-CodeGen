@@ -77,20 +77,20 @@ void describe('OneOf', () => {
 				});
 
 				assert.ok(OneOf.is_a(instance));
-			assert.ok(OneOf.is_a<$ref<$ref_mode>>(
-				new OneOf<unknown, 'unspecified'>({
-					ajv,
-					type_definition: {
-						mode: 'unspecified',
-					},
-					schema_definition: {
-						mode: 'unspecified',
-					},
-				}),
-			));
-			assert.ok(!OneOf.is_a<OneOf<unknown>>(
-				new $ref({$ref_mode: 'either'}, {ajv}),
-			));
+				assert.ok(OneOf.is_a<$ref<$ref_mode>>(
+					new OneOf<unknown, 'unspecified'>({
+						ajv,
+						type_definition: {
+							mode: 'unspecified',
+						},
+						schema_definition: {
+							mode: 'unspecified',
+						},
+					}),
+				));
+				assert.ok(!OneOf.is_a<OneOf<unknown>>(
+					new $ref({$ref_mode: 'either'}, {ajv}),
+				));
 			});
 
 			additional_checks.forEach(([
