@@ -1109,7 +1109,7 @@ export class PatternString<
 		never[],
 		Pattern,
 		MinLength_type<1>,
-		string
+		undefined
 	> {
 	constructor(pattern: Pattern, options: SchemalessTypeOptions) {
 		const specific_options = Object.freeze({

@@ -30,6 +30,15 @@ import type {
 	ConversionlessType,
 } from '../../../src/JSONSchema/Type.ts';
 
+import {
+	ConstString,
+	PatternString,
+} from '../../../src/JSONSchema/String.ts';
+
+import type {
+	PositiveInteger,
+} from '../../../src/guarded.ts';
+
 void describe('OneOf', () => {
 	void describe('::is_a()', () => {
 		type DataSet<
@@ -45,8 +54,18 @@ void describe('OneOf', () => {
 			][],
 		];
 
+		function sanity_check<
+			Mode extends one_of_mode = one_of_mode,
+			TypeChoices extends type_choices = type_choices,
+			SchemaChoices extends schema_choices = schema_choices,
+		>(
+			entry: DataSet<Mode, TypeChoices, SchemaChoices>,
+		): DataSet<Mode, TypeChoices, SchemaChoices> {
+			return entry;
+		}
+
 		const data_sets: [DataSet, ...DataSet[]] = [
-			[
+			sanity_check<'unspecified'>([
 				{
 					mode: 'unspecified',
 				},
@@ -59,7 +78,42 @@ void describe('OneOf', () => {
 						false,
 					],
 				],
-			],
+			]),
+			sanity_check<'specified'>([
+				{
+					mode: 'specified',
+					choices: [
+						{type: 'string', const: 'foo'},
+						{type: 'string', pattern: '.+'},
+					],
+				},
+				{
+					mode: 'specified',
+					choices: [
+						ConstString.generate_schema_definition<
+							'const',
+							never[],
+							undefined,
+							ReturnType<typeof PositiveInteger<1>>,
+							'foo'
+						>({
+							string_mode: 'const',
+							const: 'foo',
+						}),
+						PatternString.generate_schema_definition<
+							'pattern',
+							never[],
+							'.+',
+							ReturnType<typeof PositiveInteger<1>>,
+							undefined
+						>({
+							string_mode: 'pattern',
+							pattern: '.+',
+						}),
+					],
+				},
+				[],
+			]),
 		];
 
 		data_sets.forEach(([

@@ -54,9 +54,9 @@ export type one_of_type_options<
 }[Mode];
 
 export type schema_choices = [
-	SchemaObjectDefinition,
-	SchemaObjectDefinition,
-	...SchemaObjectDefinition[],
+	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinition,
+	...SchemaDefinitionDefinition[],
 ];
 
 export type one_of_schema_options<
@@ -82,8 +82,7 @@ type one_of_schema<
 		{
 			oneOf: {
 				type: 'array',
-				items: false,
-				prefixItems: Choices,
+				const: Choices,
 			},
 		},
 		'yes'
@@ -226,7 +225,7 @@ export class OneOf<
 
 		if (
 			undefined === choices
-			|| !this.#is_PrefixItems_schema_choices(choices)
+			|| !this.#is_const_schema_choices(choices)
 		) {
 			const sanity_check: one_of_schema<
 				'unspecified',
@@ -260,8 +259,7 @@ export class OneOf<
 				properties: {
 					oneOf: {
 						type: 'array',
-						items: false,
-						prefixItems: choices,
+						const: choices,
 					},
 				},
 			};
@@ -298,7 +296,7 @@ export class OneOf<
 		return Object.freeze(result);
 	}
 
-	static #is_PrefixItems_schema_choices<
+	static #is_const_schema_choices<
 		Choices extends schema_choices,
 	>(
 		maybe: never[]|Choices,
