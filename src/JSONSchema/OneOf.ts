@@ -15,11 +15,11 @@ import type {
 } from '../types.ts';
 
 import type {
-	ConversionlessType,
 	SchemaDefinitionDefinition,
 	SchemaObjectDefinition,
 } from './Type.ts';
 import {
+	ConversionlessType,
 	Type,
 } from './Type.ts';
 
@@ -156,22 +156,35 @@ export class OneOf<
 			});
 		}
 
-		const $defs = '$defs' in schema ? schema.$defs : {};
-
 		return factory.createUnionTypeNode(await Promise.all(
-			schema.oneOf.map((sub_schema) => {
-				return schema_parser.parse({
-					$defs,
-					...sub_schema,
-				}).generate_typescript_type({
-					schema: {
-						$defs,
-						...sub_schema,
-					},
+			schema.oneOf.map((
+				sub_schema,
+			) => this.#maybe_add_$defs(
+				schema,
+				sub_schema,
+			)).map((sub_schema) => {
+				return schema_parser.parse(
+					sub_schema,
+				).generate_typescript_type({
+					schema: sub_schema,
 					schema_parser,
 				});
 			}),
 		));
+	}
+
+	#maybe_add_$defs(
+		schema: SchemaObject,
+		sub_schema: SchemaObject,
+	): SchemaObject {
+		if ('$defs' in schema) {
+			return {
+				$defs: schema.$defs,
+				...sub_schema,
+			};
+		}
+
+		return sub_schema;
 	}
 
 	#sub_schema_handler<
@@ -192,23 +205,38 @@ export class OneOf<
 			throw new TypeError('Data was not valid!');
 		}
 
-		const $defs = '$defs' in schema ? schema.$defs : {};
+		if (0 === Object.keys(schema).length) {
+			return schema_parser.parse_by_type<
+				{
+					yes: Type<unknown>,
+					no: ConversionlessType<unknown>,
+				}[RequireConversion]
+			>(
+				data,
+				(maybe): maybe is {
+					yes: Type<unknown>,
+					no: ConversionlessType<unknown>,
+				}[RequireConversion] => {
+					return (
+						'yes' === require_conversion
+							? Type.is_a(maybe)
+							: ConversionlessType.is_a(maybe)
+					);
+				},
+			);
+		}
 
-		const sub_schema = schema.oneOf.find((maybe) => {
+		const sub_schema = schema.oneOf.map((
+			sub_schema,
+		) => this.#maybe_add_$defs(schema, sub_schema)).find((maybe) => {
 			const ajv = new Ajv({strict: true});
-			const validator = ajv.compile({
-				$defs,
-				...maybe,
-			});
+			const validator = ajv.compile(maybe);
 
 			return validator(data);
 		}) as SchemaObject;
 
 		return schema_parser.parse(
-			{
-				$defs,
-				...sub_schema,
-			},
+			sub_schema,
 			require_conversion,
 		);
 	}

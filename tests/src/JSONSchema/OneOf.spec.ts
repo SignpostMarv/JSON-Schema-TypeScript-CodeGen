@@ -9,6 +9,16 @@ import {
 } from 'ajv/dist/2020.js';
 
 import type {
+	Expression,
+	TypeNode,
+} from 'typescript';
+import {
+	SyntaxKind,
+} from 'typescript';
+
+import ts_assert from '@signpostmarv/ts-assert';
+
+import type {
 	one_of_mode,
 	one_of_schema_options,
 	one_of_type_options,
@@ -39,8 +49,15 @@ import type {
 	PositiveInteger,
 } from '../../../src/guarded.ts';
 
+import type {
+	ts_asserter,
+} from '../../types.ts';
+
+import {
+	SchemaParser,
+} from '../../../src/SchemaParser.ts';
+
 void describe('OneOf', () => {
-	void describe('::is_a()', () => {
 		type DataSet<
 			Mode extends one_of_mode = one_of_mode,
 			TypeChoices extends type_choices = type_choices,
@@ -48,6 +65,11 @@ void describe('OneOf', () => {
 		> = [
 			one_of_type_options<Mode, TypeChoices>,
 			one_of_schema_options<Mode, SchemaChoices>,
+		[
+			unknown,
+			ts_asserter<Expression>,
+			ts_asserter<TypeNode>,
+		][],
 			[
 				(ajv: Ajv) => ConversionlessType<unknown>,
 				boolean,
@@ -72,6 +94,16 @@ void describe('OneOf', () => {
 				{
 					mode: 'unspecified',
 				},
+			[
+				[
+					'foo',
+					ts_assert.isStringLiteral,
+					(maybe) => ts_assert.isTokenWithExpectedKind(
+						maybe,
+						SyntaxKind.StringKeyword,
+					),
+				],
+			],
 				[
 					[
 						(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
@@ -84,7 +116,7 @@ void describe('OneOf', () => {
 					mode: 'specified',
 					choices: [
 						{type: 'string', const: 'foo'},
-						{type: 'string', pattern: '.+'},
+					{type: 'string', pattern: '^(?!foo)'},
 					],
 				},
 				{
@@ -103,22 +135,107 @@ void describe('OneOf', () => {
 						PatternString.generate_schema_definition<
 							'pattern',
 							never[],
-							'.+',
+						'^(?!foo)',
 							ReturnType<typeof PositiveInteger<1>>,
 							undefined
 						>({
 							string_mode: 'pattern',
-							pattern: '.+',
+						pattern: '^(?!foo)',
 						}),
 					],
 				},
+			[
+				[
+					'foo',
+					ts_assert.isStringLiteral,
+					(maybe) => ts_assert.isTokenWithExpectedKind(
+						maybe,
+						SyntaxKind.StringKeyword,
+					),
+				],
+			],
 				[],
 			]),
 		];
 
+	void describe('::generate_typescript_data()', () => {
 		data_sets.forEach(([
 			type_definition,
 			schema_definition,
+			generate_type_checks,
+		], i) => {
+			generate_type_checks.forEach(([
+				data,
+				asserter,
+			], j) => {
+				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
+					const ajv = new Ajv({strict: true});
+
+					const instance = new OneOf({
+						ajv,
+						type_definition,
+						schema_definition,
+					});
+
+					const result = instance.generate_typescript_data(
+						data,
+						new SchemaParser({ajv}),
+						OneOf.generate_type_definition(
+							type_definition,
+						),
+					);
+
+					const foo: ts_asserter<Expression> = asserter;
+
+					foo(result);
+				});
+			});
+		});
+	});
+
+	void describe('::generate_typescript_type()', () => {
+		data_sets.forEach(([
+			type_definition,
+			schema_definition,
+			generate_type_checks,
+		], i) => {
+			generate_type_checks.forEach(([
+				data,
+				,
+				asserter,
+			], j) => {
+				void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
+					const ajv = new Ajv({strict: true});
+
+					const instance = new OneOf({
+						ajv,
+						type_definition,
+						schema_definition,
+					});
+
+					const promise = instance.generate_typescript_type({
+						data,
+						schema: OneOf.generate_type_definition(
+							type_definition,
+						),
+						schema_parser: new SchemaParser({ajv}),
+					});
+
+					await assert.doesNotReject(() => promise);
+
+					const foo: ts_asserter<TypeNode> = asserter;
+
+					foo(await promise);
+				});
+			});
+		});
+	});
+
+	void describe('::is_a()', () => {
+		data_sets.forEach(([
+			type_definition,
+			schema_definition,
+			,
 			additional_checks,
 		], i) => {
 			void it(`behaves with data_sets[${i}]`, () => {
@@ -151,7 +268,7 @@ void describe('OneOf', () => {
 				generator,
 				passes,
 			], j) => {
-				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
+				void it(`behaves with data_sets[${i}][3][${j}]`, () => {
 					const ajv = new Ajv({strict: true});
 
 					assert.equal(
