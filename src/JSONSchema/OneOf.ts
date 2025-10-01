@@ -19,7 +19,6 @@ import type {
 	SchemaObjectDefinition,
 } from './Type.ts';
 import {
-	ConversionlessType,
 	Type,
 } from './Type.ts';
 
@@ -124,7 +123,6 @@ export class OneOf<
 			data,
 			schema,
 			schema_parser,
-			'yes',
 		).generate_typescript_data(
 			data,
 			schema_parser,
@@ -138,17 +136,15 @@ export class OneOf<
 			schema,
 			schema_parser,
 		}: {
-			data?: T | undefined,
+			data: T,
 			schema: one_of_type<Mode, TypeChoices>,
 			schema_parser: SchemaParser,
 		},
 	) {
-		if (undefined !== data) {
-			return this.#sub_schema_handler(
+		if (0 === Object.keys(schema).length) {
+			return schema_parser.parse_by_type(
 				data,
-				schema,
-				schema_parser,
-				'no',
+				undefined,
 			).generate_typescript_type({
 				data,
 				schema,
@@ -187,17 +183,11 @@ export class OneOf<
 		return sub_schema;
 	}
 
-	#sub_schema_handler<
-		RequireConversion extends 'yes'|'no',
-	>(
+	#sub_schema_handler(
 		data: T,
 		schema: one_of_type<Mode, TypeChoices>,
 		schema_parser: SchemaParser,
-		require_conversion: RequireConversion,
-	): {
-		yes: Type<unknown>,
-		no: ConversionlessType<unknown>,
-	}[RequireConversion] {
+	): Type<unknown> {
 		const ajv = new Ajv({strict: true});
 		const validator = ajv.compile(schema);
 
@@ -207,21 +197,11 @@ export class OneOf<
 
 		if (0 === Object.keys(schema).length) {
 			return schema_parser.parse_by_type<
-				{
-					yes: Type<unknown>,
-					no: ConversionlessType<unknown>,
-				}[RequireConversion]
+				Type<unknown>
 			>(
 				data,
-				(maybe): maybe is {
-					yes: Type<unknown>,
-					no: ConversionlessType<unknown>,
-				}[RequireConversion] => {
-					return (
-						'yes' === require_conversion
-							? Type.is_a(maybe)
-							: ConversionlessType.is_a(maybe)
-					);
+				(maybe): maybe is Type<unknown> => {
+					return Type.is_a(maybe);
 				},
 			);
 		}
@@ -237,7 +217,7 @@ export class OneOf<
 
 		return schema_parser.parse(
 			sub_schema,
-			require_conversion,
+			'yes',
 		);
 	}
 

@@ -148,14 +148,6 @@ void describe('OneOf', () => {
 				[
 					'foo',
 					ts_assert.isStringLiteral,
-					(maybe) => ts_assert.isTokenWithExpectedKind(
-						maybe,
-						SyntaxKind.StringKeyword,
-					),
-				],
-				[
-					undefined,
-					false,
 					ts_assert.isUnionTypeNode,
 				],
 			],
