@@ -19,12 +19,12 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	one_of_schema_options,
-	one_of_type_options,
-} from '../../../src/JSONSchema/OneOf.ts';
+	any_of_schema_options,
+	any_of_type_options,
+} from '../../../src/JSONSchema/AnyOf.ts';
 import {
-	OneOf,
-} from '../../../src/JSONSchema/OneOf.ts';
+	AnyOf,
+} from '../../../src/JSONSchema/AnyOf.ts';
 
 import type {
 	$ref_mode,
@@ -63,15 +63,15 @@ import type {
 	type_choices,
 } from '../../../src/JSONSchema/SomethingOf.ts';
 
-void describe('OneOf', () => {
+void describe('AnyOf', () => {
 	type DataSet<
 		Mode extends something_of_mode = something_of_mode,
 		TypeChoices extends type_choices = type_choices,
 		SchemaChoices extends schema_choices = schema_choices,
 		Defs extends ObjectOfSchemas = ObjectOfSchemas,
 	> = [
-		one_of_type_options<Mode, TypeChoices, Defs>,
-		one_of_schema_options<Mode, SchemaChoices>,
+		any_of_type_options<Mode, TypeChoices, Defs>,
+		any_of_schema_options<Mode, SchemaChoices>,
 		[
 			unknown,
 			ts_asserter<Expression>|false,
@@ -96,11 +96,11 @@ void describe('OneOf', () => {
 	const data_sets: [DataSet, ...DataSet[]] = [
 		sanity_check<'unspecified'>([
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'unspecified',
 			},
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'unspecified',
 			},
 			[
@@ -122,7 +122,7 @@ void describe('OneOf', () => {
 		]),
 		sanity_check<'specified'>([
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'specified',
 				choices: [
 					{type: 'string', const: 'foo'},
@@ -130,7 +130,7 @@ void describe('OneOf', () => {
 				],
 			},
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'specified',
 				choices: [
 					ConstString.generate_schema_definition<
@@ -166,7 +166,7 @@ void describe('OneOf', () => {
 		]),
 		sanity_check<'specified'>([
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'specified',
 				choices: [
 					{$ref: '#/$defs/foo'},
@@ -178,7 +178,7 @@ void describe('OneOf', () => {
 				},
 			},
 			{
-				kind: 'oneOf',
+				kind: 'anyOf',
 				mode: 'specified',
 				choices: [
 					ConstString.generate_schema_definition<
@@ -237,7 +237,7 @@ void describe('OneOf', () => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
 					const ajv = new Ajv({strict: true});
 
-					const instance = new OneOf({
+					const instance = new AnyOf({
 						ajv,
 						type_definition,
 						schema_definition,
@@ -246,7 +246,7 @@ void describe('OneOf', () => {
 					const result = instance.generate_typescript_data(
 						data,
 						new SchemaParser({ajv}),
-						OneOf.generate_type_definition<'oneOf'>(
+						AnyOf.generate_type_definition<'anyOf'>(
 							type_definition,
 						),
 					);
@@ -259,7 +259,7 @@ void describe('OneOf', () => {
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
 							new SchemaParser({ajv}),
-							OneOf.generate_type_definition<'oneOf'>(
+							AnyOf.generate_type_definition<'anyOf'>(
 								type_definition,
 							),
 						));
@@ -283,7 +283,7 @@ void describe('OneOf', () => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
 					const ajv = new Ajv({strict: true});
 
-					const instance = new OneOf({
+					const instance = new AnyOf({
 						ajv,
 						type_definition,
 						schema_definition,
@@ -291,8 +291,8 @@ void describe('OneOf', () => {
 
 					const promise = instance.generate_typescript_type({
 						data,
-						schema: OneOf.generate_type_definition<
-							'oneOf'
+						schema: AnyOf.generate_type_definition<
+							'anyOf'
 						>(
 							type_definition,
 						),
@@ -319,27 +319,27 @@ void describe('OneOf', () => {
 			void it(`behaves with data_sets[${i}]`, () => {
 				const ajv = new Ajv({strict: true});
 
-				const instance = new OneOf({
+				const instance = new AnyOf({
 					ajv,
 					type_definition,
 					schema_definition,
 				});
 
-				assert.ok(OneOf.is_a(instance));
-				assert.ok(OneOf.is_a<$ref<$ref_mode>>(
-					new OneOf<unknown, 'unspecified'>({
+				assert.ok(AnyOf.is_a(instance));
+				assert.ok(AnyOf.is_a<$ref<$ref_mode>>(
+					new AnyOf<unknown, 'unspecified'>({
 						ajv,
 						type_definition: {
-							kind: 'oneOf',
+							kind: 'anyOf',
 							mode: 'unspecified',
 						},
 						schema_definition: {
-							kind: 'oneOf',
+							kind: 'anyOf',
 							mode: 'unspecified',
 						},
 					}),
 				));
-				assert.ok(!OneOf.is_a<OneOf<unknown>>(
+				assert.ok(!AnyOf.is_a<AnyOf<unknown>>(
 					new $ref({$ref_mode: 'either'}, {ajv}),
 				));
 			});
@@ -352,7 +352,7 @@ void describe('OneOf', () => {
 					const ajv = new Ajv({strict: true});
 
 					assert.equal(
-						OneOf.is_a(generator(ajv)),
+						AnyOf.is_a(generator(ajv)),
 						passes,
 					);
 				});

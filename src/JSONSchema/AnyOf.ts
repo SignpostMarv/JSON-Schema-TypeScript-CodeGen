@@ -13,23 +13,23 @@ import {
 	SomethingOf,
 } from './SomethingOf.ts';
 
-export type one_of_type_options<
+export type any_of_type_options<
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends type_choices = type_choices,
 	Defs extends ObjectOfSchemas = ObjectOfSchemas,
 > = something_of_type_options<
-	'oneOf',
+	'anyOf',
 	Mode,
 	Choices,
 	Defs
 >;
 
-export type one_of_schema_options<
+export type any_of_schema_options<
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends schema_choices = schema_choices,
-> = something_of_schema_options<'oneOf', Mode, Choices>;
+> = something_of_schema_options<'anyOf', Mode, Choices>;
 
-export class OneOf<
+export class AnyOf<
 	T,
 	Mode extends something_of_mode = something_of_mode,
 	TypeChoices extends type_choices = type_choices,
@@ -37,7 +37,7 @@ export class OneOf<
 > extends
 	SomethingOf<
 		T,
-		'oneOf',
+		'anyOf',
 		Mode,
 		TypeChoices,
 		SchemaChoices
