@@ -5,6 +5,17 @@ import type {
 export {};
 
 declare global {
+	interface Array<T> {
+		map<U>(
+			callbackfn: (value: T, index: number, array: [T, ...T[]]) => U,
+			thisArg?: unknown,
+		): [U, ...U[]];
+		map<U>(
+			callbackfn: (value: T, index: number, array: T[]) => U,
+			thisArg?: unknown,
+		): U[];
+	}
+
 	interface ObjectConstructor {
 		keys<
 			T extends Exclude<{[key: string]: unknown}, Record<string, never>>,
