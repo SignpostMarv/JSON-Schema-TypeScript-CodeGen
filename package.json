@@ -13,6 +13,9 @@
   "engines": {
     "node": "^24.0"
   },
+  "files": [
+    "src"
+  ],
   "devDependencies": {
     "@satisfactory-dev/custom-assert": "^0.2.3",
     "@signpostmarv/eslint-config": "^0.5.0",
