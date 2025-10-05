@@ -166,7 +166,7 @@ type template_spans_return_type<
 				: (
 					T extends templated_string_type
 						? TemplateLiteralTypeNode
-				: KeywordTypeNode<SyntaxKind.StringKeyword>
+						: KeywordTypeNode<SyntaxKind.StringKeyword>
 				)
 		)
 );
