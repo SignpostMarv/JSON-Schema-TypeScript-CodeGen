@@ -28,12 +28,16 @@ import type {
 	StringLiteral,
 	UnionTypeNode,
 } from '../typescript/types.ts';
+import {
+	object_has_property,
+} from '@satisfactory-dev/predicates.ts';
 
 type TemplatedStringPartBasic = (
 	| string
 	| {
 		type: 'string',
 	}
+	| templated_string_type
 );
 
 type TemplatedStringPart = (
@@ -99,6 +103,9 @@ const templated_string_schema = Object.freeze({
 							] as const,
 						},
 					},
+					{
+						$ref: '#',
+					},
 				] as const,
 			},
 		},
@@ -131,6 +138,7 @@ type template_spans_return_type<
 			TemplatedStringPartBasic,
 			...TemplatedStringPartBasic[],
 		]
+		| templated_string_type
 	),
 > = (
 	T extends string
@@ -155,9 +163,25 @@ type template_spans_return_type<
 						| KeywordTypeNode<SyntaxKind.StringKeyword>
 					)[],
 				]>
+				: (
+					T extends templated_string_type
+						? TemplateLiteralTypeNode
 				: KeywordTypeNode<SyntaxKind.StringKeyword>
+				)
 		)
 );
+
+class RegexpFailureError extends TypeError {
+	readonly pattern: string;
+
+	readonly value: string;
+
+	constructor(message: string, regex: RegExp, value: string) {
+		super(message);
+		this.pattern = regex.toString();
+		this.value = value;
+	}
+}
 
 export class TemplatedString<
 	T extends Exclude<string, ''>,
@@ -206,7 +230,7 @@ export class TemplatedString<
 	}
 
 	#template_spans(
-		schema: templated_string_type<PartsOrDefault<Parts>>,
+		schema: templated_string_type,
 	): [
 		TemplateHead,
 		[
@@ -223,7 +247,7 @@ export class TemplatedString<
 			[, ...span_parts] = schema.templated_string;
 			specific_head = schema.templated_string[0];
 		} else {
-			span_parts = schema.templated_string;
+			span_parts = [...schema.templated_string];
 		}
 
 		const tail_part = span_parts.pop();
@@ -284,7 +308,7 @@ export class TemplatedString<
 					TemplatedStringPartBasic,
 					TemplatedStringPartBasic,
 					...TemplatedStringPartBasic[],
-				]
+				] | templated_string_type
 			),
 		>(
 			part: T2,
@@ -298,9 +322,17 @@ export class TemplatedString<
 						? factory.createUnionTypeNode(
 							this.#template_span_types(part),
 						) as template_spans_return_type<T2>
-						: factory.createKeywordTypeNode(
-							SyntaxKind.StringKeyword,
-						) as template_spans_return_type<T2>
+						: (
+							(
+								object_has_property(part, 'templated_string')
+							)
+								? this.#generate_typescript_type(
+									part,
+								) as template_spans_return_type<T2>
+								: factory.createKeywordTypeNode(
+									SyntaxKind.StringKeyword,
+								) as template_spans_return_type<T2>
+						)
 				)
 		));
 	}
@@ -309,19 +341,23 @@ export class TemplatedString<
 		data: `${T}`,
 	): StringLiteral {
 		if (!this.#regex.test(data)) {
-			throw new TypeError('Value does not match expected regex!');
+			throw new RegexpFailureError(
+				'Value does not match expected regex!',
+				this.#regex,
+				data,
+			);
 		}
 
 		return factory.createStringLiteral(data);
 	}
 
-	async generate_typescript_type({
-		data,
-		schema,
-	}: {
+	#generate_typescript_type(
+		schema: (
+			| templated_string_type<PartsOrDefault<Parts>>
+			| templated_string_type
+		),
 		data?: T,
-		schema: templated_string_type<PartsOrDefault<Parts>>,
-	}): Promise<TemplateLiteralTypeNode> {
+	): TemplateLiteralTypeNode {
 		if (undefined !== data && !this.#regex.test(data)) {
 			throw new TypeError(
 				'Specified data did not match expected regex!',
@@ -341,9 +377,28 @@ export class TemplatedString<
 			],
 		);
 
+		return result;
+	}
+
+	async generate_typescript_type({
+		data,
+		schema,
+	}: {
+		data?: T,
+		schema: templated_string_type<PartsOrDefault<Parts>>,
+	}): Promise<TemplateLiteralTypeNode> {
+		if (undefined !== data && !this.#regex.test(data)) {
+			throw new TypeError(
+				'Specified data did not match expected regex!',
+			);
+		}
+
 		// this is to ensure that errors in #template_spans()
 		//  get passed as promise rejections, not thrown errors
-		return await Promise.resolve(result);
+		return await Promise.resolve(this.#generate_typescript_type(
+			schema,
+			data,
+		));
 	}
 
 	static ajv_keyword(ajv: Ajv): void {
@@ -388,7 +443,19 @@ export class TemplatedString<
 	}
 
 	static #to_regex_string(parts: TemplatedStringParts): string {
-		return `^(${parts.map((part) => {
+		return `^${this.#to_regex_string_inner(
+			parts,
+			true,
+		)}$`;
+	}
+
+	static #to_regex_string_inner(
+		parts: TemplatedStringParts,
+		capture_groups: boolean,
+	): string {
+		const open = capture_groups ? '(' : '(?:';
+
+		return `${open}${parts.map((part) => {
 			if ('string' === typeof part) {
 				return RegExp.escape(part);
 			} else if (Array.isArray(part)) {
@@ -399,10 +466,15 @@ export class TemplatedString<
 
 					return '.*';
 				}).join('|')})`;
+			} else if ('templated_string' in part) {
+				return this.#to_regex_string_inner(
+					part.templated_string,
+					false,
+				);
 			}
 
 			return '.*';
-		}).join(')(')})$`;
+		}).join(')(')})`;
 	}
 
 	static #to_regex(parts: TemplatedStringParts): RegExp {
