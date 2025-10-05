@@ -15,19 +15,18 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	ts_asserter,
+} from './types.ts';
+
+import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
-} from '../src/typescript/types.ts';
-
-import type {
-	ts_asserter,
-} from './types.ts';
-
+} from '../index.ts';
 import {
-	PositiveIntegerOrZero,
-} from '../src/guarded.ts';
+	PositiveIntegerOrZeroGuard,
+} from '../index.ts';
 
 export function is_Error<
 	T extends Error = Error,
@@ -134,7 +133,7 @@ export function is_TupleTypeNode<
 	predicate: ts_asserter<
 		T1,
 		{
-			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			index: ReturnType<typeof PositiveIntegerOrZeroGuard<number>>,
 			is_last: boolean,
 		}
 	>,
@@ -148,7 +147,7 @@ export function is_TupleTypeNode<
 	predicate: ts_asserter<
 		T1,
 		{
-			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			index: ReturnType<typeof PositiveIntegerOrZeroGuard<number>>,
 			is_last: boolean,
 		}
 	>,
@@ -163,7 +162,7 @@ export function is_TupleTypeNode<
 	predicate: ts_asserter<
 		T1,
 		{
-			index: ReturnType<typeof PositiveIntegerOrZero<number>>,
+			index: ReturnType<typeof PositiveIntegerOrZeroGuard<number>>,
 			is_last: boolean,
 		}
 	>,
@@ -188,7 +187,7 @@ export function is_TupleTypeNode<
 			maybe,
 			predicate,
 			{
-				index: PositiveIntegerOrZero(i),
+				index: PositiveIntegerOrZeroGuard(i),
 				is_last: i === (value.elements.length - 1),
 			},
 		)),
@@ -199,7 +198,7 @@ export function is_TupleTypeNode<
 		not_undefined(last);
 		ts_assert.isRestTypeNode(last, message);
 		assert.doesNotThrow(() => predicate(last.type, message, {
-			index: PositiveIntegerOrZero(value.elements.length - 1),
+			index: PositiveIntegerOrZeroGuard(value.elements.length - 1),
 			is_last: true,
 		}));
 	}
@@ -222,7 +221,7 @@ export function is_ArrayLiteralExpression<
 >(
 	value: Node,
 	element_asserter: ts_asserter<T1>,
-	expected_length: ReturnType<typeof PositiveIntegerOrZero<number>>,
+	expected_length: ReturnType<typeof PositiveIntegerOrZeroGuard<number>>,
 	message?: string|Error,
 ): asserts value is ArrayLiteralExpression<T1, T2, boolean> {
 	ts_assert.isArrayLiteralExpression(value, message);

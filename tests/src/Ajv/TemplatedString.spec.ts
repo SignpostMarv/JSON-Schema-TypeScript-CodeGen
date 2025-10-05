@@ -26,24 +26,18 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	templated_string_type,
-	TemplatedStringParts,
-} from '../../../src/Ajv/TemplatedString.ts';
-import {
-	TemplatedString,
-} from '../../../src/Ajv/TemplatedString.ts';
-
-import {
-	String,
-} from '../../../src/JSONSchema/String.ts';
-
-import type {
 	ts_asserter,
 } from '../../types.ts';
 
+import type {
+	templated_string_type,
+	TemplatedStringParts,
+} from '../../../index.ts';
 import {
 	SchemaParser,
-} from '../../../src/SchemaParser.ts';
+	String,
+	TemplatedString,
+} from '../../../index.ts';
 
 function is_unspecified_data(
 	maybe: Node,

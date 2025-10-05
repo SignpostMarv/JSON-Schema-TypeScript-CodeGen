@@ -2,12 +2,14 @@ import {
 	describe,
 	it,
 } from 'node:test';
+
 import {
 	throws_Error,
 } from '../../../assertions.ts';
+
 import {
 	Type,
-} from '../../../../src/JSONSchema/Type.ts';
+} from '../../../../index.ts';
 
 void describe('Type.generate_schema_definition()', () => {
 	void it('will always fail', () => {

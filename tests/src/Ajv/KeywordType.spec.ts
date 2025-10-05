@@ -8,7 +8,7 @@ import Ajv from 'ajv';
 
 import {
 	KeywordType,
-} from '../../../src/Ajv/Keyword.ts';
+} from '../../../index.ts';
 
 void describe('KeywordType::ajv_keyword()', () => {
 	void it('throws', () => {

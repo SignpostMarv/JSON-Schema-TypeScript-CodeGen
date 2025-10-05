@@ -16,15 +16,9 @@ import ts_assert from '@signpostmarv/ts-assert';
 
 import {
 	SchemaParser,
-} from '../../../src/SchemaParser.ts';
-
-import {
-	StringStartsWith,
-} from '../../../src/Ajv/StringStartsWith.ts';
-
-import {
 	String,
-} from '../../../src/JSONSchema/String.ts';
+	StringStartsWith,
+} from '../../../index.ts';
 
 void describe('StringStartsWith', () => {
 	void it('comes out of SchemaParser', () => {

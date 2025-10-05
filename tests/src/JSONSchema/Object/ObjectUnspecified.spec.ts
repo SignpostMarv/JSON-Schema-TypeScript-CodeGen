@@ -25,36 +25,24 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	object_properties_mode,
-	object_schema,
-	object_type,
-	object_TypeLiteralNode,
-} from '../../../../src/JSONSchema/Object.ts';
-import {
-	ObjectUnspecified,
-} from '../../../../src/JSONSchema/Object.ts';
-
-import {
-	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
-
-import type {
 	ts_asserter,
 } from '../../../types.ts';
 
 import type {
+	object_properties_mode,
+	object_schema,
+	object_type,
+	object_TypeLiteralNode,
+	ObjectLiteralExpression,
 	ObjectOfSchemas,
 	OmitIf,
 	SchemaObject,
-} from '../../../../src/types.ts';
-
-import type {
-	ObjectLiteralExpression,
-} from '../../../../src/typescript/types.ts';
-
+} from '../../../../index.ts';
 import {
-	PositiveIntegerOrZero,
-} from '../../../../src/guarded.ts';
+	ObjectUnspecified,
+	PositiveIntegerOrZeroGuard,
+	SchemaParser,
+} from '../../../../index.ts';
 
 void describe('ObjectUnspecified', () => {
 	void describe('::generate_schema_definition()', () => {
@@ -1357,7 +1345,7 @@ void describe('ObjectUnspecified', () => {
 				>,
 				schema_parser: SchemaParser,
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				index: ReturnType<typeof PositiveIntegerOrZero>,
+				index: ReturnType<typeof PositiveIntegerOrZeroGuard>,
 			) {
 				assert.ok(instance.check_type(type_schema));
 				const result = await instance.generate_typescript_type({
@@ -1378,7 +1366,7 @@ void describe('ObjectUnspecified', () => {
 				await do_test(
 					instance,
 					new SchemaParser(),
-					PositiveIntegerOrZero(i),
+					PositiveIntegerOrZeroGuard(i),
 				);
 			});
 			void it(
@@ -1397,7 +1385,7 @@ void describe('ObjectUnspecified', () => {
 					await do_test(
 						instance,
 						schema_parser,
-						PositiveIntegerOrZero(i),
+						PositiveIntegerOrZeroGuard(i),
 					);
 				},
 			);

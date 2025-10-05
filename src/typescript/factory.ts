@@ -241,7 +241,7 @@ function createTupleTypeNode<
 	return TSfactory.createTupleTypeNode(value) as TupleTypeNode<T1, T2>;
 }
 
-export function createTypeLiteralNode<
+function createTypeLiteralNode<
 	T extends TypeElement,
 >(
 	value: T[],
@@ -249,19 +249,19 @@ export function createTypeLiteralNode<
 	return TSfactory.createTypeLiteralNode(value) as TypeLiteralNode<T>;
 }
 
-export function createTypeReferenceNode<
+function createTypeReferenceNode<
 	T1 extends string,
 	T2 extends [TypeNode, ...TypeNode[]],
 >(
 	name: string,
 	type_arguments: [TypeNode, ...TypeNode[]],
 ): TypeReferenceNode<T1, T2>;
-export function createTypeReferenceNode<
+function createTypeReferenceNode<
 	T1 extends string,
 >(
 	name: string,
 ): TypeReferenceNode<T1, never[]>;
-export function createTypeReferenceNode<
+function createTypeReferenceNode<
 	T1 extends string|EntityName,
 	T2 extends never[]|[TypeNode, ...TypeNode[]],
 >(
@@ -274,7 +274,7 @@ export function createTypeReferenceNode<
 	) as TypeReferenceNode<T1, T2>;
 }
 
-export function createUnionTypeNode<
+function createUnionTypeNode<
 	T extends [TypeNode, TypeNode, ...TypeNode[]],
 >(value: T): UnionTypeNode<T> {
 	return TSfactory.createUnionTypeNode(value) as UnionTypeNode<T>;

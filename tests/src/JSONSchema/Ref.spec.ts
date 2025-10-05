@@ -18,26 +18,15 @@ import ts_assert from '@signpostmarv/ts-assert';
 import type {
 	$ref_mode,
 	$ref_value_by_mode,
-} from '../../../src/JSONSchema/Ref.ts';
+	ObjectOfSchemas,
+} from '../../../index.ts';
+
 import {
 	$ref,
-} from '../../../src/JSONSchema/Ref.ts';
-
-import {
-	NonEmptyString,
-} from '../../../src/JSONSchema/String.ts';
-
-import {
-	SchemaParser,
-} from '../../../src/SchemaParser.ts';
-
-import type {
-	ObjectOfSchemas,
-} from '../../../src/types.ts';
-
-import {
 	ArrayUnspecified,
-} from '../../../src/JSONSchema/Array.ts';
+	NonEmptyString,
+	SchemaParser,
+} from '../../../index.ts';
 
 void describe('$ref', () => {
 	type DataSet<

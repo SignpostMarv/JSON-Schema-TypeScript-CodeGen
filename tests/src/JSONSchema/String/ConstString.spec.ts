@@ -22,28 +22,18 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
-	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
-
-import type {
-	const_string_type,
-} from '../../../../src/JSONSchema/String.ts';
-import {
-	ConstString,
-	String,
-} from '../../../../src/JSONSchema/String.ts';
-
-import {
 	throws_Error,
 } from '../../../assertions.ts';
 
-import {
-	ObjectUnspecified,
-} from '../../../../src/JSONSchema/Object.ts';
-
 import type {
+	const_string_type,
 	Type,
-} from '../../../../src/JSONSchema/Type.ts';
+} from '../../../../index.ts';
+import {
+	ConstString,
+	ObjectUnspecified,
+	SchemaParser,
+} from '../../../../index.ts';
 
 void describe('identify Const String types as expected', () => {
 	const const_expectations: [

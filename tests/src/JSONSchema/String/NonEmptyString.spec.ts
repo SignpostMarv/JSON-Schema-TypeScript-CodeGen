@@ -25,24 +25,18 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
-	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
-
-import type {
-	non_empty_string_type,
-} from '../../../../src/JSONSchema/String.ts';
-import {
-	ConstString,
-	NonEmptyString,
-} from '../../../../src/JSONSchema/String.ts';
-
-import {
 	throws_Error,
 } from '../../../assertions.ts';
 
+import type {
+	non_empty_string_type,
+} from '../../../../index.ts';
 import {
-	PositiveInteger,
-} from '../../../../src/guarded.ts';
+	ConstString,
+	NonEmptyString,
+	PositiveIntegerGuard,
+	SchemaParser,
+} from '../../../../index.ts';
 
 void describe('identify non-empty String types as expected', () => {
 	const string_expectations: [
@@ -57,7 +51,7 @@ void describe('identify non-empty String types as expected', () => {
 		>,
 		( // minLength
 			| undefined
-			| ReturnType<typeof PositiveInteger<number>>
+			| ReturnType<typeof PositiveIntegerGuard<number>>
 		),
 		string, // conversion value
 		string, // expected value of converted text
@@ -65,18 +59,18 @@ void describe('identify non-empty String types as expected', () => {
 		[
 			{
 				type: 'string',
-				minLength: PositiveInteger(1),
+				minLength: PositiveIntegerGuard(1),
 			},
 			{
 			},
-			PositiveInteger(1),
+			PositiveIntegerGuard(1),
 			'foo',
 			'foo',
 		],
 		[
 			{
 				type: 'string',
-				minLength: PositiveInteger(1),
+				minLength: PositiveIntegerGuard(1),
 			},
 			{
 			},
@@ -119,7 +113,7 @@ void describe('identify non-empty String types as expected', () => {
 					const typed = await instance.generate_typescript_type({
 						schema: {
 							...schema,
-							minLength: PositiveInteger(1),
+							minLength: PositiveIntegerGuard(1),
 						},
 					});
 					ts_assert.isTypeReferenceNode(typed);

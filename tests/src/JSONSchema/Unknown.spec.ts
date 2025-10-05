@@ -12,14 +12,13 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
-	SchemaParser,
-} from '../../../src/SchemaParser.ts';
-import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
+
 import {
+	SchemaParser,
 	Unknown,
-} from '../../../src/JSONSchema/Unknown.ts';
+} from '../../../index.ts';
 
 void describe('Unknown', () => {
 	void it('comes out of SchemaParser as expected', () => {

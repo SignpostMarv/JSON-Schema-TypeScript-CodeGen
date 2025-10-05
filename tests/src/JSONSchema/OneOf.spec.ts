@@ -19,49 +19,27 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	one_of_schema_options,
-	one_of_type_options,
-} from '../../../src/JSONSchema/OneOf.ts';
-import {
-	OneOf,
-} from '../../../src/JSONSchema/OneOf.ts';
-
-import type {
-	$ref_mode,
-} from '../../../src/JSONSchema/Ref.ts';
-import {
-	$ref,
-} from '../../../src/JSONSchema/Ref.ts';
-
-import type {
-	ConversionlessType,
-} from '../../../src/JSONSchema/Type.ts';
-
-import {
-	ConstString,
-	PatternString,
-} from '../../../src/JSONSchema/String.ts';
-
-import type {
-	PositiveInteger,
-} from '../../../src/guarded.ts';
-
-import type {
 	ts_asserter,
 } from '../../types.ts';
 
-import {
-	SchemaParser,
-} from '../../../src/SchemaParser.ts';
-
 import type {
+	$ref_mode,
+	ConversionlessType,
 	ObjectOfSchemas,
-} from '../../../src/types.ts';
-import type {
+	one_of_schema_options,
+	one_of_type_options,
+	PositiveIntegerGuard,
 	schema_choices,
 	something_of_mode,
 	type_choices,
-} from '../../../src/JSONSchema/SomethingOf.ts';
+} from '../../../index.ts';
+import {
+	$ref,
+	ConstString,
+	OneOf,
+	PatternString,
+	SchemaParser,
+} from '../../../index.ts';
 
 void describe('OneOf', () => {
 	type DataSet<
@@ -137,7 +115,7 @@ void describe('OneOf', () => {
 						'const',
 						never[],
 						undefined,
-						ReturnType<typeof PositiveInteger<1>>,
+						ReturnType<typeof PositiveIntegerGuard<1>>,
 						'foo'
 					>({
 						string_mode: 'const',
@@ -147,7 +125,7 @@ void describe('OneOf', () => {
 						'pattern',
 						never[],
 						'^(?!foo)',
-						ReturnType<typeof PositiveInteger<1>>,
+						ReturnType<typeof PositiveIntegerGuard<1>>,
 						undefined
 					>({
 						string_mode: 'pattern',
@@ -185,7 +163,7 @@ void describe('OneOf', () => {
 						'const',
 						never[],
 						undefined,
-						ReturnType<typeof PositiveInteger<1>>,
+						ReturnType<typeof PositiveIntegerGuard<1>>,
 						'foo'
 					>({
 						string_mode: 'const',
@@ -195,7 +173,7 @@ void describe('OneOf', () => {
 						'pattern',
 						never[],
 						'^(?!foo)',
-						ReturnType<typeof PositiveInteger<1>>,
+						ReturnType<typeof PositiveIntegerGuard<1>>,
 						undefined
 					>({
 						string_mode: 'pattern',

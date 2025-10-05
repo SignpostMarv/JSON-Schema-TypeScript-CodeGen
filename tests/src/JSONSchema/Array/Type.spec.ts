@@ -6,17 +6,15 @@ import assert from 'node:assert/strict';
 
 import type {
 	$defs_mode,
-} from '../../../../src/JSONSchema/types.ts';
-import type {
 	array_mode,
 	array_schema,
 	MaxItemsType_mode,
 	MinItemsType_mode,
 	unique_items_mode,
-} from '../../../../src/JSONSchema/Array.ts';
+} from '../../../../index.ts';
 import {
 	ArrayUnspecified,
-} from '../../../../src/JSONSchema/Array.ts';
+} from '../../../../index.ts';
 
 void describe('ArrayUncertain', () => {
 	void describe('::generate_schema_definition()', () => {

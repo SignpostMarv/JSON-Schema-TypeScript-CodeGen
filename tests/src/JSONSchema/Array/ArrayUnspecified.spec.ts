@@ -27,17 +27,6 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	SchemaObject,
-} from '../../../../src/types.ts';
-
-import type {
-	ArrayLiteralExpression,
-	ArrayTypeNode,
-	LiteralTypeNode,
-	TupleTypeNode,
-} from '../../../../src/typescript/types.ts';
-
-import type {
 	ts_asserter,
 } from '../../../types.ts';
 
@@ -47,41 +36,29 @@ import {
 	is_TupleTypeNode,
 } from '../../../assertions.ts';
 
-import {
-	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
-
-import type {
-	ArrayUnspecified_options,
-	createTypeNode,
-} from '../../../../src/JSONSchema/Array.ts';
-import {
-	ArrayUnspecified,
-} from '../../../../src/JSONSchema/Array.ts';
-
-import type {
-	array_mode,
-	array_type,
-	MaxItemsType_mode,
-	MinItemsType_mode,
-	unique_items_mode,
-} from '../../../../src/JSONSchema/Array.ts';
-
 import type {
 	$defs_mode,
-} from '../../../../src/JSONSchema/types.ts';
-import type {
+	array_mode,
+	array_type,
+	ArrayLiteralExpression,
+	ArrayTypeNode,
+	ArrayUnspecified_options,
+	createTypeNode,
+	LiteralTypeNode,
+	MaxItemsType_mode,
+	MinItemsType_mode,
+	SchemaObject,
+	TupleTypeNode,
 	Type,
-} from '../../../../src/JSONSchema/Type.ts';
-
+	unique_items_mode,
+} from '../../../../index.ts';
 import {
-	PositiveInteger,
-	PositiveIntegerOrZero,
-} from '../../../../src/guarded.ts';
-
-import {
+	ArrayUnspecified,
+	PositiveIntegerGuard,
+	PositiveIntegerOrZeroGuard,
+	SchemaParser,
 	String,
-} from '../../../../src/JSONSchema/String.ts';
+} from '../../../../index.ts';
 
 void describe('ArrayUnspecified', () => {
 	type DataSet<
@@ -167,12 +144,12 @@ void describe('ArrayUnspecified', () => {
 				items: {
 					type: 'string',
 				},
-				minItems: PositiveIntegerOrZero(2),
-				maxItems: PositiveInteger(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
+				maxItems: PositiveIntegerGuard(2),
 			},
 			{
-				minItems: PositiveIntegerOrZero(2),
-				maxItems: PositiveInteger(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
+				maxItems: PositiveIntegerGuard(2),
 				array_mode: 'items-only',
 				items: {},
 				uniqueItems_mode: 'no',
@@ -208,7 +185,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(2),
+					PositiveIntegerOrZeroGuard(2),
 					message,
 				);
 			},
@@ -225,12 +202,12 @@ void describe('ArrayUnspecified', () => {
 			{
 				type: 'array',
 				...prefixItems_foo_bar,
-				minItems: PositiveIntegerOrZero(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
 				items: false,
 			},
 			{
 				array_mode: 'prefix-only',
-				minItems: PositiveIntegerOrZero(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
 				items: false,
 				...prefixItems_foo_bar,
 				uniqueItems_mode: 'no',
@@ -265,7 +242,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(2),
+					PositiveIntegerOrZeroGuard(2),
 					message,
 				);
 			},
@@ -321,7 +298,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(2),
+					PositiveIntegerOrZeroGuard(2),
 					message,
 				);
 			},
@@ -340,14 +317,14 @@ void describe('ArrayUnspecified', () => {
 			{
 				type: 'array',
 				...prefixItems_foo_bar,
-				minItems: PositiveIntegerOrZero(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
 				items: {
 					type: 'string',
 				},
 			},
 			{
 				array_mode: 'both',
-				minItems: PositiveIntegerOrZero(2),
+				minItems: PositiveIntegerOrZeroGuard(2),
 				items: {},
 				...prefixItems_foo_bar,
 				uniqueItems_mode: 'no',
@@ -391,7 +368,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(4),
+					PositiveIntegerOrZeroGuard(4),
 					message,
 				);
 			},
@@ -410,14 +387,14 @@ void describe('ArrayUnspecified', () => {
 			{
 				type: 'array',
 				...prefixItems_foo_bar,
-				minItems: PositiveIntegerOrZero(4),
+				minItems: PositiveIntegerOrZeroGuard(4),
 				items: {
 					type: 'string',
 				},
 			},
 			{
 				array_mode: 'both',
-				minItems: PositiveIntegerOrZero(4),
+				minItems: PositiveIntegerOrZeroGuard(4),
 				items: {},
 				prefixItems: [
 					{
@@ -467,7 +444,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(4),
+					PositiveIntegerOrZeroGuard(4),
 					message,
 				);
 			},
@@ -481,14 +458,14 @@ void describe('ArrayUnspecified', () => {
 			{
 				type: 'array',
 				...prefixItems_foo_bar,
-				minItems: PositiveIntegerOrZero(0),
+				minItems: PositiveIntegerOrZeroGuard(0),
 				items: {
 					type: 'string',
 				},
 			},
 			{
 				array_mode: 'both',
-				minItems: PositiveIntegerOrZero(0),
+				minItems: PositiveIntegerOrZeroGuard(0),
 				items: {},
 				prefixItems: [
 					{
@@ -537,7 +514,7 @@ void describe('ArrayUnspecified', () => {
 				is_ArrayLiteralExpression(
 					value,
 					ts_assert.isStringLiteral,
-					PositiveIntegerOrZero(0),
+					PositiveIntegerOrZeroGuard(0),
 					message,
 				);
 			},
@@ -641,9 +618,9 @@ void describe('ArrayUnspecified', () => {
 								T1 extends Expression,
 								Result extends T1[],
 								Index extends ReturnType<
-									typeof PositiveIntegerOrZero<number>
+									typeof PositiveIntegerOrZeroGuard<number>
 								> = ReturnType<
-									typeof PositiveIntegerOrZero<number>
+									typeof PositiveIntegerOrZeroGuard<number>
 								>,
 							> (
 								data: Data,

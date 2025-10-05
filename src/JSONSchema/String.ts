@@ -28,10 +28,10 @@ import type {
 } from '../typescript/types.ts';
 
 import {
-	PositiveInteger,
+	PositiveIntegerGuard,
 } from '../guarded.ts';
 import {
-	PositiveIntegerOrZero,
+	PositiveIntegerOrZeroGuard,
 } from '../guarded.ts';
 
 import {
@@ -50,11 +50,11 @@ type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
 
 type MinLength_type<
 	T extends number = number,
-> = ReturnType<typeof PositiveInteger<T>>;
+> = ReturnType<typeof PositiveIntegerGuard<T>>;
 
 type MinLengthOrZero_type<
 	T extends number = number,
-> = ReturnType<typeof PositiveIntegerOrZero<T>>;
+> = ReturnType<typeof PositiveIntegerOrZeroGuard<T>>;
 
 type string_options<
 	StringMode extends string_mode = string_mode,
@@ -146,7 +146,7 @@ type string_schema_Properties<
 		},
 		minLength: {
 			type: 'integer',
-			const: ReturnType<typeof PositiveIntegerOrZero<0>>,
+			const: ReturnType<typeof PositiveIntegerOrZeroGuard<0>>,
 		},
 	},
 	enum: {
@@ -1030,7 +1030,7 @@ export class String<
 	constructor(options: SchemalessTypeOptions) {
 		const specific_options = Object.freeze({
 			string_mode: 'basic',
-			minLength: PositiveIntegerOrZero(0),
+			minLength: PositiveIntegerOrZeroGuard(0),
 		});
 
 		super({
@@ -1149,7 +1149,7 @@ export class NonEmptyString<
 	constructor(options: SchemalessTypeOptions) {
 		const specific_options = Object.freeze({
 			string_mode: 'non-empty',
-			minLength: PositiveInteger(1),
+			minLength: PositiveIntegerGuard(1),
 		});
 
 		super({

@@ -16,10 +16,10 @@ import type {
 } from '../SchemaParser.ts';
 
 import type {
-	PositiveInteger,
+	PositiveIntegerGuard,
 } from '../guarded.ts';
 import {
-	PositiveIntegerOrZero,
+	PositiveIntegerOrZeroGuard,
 } from '../guarded.ts';
 
 import {
@@ -61,8 +61,8 @@ type UniqueItemsType_by_mode<
 export type MinItemsType_mode = 'with'|'optional'|'without';
 export type MaxItemsType_mode = 'with'|'optional'|'without';
 
-type MinItemsType = ReturnType<typeof PositiveIntegerOrZero<number>>;
-type MaxItemsType = ReturnType<typeof PositiveInteger<number>>;
+type MinItemsType = ReturnType<typeof PositiveIntegerOrZeroGuard<number>>;
+type MaxItemsType = ReturnType<typeof PositiveIntegerGuard<number>>;
 
 export type array_type<
 	DefsMode extends $defs_mode,
@@ -360,9 +360,9 @@ type ExpressionAtIndexVerifier<
 	T1 extends Expression,
 	Result extends T1[],
 	Index extends ReturnType<
-		typeof PositiveIntegerOrZero<number>
+		typeof PositiveIntegerOrZeroGuard<number>
 	> = ReturnType<
-		typeof PositiveIntegerOrZero<number>
+		typeof PositiveIntegerOrZeroGuard<number>
 	>,
 > = (
 	data: Data,
@@ -373,7 +373,7 @@ type ExpressionAtIndexVerifier<
 function expression_at_index_verifier_default<
 	T extends unknown[],
 	Index extends ReturnType<
-		typeof PositiveIntegerOrZero<number>
+		typeof PositiveIntegerOrZeroGuard<number>
 	>,
 >(
 	data: T,
@@ -596,7 +596,7 @@ abstract class ArrayUncertain<
 	): ArrayLiteralExpression<T4, T5, true> {
 		return factory.createArrayLiteralExpression(
 			data.map((value, i): T4 => {
-				const index = PositiveIntegerOrZero(i);
+				const index = PositiveIntegerOrZeroGuard(i);
 				const element = ArrayUncertain.#convert(
 					value,
 					index,
@@ -993,7 +993,7 @@ abstract class ArrayUncertain<
 		N extends number = number,
 	>(
 		value: unknown,
-		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
+		index: ReturnType<typeof PositiveIntegerOrZeroGuard<N>>,
 		schema: array_type<
 			DefsMode,
 			ArrayMode,
@@ -1426,7 +1426,7 @@ abstract class ArrayUncertain<
 		PrefixItems extends [SchemaObject, ...SchemaObject[]],
 		N extends number,
 	>(
-		index: ReturnType<typeof PositiveIntegerOrZero<N>>,
+		index: ReturnType<typeof PositiveIntegerOrZeroGuard<N>>,
 		schema: array_type<
 			DefsMode,
 			ArrayMode,

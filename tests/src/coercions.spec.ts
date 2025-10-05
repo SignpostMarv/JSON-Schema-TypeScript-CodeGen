@@ -5,15 +5,15 @@ import {
 import assert from 'node:assert/strict';
 
 import {
-	StringPassesRegex,
-} from '../../src/coercions.ts';
+	StringPassesRegexGuard,
+} from '../../index.ts';
 
-void describe('StringPassesRegex', () => {
+void describe('StringPassesRegexGuard', () => {
 	void it('passes', () => {
-		assert.ok(StringPassesRegex('foo', /^foo$/));
+		assert.ok(StringPassesRegexGuard('foo', /^foo$/));
 	});
 
 	void it('fails', () => {
-		assert.throws(() => StringPassesRegex('bar', /^foo$/));
+		assert.throws(() => StringPassesRegexGuard('bar', /^foo$/));
 	});
 });

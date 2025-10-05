@@ -8,8 +8,8 @@
     "url": "git+https://github.com/SignpostMarv/JSON-Schema-TypeScript-CodeGen.git"
   },
   "funding": "https://github.com/SignpostMarv/JSON-Schema-TypeScript-CodeGen?sponsor=1",
-  "exports": "./index.js",
-  "types": "./index.d.ts",
+  "exports": "./index.ts",
+  "types": "./index.ts",
   "engines": {
     "node": "^24.0"
   },

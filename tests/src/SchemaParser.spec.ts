@@ -18,28 +18,19 @@ import {
 
 import ts_assert from '@signpostmarv/ts-assert';
 
-import type {
-	share_ajv_callback,
-} from '../../src/SchemaParser.ts';
-import {
-	SchemaParser,
-} from '../../src/SchemaParser.ts';
-
-import {
-	$ref,
-} from '../../src/JSONSchema/Ref.ts';
-
-import {
-	StringStartsWith,
-} from '../../src/Ajv/StringStartsWith.ts';
-
 import {
 	bool_throw,
 } from '../assertions.ts';
 
+import type {
+	share_ajv_callback,
+} from '../../index.ts';
 import {
+	$ref,
 	OneOf,
-} from '../../src/JSONSchema/OneOf.ts';
+	SchemaParser,
+	StringStartsWith,
+} from '../../index.ts';
 
 void describe('SchemaParser', () => {
 	void describe('::parse()', () => {

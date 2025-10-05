@@ -15,19 +15,16 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	pattern_string_type,
-} from '../../../../src/JSONSchema/String.ts';
-import {
-	PatternString,
-} from '../../../../src/JSONSchema/String.ts';
-
-import type {
 	ts_asserter,
 } from '../../../types.ts';
 
+import type {
+	pattern_string_type,
+} from '../../../../index.ts';
 import {
+	PatternString,
 	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
+} from '../../../../index.ts';
 
 void describe('PatternString', () => {
 	void describe('::check_type()', () => {

@@ -15,19 +15,16 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	enum_string_type,
-} from '../../../../src/JSONSchema/String.ts';
-import {
-	EnumString,
-} from '../../../../src/JSONSchema/String.ts';
-
-import type {
 	ts_asserter,
 } from '../../../types.ts';
 
+import type {
+	enum_string_type,
+} from '../../../../index.ts';
 import {
+	EnumString,
 	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
+} from '../../../../index.ts';
 
 void describe('EnumString', () => {
 	void describe('::check_type()', () => {

@@ -23,23 +23,17 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
-	SchemaParser,
-} from '../../../../src/SchemaParser.ts';
-
-import type {
-	basic_string_type,
-} from '../../../../src/JSONSchema/String.ts';
-import {
-	String,
-} from '../../../../src/JSONSchema/String.ts';
-
-import {
 	throws_Error,
 } from '../../../assertions.ts';
 
+import type {
+	basic_string_type,
+} from '../../../../index.ts';
 import {
 	ObjectUnspecified,
-} from '../../../../src/JSONSchema/Object.ts';
+	SchemaParser,
+	String,
+} from '../../../../index.ts';
 
 void describe('identify simple String types as expected', () => {
 	const string_expectations: [

@@ -37,7 +37,7 @@ import {
 } from './JSONSchema/Array.ts';
 
 import {
-	PositiveIntegerOrZero,
+	PositiveIntegerOrZeroGuard,
 } from './guarded.ts';
 
 import type {
@@ -295,7 +295,7 @@ export class SchemaParser {
 					array_mode: 'items-only',
 					items: {},
 					uniqueItems_mode: 'no',
-					minItems: PositiveIntegerOrZero(0),
+					minItems: PositiveIntegerOrZeroGuard(0),
 				},
 				{ajv},
 			),
