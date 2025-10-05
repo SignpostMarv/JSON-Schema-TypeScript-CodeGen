@@ -790,7 +790,7 @@ export class ObjectUnspecified<
 							schema_parser,
 						});
 					},
-				) as [Promise<TypeNode>, ...Promise<TypeNode>[]],
+				),
 			);
 		}
 
