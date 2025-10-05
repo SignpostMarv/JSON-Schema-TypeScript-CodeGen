@@ -56,6 +56,9 @@ import type {
 	unknown_type,
 } from './Unknown.ts';
 
+import type {
+} from '../javascript/types.ts';
+
 export type object_properties_mode = (
 	| 'neither'
 	| 'both'
@@ -776,7 +779,7 @@ export class ObjectUnspecified<
 				(
 					Object.values(
 						schema.patternProperties,
-					) as [SchemaObject, ...SchemaObject[]]
+					)
 				).map(
 					(sub_schema) => {
 						return $ref.intercept_$ref(
