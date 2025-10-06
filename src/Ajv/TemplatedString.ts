@@ -391,22 +391,14 @@ export class TemplatedString<
 		return result;
 	}
 
-	async generate_typescript_type({
+	generate_typescript_type({
 		data,
 		schema,
 	}: {
 		data?: T,
 		schema: templated_string_type<PartsOrDefault<Parts>>,
 	}): Promise<TemplateLiteralTypeNode> {
-		if (undefined !== data && !this.#regex.test(data)) {
-			throw new TypeError(
-				'Specified data did not match expected regex!',
-			);
-		}
-
-		// this is to ensure that errors in #template_spans()
-		//  get passed as promise rejections, not thrown errors
-		return await Promise.resolve(this.#generate_typescript_type(
+		return Promise.resolve(this.#generate_typescript_type(
 			schema,
 			data,
 		));
