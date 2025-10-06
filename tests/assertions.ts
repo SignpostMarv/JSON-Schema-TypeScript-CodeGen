@@ -197,7 +197,9 @@ export function is_TupleTypeNode<
 	if (last_is_rest) {
 		not_undefined(last);
 		ts_assert.isRestTypeNode(last, message);
-		assert.doesNotThrow(() => predicate(last.type, message, {
+		const last_type = last.type;
+		ts_assert.isArrayTypeNode(last_type, message);
+		assert.doesNotThrow(() => predicate(last_type.elementType, message, {
 			index: PositiveIntegerOrZeroGuard(value.elements.length - 1),
 			is_last: true,
 		}));

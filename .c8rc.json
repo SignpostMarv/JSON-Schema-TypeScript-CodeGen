@@ -2,6 +2,6 @@
 	"reporter": ["text", "html", "lcovonly"],
 	"report-dir": "./coverage",
 	"all": true,
-	"include": ["src"],
+	"include": ["src", "./index.ts"],
 	"exclude": ["./*.ts", "./**/*.d.ts", "./**/*/types.ts"]
 }

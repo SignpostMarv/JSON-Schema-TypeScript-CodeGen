@@ -391,7 +391,7 @@ export class TemplatedString<
 		return result;
 	}
 
-	generate_typescript_type({
+	async generate_typescript_type({
 		data,
 		schema,
 	}: {

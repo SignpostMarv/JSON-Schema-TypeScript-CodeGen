@@ -115,12 +115,7 @@ export class Printer {
 					factory.createVariableDeclaration(
 						adjusted_data_name,
 						undefined,
-						await type_for_schema
-							.generate_typescript_type({
-								data,
-								schema,
-								schema_parser,
-							}),
+						factory.createTypeReferenceNode(adjusted_type_name),
 						type_for_schema.generate_typescript_data(
 							data,
 							schema_parser,

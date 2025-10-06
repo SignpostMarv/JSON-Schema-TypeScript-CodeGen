@@ -1013,7 +1013,10 @@ abstract class ArrayUncertain<
 			schema,
 		);
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile(sub_schema);
+		const validator = ajv.compile({
+			$defs: $ref.get_defs(schema, sub_schema),
+			...sub_schema,
+		});
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by index!');
@@ -1168,11 +1171,13 @@ abstract class ArrayUncertain<
 		}
 
 		tuple_members.push(factory.createRestTypeNode(
+			factory.createArrayTypeNode(
 			await sub_type.generate_typescript_type({
 				data: schema.items,
 				schema: schema.items,
 				schema_parser,
 			}),
+			),
 		));
 
 		return factory.createTupleTypeNode<T2, T3>(tuple_members as T3);
@@ -1296,10 +1301,12 @@ abstract class ArrayUncertain<
 			}
 
 			tuple_members.push(factory.createRestTypeNode(
+				factory.createArrayTypeNode(
 				await sub_type.generate_typescript_type({
 					schema: schema.items,
 					schema_parser,
 				}),
+				),
 			));
 		}
 
