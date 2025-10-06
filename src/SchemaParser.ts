@@ -95,6 +95,12 @@ export class SchemaParser {
 		);
 	}
 
+	get imports(): Set<string> {
+		return new Set<string>(this.types.filter(
+			(maybe) => maybe instanceof $ref,
+		).flatMap((instance) => [...instance.needs_import.values()]));
+	}
+
 	add_schema(
 		schema: SchemaObjectWith$id,
 	) {

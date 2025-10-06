@@ -193,6 +193,8 @@ export class $ref<
 
 	readonly $ref_mode: RefMode;
 
+	readonly needs_import: Set<string>;
+
 	readonly remote_defs: (
 		| {[key: string]: {[key: $def]: SchemaObject}}
 		| Record<string, never>
@@ -220,6 +222,7 @@ export class $ref<
 
 		this.$ref_mode = $ref_mode;
 		this.#adjust_name = adjust_name || adjust_name_default;
+		this.needs_import = new Set();
 	}
 
 	generate_typescript_type(
@@ -231,8 +234,7 @@ export class $ref<
 			data: T,
 		},
 	): Promise<TypeReferenceNode> {
-		return Promise.resolve(factory.createTypeReferenceNode(
-			adjust_name_finisher(
+		const name = adjust_name_finisher(
 				$ref.replace(
 					/^#\/\$defs\//,
 					'',
@@ -241,7 +243,12 @@ export class $ref<
 					'_',
 				),
 				this.#adjust_name,
-			),
+		);
+
+		this.needs_import.add(name);
+
+		return Promise.resolve(factory.createTypeReferenceNode(
+			name,
 		));
 	}
 

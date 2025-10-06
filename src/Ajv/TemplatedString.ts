@@ -32,6 +32,10 @@ import {
 	object_has_property,
 } from '@satisfactory-dev/predicates.ts';
 
+import type {
+	ObjectOfSchemas,
+} from '../types.ts';
+
 type TemplatedStringPartBasic = (
 	| string
 	| {
@@ -57,6 +61,7 @@ export type TemplatedStringParts = [
 export type templated_string_type<
 	Parts extends TemplatedStringParts = TemplatedStringParts,
 > = TypeDefinitionSchema<{
+	$defs?: ObjectOfSchemas,
 	type: 'string',
 	templated_string: Parts,
 }>;
@@ -66,6 +71,12 @@ const templated_string_schema = Object.freeze({
 	required: ['type', 'templated_string'] as const,
 	additionalProperties: false,
 	properties: {
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',

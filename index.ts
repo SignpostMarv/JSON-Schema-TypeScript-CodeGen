@@ -2,6 +2,7 @@ export * from './src/coercions.ts';
 export * from './src/guarded.ts';
 export * from './src/types.ts';
 export * from './src/SchemaParser.ts';
+export * from './src/Printer.ts';
 export * from './src/Ajv/TemplatedString.ts';
 export * from './src/javascript/types.ts';
 export * from './src/typescript/types.ts';
