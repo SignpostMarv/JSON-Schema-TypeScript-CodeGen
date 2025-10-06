@@ -18,8 +18,8 @@ void describe('Printer', () => {
 	type DataSubSet = [
 		(
 			| [
-			Parameters<Printer['parse']>[0],
-			Parameters<Printer['parse']>[1],
+				Parameters<Printer['parse']>[0],
+				Parameters<Printer['parse']>[1],
 			]
 			| [
 				Parameters<Printer['parse']>[0],
