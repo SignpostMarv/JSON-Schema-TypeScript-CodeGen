@@ -1172,11 +1172,11 @@ abstract class ArrayUncertain<
 
 		tuple_members.push(factory.createRestTypeNode(
 			factory.createArrayTypeNode(
-			await sub_type.generate_typescript_type({
-				data: schema.items,
-				schema: schema.items,
-				schema_parser,
-			}),
+				await sub_type.generate_typescript_type({
+					data: schema.items,
+					schema: schema.items,
+					schema_parser,
+				}),
 			),
 		));
 
@@ -1302,10 +1302,10 @@ abstract class ArrayUncertain<
 
 			tuple_members.push(factory.createRestTypeNode(
 				factory.createArrayTypeNode(
-				await sub_type.generate_typescript_type({
-					schema: schema.items,
-					schema_parser,
-				}),
+					await sub_type.generate_typescript_type({
+						schema: schema.items,
+						schema_parser,
+					}),
 				),
 			));
 		}
