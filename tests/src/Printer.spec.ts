@@ -28,6 +28,16 @@ void describe('Printer', () => {
 		[DataSubSet, ...DataSubSet[]],
 	];
 
+	function load_TemplatedString(schema_parser: SchemaParser) {
+		const additional_types = schema_parser.share_ajv(
+			(ajv) => [
+				new TemplatedString({ajv}),
+			],
+		);
+
+		schema_parser.types.push(...additional_types);
+	}
+
 	const data_sets: [DataSet, ...DataSet[]] = [
 		[
 			[],
@@ -52,15 +62,7 @@ void describe('Printer', () => {
 							},
 						},
 					],
-					(schema_parser) => {
-						const additional_types = schema_parser.share_ajv(
-							(ajv) => [
-								new TemplatedString({ajv}),
-							],
-						);
-
-						schema_parser.types.push(...additional_types);
-					},
+					load_TemplatedString,
 					[
 						[
 							'./index.ts',
@@ -73,6 +75,68 @@ void describe('Printer', () => {
 						[
 							'./types.ts',
 							`type item = \`\${string}\${"bar" | "baz"}\`;${
+								'\n\n'
+							}export type foo = [${
+								'\n'
+							}    item,${
+								'\n'
+							}    ...item[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+			],
+		],
+		[
+			[{
+				type_filename_callback: (name: string) => {
+					if ('item' === name) {
+						return './types/$defs.ts';
+					}
+
+					return './types/types.ts';
+				},
+			}],
+			[
+				[
+					[
+						['foobar'],
+						{
+							$defs: {
+								item: {
+									type: 'string',
+									templated_string: [
+										{type: 'string'},
+										['bar', 'baz'],
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								$ref: '#/$defs/item',
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/$defs.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
+						],
+						[
+							'./types/types.ts',
+							`import type { item } from "./$defs.ts";${
 								'\n\n'
 							}export type foo = [${
 								'\n'
