@@ -17,6 +17,14 @@ declare global {
 	}
 
 	interface ObjectConstructor {
+		entries<
+			K extends string,
+			V,
+		>(
+			o: {[key in K]: V},
+		): [keyof typeof o, (typeof o)[keyof typeof o]][];
+		entries<T>(o: { [s: string]: T } | ArrayLike<T>): [string, T][];
+
 		keys<
 			T extends Exclude<{[key: string]: unknown}, Record<string, never>>,
 			K = (keyof T & string),
