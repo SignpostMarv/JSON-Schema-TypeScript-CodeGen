@@ -30,6 +30,7 @@ import {
 	OneOf,
 	SchemaParser,
 	StringStartsWith,
+	TemplatedString,
 } from '../../index.ts';
 
 void describe('SchemaParser', () => {
@@ -177,7 +178,7 @@ void describe('SchemaParser', () => {
 			assert.ok(!OneOf.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
 			assert.throws(() => parser.parse_by_type(
 				{$ref: '#/$defs/foo'},
-				(maybe) => OneOf.is_a(maybe),
+				(maybe) => TemplatedString.is_a(maybe),
 			));
 		});
 	});

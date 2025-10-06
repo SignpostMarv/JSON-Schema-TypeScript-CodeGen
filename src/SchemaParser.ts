@@ -49,6 +49,14 @@ import {
 	Unknown,
 } from './JSONSchema/Unknown.ts';
 
+import {
+	OneOf,
+} from './JSONSchema/OneOf.ts';
+
+import {
+	AnyOf,
+} from './JSONSchema/AnyOf.ts';
+
 export type supported_type = (
 	| ConversionlessType<unknown>
 	| Type<unknown>
@@ -262,6 +270,8 @@ export class SchemaParser {
 			'items-only',
 			'no'
 		>,
+		OneOf<unknown, 'unspecified'>,
+		AnyOf<unknown, 'unspecified'>,
 		Unknown,
 	] {
 		return [
@@ -305,6 +315,28 @@ export class SchemaParser {
 				},
 				{ajv},
 			),
+			new OneOf<unknown, 'unspecified'>({
+				ajv,
+				type_definition: {
+					kind: 'oneOf',
+					mode: 'unspecified',
+				},
+				schema_definition: {
+					kind: 'oneOf',
+					mode: 'unspecified',
+				},
+			}),
+			new AnyOf<unknown, 'unspecified'>({
+				ajv,
+				type_definition: {
+					kind: 'anyOf',
+					mode: 'unspecified',
+				},
+				schema_definition: {
+					kind: 'anyOf',
+					mode: 'unspecified',
+				},
+			}),
 			new Unknown({ajv}),
 		];
 	}

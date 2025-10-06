@@ -16,10 +16,23 @@ void describe('Printer', () => {
 		string,
 	];
 	type DataSubSet = [
-		[
+		(
+			| [
 			Parameters<Printer['parse']>[0],
 			Parameters<Printer['parse']>[1],
-		],
+			]
+			| [
+				Parameters<Printer['parse']>[0],
+				Parameters<Printer['parse']>[1],
+				Parameters<Printer['parse']>[3],
+			]
+			| [
+				Parameters<Printer['parse']>[0],
+				Parameters<Printer['parse']>[1],
+				Parameters<Printer['parse']>[3],
+				Parameters<Printer['parse']>[4],
+			]
+		),
 		(schema_parser: SchemaParser) => void,
 		[ParseExpectation, ...ParseExpectation[]],
 	];
@@ -148,6 +161,102 @@ void describe('Printer', () => {
 						],
 					],
 				],
+				[
+					[
+						['foobar'],
+						{
+							type: 'array',
+							minItems: 1,
+							items: {
+								type: 'string',
+								templated_string: [
+									{type: 'string'},
+									['bar', 'baz'],
+								],
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/types.ts',
+							`export type foo = [${
+								'\n'
+							}    \`\${string}\${"bar" | "baz"}\`,${
+								'\n'
+							}    ...\`\${string}\${"bar" | "baz"}\`[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								oneOf: [
+									{$ref: '#/$defs/foo'},
+									{$ref: '#/$defs/bar'},
+								],
+							},
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/types.ts',
+							`type foo = \`foo\${string}\`;${
+								'\n\n'
+							}type bar = \`bar\${string}\`;${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo | bar,${
+								'\n'
+							}    ...(foo | bar)[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
 			],
 		],
 	];
@@ -168,7 +277,21 @@ void describe('Printer', () => {
 
 				const printer = new Printer(...constructor_params);
 
-				const promise = printer.parse(...parse_params, schema_parser);
+				const params: Parameters<Printer['parse']> = [
+					parse_params[0],
+					parse_params[1],
+					schema_parser,
+				];
+
+				if (parse_params.length > 2) {
+					params.push(parse_params[2]);
+				}
+
+				if (parse_params.length > 3) {
+					params.push(parse_params[3]);
+				}
+
+				const promise = printer.parse(...params);
 
 				await assert.doesNotReject(() => promise);
 

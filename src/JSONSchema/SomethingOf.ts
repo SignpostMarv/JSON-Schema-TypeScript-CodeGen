@@ -1,7 +1,3 @@
-import {
-	Ajv2020 as Ajv,
-} from 'ajv/dist/2020.js';
-
 import type {
 	Expression,
 	TypeNode,
@@ -109,12 +105,24 @@ type something_of_schema<
 		[Kind],
 		{
 			oneOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
 				oneOf: {
 					type: 'array',
 					const: Choices,
 				},
 			},
 			anyOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
 				anyOf: {
 					type: 'array',
 					const: Choices,
@@ -127,6 +135,12 @@ type something_of_schema<
 		[Kind],
 		{
 			oneOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
 				oneOf: {
 					type: 'array',
 					minItems: 2,
@@ -134,6 +148,12 @@ type something_of_schema<
 				},
 			},
 			anyOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
 				anyOf: {
 					type: 'array',
 					minItems: 2,
@@ -242,7 +262,7 @@ export abstract class SomethingOf<
 		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
 		schema_parser: SchemaParser,
 	): Type<unknown> {
-		const ajv = new Ajv({strict: true});
+		const ajv = schema_parser.share_ajv((ajv) => ajv);
 		const validator = ajv.compile(schema);
 
 		if (!validator(data)) {
@@ -265,7 +285,7 @@ export abstract class SomethingOf<
 		const sub_schema = choices.map((
 			sub_schema,
 		) => this.#maybe_add_$defs(schema, sub_schema)).find((maybe) => {
-			const ajv = new Ajv({strict: true});
+			const ajv = schema_parser.share_ajv((ajv) => ajv);
 			const validator = ajv.compile(maybe);
 
 			return validator(data);
@@ -307,6 +327,12 @@ export abstract class SomethingOf<
 					'unspecified',
 					Choices
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					oneOf: {
 						type: 'array',
 						minItems: 2,
@@ -325,6 +351,12 @@ export abstract class SomethingOf<
 					'unspecified',
 					Choices
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					anyOf: {
 						type: 'array',
 						minItems: 2,
@@ -364,6 +396,12 @@ export abstract class SomethingOf<
 					'specified',
 					Choices
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					oneOf: {
 						type: 'array',
 						const: choices,
@@ -377,6 +415,12 @@ export abstract class SomethingOf<
 					'specified',
 					Choices
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					anyOf: {
 						type: 'array',
 						const: choices,

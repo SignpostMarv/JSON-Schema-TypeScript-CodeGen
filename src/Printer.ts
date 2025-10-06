@@ -167,18 +167,27 @@ export class Printer {
 			),
 		];
 
+		const $defs = schema.$defs || {};
+
 		for (const [
 			$def_name,
 			$def_schema,
-		] of Object.entries(schema.$defs || {})) {
+		] of Object.entries($defs)) {
 			const name = adjust_name_finisher(
 				$def_name,
 				this.#adjust_name_callback,
 			);
+
+			if (name === adjusted_type_name) {
+				throw new TypeError(
+					'$defs found matching adjusted type name!',
+				);
+			}
+
 			const $def_filename = this.#type_filename_callback(name);
 
 			const $def_schema_with_$defs: SchemaObject = {
-				$defs: schema.$defs || {},
+				$defs,
 				...$def_schema,
 			};
 

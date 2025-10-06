@@ -468,7 +468,10 @@ export class $ref<
 		let $defs: {[key: $def]: SchemaObject} = {};
 
 		if (
-			'$ref' in sub_schema
+			(
+				'$ref' in sub_schema
+				|| 'oneOf' in sub_schema
+			)
 			&& '$defs' in schema
 			&& schema.$defs
 			&& !('$defs' in sub_schema)
