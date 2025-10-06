@@ -235,14 +235,14 @@ export class $ref<
 		},
 	): Promise<TypeReferenceNode> {
 		const name = adjust_name_finisher(
-				$ref.replace(
-					/^#\/\$defs\//,
-					'',
-				).replace(
-					'#/$defs/',
-					'_',
-				),
-				this.#adjust_name,
+			$ref.replace(
+				/^#\/\$defs\//,
+				'',
+			).replace(
+				'#/$defs/',
+				'_',
+			),
+			this.#adjust_name,
 		);
 
 		this.needs_import.add(name);
