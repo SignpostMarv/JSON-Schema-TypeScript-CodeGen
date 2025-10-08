@@ -19,31 +19,198 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	array_mode,
-	array_type,
-	MinItemsType_mode,
-	specified_mode,
-	unique_items_mode,
-} from '../../../src/JSONSchema/Array.ts';
-import {
-	ArrayType,
-} from '../../../src/JSONSchema/Array.ts';
-
-import type {
 	ts_asserter,
 } from '../../types.ts';
 
 import type {
+	array_mode,
+	array_options,
+	array_type,
 	ArrayLiteralExpression,
 	ArrayTypeNode,
+	MinItemsType_mode,
+	specified_mode,
 	TupleTypeNode,
+	unique_items_mode,
 } from '../../../index.ts';
 import {
+	ArrayType,
 	PositiveIntegerGuard,
 	SchemaParser,
 } from '../../../index.ts';
 
 void describe('ArrayType', () => {
+	type AllowedMutation<
+		ArrayMode extends array_mode = array_mode,
+		MinItems_mode extends MinItemsType_mode = MinItemsType_mode,
+	> = keyof Pick<
+		array_options<
+			ArrayMode,
+			specified_mode,
+			unique_items_mode,
+			MinItems_mode
+		>,
+		(
+			| 'unique_items_mode'
+			| 'min_items_mode'
+		)
+	>;
+
+	function mutate_unique_items_mode<
+		ArrayMode extends array_mode = array_mode,
+	>(
+		options: array_options<
+			ArrayMode
+		>,
+	) {
+		const {
+			unique_items_mode,
+		} = options;
+
+		const mutated: array_options<
+			ArrayMode
+		> = {
+			...options,
+			unique_items_mode: 'yes' === unique_items_mode ? 'no' : 'yes',
+		};
+
+		return mutated;
+	}
+
+	function mutate_min_items_mode<
+		ArrayMode extends array_mode = array_mode,
+	>(
+		options: array_options<
+			ArrayMode
+		>,
+	): array_options<
+		ArrayMode
+	> {
+		const {
+			min_items_mode,
+		} = options;
+
+		const mutated: array_options<
+			ArrayMode
+		> = {
+			...options,
+			min_items_mode: 'with' === min_items_mode ? 'optional' : 'with',
+		};
+
+		return mutated;
+	}
+
+	function* mutation_sets<
+		ArrayMode extends array_mode = array_mode,
+	>(
+		options: array_options<
+			ArrayMode
+		>,
+		supported_mutations: AllowedMutation[],
+	): Generator<[string, array_options<
+		ArrayMode
+	>]> {
+		yield ['unmodified', options];
+
+		const can_mutate_unique_items_mode = supported_mutations.includes(
+			'unique_items_mode',
+		);
+
+		const can_mutate_min_items_mode = supported_mutations.includes(
+			'min_items_mode',
+		);
+
+		if (can_mutate_unique_items_mode) {
+			let mutated = mutate_unique_items_mode(options);
+
+			yield [
+				'unique_items_mode',
+				mutated,
+			];
+
+			if (can_mutate_min_items_mode) {
+				mutated = mutate_min_items_mode(mutated);
+
+				yield [
+					'unique_items_mode|min_items_mode',
+					mutated,
+				];
+			}
+		}
+
+		if (can_mutate_min_items_mode) {
+			yield [
+				'unique_items_mode|min_items_mode',
+				mutate_min_items_mode(options),
+			];
+		}
+	}
+
+	function* split_data_sets(
+		data_sets: [DataSet, ...DataSet[]],
+	): Generator<[
+		DataSet[0],
+		DataSubSet[0],
+		DataSubSetSubset[0],
+		DataSubSetSubset[1],
+		DataSubSetSubset[2],
+		string,
+		number,
+		number,
+		number,
+	]> {
+		let i = 0;
+		for (const [
+			specific_options,
+			supported_mutations,
+			expectation_sets,
+		] of data_sets) {
+			let j = 0;
+			for (const [
+				data,
+				variants,
+			] of expectation_sets) {
+				let k = 0;
+				for (const [
+					schema,
+					data_asserter,
+					type_asserter,
+				] of variants) {
+					for (
+						const [
+							mutation,
+							modified_options,
+						] of mutation_sets(
+							specific_options.array_options,
+							supported_mutations,
+						)
+					) {
+						yield [
+							{
+								...specific_options,
+								array_options: modified_options,
+							},
+							data,
+							schema,
+							data_asserter,
+							type_asserter,
+							mutation,
+							i,
+							j,
+							k,
+						];
+					}
+
+					++k;
+				}
+
+				++j;
+			}
+
+			++i;
+		}
+	}
+
 	type DataSubSetSubset<
 		ArrayMode extends array_mode = array_mode,
 		MinItems_mode extends MinItemsType_mode = MinItemsType_mode,
@@ -115,6 +282,7 @@ void describe('ArrayType', () => {
 			unique_items_mode,
 			MinItems_mode
 		>>[1],
+		AllowedMutation[],
 		[
 			DataSubSet<ArrayMode, MinItems_mode>,
 			...DataSubSet<ArrayMode, MinItems_mode>[],
@@ -129,8 +297,13 @@ void describe('ArrayType', () => {
 					specified_mode: 'unspecified',
 					unique_items_mode: 'no',
 					min_items_mode: 'optional',
+					minItems: PositiveIntegerGuard(2),
+					maxItems: PositiveIntegerGuard(5),
 				},
 			},
+			[
+				'unique_items_mode',
+			],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -245,6 +418,10 @@ void describe('ArrayType', () => {
 				},
 			},
 			[
+				'unique_items_mode',
+				'min_items_mode',
+			],
+			[
 				[
 					['foo', 'bar', 'baz'],
 					[
@@ -358,6 +535,7 @@ void describe('ArrayType', () => {
 					},
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -479,6 +657,7 @@ void describe('ArrayType', () => {
 					},
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -563,6 +742,7 @@ void describe('ArrayType', () => {
 					maxItems: PositiveIntegerGuard(5),
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -674,6 +854,7 @@ void describe('ArrayType', () => {
 					min_items_mode: 'optional',
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -738,6 +919,7 @@ void describe('ArrayType', () => {
 					maxItems: PositiveIntegerGuard(5),
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -805,6 +987,7 @@ void describe('ArrayType', () => {
 					],
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -872,6 +1055,7 @@ void describe('ArrayType', () => {
 					],
 				},
 			},
+			[],
 			[
 				[
 					['foo', 'bar', 'baz'],
@@ -927,21 +1111,29 @@ void describe('ArrayType', () => {
 		],
 	];
 
-	data_sets.forEach(([
+	for (const [
 		specific_options,
-		expectation_sets,
-	], i) => {
-		expectation_sets.forEach(([
-			data,
-			variants,
-		], j) => {
-			variants.forEach(([
-				schema,
-				data_asserter,
-				type_asserter,
-			], k) => {
+		data,
+		schema,
+		data_asserter,
+		type_asserter,
+		mutation_set,
+		i,
+		j,
+		k,
+	] of split_data_sets(data_sets)) {
 				void describe('::generate_typescript_data()', () => {
-					void it(`behaves with data_sets[${i}][${j}][${k}]`, () => {
+			void it(
+				`behaves with data_sets[${
+					i
+				}][${
+					j
+				}][${
+					k
+				}] & ${
+					mutation_set
+				} mutation`,
+				() => {
 						const ajv = new Ajv({strict: true});
 						const schema_parser = new SchemaParser({ajv});
 						const instance = new ArrayType(
@@ -964,9 +1156,17 @@ void describe('ArrayType', () => {
 				});
 
 				void describe('::generate_typescript_type()', () => {
-					void it(
-						`behaves with data_sets[${i}][${j}][${k}]`,
-						async () => {
+			void it(
+				`behaves with data_sets[${
+					i
+				}][${
+					j
+				}][${
+					k
+				}] & ${
+					mutation_set
+				} mutation`,
+				async () => {
 							const ajv = new Ajv({strict: true});
 							const schema_parser = new SchemaParser({ajv});
 							const instance = new ArrayType(
@@ -992,7 +1192,5 @@ void describe('ArrayType', () => {
 						},
 					);
 				});
-			});
-		});
-	});
+	}
 });
