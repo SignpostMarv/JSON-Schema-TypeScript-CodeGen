@@ -39,6 +39,10 @@ import {
 	SchemaParser,
 } from '../../../index.ts';
 
+import {
+	throws_Error,
+} from '../../assertions.ts';
+
 void describe('ArrayType', () => {
 	type AllowedMutation<
 		ArrayMode extends array_mode = array_mode,
@@ -1194,4 +1198,196 @@ void describe('ArrayType', () => {
 			);
 		});
 	}
+
+	void describe('::generate_typescript_data()', () => {
+		type FailureSubSet = (
+			| [
+				array_type,
+				unknown[],
+			]
+			| [
+				array_type,
+				unknown[],
+				new () => Error,
+				string,
+			]
+		);
+
+		type FailureDataSet = [
+			ConstructorParameters<typeof ArrayType>[1],
+			[FailureSubSet, ...FailureSubSet[]],
+		];
+
+		const data_sets: [FailureDataSet, ...FailureDataSet[]] = [
+			[
+				{
+					array_options: {
+						array_mode: 'items',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+				},
+				[
+					[
+						{
+							type: 'array',
+							items: {},
+							uniqueItems: false,
+						},
+						['foo', 'bar', 'foo'],
+					],
+				],
+			],
+			[
+				{
+					array_options: {
+						array_mode: 'items',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+					expression_at_index_verifier: (
+						data,
+						maybe,
+					): maybe is Expression => false,
+				},
+				[
+					[
+						{
+							type: 'array',
+							items: {},
+							uniqueItems: false,
+						},
+						['foo', 'bar', 'baz'],
+					],
+				],
+			],
+			[
+				{
+					array_options: {
+						array_mode: 'items',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+				},
+				[
+					[
+						{
+							type: 'array',
+							items: {
+								type: 'string',
+							},
+							uniqueItems: false,
+						},
+						['foo', 1],
+					],
+				],
+			],
+			[
+				{
+					array_options: {
+						array_mode: 'prefixItems',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+					expression_at_index_verifier: (
+						data,
+						maybe,
+					): maybe is Expression => false,
+				},
+				[
+					[
+						{
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{
+									type: 'string',
+								},
+								{
+									type: 'string',
+								},
+							],
+							uniqueItems: false,
+						},
+						['foo', 'bar', 'baz'],
+						TypeError,
+						'Element at index 0 was not of expected type!',
+					],
+				],
+			],
+			[
+				{
+					array_options: {
+						array_mode: 'prefixItems',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+				},
+				[
+					[
+						{
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{
+									type: 'string',
+								},
+								{
+									type: 'string',
+								},
+							],
+							uniqueItems: false,
+						},
+						['foo', 'bar', 'baz'],
+						TypeError,
+						'Invalid schema detected!',
+					],
+				],
+			],
+		];
+
+		data_sets.forEach(([
+			options,
+			subsets,
+		], i) => {
+			subsets.forEach(([
+				schema,
+				data,
+				expected_error,
+				expected_message,
+			], j) => {
+				void it(`behaves with data_sets[${i}][${j}]`, () => {
+					const schema_parser = new SchemaParser({ajv_options: {}});
+
+					const instance = schema_parser.share_ajv(
+						(ajv) => new ArrayType(
+							{ajv},
+							options,
+						),
+					);
+
+					const callback = () => instance.generate_typescript_data(
+						data,
+						schema_parser,
+						schema,
+					);
+
+					if (expected_error) {
+						throws_Error(
+							callback,
+							expected_error,
+							expected_message,
+						);
+					} else {
+						assert.throws(callback);
+					}
+				});
+			});
+		});
+	});
 });
