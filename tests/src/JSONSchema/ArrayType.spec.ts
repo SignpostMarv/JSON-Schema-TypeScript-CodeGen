@@ -1122,7 +1122,7 @@ void describe('ArrayType', () => {
 		j,
 		k,
 	] of split_data_sets(data_sets)) {
-				void describe('::generate_typescript_data()', () => {
+		void describe('::generate_typescript_data()', () => {
 			void it(
 				`behaves with data_sets[${
 					i
@@ -1134,28 +1134,29 @@ void describe('ArrayType', () => {
 					mutation_set
 				} mutation`,
 				() => {
-						const ajv = new Ajv({strict: true});
-						const schema_parser = new SchemaParser({ajv});
-						const instance = new ArrayType(
-							{
-								ajv,
-							},
-							specific_options,
-						);
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					const instance = new ArrayType(
+						{
+							ajv,
+						},
+						specific_options,
+					);
 
-						const actual = instance.generate_typescript_data(
-							data,
-							schema_parser,
-							schema,
-						);
+					const actual = instance.generate_typescript_data(
+						data,
+						schema_parser,
+						schema,
+					);
 
-						const foo: ts_asserter = data_asserter;
+					const foo: ts_asserter = data_asserter;
 
-						foo(actual);
-					});
-				});
+					foo(actual);
+				},
+			);
+		});
 
-				void describe('::generate_typescript_type()', () => {
+		void describe('::generate_typescript_type()', () => {
 			void it(
 				`behaves with data_sets[${
 					i
@@ -1167,30 +1168,30 @@ void describe('ArrayType', () => {
 					mutation_set
 				} mutation`,
 				async () => {
-							const ajv = new Ajv({strict: true});
-							const schema_parser = new SchemaParser({ajv});
-							const instance = new ArrayType(
-								{
-									ajv,
-								},
-								specific_options,
-							);
-
-							const promise = instance.generate_typescript_type({
-								data,
-								schema_parser,
-								schema,
-							});
-
-							await assert.doesNotReject(() => promise);
-
-							const actual = await promise;
-
-							const foo: ts_asserter = type_asserter;
-
-							foo(actual);
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					const instance = new ArrayType(
+						{
+							ajv,
 						},
+						specific_options,
 					);
-				});
+
+					const promise = instance.generate_typescript_type({
+						data,
+						schema_parser,
+						schema,
+					});
+
+					await assert.doesNotReject(() => promise);
+
+					const actual = await promise;
+
+					const foo: ts_asserter = type_asserter;
+
+					foo(actual);
+				},
+			);
+		});
 	}
 });
