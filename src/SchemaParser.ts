@@ -33,11 +33,11 @@ import {
 } from './JSONSchema/Object.ts';
 
 import {
-	ArrayUnspecified,
+	ArrayType,
 } from './JSONSchema/Array.ts';
 
 import {
-	PositiveIntegerOrZeroGuard,
+	PositiveIntegerGuard,
 } from './guarded.ts';
 
 import type {
@@ -191,6 +191,16 @@ export class SchemaParser {
 		yes: Type<unknown>,
 		no: ConversionlessType<unknown>,
 	}[T] {
+		if (0 === Object.keys(schema).length) {
+			const result = this.types.find<Unknown>(
+				(maybe) => maybe instanceof Unknown,
+			);
+
+			if (result) {
+				return result;
+			}
+		}
+
 		const result = this.maybe_parse<
 			{
 				yes: Type<unknown>,
@@ -265,10 +275,29 @@ export class SchemaParser {
 		ObjectUnspecified<{[key: string]: unknown}, 'pattern'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'both'>,
 		ObjectUnspecified<{[key: string]: unknown}, 'neither'>,
-		ArrayUnspecified<
-			unknown[],
-			'items-only',
-			'no'
+		ArrayType<
+			'items',
+			'unspecified',
+			'no',
+			'optional'
+		>,
+		ArrayType<
+			'prefixItems',
+			'unspecified',
+			'no',
+			'optional'
+		>,
+		ArrayType<
+			'items',
+			'unspecified',
+			'yes',
+			'optional'
+		>,
+		ArrayType<
+			'prefixItems',
+			'unspecified',
+			'yes',
+			'optional'
 		>,
 		OneOf<unknown, 'unspecified'>,
 		AnyOf<unknown, 'unspecified'>,
@@ -306,14 +335,51 @@ export class SchemaParser {
 				{properties_mode: 'neither'},
 				{ajv},
 			),
-			new ArrayUnspecified(
-				{
-					array_mode: 'items-only',
-					items: {},
-					uniqueItems_mode: 'no',
-					minItems: PositiveIntegerOrZeroGuard(0),
-				},
+			new ArrayType(
 				{ajv},
+				{
+					array_options: {
+						array_mode: 'items',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'no',
+						min_items_mode: 'optional',
+					},
+				},
+			),
+			new ArrayType(
+				{ajv},
+				{
+					array_options: {
+						array_mode: 'prefixItems',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'no',
+						min_items_mode: 'optional',
+						minItems: PositiveIntegerGuard(1),
+					},
+				},
+			),
+			new ArrayType(
+				{ajv},
+				{
+					array_options: {
+						array_mode: 'items',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+					},
+				},
+			),
+			new ArrayType(
+				{ajv},
+				{
+					array_options: {
+						array_mode: 'prefixItems',
+						specified_mode: 'unspecified',
+						unique_items_mode: 'yes',
+						min_items_mode: 'optional',
+						minItems: PositiveIntegerGuard(1),
+					},
+				},
 			),
 			new OneOf<unknown, 'unspecified'>({
 				ajv,

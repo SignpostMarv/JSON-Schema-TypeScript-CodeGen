@@ -73,6 +73,7 @@ void describe('Printer', () => {
 							items: {
 								$ref: '#/$defs/item',
 							},
+							uniqueItems: true,
 						},
 					],
 					load_TemplatedString,
@@ -252,6 +253,63 @@ void describe('Printer', () => {
 							}    foo | bar,${
 								'\n'
 							}    ...(foo | bar)[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{$ref: '#/$defs/foo'},
+								{$ref: '#/$defs/bar'},
+							],
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/types.ts',
+							`type foo = \`foo\${string}\`;${
+								'\n\n'
+							}type bar = \`bar\${string}\`;${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo,${
+								'\n'
+							}    bar${
 								'\n'
 							}];`,
 						],

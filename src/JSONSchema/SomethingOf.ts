@@ -235,7 +235,7 @@ export abstract class SomethingOf<
 					schema_parser,
 					'$ref allowed',
 				).generate_typescript_type({
-					data: sub_schema,
+					data: data,
 					schema: sub_schema,
 					schema_parser,
 				});

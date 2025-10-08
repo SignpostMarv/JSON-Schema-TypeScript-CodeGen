@@ -16,6 +16,10 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
+import {
+	is_non_empty_array,
+} from '@satisfactory-dev/predicates.ts';
+
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
@@ -23,6 +27,7 @@ import {
 } from '../assertions.ts';
 
 import type {
+	ConversionlessType,
 	share_ajv_callback,
 } from '../../index.ts';
 import {
@@ -31,6 +36,7 @@ import {
 	SchemaParser,
 	StringStartsWith,
 	TemplatedString,
+	Unknown,
 } from '../../index.ts';
 
 void describe('SchemaParser', () => {
@@ -38,7 +44,23 @@ void describe('SchemaParser', () => {
 		void it('fails with {}', () => {
 			const parser = new SchemaParser();
 
+			const types = parser.types.filter(
+				(maybe) => !(maybe instanceof Unknown),
+			);
+
+			if (!is_non_empty_array<ConversionlessType<unknown>>(types)) {
+				assert.fail('Types is empty!');
+			}
+
+			parser.types = types;
+
 			assert.throws(() => parser.parse({}));
+		});
+
+		void it('fails with an unrecognised type', () => {
+			const parser = new SchemaParser();
+
+			assert.throws(() => parser.parse({type: 'whut'}));
 		});
 
 		void it(

@@ -866,6 +866,7 @@ export class ObjectUnspecified<
 		} else {
 			return matched.generate_typescript_type({
 				data: sub_schema,
+				schema: sub_schema,
 				schema_parser,
 			});
 		}

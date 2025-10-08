@@ -226,14 +226,35 @@ export class $ref<
 	}
 
 	generate_typescript_type(
-		{
-			data: {
-				$ref,
-			},
-		}: {
-			data: T,
-		},
+		options: (
+			| {
+				data: T,
+			}
+			| {
+				data?: T,
+				schema: $ref_type<RefMode>,
+			}
+		),
 	): Promise<TypeReferenceNode> {
+		const $ref = (
+			'schema' in options
+			&& '$ref' in options.schema
+			&& 'string' === typeof options.schema.$ref
+		)
+			? options.schema.$ref
+			: (
+				(
+					object_has_property(options, 'data')
+					&& object_has_property(options.data, '$ref')
+				)
+					? options.data.$ref
+					: undefined
+			);
+
+		if (undefined === $ref) {
+			throw new TypeError('Could not find $ref!');
+		}
+
 		const name = adjust_name_finisher(
 			$ref.replace(
 				/^#\/\$defs\//,

@@ -23,7 +23,7 @@ import type {
 
 import {
 	$ref,
-	ArrayUnspecified,
+	ArrayType,
 	NonEmptyString,
 	SchemaParser,
 } from '../../../index.ts';
@@ -338,15 +338,19 @@ void describe('$ref', () => {
 			const ajv = new Ajv({strict: true});
 			assert.ok($ref.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
 			assert.ok(!$ref.is_a(
-				new ArrayUnspecified(
+				new ArrayType(
+					{ajv},
 					{
-						array_mode: 'items-only',
-						uniqueItems_mode: 'yes',
+						array_options: {
+							array_mode: 'items',
+							specified_mode: 'specified',
+							unique_items_mode: 'yes',
+							min_items_mode: 'optional',
 						items: {
 							type: 'string',
 						},
+						},
 					},
-					{ajv},
 				),
 			));
 			assert.ok(!$ref.is_a(undefined));
