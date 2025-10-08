@@ -346,9 +346,9 @@ void describe('$ref', () => {
 							specified_mode: 'specified',
 							unique_items_mode: 'yes',
 							min_items_mode: 'optional',
-						items: {
-							type: 'string',
-						},
+							items: {
+								type: 'string',
+							},
 						},
 					},
 				),
