@@ -854,4 +854,48 @@ void describe('Printer', () => {
 			});
 		});
 	});
+
+	void it('fails if data does not match type', async () => {
+		const instance = new Printer();
+		const schema_parser = new SchemaParser({ajv_options: {}});
+
+		const promise = instance.parse(
+			'foo',
+			{
+				type: 'array',
+				items: {
+					type: 'string',
+				},
+			},
+			schema_parser,
+		);
+
+		await assert.rejects(() => promise);
+	});
+
+	void it('fails if $defs matches type name', async () => {
+		const instance = new Printer();
+		const schema_parser = new SchemaParser({ajv_options: {}});
+
+		const promise = instance.parse(
+			['foobar'],
+			{
+				$defs: {
+					foo: {
+						type: 'string',
+						const: 'foobar',
+					},
+				},
+				type: 'array',
+				minItems: 1,
+				items: {
+					$ref: '#/$defs/foo',
+				},
+				uniqueItems: true,
+			},
+			schema_parser,
+		);
+
+		await assert.rejects(() => promise);
+	});
 });
