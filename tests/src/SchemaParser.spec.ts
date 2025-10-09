@@ -27,8 +27,8 @@ import {
 } from '../assertions.ts';
 
 import type {
-	ConversionlessType,
 	share_ajv_callback,
+	Type,
 } from '../../index.ts';
 import {
 	$ref,
@@ -48,7 +48,7 @@ void describe('SchemaParser', () => {
 				(maybe) => !(maybe instanceof Unknown),
 			);
 
-			if (!is_non_empty_array<ConversionlessType<unknown>>(types)) {
+			if (!is_non_empty_array<Type<unknown>>(types)) {
 				assert.fail('Types is empty!');
 			}
 

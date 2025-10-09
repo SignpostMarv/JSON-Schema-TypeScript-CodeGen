@@ -23,13 +23,13 @@ import type {
 } from '../../types.ts';
 
 import type {
-	ConversionlessType,
 	ObjectOfSchemas,
 	one_of_schema_options,
 	one_of_type_options,
 	PositiveIntegerGuard,
 	schema_choices,
 	something_of_mode,
+	Type,
 	type_choices,
 } from '../../../index.ts';
 import {
@@ -55,7 +55,7 @@ void describe('OneOf', () => {
 			ts_asserter<TypeNode>,
 		][],
 		[
-			(ajv: Ajv) => ConversionlessType<unknown>,
+			(ajv: Ajv) => Type<unknown>,
 			boolean,
 		][],
 	];

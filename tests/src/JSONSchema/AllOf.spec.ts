@@ -25,11 +25,11 @@ import type {
 import type {
 	all_of_schema_options,
 	all_of_type_options,
-	ConversionlessType,
 	ObjectOfSchemas,
 	PositiveIntegerGuard,
 	schema_choices,
 	something_of_mode,
+	Type,
 	type_choices,
 } from '../../../index.ts';
 import {
@@ -55,7 +55,7 @@ void describe('AllOf', () => {
 			ts_asserter<TypeNode>,
 		][],
 		[
-			(ajv: Ajv) => ConversionlessType<unknown>,
+			(ajv: Ajv) => Type<unknown>,
 			boolean,
 		][],
 	];

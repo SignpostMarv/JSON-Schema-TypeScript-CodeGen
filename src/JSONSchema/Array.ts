@@ -912,7 +912,6 @@ export class ArrayType<
 
 		return schema_parser.parse(
 			sub_schema,
-			'yes',
 		).generate_typescript_data(
 			value,
 			schema_parser,

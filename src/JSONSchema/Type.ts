@@ -94,7 +94,7 @@ export class VerboseMatchError extends TypeError {
 	}
 }
 
-export abstract class ConversionlessType<
+export abstract class Type<
 	T,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
 	TypeDefinitionOptions extends (
@@ -111,6 +111,7 @@ export abstract class ConversionlessType<
 		{[key: string]: unknown}
 	),
 	TSType extends TypeNode = TypeNode,
+	DataTo extends Expression = Expression,
 > {
 	protected schema_definition: SchemaDefinition;
 
@@ -126,13 +127,14 @@ export abstract class ConversionlessType<
 		type_definition,
 	}: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
 		const static_class = (
-			this.constructor as typeof ConversionlessType<
+			this.constructor as typeof Type<
 				T,
 				TypeDefinition,
 				TypeDefinitionOptions,
 				SchemaDefinition,
 				SchemaDefinitionOptions,
-				TSType
+				TSType,
+				DataTo
 			>
 		);
 
@@ -191,6 +193,12 @@ export abstract class ConversionlessType<
 		return this.#check_type(value);
 	}
 
+	abstract generate_typescript_data(
+		data: T,
+		schema_parser: SchemaParser,
+		schema: TypeDefinition,
+	): DataTo;
+
 	abstract generate_typescript_type(options: (
 		| undefined
 		| {
@@ -225,7 +233,7 @@ export abstract class ConversionlessType<
 	}
 
 	static is_a<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(maybe: unknown): maybe is T {
 		return maybe instanceof this;
 	}
@@ -243,38 +251,4 @@ export abstract class ConversionlessType<
 
 		return sub_schema;
 	}
-}
-
-export abstract class Type<
-	T,
-	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
-	TypeDefinitionOptions extends (
-		{[key: string]: unknown}
-	) = (
-		{[key: string]: unknown}
-	),
-	SchemaDefinition extends (
-		SchemaDefinitionDefinition
-	) = SchemaDefinitionDefinition,
-	SchemaDefinitionOptions extends (
-		{[key: string]: unknown}
-	) = (
-		{[key: string]: unknown}
-	),
-	SchemaTo extends TypeNode = TypeNode,
-	DataTo extends Expression = Expression,
-> extends
-	ConversionlessType<
-		T,
-		TypeDefinition,
-		TypeDefinitionOptions,
-		SchemaDefinition,
-		SchemaDefinitionOptions,
-		SchemaTo
-	> {
-	abstract generate_typescript_data(
-		data: T,
-		schema_parser: SchemaParser,
-		schema: TypeDefinition,
-	): DataTo;
 }

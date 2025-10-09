@@ -100,7 +100,7 @@ export class Printer {
 			this.#adjust_name_callback,
 		);
 
-		const type_for_schema = schema_parser.parse(schema, 'yes');
+		const type_for_schema = schema_parser.parse(schema);
 
 		if (!type_for_schema.check_type(data)) {
 			throw new TypeError('Data not of expected type for schema!');

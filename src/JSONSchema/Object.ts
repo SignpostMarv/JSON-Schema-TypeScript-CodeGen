@@ -20,7 +20,6 @@ import type {
 } from '../typescript/types.ts';
 
 import type {
-	ConversionlessType,
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
 	TypeOptions,
@@ -652,7 +651,6 @@ export class ObjectUnspecified<
 
 		return schema_parser.parse(
 			maybe_modified,
-			'yes',
 		).generate_typescript_data(
 			value,
 			schema_parser,
@@ -847,7 +845,7 @@ export class ObjectUnspecified<
 
 		let matched: (
 			| undefined
-			| ConversionlessType<unknown>
+			| Type<unknown>
 		) = schema_parser.maybe_parse_by_type<
 			$ref
 		>(
@@ -860,7 +858,7 @@ export class ObjectUnspecified<
 		);
 
 		if (undefined === matched) {
-			matched = schema_parser.parse(sub_schema, 'yes');
+			matched = schema_parser.parse(sub_schema);
 		} else {
 			return matched.generate_typescript_type({
 				data: sub_schema,

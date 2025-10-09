@@ -7,9 +7,6 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
-	ConversionlessType,
-} from './JSONSchema/Type.ts';
-import {
 	Type,
 } from './JSONSchema/Type.ts';
 
@@ -59,7 +56,6 @@ import {
 } from './JSONSchema/AnyOf.ts';
 
 export type supported_type = (
-	| ConversionlessType<unknown>
 	| Type<unknown>
 );
 
@@ -79,8 +75,8 @@ export type SchemaParserOptions = (
 	)
 	& {
 		types?: [
-			ConversionlessType<unknown>,
-			...ConversionlessType<unknown>[],
+			Type<unknown>,
+			...Type<unknown>[],
 		],
 	}
 );
@@ -90,7 +86,7 @@ export type share_ajv_callback<T> = (ajv: Ajv) => T;
 export class SchemaParser {
 	#ajv: Ajv;
 
-	types: [ConversionlessType<unknown>, ...ConversionlessType<unknown>[]];
+	types: [Type<unknown>, ...Type<unknown>[]];
 
 	constructor(options: SchemaParserOptions = {
 		ajv_options: {
@@ -124,16 +120,16 @@ export class SchemaParser {
 	}
 
 	maybe_parse<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(
 		schema: SchemaObject,
-		must_be_of_type: typeof ConversionlessType<unknown>,
+		must_be_of_type: typeof Type<unknown>,
 	): T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			const maybe: (
 				| undefined
-				| ConversionlessType<unknown>
+				| Type<unknown>
 			) = type.can_handle_schema(schema);
 
 			if (maybe) {
@@ -150,7 +146,7 @@ export class SchemaParser {
 	}
 
 	maybe_parse_by_type<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(
 		value: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
@@ -158,13 +154,13 @@ export class SchemaParser {
 	maybe_parse_by_type(
 		value: unknown,
 		must_be_of_type?: undefined,
-	): ConversionlessType<unknown>|undefined;
+	): Type<unknown>|undefined;
 	maybe_parse_by_type<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(
 		value: unknown,
 		must_be_of_type?: (maybe: unknown) => maybe is T,
-	): ConversionlessType<unknown>|T|undefined {
+	): Type<unknown>|T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			if (type.check_type(value)) {
@@ -184,13 +180,9 @@ export class SchemaParser {
 		return result;
 	}
 
-	parse<T extends 'yes'|'no'>(
+	parse(
 		schema: SchemaObject,
-		require_conversion?: T,
-	): {
-		yes: Type<unknown>,
-		no: ConversionlessType<unknown>,
-	}[T] {
+	): Type<unknown> {
 		if (0 === Object.keys(schema).length) {
 			const result = this.types.find<Unknown>(
 				(maybe) => maybe instanceof Unknown,
@@ -202,13 +194,10 @@ export class SchemaParser {
 		}
 
 		const result = this.maybe_parse<
-			{
-				yes: Type<unknown>,
-				no: ConversionlessType<unknown>,
-			}[T]
+			Type<unknown>
 		>(
 			schema,
-			'yes' === require_conversion ? Type : ConversionlessType,
+			Type,
 		);
 
 		if (undefined === result && '$ref' in schema) {
@@ -229,7 +218,7 @@ export class SchemaParser {
 	}
 
 	parse_by_type<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(
 		value: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
@@ -237,13 +226,13 @@ export class SchemaParser {
 	parse_by_type(
 		value: unknown,
 		must_be_of_type?: undefined,
-	): ConversionlessType<unknown>;
+	): Type<unknown>;
 	parse_by_type<
-		T extends ConversionlessType<unknown>,
+		T extends Type<unknown>,
 	>(
 		value: unknown,
 		must_be_of_type?: (maybe: unknown) => maybe is T,
-	): ConversionlessType<unknown>|T {
+	): Type<unknown>|T {
 		const result = must_be_of_type
 			? this.maybe_parse_by_type(value, must_be_of_type)
 			: this.maybe_parse_by_type(value);
