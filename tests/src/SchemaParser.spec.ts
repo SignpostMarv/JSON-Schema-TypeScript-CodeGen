@@ -13,6 +13,7 @@ import {
 } from 'typescript';
 
 import {
+	is_instanceof,
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
@@ -28,18 +29,66 @@ import {
 
 import type {
 	share_ajv_callback,
-	Type,
 } from '../../index.ts';
 import {
 	$ref,
+	ConstString,
 	OneOf,
 	SchemaParser,
 	StringStartsWith,
 	TemplatedString,
+	Type,
 	Unknown,
 } from '../../index.ts';
 
 void describe('SchemaParser', () => {
+	void describe('::maybe_parse()', () => {
+		void it('behaves when type exists', () => {
+			const parser = new SchemaParser();
+
+			let actual = parser.maybe_parse<
+				Unknown
+			>(
+				Unknown.generate_type_definition(),
+				Type,
+			);
+
+			is_instanceof(actual, Unknown);
+
+			const ajv = parser.share_ajv((ajv) => ajv);
+
+			class Foo extends ConstString {
+				constructor() {
+					super(undefined, {ajv});
+				}
+
+				can_handle_schema(): this {
+					return this;
+				}
+			}
+
+			parser.types = [new Foo(), ...parser.types];
+
+			actual = parser.maybe_parse<
+				Unknown
+			>(
+				Unknown.generate_type_definition(),
+				Type,
+			);
+
+			is_instanceof(actual, Foo);
+
+			actual = parser.maybe_parse<
+				Unknown
+			>(
+				Unknown.generate_type_definition(),
+				Unknown,
+			);
+
+			is_instanceof(actual, Unknown);
+		});
+	});
+
 	void describe('::parse()', () => {
 		void it('fails with {}', () => {
 			const parser = new SchemaParser();
