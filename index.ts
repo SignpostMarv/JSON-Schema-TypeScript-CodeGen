@@ -6,6 +6,7 @@ export * from './src/Printer.ts';
 export * from './src/Ajv/TemplatedString.ts';
 export * from './src/javascript/types.ts';
 export * from './src/typescript/types.ts';
+export * from './src/JSONSchema/AllOf.ts';
 export * from './src/JSONSchema/AnyOf.ts';
 export * from './src/JSONSchema/Array.ts';
 export * from './src/JSONSchema/Object.ts';

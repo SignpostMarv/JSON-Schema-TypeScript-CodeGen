@@ -51,6 +51,10 @@ import {
 } from './JSONSchema/OneOf.ts';
 
 import {
+	AllOf,
+} from './JSONSchema/AllOf.ts';
+
+import {
 	AnyOf,
 } from './JSONSchema/AnyOf.ts';
 
@@ -306,6 +310,7 @@ export class SchemaParser {
 			'optional'
 		>,
 		OneOf<unknown, 'unspecified'>,
+		AllOf<unknown, 'unspecified'>,
 		AnyOf<unknown, 'unspecified'>,
 		Unknown,
 	] {
@@ -393,6 +398,17 @@ export class SchemaParser {
 				},
 				schema_definition: {
 					kind: 'oneOf',
+					mode: 'unspecified',
+				},
+			}),
+			new AllOf<unknown, 'unspecified'>({
+				ajv,
+				type_definition: {
+					kind: 'allOf',
+					mode: 'unspecified',
+				},
+				schema_definition: {
+					kind: 'allOf',
 					mode: 'unspecified',
 				},
 			}),

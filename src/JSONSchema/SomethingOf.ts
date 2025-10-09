@@ -448,6 +448,30 @@ export abstract class SomethingOf<
 				};
 
 				properties = sanity_check as typeof properties;
+			} else if ('allOf' === kind) {
+				const sanity_check: something_of_schema<
+					'allOf',
+					'unspecified',
+					Choices
+				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
+					allOf: {
+						type: 'array',
+						minItems: 2,
+						items: {
+							type: 'object',
+							minProperties: 1,
+							additionalProperties: {},
+						},
+					},
+				};
+
+				properties = sanity_check as typeof properties;
 			} else {
 				const sanity_check: something_of_schema<
 					'anyOf',
@@ -506,6 +530,25 @@ export abstract class SomethingOf<
 						},
 					},
 					oneOf: {
+						type: 'array',
+						const: choices,
+					},
+				};
+
+				properties = sanity_check as typeof properties;
+			} else if ('allOf' === kind) {
+				const sanity_check: something_of_schema<
+					'allOf',
+					'specified',
+					Choices
+				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
+					allOf: {
 						type: 'array',
 						const: choices,
 					},
@@ -576,6 +619,15 @@ export abstract class SomethingOf<
 					Choices,
 					Defs
 				> = {oneOf: choices as Choices};
+
+				result = sanity_check as typeof result;
+			} else if ('allOf' === kind) {
+				const sanity_check: something_of_type<
+					'allOf',
+					'specified',
+					Choices,
+					Defs
+				> = {allOf: choices as Choices};
 
 				result = sanity_check as typeof result;
 			} else {
