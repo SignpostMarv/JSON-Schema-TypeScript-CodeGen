@@ -899,8 +899,8 @@ export class ArrayType<
 		const sub_schema = ArrayType.maybe_add_$defs(
 			schema,
 			this.#sub_schema_for_value(
-			index,
-			schema,
+				index,
+				schema,
 			),
 		);
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
