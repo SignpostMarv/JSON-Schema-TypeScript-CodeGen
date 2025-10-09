@@ -162,6 +162,26 @@ export class Printer {
 		outputs[data_filename] = [
 			printer.printNode(
 				EmitHint.Unspecified,
+				factory.createImportDeclaration(
+					undefined,
+					factory.createImportClause(
+						SyntaxKind.TypeKeyword,
+						undefined,
+						factory.createNamedImports([
+							factory.createImportSpecifier(
+								false,
+								undefined,
+								factory.createIdentifier(adjusted_type_name),
+							),
+						]),
+					),
+					factory.createStringLiteral(type_filename),
+					undefined,
+				),
+				source_file,
+			),
+			printer.printNode(
+				EmitHint.Unspecified,
 				data_node,
 				source_file,
 			),

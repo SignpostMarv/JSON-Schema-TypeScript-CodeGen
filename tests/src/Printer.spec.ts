@@ -80,7 +80,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -137,7 +139,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/types.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -181,7 +185,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/types.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -234,7 +240,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/types.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
@@ -291,7 +299,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/types.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
@@ -348,7 +358,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -392,7 +404,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -445,7 +459,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/foobar.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
@@ -510,7 +526,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/foobar.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
@@ -575,7 +593,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -619,7 +639,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foo = [${
+							`import type { foo } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foo = [${
 								'\n'
 							}    "foobar"${
 								'\n'
@@ -672,7 +694,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
@@ -741,7 +765,9 @@ void describe('Printer', () => {
 					[
 						[
 							'./index.ts',
-							`export const bar: foobar = [${
+							`import type { foobar } from "./types/foo.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
 								'\n'
 							}    "foobar",${
 								'\n'
