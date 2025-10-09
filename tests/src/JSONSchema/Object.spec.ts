@@ -26,7 +26,7 @@ import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
-} from '../../../types.ts';
+} from '../../types.ts';
 
 import type {
 	object_properties_mode,
@@ -37,12 +37,12 @@ import type {
 	ObjectOfSchemas,
 	OmitIf,
 	SchemaObject,
-} from '../../../../index.ts';
+} from '../../../index.ts';
 import {
 	ObjectUnspecified,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
-} from '../../../../index.ts';
+} from '../../../index.ts';
 
 void describe('ObjectUnspecified', () => {
 	void describe('::generate_schema_definition()', () => {
