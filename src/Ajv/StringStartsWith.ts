@@ -3,13 +3,15 @@ import type {
 	TemplateLiteralTypeNode,
 } from 'typescript';
 import {
-	factory,
 	SyntaxKind,
 } from 'typescript';
 
 import type {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
+
+import type {
+} from 'regexp.escape/auto';
 
 import type {
 	SchemaDefinitionDefinition,
@@ -21,8 +23,9 @@ import {
 	KeywordType,
 } from './Keyword.ts';
 
-import type {
-} from 'regexp.escape/auto';
+import {
+	factory,
+} from '../typescript/factory.ts';
 
 type string_starts_with_type<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,

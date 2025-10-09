@@ -4,8 +4,8 @@ import type {
 	TemplateLiteralTypeNode,
 	TemplateLiteralTypeSpan,
 } from 'typescript';
-import ts, {
-	factory,
+import {
+	isLiteralTypeNode,
 	SyntaxKind,
 } from 'typescript';
 
@@ -35,6 +35,10 @@ import {
 import type {
 	ObjectOfSchemas,
 } from '../types.ts';
+
+import {
+	factory,
+} from '../typescript/factory.ts';
 
 type TemplatedStringPartBasic = (
 	| string
@@ -276,7 +280,7 @@ export class TemplatedString<
 			return factory.createTemplateLiteralTypeSpan(
 				part,
 				factory.createTemplateMiddle(
-					ts.isLiteralTypeNode(part)
+					isLiteralTypeNode(part)
 						? (part.literal as StringLiteral).text
 						: '',
 				),
@@ -290,7 +294,7 @@ export class TemplatedString<
 		const tail = factory.createTemplateLiteralTypeSpan(
 			tail_part_type,
 			factory.createTemplateTail(
-				ts.isLiteralTypeNode(tail_part_type)
+				isLiteralTypeNode(tail_part_type)
 					? tail_part_type.literal.text
 					: '',
 			),
@@ -325,7 +329,7 @@ export class TemplatedString<
 			part: T2,
 		): template_spans_return_type<T2> => (
 			'string' === typeof part
-				? factory.createLiteralTypeNode(
+				? factory.createLiteralTypeNode<StringLiteral>(
 					factory.createStringLiteral(part),
 				) as template_spans_return_type<T2>
 				: (

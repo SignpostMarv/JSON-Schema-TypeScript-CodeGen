@@ -3,7 +3,6 @@ import type {
 	KeywordTypeNode,
 } from 'typescript';
 import {
-	factory,
 	SyntaxKind,
 } from 'typescript';
 
@@ -18,6 +17,10 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+
+import {
+	factory,
+} from '../typescript/factory.ts';
 
 export type unknown_type = {
 	type: 'object',

@@ -4,29 +4,33 @@ import {
 } from 'node:test';
 import assert from 'node:assert/strict';
 
+import type {
+	Expression,
+} from 'typescript';
+
 import Ajv from 'ajv/dist/2020.js';
 
 import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
-import {
-	object_has_property,
-} from '@satisfactory-dev/predicates.ts';
 
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
-	$ref_mode,
-	$ref_value_by_mode,
 	ObjectOfSchemas,
+	SchemaObject,
+	TypeReferenceNode,
 } from '../../../index.ts';
-
 import {
 	$ref,
 	ArrayType,
 	NonEmptyString,
 	SchemaParser,
 } from '../../../index.ts';
+
+import type {
+	ts_asserter,
+} from '../../types.ts';
 
 void describe('$ref', () => {
 	type DataSet<
@@ -128,48 +132,13 @@ void describe('$ref', () => {
 		},
 	);
 
-	void describe('::check_schema()', () => {
-		passes_check_type
-			.forEach(([
-				[
-					value,
-					,,
-					expectation,
-				],
-				i,
-			]) => {
-				void it(`behaves with data_sets[${i}]`, () => {
-					const instance = new $ref(
-						{$ref_mode: 'either'},
-						{ajv: new Ajv({strict: true})},
-					);
-
-					assert.ok(instance.check_type(value));
-					assert.equal(
-						instance.check_schema({
-							type: 'object',
-							required: ['$ref'],
-							additionalProperties: false,
-							properties: {
-								$ref: {
-									type: 'string',
-									const: value.$ref,
-								},
-							},
-						}),
-						expectation,
-					);
-				});
-			});
-	});
-
 	void describe('::check_type()', () => {
 		data_sets.forEach(([
 			value,
 			expectation,
 		], i) => {
 			const instance = new $ref(
-				{$ref_mode: 'either'},
+				{},
 				{ajv: new Ajv({strict: true})},
 			);
 			void it(`behaves with data_sets[${i}]`, () => {
@@ -193,31 +162,18 @@ void describe('$ref', () => {
 			]) => {
 				void it(`behaves with data_sets[${i}]`, async () => {
 					const instance = new $ref(
-						{$ref_mode: 'either'},
+						{},
 						{ajv: new Ajv({strict: true})},
 					);
 					assert.ok(instance.check_type(data));
 					const result = await instance.generate_typescript_type({
-						data,
+						schema: data,
 					});
 					ts_assert.isTypeReferenceNode(result);
 					ts_assert.isIdentifier(result.typeName);
 					assert.equal(result.typeName.text, expectation);
 				});
 			});
-
-		void it('fails when expected', async () => {
-			const instance = new $ref(
-				{$ref_mode: 'either'},
-				{ajv: new Ajv({strict: true})},
-			);
-
-			await assert.rejects(() => instance.generate_typescript_type({
-				schema: $ref.generate_type_definition({
-					$ref_mode: 'either',
-				}),
-			}));
-		});
 	});
 
 	void describe('::resolve_def()', () => {
@@ -268,88 +224,10 @@ void describe('$ref', () => {
 		});
 	});
 
-	void describe('::resolve_ref()', () => {
-		passes_check_type
-			.forEach(([
-				[
-					has_$ref,
-					,,,
-					expectation,
-				],
-				i,
-			]) => {
-				function do_test($ref_mode: $ref_mode) {
-					const ajv = new Ajv({strict: true});
-					const instance = new $ref(
-						{$ref_mode},
-						{ajv},
-					);
-					assert.ok(instance.check_type(has_$ref));
-					const $defs = has_$ref.$defs || {};
-					assert.ok($ref.is_supported_$defs($defs));
-					try {
-						const result = instance
-							.resolve_ref(
-								has_$ref,
-								$defs,
-								new SchemaParser({ajv}),
-							);
-						if (undefined === expectation) {
-							assert.fail('was expected to fail!');
-						} else {
-							is_instanceof(result, expectation);
-						}
-					} catch (err) {
-						if (undefined !== expectation) {
-							assert.fail(
-								(
-									'string' === typeof err
-									|| err instanceof Error
-								)
-									? err
-									: 'was not expected to fail!',
-							);
-						} else {
-							assert.ok(true);
-						}
-					}
-
-					const failure_mode: $ref_mode = (
-						has_$ref.$ref.startsWith('#')
-							? 'external'
-							: 'local'
-					);
-
-					assert.throws(() => (
-						new $ref({$ref_mode: failure_mode}, {ajv})
-					).resolve_ref(
-						has_$ref as {
-							$ref: $ref_value_by_mode<typeof failure_mode>,
-						},
-						$defs,
-						new SchemaParser({ajv}),
-					));
-				}
-				void it(`behaves with data_sets[${i}]`, () => {
-					do_test('either');
-					if (
-						object_has_property(has_$ref, '$ref')
-						&& 'string' === typeof has_$ref.$ref
-					) {
-						do_test(
-							has_$ref.$ref.startsWith('#')
-								? 'local'
-								: 'external',
-						);
-					}
-				});
-			});
-	});
-
 	void describe('::is_a()', () => {
 		void it('behaves as expected', () => {
 			const ajv = new Ajv({strict: true});
-			assert.ok($ref.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
+			assert.ok($ref.is_a(new $ref({}, {ajv})));
 			assert.ok(!$ref.is_a(
 				new ArrayType(
 					{ajv},
@@ -370,4 +248,134 @@ void describe('$ref', () => {
 			assert.ok(!$ref.is_a(new String({ajv})));
 		});
 	});
+});
+
+void describe('$ref', () => {
+	type DataSubSet = [
+		unknown,
+		SchemaObject,
+		ts_asserter<Expression>,
+		ts_asserter<TypeReferenceNode>,
+	];
+
+	type DataSet = [
+		ConstructorParameters<typeof $ref>[0],
+		[DataSubSet, ...DataSubSet[]],
+	];
+
+	function* split_data_sets(
+		data_sets: [DataSet, ...DataSet[]],
+	): Generator<[
+		DataSet[0],
+		DataSubSet[0],
+		DataSubSet[1],
+		DataSubSet[2],
+		DataSubSet[3],
+		number,
+		number,
+	]> {
+		let i = 0;
+		for (const [
+			specific_options,
+			sub_sets,
+		] of data_sets) {
+			let j = 0;
+			for (const [
+				data,
+				$ref,
+				data_asserter,
+				type_asserter,
+			] of sub_sets) {
+				yield [
+					specific_options,
+					data,
+					$ref,
+					data_asserter,
+					type_asserter,
+					i,
+					j,
+				];
+
+				++j;
+			}
+
+			++i;
+		}
+	}
+
+	const data_sets: [DataSet, ...DataSet[]] = [
+		[
+			{},
+			[
+				[
+					'foo',
+					{
+						$defs: {
+							foo: {
+								type: 'string',
+							},
+						},
+						$ref: '#/$defs/foo',
+					},
+					(maybe) => {
+						ts_assert.isStringLiteral(maybe);
+						assert.equal(maybe.text, 'foo');
+					},
+					(maybe) => {
+						ts_assert.isTypeReferenceNode(maybe);
+						ts_assert.isIdentifier(maybe.typeName);
+
+						assert.equal(maybe.typeArguments, undefined);
+						assert.equal(maybe.typeName.text, 'foo');
+					},
+				],
+			],
+		],
+	];
+
+	for (const [
+		specific_options,
+		data,
+		schema,
+		data_asserter,
+		type_asserter,
+		i,
+		j,
+	] of split_data_sets(data_sets)) {
+		void describe('::generate_typescript_data()', () => {
+			void it(`behaves with data_sets[${i}][${j}]`, () => {
+				const schema_parser = new SchemaParser({ajv_options: {}});
+				const instance = schema_parser.share_ajv(
+					(ajv) => new $ref(specific_options, {ajv}),
+				);
+
+				assert.ok($ref.is_supported_$ref(schema));
+
+				const foo: ts_asserter<Expression> = data_asserter;
+
+				foo(instance.generate_typescript_data(
+					data,
+					schema_parser,
+					schema,
+				));
+			});
+		});
+
+		void describe('::generate_typescript_type()', () => {
+			void it(`behaves with data_sets[${i}][${j}]`, async () => {
+				const schema_parser = new SchemaParser({ajv_options: {}});
+				const instance = schema_parser.share_ajv(
+					(ajv) => new $ref(specific_options, {ajv}),
+				);
+
+				const foo: ts_asserter<TypeReferenceNode> = type_asserter;
+
+				assert.ok($ref.is_supported_$ref(schema));
+
+				foo(await instance.generate_typescript_type({
+					schema,
+				}));
+			});
+		});
+	}
 });

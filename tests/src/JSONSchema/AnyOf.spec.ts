@@ -23,7 +23,6 @@ import type {
 } from '../../types.ts';
 
 import type {
-	$ref_mode,
 	any_of_schema_options,
 	any_of_type_options,
 	ConversionlessType,
@@ -93,7 +92,7 @@ void describe('AnyOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
+					(ajv) => new $ref({}, {ajv}),
 					false,
 				],
 			],
@@ -304,7 +303,7 @@ void describe('AnyOf', () => {
 				});
 
 				assert.ok(AnyOf.is_a(instance));
-				assert.ok(AnyOf.is_a<$ref<$ref_mode>>(
+				assert.ok(AnyOf.is_a<$ref>(
 					new AnyOf<unknown, 'unspecified'>({
 						ajv,
 						type_definition: {
@@ -318,7 +317,7 @@ void describe('AnyOf', () => {
 					}),
 				));
 				assert.ok(!AnyOf.is_a<AnyOf<unknown>>(
-					new $ref({$ref_mode: 'either'}, {ajv}),
+					new $ref({}, {ajv}),
 				));
 			});
 

@@ -1,3 +1,7 @@
+import type {
+	Expression,
+} from 'typescript';
+
 import {
 	object_has_property,
 	property_exists_on_object,
@@ -5,13 +9,25 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import type {
+	ObjectOfSchemas,
+	SchemaObject,
+} from '../types.ts';
+
+import type {
+	TypeReferenceNode,
+} from '../typescript/types';
+
+import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
-	Type,
 } from './Type.ts';
 import {
-	ConversionlessType,
+	Type,
 } from './Type.ts';
+
+import type {
+	$defs_schema,
+} from './types';
 
 import type {
 	adjust_name_callback,
@@ -25,18 +41,9 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
-import type {
-	ObjectOfSchemas,
-	SchemaObject,
-} from '../types.ts';
-
 import {
 	factory,
 } from '../typescript/factory.ts';
-
-import type {
-	TypeReferenceNode,
-} from '../typescript/types.ts';
 
 export type $ref_mode = 'either'|'external'|'local';
 
@@ -64,17 +71,9 @@ export type ExternalRef<
 
 type ref_identifier = '([a-zA-Z0-9][a-zA-Z0-9._-]*)';
 
-type pattern<
-	RefMode extends $ref_mode,
-> = {
-	either: pattern_either,
-	external: pattern_external,
-	local: pattern_local,
-}[RefMode];
 type pattern_either = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_external = `^${ref_identifier}#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
-const sub_pattern: `^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
 const pattern_either: pattern_either = (
 	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
@@ -84,40 +83,14 @@ const pattern_external: pattern_external = (
 const pattern_local: pattern_local = (
 	'^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
-const regexp_sub = new RegExp(sub_pattern);
 const regexp_either = new RegExp(pattern_either);
-const regexp_external = new RegExp(pattern_external);
-const regexp_local = new RegExp(pattern_local);
 
-export type $ref_type<
-	RefMode extends $ref_mode,
-> = {
-	type: 'object',
-	additionalProperties: false,
-	required: ['$ref'],
-	properties: {
-		$ref: (
-			| {
-				type: 'string',
-				pattern: pattern<RefMode>,
-			}
-			| {
-				type: 'string',
-				const: $ref_value_by_mode<RefMode>,
-			}
-		),
-		$defs: {
-			type: 'object',
-			additionalProperties: {
-				type: 'object',
-			},
-		},
-	},
+export type $ref_type = {
+	$defs?: ObjectOfSchemas,
+	$ref: LocalRef|ExternalRef,
 };
 
-type $ref_schema<
-	RefMode extends $ref_mode,
-> = SchemaDefinitionDefinition<
+type $ref_schema = SchemaDefinitionDefinition<
 	['type', 'additionalProperties', 'required', 'properties'],
 	{
 		type: {
@@ -137,13 +110,14 @@ type $ref_schema<
 			required: ['$ref'],
 			additionalProperties: false,
 			properties: {
+				$defs: $defs_schema['$defs'],
 				$ref: {
 					oneOf: [
 						{
 							type: 'object',
 							const: {
 								type: 'string',
-								pattern: pattern<RefMode>,
+								pattern: pattern_either,
 							},
 						},
 						{
@@ -157,7 +131,7 @@ type $ref_schema<
 								},
 								const: {
 									type: 'string',
-									pattern: pattern<RefMode>,
+									pattern: pattern_either,
 								},
 							},
 						},
@@ -168,30 +142,17 @@ type $ref_schema<
 	}
 >;
 
-export class $ref<
-	RefMode extends $ref_mode = 'either',
-	Value extends $ref_value_by_mode<RefMode> = $ref_value_by_mode<RefMode>,
-	T extends (
-		{$ref: Value, $defs?: ObjectOfSchemas}
-	) = (
-		{$ref: Value, $defs?: ObjectOfSchemas}
-	),
-> extends
-	ConversionlessType<
-		T,
-		$ref_type<RefMode>,
-		{
-			$ref_mode: RefMode,
-		},
-		$ref_schema<RefMode>,
-		{
-			$ref_mode: RefMode,
-		},
-		TypeReferenceNode
+export class $ref extends
+	Type<
+		$ref_type,
+		$ref_type,
+		Record<string, unknown>,
+		$ref_schema,
+		Record<string, unknown>,
+		TypeReferenceNode,
+		Expression
 	> {
 	readonly #adjust_name: adjust_name_callback;
-
-	readonly $ref_mode: RefMode;
 
 	readonly needs_import: Set<string>;
 
@@ -203,58 +164,50 @@ export class $ref<
 	constructor(
 		{
 			adjust_name,
-			$ref_mode,
 		}: {
-			$ref_mode: RefMode,
 			adjust_name?: adjust_name_callback,
 		},
 		options: SchemalessTypeOptions,
 	) {
 		super({
 			...options,
-			schema_definition: {
-				$ref_mode,
-			},
-			type_definition: {
-				$ref_mode,
-			},
+			schema_definition: {},
+			type_definition: {},
 		});
 
-		this.$ref_mode = $ref_mode;
 		this.#adjust_name = adjust_name || adjust_name_default;
 		this.needs_import = new Set();
 	}
 
-	async generate_typescript_type(
-		options: (
-			| {
-				data: T,
-			}
-			| {
-				data?: T,
-				schema: $ref_type<RefMode>,
-			}
-		),
-	): Promise<TypeReferenceNode> {
-		const $ref = (
-			'schema' in options
-			&& '$ref' in options.schema
-			&& 'string' === typeof options.schema.$ref
-		)
-			? options.schema.$ref
-			: (
-				(
-					object_has_property(options, 'data')
-					&& object_has_property(options.data, '$ref')
-				)
-					? options.data.$ref
-					: undefined
-			);
-
-		if (undefined === $ref) {
-			throw new TypeError('Could not find $ref!');
+	generate_typescript_data(
+		data: unknown,
+		schema_parser: SchemaParser,
+		schema: $ref_type,
+	): Expression {
+		if (
+			!object_has_property(schema, '$defs')
+			|| undefined === schema.$defs
+		) {
+			throw new TypeError('No $defs specified!');
 		}
 
+		return schema_parser.parse_by_type<Type<unknown>>(
+			data,
+			(maybe): maybe is Type<unknown> => Type.is_a(maybe),
+		).generate_typescript_data(
+			data,
+			schema_parser,
+			this.resolve_def(schema, schema.$defs),
+		);
+	}
+
+	generate_typescript_type({
+		schema: {
+			$ref,
+		},
+	}: {
+		schema: $ref_type,
+	}): Promise<TypeReferenceNode> {
 		const name = adjust_name_finisher(
 			$ref.replace(
 				/^#\/\$defs\//,
@@ -276,51 +229,22 @@ export class $ref<
 	resolve_def(
 		{
 			$ref,
-		}: { $ref: Value },
+		}: $ref_type,
 		local_$defs: {[key: $def]: SchemaObject},
 	) {
-		let external_id: string|undefined;
-		let local_$def: string;
-
-		type match<Ref extends $ref_mode> = {
-			either: (
+		const match = regexp_either.exec($ref) as (
+			| null
+			| (
 				| [string, undefined|$def, $def]
 				| [string, $def, $def]
-			),
-			external: [string, $def, $def],
-			local: [string, $def],
-		}[Ref];
-
-		let match: null|match<RefMode>;
-
-		if ('either' === this.$ref_mode) {
-			match = regexp_either.exec($ref) as (
-				| null
-				| match<RefMode>
-			);
-		} else if ('external' === this.$ref_mode) {
-			match = regexp_external.exec($ref) as (
-				| null
-				| match<RefMode>
-			);
-		} else {
-			match = regexp_local.exec($ref) as (
-				| null
-				| match<RefMode>
-			);
-		}
+			)
+		);
 
 		if (null === match) {
 			throw new TypeError(`Unsupported ref found: ${$ref}`);
 		}
 
-		if ('either' === this.$ref_mode) {
-			[, external_id, local_$def] = match as match<'either'>;
-		} else if ('external' === this.$ref_mode) {
-			[, external_id, local_$def] = match as match<'external'>;
-		} else {
-			[, local_$def] = match as match<'local'>;
-		}
+		const [, external_id, local_$def] = match;
 
 		let $defs: {[key: $def]: SchemaObject} = local_$defs;
 
@@ -346,42 +270,16 @@ export class $ref<
 		return $defs[local_$def];
 	}
 
-	resolve_ref<
-		T extends 'yes'|'no',
-	>(
-		has_$ref: { $ref: Value },
-		local_$defs: {[key: $def]: SchemaObject},
-		schema_parser: SchemaParser,
-		require_conversion?: T,
-	): {
-		yes: Type<unknown>,
-		no: ConversionlessType<unknown>,
-	}[T] {
-		return schema_parser.parse<T>(
-			this.resolve_def(
-				has_$ref,
-				local_$defs,
-			),
-			require_conversion,
-		);
-	}
-
-	static generate_schema_definition<
-		RefMode extends $ref_mode,
-	>({
-		$ref_mode,
-	}: {
-		$ref_mode: RefMode,
-	}): Readonly<$ref_schema<RefMode>> {
-		const schema: $ref_schema<RefMode> = {
+	static generate_schema_definition(): Readonly<$ref_schema> {
+		const schema: $ref_schema = {
 			type: 'object',
+			additionalProperties: false,
 			required: [
 				'type',
 				'additionalProperties',
 				'required',
 				'properties',
 			],
-			additionalProperties: false,
 			properties: {
 				type: {
 					type: 'string',
@@ -400,25 +298,24 @@ export class $ref<
 					required: ['$ref'],
 					additionalProperties: false,
 					properties: {
+						$defs: {
+							type: 'object',
+							additionalProperties: {
+								type: 'object',
+							},
+						},
 						$ref: {
 							oneOf: [
 								{
 									type: 'object',
 									const: {
 										type: 'string',
-										pattern: {
-											either: pattern_either,
-											external: pattern_external,
-											local: pattern_local,
-										}[$ref_mode],
+										pattern: pattern_either,
 									},
 								},
 								{
 									type: 'object',
-									required: [
-										'type',
-										'const',
-									],
+									required: ['type', 'const'],
 									additionalProperties: false,
 									properties: {
 										type: {
@@ -427,11 +324,7 @@ export class $ref<
 										},
 										const: {
 											type: 'string',
-											pattern: {
-												either: pattern_either,
-												external: pattern_external,
-												local: pattern_local,
-											}[$ref_mode],
+											pattern: pattern_either,
 										},
 									},
 								},
@@ -445,206 +338,36 @@ export class $ref<
 		return Object.freeze(schema);
 	}
 
-	static generate_type_definition<
-		RefMode extends $ref_mode,
-	>({
-		$ref_mode,
-	}: {
-		$ref_mode: RefMode,
-	}): Readonly<$ref_type<RefMode>> {
-		const schema: $ref_type<RefMode> = {
+	static generate_type_definition(): Readonly<$ref_type> {
+		const schema = {
 			type: 'object',
-			additionalProperties: false,
 			required: ['$ref'],
+			additionalProperties: false,
 			properties: {
-				$ref: {
-					type: 'string',
-					pattern: {
-						either: pattern_either,
-						external: pattern_external,
-						local: pattern_local,
-					}[$ref_mode],
-				},
 				$defs: {
 					type: 'object',
 					additionalProperties: {
 						type: 'object',
 					},
 				},
+				$ref: {
+					type: 'string',
+					pattern: pattern_either,
+				},
 			},
 		};
 
-		return Object.freeze(schema);
+		return Object.freeze(schema) as unknown as Readonly<$ref_type>;
 	}
 
-	static get_defs(
-		schema: (
-			& SchemaObject
-			& {
-				$defs?: ObjectOfSchemas,
-			}
-		),
-		sub_schema: SchemaObject,
-	): {[key: $def]: SchemaObject} {
-		let $defs: {[key: $def]: SchemaObject} = {};
-
-		if (
-			(
-				'$ref' in sub_schema
-				|| 'oneOf' in sub_schema
-			)
-			&& '$defs' in schema
-			&& schema.$defs
-			&& !('$defs' in sub_schema)
-		) {
-			$defs = sub_schema.$defs = schema.$defs;
-		} else if (
-			property_exists_on_object(sub_schema, '$defs')
-			&& undefined !== sub_schema.$defs
-			&& $ref.is_supported_$defs(sub_schema.$defs)
-		) {
-			$defs = sub_schema.$defs;
-		}
-
-		return $defs;
-	}
-
-	static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion & 'yes',
-	): Type<unknown>;
-	static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: Exclude<RequireConversion, 'yes'>,
-	): ConversionlessType<unknown>;
-	static intercept_$ref<
-		RequireConversion extends 'yes'|'$ref allowed',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion,
-	): ConversionlessType<unknown> {
-		const maybe_$ref: (
-			| undefined
-			| ConversionlessType<unknown>
-		) = schema_parser.maybe_parse_by_type<
-			ConversionlessType<unknown>
-		>(
-			sub_schema,
-			(
-				maybe: unknown,
-			): maybe is ConversionlessType<unknown> => {
-				return $ref.is_a(maybe);
-			},
-		);
-
-		if (maybe_$ref && '$ref allowed' === require_conversion) {
-			return maybe_$ref;
-		}
-
-		const expect_convertible: {
-			yes: 'yes',
-			no: 'no',
-			'$ref allowed': 'no',
-		}[RequireConversion] = Object.freeze({
-			yes: 'yes',
-			no: 'no',
-			'$ref allowed': 'no',
-		})[require_conversion];
-
-		return this.#intercept_$ref_early_exit_failed<
-			typeof expect_convertible
-		>(
-			$defs,
-			sub_schema,
-			schema_parser,
-			expect_convertible,
-			maybe_$ref,
-		);
-	}
-
-	static #intercept_$ref_early_exit_failed<
-		RequireConversion extends 'yes'|'no',
-	>(
-		$defs: {[key: $def]: SchemaObject},
-		sub_schema: SchemaObject,
-		schema_parser: SchemaParser,
-		require_conversion: RequireConversion,
-		maybe_$ref: (
-			| undefined
-			| ConversionlessType<unknown>
-		),
-	) {
-		let converter: (
-			| undefined
-			| ConversionlessType<unknown>
-			| {
-				yes: Type<unknown>,
-				no: ConversionlessType<unknown>,
-			}[RequireConversion]
-		) = maybe_$ref;
-
-		if (require_conversion) {
-			if ($ref.is_a<$ref<$ref_mode>>(maybe_$ref)) {
-				converter = maybe_$ref.resolve_ref(
-					sub_schema as {$ref: $ref_value_by_mode<$ref_mode>},
-					$defs,
-					schema_parser,
-					'yes',
-				);
-			} else {
-				maybe_$ref = undefined;
-			}
-		}
-
-		if (undefined === converter) {
-			// if we reach here either:
-			// * we didn't get a $ref
-			// * or we require conversion
-			// if we require conversion, this won't be $ref
-			// if we don't require conversion,
-			//    this should've been caught by intercept_$ref
-			converter = schema_parser.parse<RequireConversion>(
-				sub_schema,
-				require_conversion,
-			);
-		}
-
-		return converter;
-	}
-
-	static is_supported_$defs(
-		maybe: {[key: string]: SchemaObject},
-	): maybe is {[key: $def]: SchemaObject} {
-		return Object.keys(maybe).every(
-			(k) => regexp_sub.test(k),
-		);
-	}
-
-	static is_supported_$ref<
-		RefMode extends $ref_mode = 'either',
-	>(
+	static is_supported_$ref(
 		maybe: unknown,
-		$ref_mode?: RefMode,
-	): maybe is {$ref: $ref_value_by_mode<RefMode>} {
+	): maybe is $ref_type {
 		return (
 			value_is_non_array_object(maybe)
 			&& object_has_property(maybe, '$ref')
 			&& 'string' === typeof maybe.$ref
-			&& {
-				either: regexp_either,
-				external: regexp_external,
-				local: regexp_local,
-			}[$ref_mode || 'either'].test(maybe.$ref)
+			&& regexp_either.test(maybe.$ref)
 		);
 	}
 }

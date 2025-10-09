@@ -623,42 +623,40 @@ export class ObjectUnspecified<
 		>,
 		schema_parser: SchemaParser,
 	) {
-		let sub_schema = this.#sub_schema_for_property(
+		const sub_schema = this.#sub_schema_for_property(
 			properties_mode,
 			property,
 			schema,
 			{},
 		);
 
-		const $defs = $ref.get_defs(schema, sub_schema);
+		let maybe_modified = ObjectUnspecified.maybe_add_$defs(
+			schema,
+			sub_schema,
+		);
 
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile<T>({
-			...sub_schema,
-			$defs,
-		});
+		const validator = ajv.compile<T>(maybe_modified);
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by property!');
 		}
 
 		if (0 === Object.keys(sub_schema).length) {
-			sub_schema = {
+			maybe_modified = {
 				type: 'object',
 				additionalProperties: false,
 				maxProperties: 0,
 			};
 		}
 
-		return $ref.intercept_$ref(
-			$defs,
-			sub_schema,
-			schema_parser,
+		return schema_parser.parse(
+			maybe_modified,
 			'yes',
 		).generate_typescript_data(
 			value,
 			schema_parser,
-			sub_schema,
+			maybe_modified,
 		);
 	}
 
@@ -782,11 +780,11 @@ export class ObjectUnspecified<
 					)
 				).map(
 					(sub_schema) => {
-						return $ref.intercept_$ref(
-							$ref.get_defs(schema, sub_schema),
-							sub_schema,
-							schema_parser,
-							'$ref allowed',
+						return schema_parser.parse(
+							ObjectUnspecified.maybe_add_$defs(
+								schema,
+								sub_schema,
+							),
 						).generate_typescript_type({
 							data: sub_schema,
 							schema: sub_schema,

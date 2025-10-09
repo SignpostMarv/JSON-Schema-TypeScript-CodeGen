@@ -42,10 +42,6 @@ import {
 	factory,
 } from '../typescript/factory.ts';
 
-import {
-	$ref,
-} from './Ref.ts';
-
 export type array_mode = 'items'|'prefixItems';
 
 export type specified_mode = 'specified'|'unspecified';
@@ -900,24 +896,22 @@ export class ArrayType<
 		>,
 		schema_parser: SchemaParser,
 	): Expression {
-		const sub_schema = this.#sub_schema_for_value(
+		const sub_schema = ArrayType.maybe_add_$defs(
+			schema,
+			this.#sub_schema_for_value(
 			index,
 			schema,
+			),
 		);
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile({
-			$defs: $ref.get_defs(schema, sub_schema),
-			...sub_schema,
-		});
+		const validator = ajv.compile(sub_schema);
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by index!');
 		}
 
-		return $ref.intercept_$ref(
-			$ref.get_defs(schema, sub_schema),
+		return schema_parser.parse(
 			sub_schema,
-			schema_parser,
 			'yes',
 		).generate_typescript_data(
 			value,
@@ -1595,12 +1589,10 @@ export class ArrayType<
 		schema_parser: SchemaParser,
 	): Promise<TupleTypeNode<T2, T3>> {
 		const tuple_members: TypeNode[] = [];
-		const sub_type = $ref.intercept_$ref(
-			$ref.get_defs(schema, schema.items),
+		const sub_type = schema_parser.parse(ArrayType.maybe_add_$defs(
+			schema,
 			schema.items,
-			schema_parser,
-			'$ref allowed',
-		);
+		));
 
 		let i = 0;
 		while (tuple_members.length < schema.minItems && i < data.length) {
@@ -1652,12 +1644,10 @@ export class ArrayType<
 		>,
 		schema_parser: SchemaParser,
 	): Promise<ArrayTypeNode<T2>> {
-		const sub_type = $ref.intercept_$ref(
-			$ref.get_defs(schema, schema.items),
+		const sub_type = schema_parser.parse(ArrayType.maybe_add_$defs(
+			schema,
 			schema.items,
-			schema_parser,
-			'$ref allowed',
-		);
+		));
 
 		return factory.createArrayTypeNode(
 			await sub_type.generate_typescript_type({
@@ -1682,17 +1672,21 @@ export class ArrayType<
 	): Promise<TupleTypeNode<T2, T3>> {
 		const tuple_members: TypeNode[] = [];
 
+		let i = 0;
 		for (const sub_schema of schema.prefixItems) {
-			const sub_type = await $ref.intercept_$ref(
-				$ref.get_defs(schema, sub_schema),
+			const maybe_modified = ArrayType.maybe_add_$defs(
+				schema,
 				sub_schema,
-				schema_parser,
-				'$ref allowed',
+			);
+			const sub_type = await schema_parser.parse(
+				maybe_modified,
 			).generate_typescript_type({
-				data: sub_schema,
-				schema: sub_schema,
+				data: data[i],
+				schema: maybe_modified,
 				schema_parser,
 			});
+
+			++i;
 
 			tuple_members.push(sub_type);
 		}

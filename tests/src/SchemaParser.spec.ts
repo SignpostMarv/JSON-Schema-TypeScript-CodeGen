@@ -63,37 +63,6 @@ void describe('SchemaParser', () => {
 			assert.throws(() => parser.parse({type: 'whut'}));
 		});
 
-		void it(
-			'fails when requiring conversion with non-convertible types',
-			() => {
-				const ajv = new Ajv({
-					strict: true,
-				});
-				const instance = new $ref({$ref_mode: 'either'}, {ajv});
-				const parser = new SchemaParser({
-					ajv,
-					types: [
-						instance,
-					],
-				});
-				const type_schema = {
-					type: 'object',
-					required: ['$ref'],
-					additionalProperties: false,
-					properties: {
-						$ref: {
-							type: 'string',
-							// eslint-disable-next-line @stylistic/max-len
-							pattern: '^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$',
-						},
-					},
-				};
-				assert.ok(instance.can_handle_schema(type_schema));
-				assert.doesNotThrow(() => parser.parse(type_schema));
-				assert.throws(() => parser.parse(type_schema, 'yes'));
-			},
-		);
-
 		void describe('::generate_typescript_type()', () => {
 			void it(
 				'gives String and StringStartsWith when expected',
@@ -197,7 +166,7 @@ void describe('SchemaParser', () => {
 		void it('fails as expected', () => {
 			const parser = new SchemaParser();
 			const ajv = new Ajv({strict: true});
-			assert.ok(!OneOf.is_a(new $ref({$ref_mode: 'either'}, {ajv})));
+			assert.ok(!OneOf.is_a(new $ref({}, {ajv})));
 			assert.throws(() => parser.parse_by_type(
 				{$ref: '#/$defs/foo'},
 				(maybe) => TemplatedString.is_a(maybe),

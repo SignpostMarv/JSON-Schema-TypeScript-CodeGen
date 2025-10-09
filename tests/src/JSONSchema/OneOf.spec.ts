@@ -23,7 +23,6 @@ import type {
 } from '../../types.ts';
 
 import type {
-	$ref_mode,
 	ConversionlessType,
 	ObjectOfSchemas,
 	one_of_schema_options,
@@ -93,7 +92,7 @@ void describe('OneOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({$ref_mode: 'either'}, {ajv}),
+					(ajv) => new $ref({}, {ajv}),
 					false,
 				],
 			],
@@ -304,7 +303,7 @@ void describe('OneOf', () => {
 				});
 
 				assert.ok(OneOf.is_a(instance));
-				assert.ok(OneOf.is_a<$ref<$ref_mode>>(
+				assert.ok(OneOf.is_a<$ref>(
 					new OneOf<unknown, 'unspecified'>({
 						ajv,
 						type_definition: {
@@ -318,7 +317,7 @@ void describe('OneOf', () => {
 					}),
 				));
 				assert.ok(!OneOf.is_a<OneOf<unknown>>(
-					new $ref({$ref_mode: 'either'}, {ajv}),
+					new $ref({}, {ajv}),
 				));
 			});
 

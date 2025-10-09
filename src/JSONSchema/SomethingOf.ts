@@ -1,9 +1,8 @@
 import type {
 	Expression,
+	KeywordTypeNode,
+	SyntaxKind,
 	TypeNode,
-} from 'typescript';
-import {
-	factory,
 } from 'typescript';
 
 import type {
@@ -23,13 +22,18 @@ import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
+import type {
+	IntersectionTypeNode,
+	UnionTypeNode,
+} from '../typescript/types.ts';
+
 import {
-	$ref,
-} from './Ref.ts';
+	factory,
+} from '../typescript/factory.ts';
 
 export type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 
-export type something_of_kind = 'oneOf'|'anyOf';
+export type something_of_kind = 'oneOf'|'anyOf'|'allOf';
 export type something_of_mode = 'specified'|'unspecified';
 
 export type something_of_type<
@@ -49,6 +53,13 @@ export type something_of_type<
 		specified: {
 			$defs?: Defs,
 			anyOf: Choices,
+		},
+		unspecified: Record<string, never>,
+	}[Mode],
+	allOf: {
+		specified: {
+			$defs?: Defs,
+			allOf: Choices,
 		},
 		unspecified: Record<string, never>,
 	}[Mode],
@@ -128,6 +139,18 @@ type something_of_schema<
 					const: Choices,
 				},
 			},
+			allOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
+				allOf: {
+					type: 'array',
+					const: Choices,
+				},
+			},
 		}[Kind],
 		'yes'
 	>,
@@ -160,6 +183,19 @@ type something_of_schema<
 					items: SchemaObjectDefinition,
 				},
 			},
+			allOf: {
+				$defs: {
+					type: 'object',
+					additionalProperties: {
+						type: 'object',
+					},
+				},
+				allOf: {
+					type: 'array',
+					minItems: 2,
+					items: SchemaObjectDefinition,
+				},
+			},
 		}[Kind],
 		'yes'
 	>,
@@ -179,7 +215,14 @@ export abstract class SomethingOf<
 		something_of_type_options<Kind, Mode, TypeChoices, Defs>,
 		something_of_schema<Kind, Mode, SchemaChoices>,
 		something_of_schema_options<Kind, Mode, SchemaChoices>,
-		TypeNode,
+		{
+			oneOf: KeywordTypeNode<SyntaxKind.UnknownKeyword> | UnionTypeNode,
+			anyOf: KeywordTypeNode<SyntaxKind.UnknownKeyword> | UnionTypeNode,
+			allOf: (
+				| KeywordTypeNode<SyntaxKind.UnknownKeyword>
+				| IntersectionTypeNode<[TypeNode, ...TypeNode[]]>
+			),
+		}[Kind],
 		Expression
 	> {
 	generate_typescript_data(
@@ -205,11 +248,47 @@ export abstract class SomethingOf<
 			schema_parser,
 		}: {
 			data: T,
+			schema: Record<string, never>,
+			schema_parser: SchemaParser,
+		},
+	): Promise<TypeNode>;
+	async generate_typescript_type(
+		{
+			data,
+			schema,
+			schema_parser,
+		}: {
+			data: T,
 			schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
 			schema_parser: SchemaParser,
 		},
-	) {
-		if (0 === Object.keys(schema).length) {
+	): Promise<{
+		oneOf: UnionTypeNode,
+		anyOf: UnionTypeNode,
+		allOf: IntersectionTypeNode<[TypeNode, ...TypeNode[]]>,
+	}[Kind]>;
+	async generate_typescript_type(
+		{
+			data,
+			schema,
+			schema_parser,
+		}: {
+			data: T,
+			schema: (
+				| something_of_type<Kind, Mode, TypeChoices, Defs>
+				| Record<string, never>
+			),
+			schema_parser: SchemaParser,
+		},
+	): Promise<{
+		oneOf: TypeNode | UnionTypeNode,
+		anyOf: TypeNode | UnionTypeNode,
+		allOf: (
+			| TypeNode
+			| IntersectionTypeNode<[TypeNode, ...TypeNode[]]>
+		),
+	}[Kind]> {
+		if (!SomethingOf.#is_non_empty_schema(schema)) {
 			return schema_parser.parse_by_type(
 				data,
 				undefined,
@@ -220,41 +299,51 @@ export abstract class SomethingOf<
 			});
 		}
 
-		const choices = 'oneOf' in schema ? schema.oneOf : schema.anyOf;
+		const choices = 'oneOf' in schema
+			? schema.oneOf
+			: ('allOf' in schema ? schema.allOf : schema.anyOf);
 
-		return factory.createUnionTypeNode(await Promise.all(
+		const sub_types = await Promise.all(
 			choices.map((
 				sub_schema,
-			) => this.#maybe_add_$defs(
+			) => SomethingOf.maybe_add_$defs(
 				schema,
 				sub_schema,
 			)).map((sub_schema) => {
-				return $ref.intercept_$ref(
-					this.#maybe_add_$defs(schema, sub_schema)['$defs'] || {},
-					sub_schema,
-					schema_parser,
-					'$ref allowed',
+				return schema_parser.parse(
+					SomethingOf.maybe_add_$defs(
+						schema,
+						sub_schema,
+					),
 				).generate_typescript_type({
 					data: data,
 					schema: sub_schema,
 					schema_parser,
 				});
 			}),
-		));
-	}
+		);
 
-	#maybe_add_$defs(
-		schema: SchemaObject,
-		sub_schema: SchemaObject,
-	): SchemaObject {
-		if ('$defs' in schema) {
-			return {
-				$defs: schema.$defs,
-				...sub_schema,
-			};
+		let result: {
+			oneOf: UnionTypeNode,
+			anyOf: UnionTypeNode,
+			allOf: IntersectionTypeNode<[TypeNode, ...TypeNode[]]>,
+		}[Kind];
+
+		if (SomethingOf.#is_allOf_schema(schema)) {
+			const sanity_check: IntersectionTypeNode<
+				[TypeNode, ...TypeNode[]]
+			> = factory.createIntersectionTypeNode(sub_types);
+
+			result = sanity_check as typeof result;
+		} else {
+			const sanity_check: UnionTypeNode = factory.createUnionTypeNode(
+				sub_types,
+			);
+
+			result = sanity_check as typeof result;
 		}
 
-		return sub_schema;
+		return result;
 	}
 
 	#sub_schema_handler(
@@ -280,22 +369,36 @@ export abstract class SomethingOf<
 			);
 		}
 
-		const choices = 'oneOf' in schema ? schema.oneOf : schema.anyOf;
+		const choices = 'oneOf' in schema
+			? schema.oneOf
+			: ('allOf' in schema ? schema.allOf : schema.anyOf);
 
 		const sub_schema = choices.map((
 			sub_schema,
-		) => this.#maybe_add_$defs(schema, sub_schema)).find((maybe) => {
+		) => SomethingOf.maybe_add_$defs(schema, sub_schema)).find((maybe) => {
 			const ajv = schema_parser.share_ajv((ajv) => ajv);
 			const validator = ajv.compile(maybe);
 
 			return validator(data);
 		}) as SchemaObject;
 
-		return $ref.intercept_$ref(
-			sub_schema.$defs || {},
+		const modified = SomethingOf.maybe_add_$defs(
+			schema,
 			sub_schema,
-			schema_parser,
-			'yes',
+		);
+
+		const result = schema_parser.maybe_parse<Type<unknown>>(
+			modified,
+			Type,
+		);
+
+		if (result) {
+			return result;
+		}
+
+		return schema_parser.parse_by_type(
+			data,
+			(maybe): maybe is Type<unknown> => maybe instanceof Type,
 		);
 	}
 
@@ -494,11 +597,23 @@ export abstract class SomethingOf<
 		return Object.freeze(result);
 	}
 
+	static #is_allOf_schema(
+		maybe: something_of_type<something_of_kind>,
+	): maybe is something_of_type<'allOf'> {
+		return 'allOf' in maybe;
+	}
+
 	static #is_const_schema_choices<
 		Choices extends schema_choices,
 	>(
 		maybe: never[]|Choices,
 	): maybe is Choices {
 		return maybe.length >= 2;
+	}
+
+	static #is_non_empty_schema(
+		maybe: something_of_type<something_of_kind>|Record<string, never>,
+	): maybe is something_of_type<something_of_kind> {
+		return 0 !== Object.keys(maybe).length;
 	}
 }

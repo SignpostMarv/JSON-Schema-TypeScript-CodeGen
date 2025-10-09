@@ -7,6 +7,10 @@ export {};
 declare global {
 	interface Array<T> {
 		map<U>(
+			callbackfn: (value: T, index: number, array: [T, T, ...T[]]) => U,
+			thisArg?: unknown,
+		): [U, U, ...U[]];
+		map<U>(
 			callbackfn: (value: T, index: number, array: [T, ...T[]]) => U,
 			thisArg?: unknown,
 		): [U, ...U[]];

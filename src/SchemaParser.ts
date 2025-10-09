@@ -21,9 +21,6 @@ import {
 	String,
 } from './JSONSchema/String.ts';
 
-import type {
-	$ref_mode,
-} from './JSONSchema/Ref.ts';
 import {
 	$ref,
 } from './JSONSchema/Ref.ts';
@@ -106,21 +103,20 @@ export class SchemaParser {
 	get imports(): Set<string> {
 		return new Set<string>(this.types.filter(
 			(maybe) => maybe instanceof $ref,
-		).flatMap((instance) => [...instance.needs_import.values()]));
+		).flatMap((
+			instance: $ref,
+		) => [...instance.needs_import.values()]));
 	}
 
 	add_schema(
 		schema: SchemaObjectWith$id,
 	) {
 		this.#ajv.addSchema(schema);
-		for (const inform_this of this.types.filter(
-			(maybe): maybe is $ref<'either'|'external'> => (
-				$ref.is_a<$ref<$ref_mode>>(maybe)
-				&& maybe.$ref_mode !== 'local'
-			),
-		)) {
+		this.types.filter(
+			(maybe): maybe is $ref => maybe instanceof $ref,
+		).forEach((inform_this: $ref) => {
 			inform_this.remote_defs[schema.$id] = schema.$defs || {};
-		}
+		});
 	}
 
 	maybe_parse<
@@ -152,22 +148,22 @@ export class SchemaParser {
 	maybe_parse_by_type<
 		T extends ConversionlessType<unknown>,
 	>(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
 	): T|undefined;
 	maybe_parse_by_type(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type?: undefined,
 	): ConversionlessType<unknown>|undefined;
 	maybe_parse_by_type<
 		T extends ConversionlessType<unknown>,
 	>(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type?: (maybe: unknown) => maybe is T,
 	): ConversionlessType<unknown>|T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
-			if (type.check_type(schema)) {
+			if (type.check_type(value)) {
 				if (!must_be_of_type) {
 					return type;
 				}
@@ -211,6 +207,16 @@ export class SchemaParser {
 			'yes' === require_conversion ? Type : ConversionlessType,
 		);
 
+		if (undefined === result && '$ref' in schema) {
+			const maybe_$ref = this.types.find(
+				(maybe) => maybe instanceof $ref,
+			);
+
+			if (maybe_$ref && maybe_$ref.check_type(schema)) {
+				return maybe_$ref;
+			}
+		}
+
 		if (result) {
 			return result;
 		}
@@ -221,22 +227,22 @@ export class SchemaParser {
 	parse_by_type<
 		T extends ConversionlessType<unknown>,
 	>(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type: (maybe: unknown) => maybe is T,
 	): T;
 	parse_by_type(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type?: undefined,
 	): ConversionlessType<unknown>;
 	parse_by_type<
 		T extends ConversionlessType<unknown>,
 	>(
-		schema: unknown,
+		value: unknown,
 		must_be_of_type?: (maybe: unknown) => maybe is T,
 	): ConversionlessType<unknown>|T {
 		const result = must_be_of_type
-			? this.maybe_parse_by_type(schema, must_be_of_type)
-			: this.maybe_parse_by_type(schema);
+			? this.maybe_parse_by_type(value, must_be_of_type)
+			: this.maybe_parse_by_type(value);
 
 		if (undefined === result) {
 			throw new TypeError(
@@ -312,9 +318,7 @@ export class SchemaParser {
 			new ConstString(undefined, {ajv}),
 			new NonEmptyString({ajv}),
 			new $ref(
-				{
-					$ref_mode: 'either',
-				},
+				{},
 				{
 					ajv,
 				},

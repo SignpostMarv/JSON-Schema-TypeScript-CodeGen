@@ -229,6 +229,20 @@ export abstract class ConversionlessType<
 	>(maybe: unknown): maybe is T {
 		return maybe instanceof this;
 	}
+
+	static maybe_add_$defs(
+		schema: SchemaObject,
+		sub_schema: SchemaObject,
+	): SchemaObject {
+		if ('$defs' in schema) {
+			return {
+				$defs: schema.$defs,
+				...sub_schema,
+			};
+		}
+
+		return sub_schema;
+	}
 }
 
 export abstract class Type<
