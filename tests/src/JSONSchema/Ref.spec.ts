@@ -205,6 +205,19 @@ void describe('$ref', () => {
 					assert.equal(result.typeName.text, expectation);
 				});
 			});
+
+		void it('fails when expected', async () => {
+			const instance = new $ref(
+				{$ref_mode: 'either'},
+				{ajv: new Ajv({strict: true})},
+			);
+
+			await assert.rejects(() => instance.generate_typescript_type({
+				schema: $ref.generate_type_definition({
+					$ref_mode: 'either',
+				}),
+			}));
+		});
 	});
 
 	void describe('::resolve_def()', () => {

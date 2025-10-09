@@ -225,7 +225,7 @@ export class $ref<
 		this.needs_import = new Set();
 	}
 
-	generate_typescript_type(
+	async generate_typescript_type(
 		options: (
 			| {
 				data: T,
