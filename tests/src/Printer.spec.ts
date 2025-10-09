@@ -317,6 +317,464 @@ void describe('Printer', () => {
 				],
 			],
 		],
+		[
+			[{
+				type_filename_callback: (name: string) => {
+					return `./types/${name}.ts`;
+				},
+			}],
+			[
+				[
+					[
+						['foobar'],
+						{
+							$defs: {
+								item: {
+									type: 'string',
+									templated_string: [
+										{type: 'string'},
+										['bar', 'baz'],
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								$ref: '#/$defs/item',
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/item.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
+						],
+						[
+							'./types/foo.ts',
+							`import type { item } from "./item.ts";${
+								'\n\n'
+							}export type foo = [${
+								'\n'
+							}    item,${
+								'\n'
+							}    ...item[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar'],
+						{
+							type: 'array',
+							minItems: 1,
+							items: {
+								type: 'string',
+								templated_string: [
+									{type: 'string'},
+									['bar', 'baz'],
+								],
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = [${
+								'\n'
+							}    \`\${string}\${"bar" | "baz"}\`,${
+								'\n'
+							}    ...\`\${string}\${"bar" | "baz"}\`[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								oneOf: [
+									{$ref: '#/$defs/foo'},
+									{$ref: '#/$defs/bar'},
+								],
+							},
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = \`foo\${string}\`;`,
+						],
+						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;`,
+						],
+						[
+							'./types/foobar.ts',
+							`import type { foo } from "./foo.ts";${
+								'\n\n'
+							}import type { bar } from "./bar.ts";${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo | bar,${
+								'\n'
+							}    ...(foo | bar)[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{$ref: '#/$defs/foo'},
+								{$ref: '#/$defs/bar'},
+							],
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = \`foo\${string}\`;`,
+						],
+						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;`,
+						],
+						[
+							'./types/foobar.ts',
+							`import type { foo } from "./foo.ts";${
+								'\n\n'
+							}import type { bar } from "./bar.ts";${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo,${
+								'\n'
+							}    bar${
+								'\n'
+							}];`,
+						],
+					],
+				],
+			],
+		],
+		[
+			[{
+				type_filename_callback: (name: string) => {
+					return `./types/${name.substring(0, 3)}.ts`;
+				},
+			}],
+			[
+				[
+					[
+						['foobar'],
+						{
+							$defs: {
+								item: {
+									type: 'string',
+									templated_string: [
+										{type: 'string'},
+										['bar', 'baz'],
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								$ref: '#/$defs/item',
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/ite.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
+						],
+						[
+							'./types/foo.ts',
+							`import type { item } from "./ite.ts";${
+								'\n\n'
+							}export type foo = [${
+								'\n'
+							}    item,${
+								'\n'
+							}    ...item[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar'],
+						{
+							type: 'array',
+							minItems: 1,
+							items: {
+								type: 'string',
+								templated_string: [
+									{type: 'string'},
+									['bar', 'baz'],
+								],
+							},
+						},
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foo = [${
+								'\n'
+							}    "foobar"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = [${
+								'\n'
+							}    \`\${string}\${"bar" | "baz"}\`,${
+								'\n'
+							}    ...\`\${string}\${"bar" | "baz"}\`[]${
+								'\n'
+							}];`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							minItems: 1,
+							items: {
+								oneOf: [
+									{$ref: '#/$defs/foo'},
+									{$ref: '#/$defs/bar'},
+								],
+							},
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`type foo = \`foo\${string}\`;${
+								'\n\n'
+							}import type { bar } from "./bar.ts";${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo | bar,${
+								'\n'
+							}    ...(foo | bar)[]${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;`,
+						],
+					],
+				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+								barfoo: {
+									type: 'string',
+									templated_string: [
+										'barfoo',
+										{type: 'string'},
+									],
+								},
+							},
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{$ref: '#/$defs/foo'},
+								{$ref: '#/$defs/bar'},
+								{$ref: '#/$defs/barfoo'},
+							],
+						},
+						'foobar',
+					],
+					load_TemplatedString,
+					[
+						[
+							'./index.ts',
+							`export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foo.ts',
+							`type foo = \`foo\${string}\`;${
+								'\n\n'
+							}import type { bar, barfoo } from "./bar.ts";${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    foo,${
+								'\n'
+							}    bar,${
+								'\n'
+							}    barfoo${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;${
+								'\n\n'
+							}export type barfoo = \`barfoo\${string}\`;`,
+						],
+					],
+				],
+			],
+		],
 	];
 
 	data_sets.forEach(([
