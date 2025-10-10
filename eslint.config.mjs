@@ -6,8 +6,6 @@ import {
 import parser from '@typescript-eslint/parser';
 import imports from 'eslint-plugin-import';
 
-const root_path = '/workspaces/json-schema-typescript-codegen';
-
 const config = [
 	{
 		languageOptions: {
@@ -30,8 +28,8 @@ const config = [
 			'imports/no-internal-modules': ['error', {
 				allow: [
 					'ajv/dist/2020.js',
-					`${root_path}/src/*.ts`,
-					`${root_path}/src/**/*.ts`,
+					`${import.meta.dirname}/src/*.ts`,
+					`${import.meta.dirname}/src/**/*.ts`,
 				],
 			}],
 		},
