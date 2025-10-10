@@ -1,3 +1,6 @@
+[![Coverage Status](https://coveralls.io/repos/github/SignpostMarv/JSON-Schema-TypeScript-CodeGen/badge.svg?branch=main)](https://coveralls.io/github/SignpostMarv/JSON-Schema-TypeScript-CodeGen?branch=main)
+[![Workflow Status](https://github.com/SignpostMarv/JSON-Schema-TypeScript-CodeGen/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/SignpostMarv/JSON-Schema-TypeScript-CodeGen/actions/workflows/node.js.yml?query=branch%3Amain)
+
 # JSON Schema TypeScript CodeGen
 
 From-scratch rewrite of the JSON Schema-based TypeScript Code Generation code originally implemented for [Docs.json.ts](https://github.com/satisfactory-dev/Docs.json.ts)
