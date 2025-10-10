@@ -17,6 +17,7 @@ import {
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
+	$ref_type,
 	ObjectOfSchemas,
 	SchemaObject,
 	TypeReferenceNode,
@@ -31,6 +32,10 @@ import {
 import type {
 	ts_asserter,
 } from '../../types.ts';
+
+import {
+	throws_Error,
+} from '../../assertions.ts';
 
 void describe('$ref', () => {
 	type DataSet<
@@ -222,6 +227,33 @@ void describe('$ref', () => {
 
 			assert.throws(() => instance.resolve_def($ref_value_2, {}));
 		});
+
+		void it('fails when expected', () => {
+			const parser = new SchemaParser();
+
+			const instance = parser.parse_by_type(
+				{
+					$ref: 'foo#/$defs/bar',
+				},
+			);
+
+			is_instanceof<$ref>(instance, $ref);
+
+			const value: $ref_type = {
+				$ref: 'not-valid',
+			} as unknown as $ref_type;
+
+			assert.ok(!$ref.is_supported_$ref(value));
+
+			throws_Error(
+				() => instance.resolve_def(
+					value,
+					{},
+				),
+				TypeError,
+				'Unsupported ref found: not-valid',
+			);
+		});
 	});
 
 	void describe('::is_a()', () => {
@@ -378,4 +410,58 @@ void describe('$ref', () => {
 			});
 		});
 	}
+
+	void describe('::generate_typescript_data()', () => {
+		void it('fails when expected', () => {
+			const schema_parser = new SchemaParser({ajv_options: {}});
+			const instance = schema_parser.share_ajv(
+				(ajv) => new $ref({}, {ajv}),
+			);
+
+			const $ref_value = '#/$defs/foo';
+
+			assert.ok($ref.is_supported_$ref_value($ref_value));
+
+			assert.throws(() => instance.generate_typescript_data(
+				'foo',
+				schema_parser,
+				{
+					$ref: $ref_value,
+				},
+			));
+
+			assert.throws(() => instance.generate_typescript_data(
+				'foo',
+				schema_parser,
+				{
+					$defs: undefined,
+					$ref: $ref_value,
+				},
+			));
+		});
+	});
+
+	void describe('::is_supported_$defs()', () => {
+		type DataSet = [
+			{[key: string]: SchemaObject},
+			boolean,
+		];
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[{foo: {}}, true],
+			[{['foo bar']: {}}, false],
+		];
+
+		data_sets.forEach(([
+			$defs,
+			expectation,
+		], i) => {
+			void it(`behaves with data_sets[${i}]`, () => {
+				assert.equal(
+					$ref.is_supported_$defs($defs),
+					expectation,
+				);
+			});
+		});
+	});
 });

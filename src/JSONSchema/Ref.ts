@@ -74,6 +74,7 @@ type ref_identifier = '([a-zA-Z0-9][a-zA-Z0-9._-]*)';
 type pattern_either = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_external = `^${ref_identifier}#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
+const sub_pattern: `^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
 const pattern_either: pattern_either = (
 	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
@@ -83,6 +84,7 @@ const pattern_external: pattern_external = (
 const pattern_local: pattern_local = (
 	'^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
 );
+const regexp_sub = new RegExp(sub_pattern);
 const regexp_either = new RegExp(pattern_either);
 
 export type $ref_type = {
@@ -360,6 +362,14 @@ export class $ref extends
 		return Object.freeze(schema) as unknown as Readonly<$ref_type>;
 	}
 
+	static is_supported_$defs(
+		maybe: {[key: string]: SchemaObject},
+	): maybe is {[key: $def]: SchemaObject} {
+		return Object.keys(maybe).every(
+			(k) => regexp_sub.test(k),
+		);
+	}
+
 	static is_supported_$ref(
 		maybe: unknown,
 	): maybe is $ref_type {
@@ -368,6 +378,15 @@ export class $ref extends
 			&& object_has_property(maybe, '$ref')
 			&& 'string' === typeof maybe.$ref
 			&& regexp_either.test(maybe.$ref)
+		);
+	}
+
+	static is_supported_$ref_value(
+		maybe: unknown,
+	): maybe is $ref_type['$ref'] {
+		return (
+			'string' === typeof maybe
+			&& regexp_either.test(maybe)
 		);
 	}
 }
