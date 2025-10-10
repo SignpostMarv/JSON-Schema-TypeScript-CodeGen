@@ -16,32 +16,41 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
-} from '../../types.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
+
+import type {
+	ArrayLiteralExpression,
+	ArrayTypeNode,
+	TupleTypeNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/typescript/index.ts';
 
 import type {
 	array_mode,
 	array_options,
 	array_type,
-	ArrayLiteralExpression,
-	ArrayTypeNode,
 	MinItemsType_mode,
 	specified_mode,
-	TupleTypeNode,
 	unique_items_mode,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	ArrayType,
 	PositiveIntegerGuard,
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 import {
 	throws_Error,
-} from '../../assertions.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 void describe('ArrayType', () => {
 	type AllowedMutation<

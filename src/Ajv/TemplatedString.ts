@@ -13,32 +13,38 @@ import type {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
-import type {
-	SchemaDefinitionDefinition,
-	SchemalessTypeOptions,
-	TypeDefinitionSchema,
-} from '../JSONSchema/Type.ts';
+import {
+	object_has_property,
+} from '@satisfactory-dev/predicates.ts';
 
 import {
 	KeywordType,
 } from './Keyword.ts';
 
 import type {
+	ObjectOfSchemas,
+	SchemaDefinitionDefinition,
+	SchemalessTypeOptions,
+	TypeDefinitionSchema,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
+
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
+import type {
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../javascript/types.ts';
+
+import type {
 	LiteralTypeNode,
 	StringLiteral,
 	UnionTypeNode,
-} from '../typescript/types.ts';
-import {
-	object_has_property,
-} from '@satisfactory-dev/predicates.ts';
-
-import type {
-	ObjectOfSchemas,
-} from '../types.ts';
-
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/index.ts';
 import {
 	factory,
-} from '../typescript/factory.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/index.ts';
 
 type TemplatedStringPartBasic = (
 	| string
@@ -57,12 +63,12 @@ type TemplatedStringPart = (
 	]
 );
 
-export type TemplatedStringParts = [
+type TemplatedStringParts = [
 	TemplatedStringPart,
 	...TemplatedStringPart[],
 ];
 
-export type templated_string_type<
+type templated_string_type<
 	Parts extends TemplatedStringParts = TemplatedStringParts,
 > = TypeDefinitionSchema<{
 	$defs?: ObjectOfSchemas,
@@ -197,6 +203,11 @@ class RegexpFailureError extends TypeError {
 		this.value = value;
 	}
 }
+
+export type {
+	TemplatedStringParts,
+	templated_string_type,
+};
 
 export class TemplatedString<
 	T extends Exclude<string, ''>,

@@ -4,7 +4,7 @@ import type {
 	StringPassesRegex,
 } from './types.ts';
 
-export function PositiveIntegerGuard<
+function PositiveIntegerGuard<
 	T extends number,
 >(
 	value: (
@@ -21,7 +21,7 @@ export function PositiveIntegerGuard<
 	return value as number as PositiveInteger<T>;
 }
 
-export function PositiveIntegerOrZeroGuard<
+function PositiveIntegerOrZeroGuard<
 	T extends number,
 >(
 	value: (
@@ -35,7 +35,7 @@ export function PositiveIntegerOrZeroGuard<
 	return value as PositiveIntegerOrZero<T>;
 }
 
-export function StringPassesRegexGuard<
+function StringPassesRegexGuard<
 	Regex extends RegExp|string,
 	Value extends string,
 >(
@@ -48,3 +48,9 @@ export function StringPassesRegexGuard<
 
 	return value as StringPassesRegex<Regex, Value>;
 }
+
+export {
+	PositiveIntegerGuard,
+	PositiveIntegerOrZeroGuard,
+	StringPassesRegexGuard,
+};

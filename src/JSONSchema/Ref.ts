@@ -9,15 +9,6 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import type {
-	ObjectOfSchemas,
-	SchemaObject,
-} from '../types.ts';
-
-import type {
-	TypeReferenceNode,
-} from '../typescript/types';
-
-import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 } from './Type.ts';
@@ -31,23 +22,37 @@ import type {
 
 import type {
 	adjust_name_callback,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 import {
 	adjust_name_default,
 	adjust_name_finisher,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 
 import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
+
+import type {
+	ObjectOfSchemas,
+	SchemaObject,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
 
 import {
 	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
-export type $ref_mode = 'either'|'external'|'local';
+import type {
+	TypeReferenceNode,
+} from '../typescript/types';
 
-export type $ref_value_by_mode<
+type $ref_mode = 'either'|'external'|'local';
+
+type $ref_value_by_mode<
 	RefMode extends $ref_mode,
 > = {
 	either: (ExternalRef|LocalRef),
@@ -55,16 +60,16 @@ export type $ref_value_by_mode<
 	local: LocalRef,
 }[RefMode];
 
-export type $def = (
+type $def = (
 	& string
 	& {
 		_$def_guard: never,
 	}
 );
 
-export type LocalRef<T extends $def = $def> = `#/$defs/${T}`;
+type LocalRef<T extends $def = $def> = `#/$defs/${T}`;
 
-export type ExternalRef<
+type ExternalRef<
 	$ID extends $def = $def,
 	Local extends $def = $def,
 > = `${$ID}${LocalRef<Local>}`;
@@ -87,7 +92,7 @@ const pattern_local: pattern_local = (
 const regexp_sub = new RegExp(sub_pattern);
 const regexp_either = new RegExp(pattern_either);
 
-export type $ref_type = {
+type $ref_type = {
 	$defs?: ObjectOfSchemas,
 	$ref: LocalRef|ExternalRef,
 };
@@ -144,7 +149,7 @@ type $ref_schema = SchemaDefinitionDefinition<
 	}
 >;
 
-export class $ref extends
+class $ref extends
 	Type<
 		$ref_type,
 		$ref_type,
@@ -390,3 +395,16 @@ export class $ref extends
 		);
 	}
 }
+
+export type {
+	$ref_mode,
+	$ref_value_by_mode,
+	$def,
+	LocalRef,
+	ExternalRef,
+	$ref_type,
+};
+
+export {
+	$ref,
+};

@@ -2,7 +2,7 @@ import {
 	basename,
 	dirname,
 	relative,
-} from 'path';
+} from 'node:path';
 
 import {
 	createPrinter,
@@ -15,6 +15,10 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+import {
+	factory,
+} from './typescript/index.ts';
+
 import type {
 	SchemaParser,
 } from './SchemaParser.ts';
@@ -23,10 +27,6 @@ import type {
 	SchemaObject,
 } from './types.ts';
 
-import {
-	factory,
-} from './typescript/factory.ts';
-
 import type {
 	adjust_name_callback,
 } from './coercions.ts';
@@ -34,9 +34,6 @@ import {
 	adjust_name_default,
 	adjust_name_finisher,
 } from './coercions.ts';
-
-import type {
-} from './javascript/types.ts';
 
 type name_to_filename_callback = (name: string) => `./${string}.ts`;
 
@@ -48,7 +45,7 @@ function type_name_to_filename_default(): './types.ts' {
 	return './types.ts';
 }
 
-export class PrinterResult {
+class PrinterResult {
 	readonly code: string;
 
 	readonly filename: `./${string}.ts`;
@@ -62,7 +59,7 @@ export class PrinterResult {
 	}
 }
 
-export class Printer {
+class Printer {
 	#adjust_name_callback: adjust_name_callback;
 
 	#data_filename_callback: name_to_filename_callback;
@@ -325,3 +322,7 @@ export class Printer {
 			));
 	}
 }
+
+export {
+	Printer,
+};

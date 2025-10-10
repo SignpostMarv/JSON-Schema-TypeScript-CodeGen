@@ -16,13 +16,15 @@ import {
 
 import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import {
 	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
-export type unknown_type = {
+type unknown_type = {
 	type: 'object',
 	additionalProperties: false,
 	maxProperties: 0,
@@ -46,7 +48,7 @@ type unknown_schema = SchemaDefinitionDefinition<
 	}
 >;
 
-export class Unknown extends Type<
+class Unknown extends Type<
 	unknown,
 	unknown_type,
 	Record<string, never>,
@@ -114,3 +116,11 @@ export class Unknown extends Type<
 		});
 	}
 }
+
+export type {
+	unknown_type,
+};
+
+export {
+	Unknown,
+};

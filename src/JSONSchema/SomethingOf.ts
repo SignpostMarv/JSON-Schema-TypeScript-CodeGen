@@ -6,11 +6,6 @@ import type {
 } from 'typescript';
 
 import type {
-	ObjectOfSchemas,
-	SchemaObject,
-} from '../types.ts';
-
-import type {
 	SchemaDefinitionDefinition,
 	SchemaObjectDefinition,
 } from './Type.ts';
@@ -19,24 +14,33 @@ import {
 } from './Type.ts';
 
 import type {
+	ObjectOfSchemas,
+	SchemaObject,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
+
+import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import type {
 	IntersectionTypeNode,
 	UnionTypeNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
-export type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
+type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 
-export type something_of_kind = 'oneOf'|'anyOf'|'allOf';
-export type something_of_mode = 'specified'|'unspecified';
+type something_of_kind = 'oneOf'|'anyOf'|'allOf';
+type something_of_mode = 'specified'|'unspecified';
 
-export type something_of_type<
+type something_of_type<
 	Kind extends something_of_kind,
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends type_choices = type_choices,
@@ -65,7 +69,7 @@ export type something_of_type<
 	}[Mode],
 }[Kind];
 
-export type something_of_type_options<
+type something_of_type_options<
 	Kind extends something_of_kind,
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends type_choices = type_choices,
@@ -84,13 +88,13 @@ export type something_of_type_options<
 	},
 }[Mode];
 
-export type schema_choices = [
+type schema_choices = [
 	SchemaDefinitionDefinition,
 	SchemaDefinitionDefinition,
 	...SchemaDefinitionDefinition[],
 ];
 
-export type something_of_schema_options<
+type something_of_schema_options<
 	Kind extends something_of_kind,
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends schema_choices = schema_choices,
@@ -201,7 +205,7 @@ type something_of_schema<
 	>,
 }[Mode];
 
-export abstract class SomethingOf<
+abstract class SomethingOf<
 	T,
 	Kind extends something_of_kind,
 	Mode extends something_of_mode = something_of_mode,
@@ -669,3 +673,17 @@ export abstract class SomethingOf<
 		return 0 !== Object.keys(maybe).length;
 	}
 }
+
+export type {
+	type_choices,
+	something_of_kind,
+	something_of_mode,
+	something_of_type,
+	something_of_type_options,
+	schema_choices,
+	something_of_schema_options,
+};
+
+export {
+	SomethingOf,
+};

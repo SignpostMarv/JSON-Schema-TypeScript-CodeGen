@@ -12,30 +12,40 @@ import Ajv from 'ajv/dist/2020.js';
 
 import {
 	is_instanceof,
+// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
+
+import type {
+	TypeReferenceNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/typescript/index.ts';
 
 import type {
 	$ref_type,
 	ObjectOfSchemas,
 	SchemaObject,
-	TypeReferenceNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	$ref,
 	ArrayType,
 	NonEmptyString,
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 import type {
 	ts_asserter,
-} from '../../types.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 import {
 	throws_Error,
-} from '../../assertions.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 void describe('$ref', () => {
 	type DataSet<

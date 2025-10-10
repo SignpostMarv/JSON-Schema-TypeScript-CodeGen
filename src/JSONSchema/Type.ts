@@ -10,14 +10,16 @@ import type {
 
 import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import type {
 	ObjectOfSchemas,
 	SchemaObject,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
-export type SchemaDefinitionDefinition<
+type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
 		...string[],
@@ -52,19 +54,19 @@ export type SchemaDefinitionDefinition<
 	)
 );
 
-export type SchemaObjectDefinition = SchemaDefinitionDefinition<
+type SchemaObjectDefinition = SchemaDefinitionDefinition<
 	[],
 	Record<string, never>
 >;
 
-export type TypeDefinitionSchema<
+type TypeDefinitionSchema<
 	Schema extends SchemaObject = SchemaObject,
 > = (
 	& SchemaObject
 	& Schema
 );
 
-export type TypeOptions<
+type TypeOptions<
 	SchemaDefinitionOptions extends {[key: string]: unknown},
 	TypeDefinitionOptions extends {[key: string]: unknown},
 > = {
@@ -73,7 +75,7 @@ export type TypeOptions<
 	type_definition: TypeDefinitionOptions,
 };
 
-export type SchemalessTypeOptions = Omit<
+type SchemalessTypeOptions = Omit<
 	TypeOptions<SchemaDefinitionDefinition, TypeDefinitionSchema>,
 	(
 		| 'schema_definition'
@@ -81,7 +83,7 @@ export type SchemalessTypeOptions = Omit<
 	)
 >;
 
-export class VerboseMatchError extends TypeError {
+class VerboseMatchError extends TypeError {
 	readonly ajv_errors: ValidateFunction['errors'];
 
 	constructor(
@@ -94,7 +96,7 @@ export class VerboseMatchError extends TypeError {
 	}
 }
 
-export abstract class Type<
+abstract class Type<
 	T,
 	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
 	TypeDefinitionOptions extends (
@@ -252,3 +254,15 @@ export abstract class Type<
 		return sub_schema;
 	}
 }
+
+export type {
+	SchemaDefinitionDefinition,
+	SchemaObjectDefinition,
+	TypeDefinitionSchema,
+	TypeOptions,
+	SchemalessTypeOptions,
+};
+
+export {
+	Type,
+};

@@ -21,23 +21,32 @@ import {
 import {
 	is_instanceof,
 	not_undefined,
+// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
-import type {
-	ts_asserter,
-} from '../../types.ts';
+import {
+	SchemaParser,
+	String,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../index.ts';
 
 import type {
 	templated_string_type,
 	TemplatedStringParts,
-} from '../../../index.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/Ajv/index.ts';
 import {
-	SchemaParser,
-	String,
 	TemplatedString,
-} from '../../../index.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/Ajv/index.ts';
+
+import type {
+	ts_asserter,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 function is_unspecified_data(
 	maybe: Node,

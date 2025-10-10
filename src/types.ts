@@ -2,23 +2,22 @@ import type {
 	SchemaObject as AjvSchemaObject,
 } from 'ajv/dist/2020.js';
 
-
-export type SchemaObject = (
+type SchemaObject = (
 	& AjvSchemaObject
 	& {
 		$defs?: ObjectOfSchemas,
 	}
 );
 
-export type SchemaObjectWith$id = (
+type SchemaObjectWith$id = (
 	& SchemaObject
 	& Required<PartialPick<SchemaObject, '$id'>>
 );
 
-export type ObjectOfSchemas = {[key: string]: SchemaObject};
+type ObjectOfSchemas = {[key: string]: SchemaObject};
 
 // @see https://stackoverflow.com/a/64034671/1498831
-export type OmitFromTupleish<
+type OmitFromTupleish<
 	T1 extends unknown[],
 	T2,
 > = (
@@ -35,7 +34,7 @@ export type OmitFromTupleish<
 		)
 );
 
-export type OmitFromTupleishIf<
+type OmitFromTupleishIf<
 	T1 extends unknown[],
 	T2,
 	If extends 'with'|'without'|'optional',
@@ -47,7 +46,7 @@ export type OmitFromTupleishIf<
 			: OmitFromTupleish<T1, T2>
 	);
 
-export type PartialPick<
+type PartialPick<
 	T,
 	K extends keyof T,
 > = (
@@ -55,7 +54,7 @@ export type PartialPick<
 	& Partial<Pick<T, K>>
 );
 
-export type OmitIf<
+type OmitIf<
 	T,
 	K extends keyof T,
 	If extends 'with'|'without'|'optional',
@@ -67,14 +66,14 @@ export type OmitIf<
 			: T
 	);
 
-export type NonZero = (
+type NonZero = (
 	& number
 	& {
 		_guard_NonZero: never,
 	}
 );
 
-export type Positive<
+type Positive<
 	T extends number,
 > = (
 	& NonZero
@@ -88,7 +87,7 @@ export type Positive<
 	}
 );
 
-export type Integer<T extends number> = (
+type Integer<T extends number> = (
 	& (
 		`${T}` extends `${string}.${string}`
 			? never
@@ -99,17 +98,17 @@ export type Integer<T extends number> = (
 	}
 );
 
-export type PositiveInteger<T extends number> = (
+type PositiveInteger<T extends number> = (
 	& Integer<T>
 	& Positive<T>
 );
 
-export type PositiveIntegerOrZero<T extends number> = (
+type PositiveIntegerOrZero<T extends number> = (
 	| 0
 	| PositiveInteger<T>
 );
 
-export type StringPassesRegex<
+type StringPassesRegex<
 	Regex extends string|RegExp,
 	Value extends string = string,
 > = (
@@ -119,3 +118,19 @@ export type StringPassesRegex<
 		__regex_StringPassesRegex: Regex,
 	}
 );
+
+export type {
+	SchemaObject,
+	SchemaObjectWith$id,
+	ObjectOfSchemas,
+	OmitFromTupleish,
+	OmitFromTupleishIf,
+	PartialPick,
+	OmitIf,
+	NonZero,
+	Positive,
+	Integer,
+	PositiveInteger,
+	PositiveIntegerOrZero,
+	StringPassesRegex,
+};

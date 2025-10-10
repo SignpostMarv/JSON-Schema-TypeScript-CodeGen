@@ -3,25 +3,6 @@ import type {
 	TypeNode,
 } from 'typescript';
 
-import {
-	PositiveIntegerOrZeroGuard,
-} from '../guarded.ts';
-import {
-	PositiveIntegerGuard,
-} from '../guarded.ts';
-
-import type {
-	ObjectOfSchemas,
-	PositiveInteger,
-	SchemaObject,
-} from '../types.ts';
-
-import type {
-	ArrayLiteralExpression,
-	ArrayTypeNode,
-	TupleTypeNode,
-} from '../typescript/types.ts';
-
 import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
@@ -34,26 +15,48 @@ import type {
 	$defs_schema,
 } from './types.ts';
 
+import {
+	PositiveIntegerGuard,
+	PositiveIntegerOrZeroGuard,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../guarded.ts';
+
+import type {
+	ObjectOfSchemas,
+	PositiveInteger,
+	SchemaObject,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
+
+import type {
+	ArrayLiteralExpression,
+	ArrayTypeNode,
+	TupleTypeNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/types.ts';
+
 import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import {
 	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
-export type array_mode = 'items'|'prefixItems';
+type array_mode = 'items'|'prefixItems';
 
-export type specified_mode = 'specified'|'unspecified';
+type specified_mode = 'specified'|'unspecified';
 
-export type unique_items_mode = 'yes'|'no';
+type unique_items_mode = 'yes'|'no';
 
-export type MinItemsType_mode = 'with'|'optional';
+type MinItemsType_mode = 'with'|'optional';
 
 type MinItemsType = ReturnType<typeof PositiveIntegerOrZeroGuard<number>>;
 type MaxItemsType = ReturnType<typeof PositiveIntegerGuard<number>>;
 
-export type array_options<
+type array_options<
 	ArrayMode extends array_mode = array_mode,
 	SpecifiedMode extends specified_mode = specified_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
@@ -179,7 +182,7 @@ function expression_at_index_verifier_default<
 	return true;
 }
 
-export type array_type<
+type array_type<
 	ArrayMode extends array_mode = array_mode,
 	SpecifiedMode extends specified_mode = specified_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
@@ -418,7 +421,7 @@ type array_schema<
 	'yes'
 >;
 
-export class ArrayType<
+class ArrayType<
 	ArrayMode extends array_mode = array_mode,
 	SpecifiedMode extends specified_mode = specified_mode,
 	UniqueItems_mode extends unique_items_mode = unique_items_mode,
@@ -1804,3 +1807,16 @@ export class ArrayType<
 		throw new TypeError('Invalid schema detected!');
 	}
 }
+
+export type {
+	array_mode,
+	specified_mode,
+	unique_items_mode,
+	MinItemsType_mode,
+	array_options,
+	array_type,
+};
+
+export {
+	ArrayType,
+};

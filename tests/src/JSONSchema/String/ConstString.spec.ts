@@ -17,22 +17,27 @@ import {
 
 import {
 	is_instanceof,
+// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
 	throws_Error,
-} from '../../../assertions.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../index.ts';
 
 import type {
 	const_string_type,
 	Type,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 import {
 	ConstString,
 	ObjectUnspecified,
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 
 void describe('identify Const String types as expected', () => {

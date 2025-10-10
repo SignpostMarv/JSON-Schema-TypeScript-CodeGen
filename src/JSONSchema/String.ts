@@ -16,6 +16,7 @@ import {
 
 import type {
 	ObjectOfSchemas,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import type {
@@ -25,25 +26,28 @@ import type {
 	StringLiteral,
 	TypeReferenceNode,
 	UnionTypeNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	PositiveIntegerGuard,
-} from '../guarded.ts';
-import {
 	PositiveIntegerOrZeroGuard,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../guarded.ts';
 
 import {
 	StringTupleToLiteralTypeNodeTuple,
-} from '../coercions.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/coercions.ts';
 
 import {
 	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
@@ -1008,7 +1012,7 @@ class BaseString<
 	}
 }
 
-export type basic_string_type = string_type<
+type basic_string_type = string_type<
 	'basic',
 	never[],
 	string,
@@ -1016,7 +1020,7 @@ export type basic_string_type = string_type<
 	string
 >;
 
-export class String<
+class String<
 	T extends string = string,
 > extends
 	BaseString<
@@ -1041,7 +1045,7 @@ export class String<
 	}
 }
 
-export type enum_string_type<
+type enum_string_type<
 	Enum extends (
 		| [string, string, ...string[]]
 		| never[]
@@ -1057,7 +1061,7 @@ export type enum_string_type<
 	undefined
 >;
 
-export class EnumString<
+class EnumString<
 	T extends string = string,
 	Enum extends (
 		| [string, string, ...string[]]
@@ -1089,7 +1093,7 @@ export class EnumString<
 	}
 }
 
-export type pattern_string_type<
+type pattern_string_type<
 	Pattern extends string|undefined = undefined,
 > = string_type<
 	'pattern',
@@ -1099,7 +1103,7 @@ export type pattern_string_type<
 	undefined
 >;
 
-export class PatternString<
+class PatternString<
 	T extends string = string,
 	Pattern extends string|undefined = undefined,
 > extends
@@ -1125,7 +1129,7 @@ export class PatternString<
 	}
 }
 
-export type non_empty_string_type<
+type non_empty_string_type<
 	MinLength extends MinLength_type = MinLength_type<1>,
 > = string_type<
 	'non-empty',
@@ -1135,7 +1139,7 @@ export type non_empty_string_type<
 	undefined
 >;
 
-export class NonEmptyString<
+class NonEmptyString<
 	T extends Exclude<string, ''> = Exclude<string, ''>,
 > extends
 	BaseString<
@@ -1160,7 +1164,7 @@ export class NonEmptyString<
 	}
 }
 
-export type const_string_type<
+type const_string_type<
 	Const extends string|undefined = string|undefined,
 > = string_type<
 	'const',
@@ -1170,7 +1174,7 @@ export type const_string_type<
 	Const
 >;
 
-export type const_string_schema<
+type const_string_schema<
 	Const extends string|undefined = string|undefined,
 > = base_string_schema<
 	'const',
@@ -1180,7 +1184,7 @@ export type const_string_schema<
 	Const
 >;
 
-export class ConstString<
+class ConstString<
 	T extends string|undefined = string|undefined,
 > extends
 	BaseString<
@@ -1213,3 +1217,20 @@ export class ConstString<
 		});
 	}
 }
+
+export type {
+	basic_string_type,
+	enum_string_type,
+	pattern_string_type,
+	non_empty_string_type,
+	const_string_type,
+	const_string_schema,
+};
+
+export {
+	String,
+	EnumString,
+	PatternString,
+	NonEmptyString,
+	ConstString,
+};

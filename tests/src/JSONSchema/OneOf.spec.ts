@@ -16,11 +16,13 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
-} from '../../types.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 import type {
 	ObjectOfSchemas,
@@ -31,6 +33,7 @@ import type {
 	something_of_mode,
 	Type,
 	type_choices,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	$ref,
@@ -38,6 +41,7 @@ import {
 	OneOf,
 	PatternString,
 	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 void describe('OneOf', () => {

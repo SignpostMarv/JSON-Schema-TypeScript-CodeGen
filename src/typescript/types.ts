@@ -27,7 +27,7 @@ import type {
 	TypeNode,
 } from 'typescript';
 
-export type ArrayLiteralExpression<
+type ArrayLiteralExpression<
 	T1 extends Expression,
 	T2 extends T1[],
 	T3 extends boolean,
@@ -42,7 +42,7 @@ export type ArrayLiteralExpression<
 	}
 );
 
-export type ArrayTypeNode<
+type ArrayTypeNode<
 	T extends TypeNode = TypeNode,
 > = (
 	& TSArrayTypeNode
@@ -51,7 +51,7 @@ export type ArrayTypeNode<
 	}
 );
 
-export type AsExpression<
+type AsExpression<
 	T1 extends Expression,
 	T2 extends TypeNode,
 > = (
@@ -62,7 +62,7 @@ export type AsExpression<
 	}
 );
 
-export type CallExpression<
+type CallExpression<
 	T1 extends LeftHandSideExpression,
 	HasQuestionDotToken extends 'yes'|'no',
 	TypeArguments extends (
@@ -106,7 +106,7 @@ export type CallExpression<
 	}
 );
 
-export type Identifier<
+type Identifier<
 	Name extends string,
 > = (
 	& TSIdentifier
@@ -115,7 +115,7 @@ export type Identifier<
 	}
 );
 
-export type IntersectionTypeNode<
+type IntersectionTypeNode<
 	T extends [TypeNode, ...TypeNode[]],
 > = (
 	& TSIntersectionTypeNode
@@ -124,7 +124,7 @@ export type IntersectionTypeNode<
 	}
 );
 
-export type LiteralTypeNode<
+type LiteralTypeNode<
 	T extends (
 		| NullLiteral
 		| BooleanLiteral
@@ -133,7 +133,7 @@ export type LiteralTypeNode<
 	),
 > = TSLiteralTypeNode & {literal: T};
 
-export type ObjectLiteralExpression<
+type ObjectLiteralExpression<
 	Properties extends (
 		undefined|(readonly ObjectLiteralElementLike [])
 	) = (
@@ -148,7 +148,7 @@ export type ObjectLiteralExpression<
 	}
 );
 
-export type StringLiteral<
+type StringLiteral<
 	Value extends string = string,
 > = (
 	& TSStringLiteral
@@ -157,7 +157,7 @@ export type StringLiteral<
 	}
 );
 
-export type TupleTypeNode<
+type TupleTypeNode<
 	T1 extends (
 		| TypeNode
 		| NamedTupleMember
@@ -176,7 +176,7 @@ export type TupleTypeNode<
 	}
 );
 
-export type TypeLiteralNode<
+type TypeLiteralNode<
 	T extends TypeElement,
 > = (
 	& TSTypeLiteralNode
@@ -185,7 +185,7 @@ export type TypeLiteralNode<
 	}
 );
 
-export type TypeReferenceNode<
+type TypeReferenceNode<
 	Name extends string|EntityName = string|EntityName,
 	Arguments extends (
 		| never[]
@@ -207,7 +207,7 @@ export type TypeReferenceNode<
 	)
 );
 
-export type UnionTypeNode<
+type UnionTypeNode<
 	Types extends [
 		TypeNode,
 		TypeNode,
@@ -223,3 +223,19 @@ export type UnionTypeNode<
 		readonly types: Types,
 	}
 );
+
+export type {
+	ArrayLiteralExpression,
+	ArrayTypeNode,
+	AsExpression,
+	CallExpression,
+	Identifier,
+	IntersectionTypeNode,
+	LiteralTypeNode,
+	ObjectLiteralExpression,
+	StringLiteral,
+	TupleTypeNode,
+	TypeLiteralNode,
+	TypeReferenceNode,
+	UnionTypeNode,
+};

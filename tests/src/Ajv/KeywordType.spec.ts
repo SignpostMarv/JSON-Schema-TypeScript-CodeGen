@@ -8,7 +8,8 @@ import Ajv from 'ajv';
 
 import {
 	KeywordType,
-} from '../../../index.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/Ajv/index.ts';
 
 void describe('KeywordType::ajv_keyword()', () => {
 	void it('throws', () => {

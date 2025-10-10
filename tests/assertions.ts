@@ -10,8 +10,10 @@ import type {
 
 import {
 	not_undefined,
+// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
@@ -23,12 +25,14 @@ import type {
 	ArrayTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
-} from '../index.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../src/typescript/index.ts';
 import {
 	PositiveIntegerOrZeroGuard,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../index.ts';
 
-export function is_Error<
+function is_Error<
 	T extends Error = Error,
 >(
 	actual: unknown,
@@ -65,7 +69,7 @@ export function is_Error<
 	}
 }
 
-export function throws_Error(
+function throws_Error(
 	callback: () => unknown,
 	expected: new () => Error,
 	expected_message?: string,
@@ -90,7 +94,7 @@ export function throws_Error(
 	}
 }
 
-export function bool_throw<
+function bool_throw<
 	T extends Node = Node,
 	Context extends {[key: string]: unknown} = {[key: string]: unknown},
 >(
@@ -108,7 +112,7 @@ export function bool_throw<
 	}
 }
 
-export function is_TypeLiteralNode<
+function is_TypeLiteralNode<
 	T extends TypeElement,
 >(
 	value: Node,
@@ -125,7 +129,7 @@ export function is_TypeLiteralNode<
 	);
 }
 
-export function is_TupleTypeNode<
+function is_TupleTypeNode<
 	T1 extends (TypeNode | NamedTupleMember),
 	T2 extends [T1, ...T1[]],
 >(
@@ -139,7 +143,7 @@ export function is_TupleTypeNode<
 	>,
 	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2>;
-export function is_TupleTypeNode<
+function is_TupleTypeNode<
 	T1 extends (TypeNode | NamedTupleMember),
 	T2 extends [T1, ...T1[]],
 >(
@@ -154,7 +158,7 @@ export function is_TupleTypeNode<
 	last_is_rest: boolean,
 	message?: string|Error,
 ): asserts value is TupleTypeNode<T1, T2>;
-export function is_TupleTypeNode<
+function is_TupleTypeNode<
 	T1 extends (TypeNode | NamedTupleMember),
 	T2 extends [T1, ...T1[]],
 >(
@@ -206,7 +210,7 @@ export function is_TupleTypeNode<
 	}
 }
 
-export function is_ArrayTypeNode<
+function is_ArrayTypeNode<
 	T extends TypeNode,
 >(
 	value: Node,
@@ -217,7 +221,7 @@ export function is_ArrayTypeNode<
 	predicate(value.elementType, message);
 }
 
-export function is_ArrayLiteralExpression<
+function is_ArrayLiteralExpression<
 	T1 extends Expression,
 	T2 extends T1[],
 >(
@@ -242,3 +246,13 @@ export function is_ArrayLiteralExpression<
 		element_asserter(value.elements[i], message);
 	}
 }
+
+export {
+	is_Error,
+	throws_Error,
+	bool_throw,
+	is_TypeLiteralNode,
+	is_TupleTypeNode,
+	is_ArrayTypeNode,
+	is_ArrayLiteralExpression,
+};

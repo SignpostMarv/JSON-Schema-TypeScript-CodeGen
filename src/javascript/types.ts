@@ -1,8 +1,7 @@
 import type {
 	StringPassesRegex,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
-
-export {};
 
 declare global {
 	interface Array<T> {
@@ -48,3 +47,8 @@ declare global {
 		>;
 	}
 }
+
+// eslint-disable-next-line imports/no-unresolved
+export * from 'regexp.escape/auto';
+
+export {};

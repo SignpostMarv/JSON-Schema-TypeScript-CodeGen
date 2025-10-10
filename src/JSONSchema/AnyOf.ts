@@ -1,8 +1,4 @@
 import type {
-	ObjectOfSchemas,
-} from '../types.ts';
-
-import type {
 	schema_choices,
 	something_of_mode,
 	something_of_schema_options,
@@ -13,7 +9,12 @@ import {
 	SomethingOf,
 } from './SomethingOf.ts';
 
-export type any_of_type_options<
+import type {
+	ObjectOfSchemas,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
+
+type any_of_type_options<
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends type_choices = type_choices,
 	Defs extends ObjectOfSchemas = ObjectOfSchemas,
@@ -24,12 +25,12 @@ export type any_of_type_options<
 	Defs
 >;
 
-export type any_of_schema_options<
+type any_of_schema_options<
 	Mode extends something_of_mode = something_of_mode,
 	Choices extends schema_choices = schema_choices,
 > = something_of_schema_options<'anyOf', Mode, Choices>;
 
-export class AnyOf<
+class AnyOf<
 	T,
 	Mode extends something_of_mode = something_of_mode,
 	TypeChoices extends type_choices = type_choices,
@@ -43,3 +44,12 @@ export class AnyOf<
 		SchemaChoices
 	> {
 }
+
+export type {
+	any_of_type_options,
+	any_of_schema_options,
+};
+
+export {
+	AnyOf,
+};

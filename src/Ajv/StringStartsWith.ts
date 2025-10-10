@@ -10,22 +10,26 @@ import type {
 	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
 import type {
 } from 'regexp.escape/auto';
-
-import type {
-	SchemaDefinitionDefinition,
-	SchemalessTypeOptions,
-	TypeDefinitionSchema,
-} from '../JSONSchema/Type.ts';
 
 import {
 	KeywordType,
 } from './Keyword.ts';
 
+import type {
+	SchemaDefinitionDefinition,
+	SchemalessTypeOptions,
+	TypeDefinitionSchema,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
+
 import {
 	factory,
-} from '../typescript/factory.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/index.ts';
 
 type string_starts_with_type<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,

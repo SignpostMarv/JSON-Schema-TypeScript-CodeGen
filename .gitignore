@@ -3,4 +3,5 @@
 /**/*.d.ts
 /**/*.map
 /.eslintcache
+/.mjs.eslintcache
 /coverage/

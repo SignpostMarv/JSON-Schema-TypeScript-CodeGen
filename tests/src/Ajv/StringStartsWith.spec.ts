@@ -10,15 +10,22 @@ import {
 
 import {
 	is_instanceof,
+// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
+// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
 	SchemaParser,
 	String,
-	StringStartsWith,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
+
+import {
+	StringStartsWith,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/Ajv/index.ts';
 
 void describe('StringStartsWith', () => {
 	void it('comes out of SchemaParser', () => {

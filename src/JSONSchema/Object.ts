@@ -9,17 +9,6 @@ import {
 } from 'typescript';
 
 import type {
-	ObjectOfSchemas,
-	OmitIf,
-	SchemaObject,
-} from '../types.ts';
-
-import type {
-	IntersectionTypeNode,
-	TypeLiteralNode,
-} from '../typescript/types.ts';
-
-import type {
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
 	TypeOptions,
@@ -32,21 +21,6 @@ import type {
 	$defs_schema,
 } from './types.ts';
 
-import type {
-	adjust_name_callback,
-} from '../coercions.ts';
-import {
-	adjust_name_default,
-} from '../coercions.ts';
-
-import {
-	factory,
-} from '../typescript/factory.ts';
-
-import type {
-	SchemaParser,
-} from '../SchemaParser.ts';
-
 import {
 	$ref,
 } from './Ref.ts';
@@ -56,16 +30,45 @@ import type {
 } from './Unknown.ts';
 
 import type {
-} from '../javascript/types.ts';
+	ObjectOfSchemas,
+	OmitIf,
+	SchemaObject,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
 
-export type object_properties_mode = (
+import type {
+	IntersectionTypeNode,
+	TypeLiteralNode,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/types.ts';
+
+import type {
+	adjust_name_callback,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../coercions.ts';
+import {
+	adjust_name_default,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../coercions.ts';
+
+import {
+	factory,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../typescript/factory.ts';
+
+import type {
+	SchemaParser,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../SchemaParser.ts';
+
+type object_properties_mode = (
 	| 'neither'
 	| 'both'
 	| 'properties'
 	| 'pattern'
 );
 
-export type object_type<
+type object_type<
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject,
 	Required extends readonly [string, ...string[]],
@@ -106,7 +109,7 @@ type object_schema_required<
 	]
 );
 
-export type object_schema<
+type object_schema<
 	PropertiesMode extends object_properties_mode,
 > = SchemaDefinitionDefinition<
 	object_schema_required<PropertiesMode>,
@@ -168,7 +171,7 @@ export type object_schema<
 	'yes'
 >;
 
-export type object_TypeLiteralNode<
+type object_TypeLiteralNode<
 	PropertiesMode extends object_properties_mode,
 > = {
 	['neither']: TypeLiteralNode<
@@ -201,7 +204,7 @@ type ObjectUncertain_options<
 	>
 );
 
-export class ObjectUnspecified<
+class ObjectUnspecified<
 	T extends {[key: string]: unknown},
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject = SchemaObject,
@@ -952,3 +955,14 @@ export class ObjectUnspecified<
 		);
 	}
 }
+
+export type {
+	object_properties_mode,
+	object_type,
+	object_schema,
+	object_TypeLiteralNode,
+};
+
+export {
+	ObjectUnspecified,
+};

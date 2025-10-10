@@ -27,9 +27,9 @@ import type{
 	TypeLiteralNode,
 	TypeReferenceNode,
 	UnionTypeNode,
-} from './types';
+} from './types.ts';
 
-export interface NodeFactory extends TSNodeFactory {
+interface NodeFactory extends TSNodeFactory {
 	createArrayLiteralExpression<
 		T1 extends Expression,
 		T2 extends T1[],
@@ -280,7 +280,7 @@ function createUnionTypeNode<
 	return TSfactory.createUnionTypeNode(value) as UnionTypeNode<T>;
 }
 
-export const factory: NodeFactory = {
+const factory: NodeFactory = {
 	...TSfactory,
 	createArrayLiteralExpression,
 	createArrayTypeNode,
@@ -294,4 +294,12 @@ export const factory: NodeFactory = {
 	createTypeLiteralNode,
 	createTypeReferenceNode,
 	createUnionTypeNode,
+};
+
+export type {
+	NodeFactory,
+};
+
+export {
+	factory,
 };

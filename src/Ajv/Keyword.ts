@@ -10,10 +10,12 @@ import type {
 import type {
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
-} from '../JSONSchema/Type.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 import {
 	Type,
-} from '../JSONSchema/Type.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../index.ts';
 
 export abstract class KeywordType<
 	T,

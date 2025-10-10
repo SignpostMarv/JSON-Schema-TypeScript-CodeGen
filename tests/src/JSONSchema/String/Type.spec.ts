@@ -5,10 +5,12 @@ import {
 
 import {
 	throws_Error,
-} from '../../../assertions.ts';
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../index.ts';
 
 import {
 	Type,
+// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 
 void describe('Type.generate_schema_definition()', () => {

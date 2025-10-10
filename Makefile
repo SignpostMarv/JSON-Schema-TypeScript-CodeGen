@@ -16,7 +16,7 @@ lint--prettier:
 lint--eslint:
 	@./node_modules/.bin/tsc --project ./tsconfig.eslint.json
 	@echo 'checking eslint for all issues with config'
-	@./node_modules/.bin/eslint --config eslint.config.js.mjs --cache './**/*.mjs'
+	@./node_modules/.bin/eslint --config eslint.config.js.mjs --cache-location='./.mjs.eslintcache' --cache './**/*.mjs'
 	@echo 'checking eslint for all issues'
 	@./node_modules/.bin/eslint --cache './**/*.ts'
 

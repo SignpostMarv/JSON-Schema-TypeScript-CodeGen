@@ -55,11 +55,11 @@ import {
 	AnyOf,
 } from './JSONSchema/AnyOf.ts';
 
-export type supported_type = (
+type supported_type = (
 	| Type<unknown>
 );
 
-export type SchemaParserOptions = (
+type SchemaParserOptions = (
 	& (
 		| {
 			ajv: Ajv,
@@ -81,9 +81,9 @@ export type SchemaParserOptions = (
 	}
 );
 
-export type share_ajv_callback<T> = (ajv: Ajv) => T;
+type share_ajv_callback<T> = (ajv: Ajv) => T;
 
-export class SchemaParser {
+class SchemaParser {
 	#ajv: Ajv;
 
 	types: [Type<unknown>, ...Type<unknown>[]];
@@ -416,3 +416,13 @@ export class SchemaParser {
 		];
 	}
 }
+
+export type {
+	supported_type,
+	SchemaParserOptions,
+	share_ajv_callback,
+};
+
+export {
+	SchemaParser,
+};
