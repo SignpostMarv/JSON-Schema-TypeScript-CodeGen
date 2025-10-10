@@ -37,7 +37,6 @@ import type {
 
 import type {
 	ObjectOfSchemas,
-	SchemaObject,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
@@ -60,36 +59,27 @@ type $ref_value_by_mode<
 	local: LocalRef,
 }[RefMode];
 
-type $def = (
-	& string
-	& {
-		_$def_guard: never,
-	}
-);
-
-type LocalRef<T extends $def = $def> = `#/$defs/${T}`;
+type LocalRef<T extends string = string> = `#/$defs/${T}`;
 
 type ExternalRef<
-	$ID extends $def = $def,
-	Local extends $def = $def,
+	$ID extends string = string,
+	Local extends string = string,
 > = `${$ID}${LocalRef<Local>}`;
 
-type ref_identifier = '([a-zA-Z0-9][a-zA-Z0-9._-]*)';
+type ref_identifier = '(.+)';
 
 type pattern_either = `^${ref_identifier}?#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_external = `^${ref_identifier}#\\/\\$defs\\/${ref_identifier}$`;
 type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
-const sub_pattern: `^${ref_identifier}$` = '^([a-zA-Z0-9][a-zA-Z0-9._-]*)$';
 const pattern_either: pattern_either = (
-	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)?#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
+	'^(.+)?#\\/\\$defs\\/(.+)$'
 );
 const pattern_external: pattern_external = (
-	'^([a-zA-Z0-9][a-zA-Z0-9._-]*)#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
+	'^(.+)#\\/\\$defs\\/(.+)$'
 );
 const pattern_local: pattern_local = (
-	'^#\\/\\$defs\\/([a-zA-Z0-9][a-zA-Z0-9._-]*)$'
+	'^#\\/\\$defs\\/(.+)$'
 );
-const regexp_sub = new RegExp(sub_pattern);
 const regexp_either = new RegExp(pattern_either);
 
 type $ref_type = {
@@ -164,7 +154,7 @@ class $ref extends
 	readonly needs_import: Set<string>;
 
 	readonly remote_defs: (
-		| {[key: string]: {[key: $def]: SchemaObject}}
+		| {[key: string]: ObjectOfSchemas}
 		| Record<string, never>
 	) = {};
 
@@ -237,13 +227,13 @@ class $ref extends
 		{
 			$ref,
 		}: $ref_type,
-		local_$defs: {[key: $def]: SchemaObject},
+		local_$defs: ObjectOfSchemas,
 	) {
 		const match = regexp_either.exec($ref) as (
 			| null
 			| (
-				| [string, undefined|$def, $def]
-				| [string, $def, $def]
+				| [string, undefined|string, string]
+				| [string, string, string]
 			)
 		);
 
@@ -253,7 +243,7 @@ class $ref extends
 
 		const [, external_id, local_$def] = match;
 
-		let $defs: {[key: $def]: SchemaObject} = local_$defs;
+		let $defs: ObjectOfSchemas = local_$defs;
 
 		if (undefined !== external_id) {
 			if (
@@ -367,14 +357,6 @@ class $ref extends
 		return Object.freeze(schema) as unknown as Readonly<$ref_type>;
 	}
 
-	static is_supported_$defs(
-		maybe: {[key: string]: SchemaObject},
-	): maybe is {[key: $def]: SchemaObject} {
-		return Object.keys(maybe).every(
-			(k) => regexp_sub.test(k),
-		);
-	}
-
 	static is_supported_$ref(
 		maybe: unknown,
 	): maybe is $ref_type {
@@ -399,7 +381,6 @@ class $ref extends
 export type {
 	$ref_mode,
 	$ref_value_by_mode,
-	$def,
 	LocalRef,
 	ExternalRef,
 	$ref_type,

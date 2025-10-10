@@ -77,7 +77,7 @@ function adjust_name_finisher(
 	value: string,
 	callback: (value: string) => string = adjust_name_default,
 ): string {
-	const result = callback(value).replace(/[^A-Za-z_\d ]/g, '_');
+	const result = callback(value).replace(/[^A-Za-z_\d]+/g, '_');
 
 	if (/^\d+/.test(result)) {
 		return `_${result}`;

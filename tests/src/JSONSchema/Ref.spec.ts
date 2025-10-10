@@ -131,6 +131,13 @@ void describe('$ref', () => {
 			true,
 			undefined,
 		],
+		[
+			{$ref: '#/$defs/foo bar baz bat #bag'},
+			true,
+			'foo_bar_baz_bat_bag',
+			true,
+			undefined,
+		],
 	];
 
 	function subset(
@@ -448,30 +455,6 @@ void describe('$ref', () => {
 					$ref: $ref_value,
 				},
 			));
-		});
-	});
-
-	void describe('::is_supported_$defs()', () => {
-		type DataSet = [
-			{[key: string]: SchemaObject},
-			boolean,
-		];
-
-		const data_sets: [DataSet, ...DataSet[]] = [
-			[{foo: {}}, true],
-			[{['foo bar']: {}}, false],
-		];
-
-		data_sets.forEach(([
-			$defs,
-			expectation,
-		], i) => {
-			void it(`behaves with data_sets[${i}]`, () => {
-				assert.equal(
-					$ref.is_supported_$defs($defs),
-					expectation,
-				);
-			});
 		});
 	});
 });
