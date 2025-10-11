@@ -33,6 +33,8 @@ import type {
 
 
 type $defs_type = {
+	$schema?: 'https://json-schema.org/draft/2020-12/schema',
+	$id?: Exclude<string, ''>,
 	$defs: ObjectOfSchemas,
 };
 
@@ -41,6 +43,16 @@ const $defs_schema: Readonly<SchemaDefinitionDefinition> = Object.freeze({
 	additionalProperties: false,
 	required: ['$defs'],
 	properties: {
+		$schema: {
+			type: 'string',
+			enum: [
+				'https://json-schema.org/draft/2020-12/schema',
+			],
+		},
+		$id: {
+			type: 'string',
+			minLength: 1,
+		},
 		$defs: {
 			type: 'object',
 			minProperties: 1,
