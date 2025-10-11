@@ -55,6 +55,10 @@ import {
 	AnyOf,
 } from './JSONSchema/AnyOf.ts';
 
+import {
+	$defs,
+} from './JSONSchema/$defs.ts';
+
 type supported_type = (
 	| Type<unknown>
 );
@@ -301,6 +305,7 @@ class SchemaParser {
 		OneOf<unknown, 'unspecified'>,
 		AllOf<unknown, 'unspecified'>,
 		AnyOf<unknown, 'unspecified'>,
+		$defs,
 		Unknown,
 	] {
 		return [
@@ -412,6 +417,7 @@ class SchemaParser {
 					mode: 'unspecified',
 				},
 			}),
+			new $defs({ajv}, {}),
 			new Unknown({ajv}),
 		];
 	}

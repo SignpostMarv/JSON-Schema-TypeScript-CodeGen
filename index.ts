@@ -4,6 +4,7 @@ export * from './src/types.ts';
 export * from './src/SchemaParser.ts';
 export * from './src/Printer.ts';
 export * from './src/JSONSchema/Type.ts';
+export * from './src/JSONSchema/$defs.ts';
 export * from './src/JSONSchema/AllOf.ts';
 export * from './src/JSONSchema/AnyOf.ts';
 export * from './src/JSONSchema/Array.ts';
