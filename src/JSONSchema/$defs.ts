@@ -38,7 +38,7 @@ type $defs_type = {
 	$defs: ObjectOfSchemas,
 };
 
-const $defs_schema: Readonly<SchemaDefinitionDefinition> = Object.freeze({
+const $defs_schema = Object.freeze({
 	type: 'object',
 	additionalProperties: false,
 	required: ['$defs'],
@@ -68,7 +68,7 @@ const $defs_schema: Readonly<SchemaDefinitionDefinition> = Object.freeze({
 			},
 		},
 	},
-});
+} as const);
 
 type $defs_schema = SchemaDefinitionDefinition<
 	typeof $defs_schema['required'],
