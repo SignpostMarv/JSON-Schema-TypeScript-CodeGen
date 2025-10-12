@@ -17,7 +17,7 @@ import {
 
 import {
 	factory,
-} from './typescript/index.ts';
+} from './typescript/factory.ts';
 
 import type {
 	SchemaParser,

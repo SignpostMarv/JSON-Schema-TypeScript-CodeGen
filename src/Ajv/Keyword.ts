@@ -11,11 +11,11 @@ import type {
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../../index.ts';
+} from '../JSONSchema/Type.ts';
 import {
 	Type,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../../index.ts';
+} from '../JSONSchema/Type.ts';
 
 export abstract class KeywordType<
 	T,

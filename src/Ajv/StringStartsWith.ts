@@ -24,12 +24,12 @@ import type {
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../../index.ts';
+} from '../JSONSchema/Type.ts';
 
 import {
 	factory,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../typescript/index.ts';
+} from '../typescript/factory.ts';
 
 type string_starts_with_type<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,

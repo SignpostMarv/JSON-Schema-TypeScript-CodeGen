@@ -23,11 +23,15 @@ import {
 
 import type {
 	ObjectOfSchemas,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../types.ts';
+
+import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../../index.ts';
+} from '../JSONSchema/Type.ts';
 
 // eslint-disable-next-line @stylistic/max-len
 // eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
@@ -40,11 +44,12 @@ import type {
 	StringLiteral,
 	UnionTypeNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../typescript/index.ts';
+} from '../typescript/types.ts';
+
 import {
 	factory,
 // eslint-disable-next-line imports/no-relative-parent-imports
-} from '../typescript/index.ts';
+} from '../typescript/factory.ts';
 
 type TemplatedStringPartBasic = (
 	| string
