@@ -72,7 +72,8 @@ const $defs_schema = Object.freeze({
 
 type $defs_schema = SchemaDefinitionDefinition<
 	typeof $defs_schema['required'],
-	typeof $defs_schema['properties']
+	typeof $defs_schema['properties'],
+	'yes'
 >;
 
 export class $defs extends Type<
