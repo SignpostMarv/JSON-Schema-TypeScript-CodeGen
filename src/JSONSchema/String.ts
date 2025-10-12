@@ -131,14 +131,9 @@ type string_type<
 		},
 }[StringMode];
 
-type string_schema_Properties<
-	StringMode extends string_mode,
-	Enum extends [string, string, ...string[]]|never[] = never[],
-	Pattern extends string|undefined = undefined,
-	MinLength extends MinLength_type|undefined = MinLength_type<1>,
-	Const extends string|undefined = undefined,
-> = {
-	basic: {
+type basic_string_schema = SchemaDefinitionDefinition<
+	['type'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -147,8 +142,14 @@ type string_schema_Properties<
 			type: 'integer',
 			const: ReturnType<typeof PositiveIntegerOrZeroGuard<0>>,
 		},
-	},
-	enum: {
+	}
+>;
+
+type enum_string_schema<
+	Enum extends [string, string, ...string[]]|never[] = never[],
+> = SchemaDefinitionDefinition<
+	['type', 'enum'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -168,8 +169,14 @@ type string_schema_Properties<
 					},
 				}
 		),
-	},
-	pattern: {
+	}
+>;
+
+type pattern_string_schema<
+	Pattern extends string|undefined = undefined,
+> = SchemaDefinitionDefinition<
+	['type', 'pattern'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -184,8 +191,14 @@ type string_schema_Properties<
 					const: Pattern,
 				}
 		),
-	},
-	'non-empty': {
+	}
+>;
+
+type non_empty_string_schema<
+	MinLength extends MinLength_type = MinLength_type<1>,
+> = SchemaDefinitionDefinition<
+	['type', 'minLength'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -194,8 +207,14 @@ type string_schema_Properties<
 			type: 'integer',
 			const: MinLength,
 		},
-	},
-	const: {
+	}
+>;
+
+type const_string_schema<
+	Const extends string|undefined = undefined,
+> = SchemaDefinitionDefinition<
+	['type'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -210,8 +229,8 @@ type string_schema_Properties<
 					const: Const,
 				}
 		),
-	},
-}[StringMode];
+	}
+>;
 
 type base_string_schema<
 	StringMode extends string_mode,
@@ -219,22 +238,13 @@ type base_string_schema<
 	Pattern extends string|undefined = undefined,
 	MinLength extends MinLength_type = MinLength_type<1>,
 	Const extends string|undefined = undefined,
-> = SchemaDefinitionDefinition<
-	{
-		basic: ['type'],
-		enum: ['type', 'enum'],
-		pattern: ['type', 'pattern'],
-		'non-empty': ['type', 'minLength'],
-		const: ['type'],
-	}[StringMode],
-	string_schema_Properties<
-		StringMode,
-		Enum,
-		Pattern,
-		MinLength,
-		Const
-	>
->;
+> = {
+	basic: basic_string_schema,
+	enum: enum_string_schema<Enum>,
+	pattern: pattern_string_schema<Pattern>,
+	'non-empty': non_empty_string_schema<MinLength>,
+	const: const_string_schema<Const>,
+}[StringMode];
 
 class BaseString<
 	T extends string = string,
@@ -1163,16 +1173,6 @@ type const_string_type<
 > = string_type<
 	'const',
 	never[],
-	undefined,
-	MinLength_type<1>,
-	Const
->;
-
-type const_string_schema<
-	Const extends string|undefined = string|undefined,
-> = base_string_schema<
-	'const',
-	[string, string, ...string[]],
 	undefined,
 	MinLength_type<1>,
 	Const
