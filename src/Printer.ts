@@ -8,6 +8,7 @@ import {
 	createPrinter,
 	createSourceFile,
 	EmitHint,
+	factory,
 	NewLineKind,
 	NodeFlags,
 	ScriptKind,
@@ -15,8 +16,9 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
 import {
-	factory,
 } from './typescript/factory.ts';
 
 import type {

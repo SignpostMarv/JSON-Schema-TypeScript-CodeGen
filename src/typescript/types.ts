@@ -17,6 +17,7 @@ import type {
 	Identifier as TSIdentifier,
 	IntersectionTypeNode as TSIntersectionTypeNode,
 	LiteralTypeNode as TSLiteralTypeNode,
+	NodeFactory as TSNodeFactory,
 	ObjectLiteralExpression as TSObjectLiteralExpression,
 	StringLiteral as TSStringLiteral,
 	TupleTypeNode as TSTupleTypeNode,
@@ -34,7 +35,7 @@ type ArrayLiteralExpression<
 > = (
 	& TSArrayLiteralExpression
 	& {
-		readonly __guard_multiLine: T3,
+		readonly multiLine?: T3,
 		readonly elements: (
 			& TSArrayLiteralExpression['elements']
 			& T2
@@ -144,7 +145,7 @@ type ObjectLiteralExpression<
 	& TSObjectLiteralExpression
 	& {
 		readonly properties: Properties,
-		readonly __guard_multiLine: MultiLine,
+		readonly multiLine?: MultiLine,
 	}
 );
 
@@ -224,6 +225,111 @@ type UnionTypeNode<
 	}
 );
 
+interface NodeFactory extends TSNodeFactory {
+	createArrayLiteralExpression<
+		T1 extends Expression,
+		T2 extends T1[],
+		T3 extends boolean,
+	>(
+		elements?: readonly Expression[],
+		multiLine?: boolean,
+	): ArrayLiteralExpression<T1, T2, T3>;
+
+	createArrayTypeNode<
+		T1 extends TypeNode,
+	>(
+		value: T1,
+	): ArrayTypeNode<T1>;
+
+	createCallExpression<
+		T1 extends LeftHandSideExpression,
+		TypeArguments extends (
+			| never[]
+			| [TypeNode, ...TypeNode[]]
+		) = never[],
+		Arguments extends (
+			| never[]
+			| [Expression, ...Expression[]]
+		) = never[],
+	>(
+		expression: T1,
+		typeArguments: TypeArguments,
+		args: Arguments,
+	): CallExpression<
+		T1,
+		'no',
+		TypeArguments,
+		Arguments
+	>;
+
+	createIdentifier<T extends string>(value: T): Identifier<T>;
+
+	createIntersectionTypeNode<
+		T extends [TypeNode, ...TypeNode[]],
+	>(
+		value: T,
+	): IntersectionTypeNode<T>;
+
+	createLiteralTypeNode<
+		T extends TSLiteralTypeNode['literal'],
+	>(value: T): LiteralTypeNode<T>;
+
+	createObjectLiteralExpression<
+		T1 extends undefined|(readonly ObjectLiteralElementLike []),
+		T2 extends undefined|boolean,
+	>(
+		properties?: T1,
+		multiLine?: T2,
+	): ObjectLiteralExpression<T1, T2>;
+
+	createStringLiteral<
+		T extends string,
+	>(value: T): StringLiteral<T>;
+
+	createTupleTypeNode<
+		T1 extends (
+			| TypeNode
+			| NamedTupleMember
+		) = (
+			| TypeNode
+			| NamedTupleMember
+		),
+		T2 extends [T1, ...T1[]] = [T1, ...T1[]],
+	>(
+		value: T2,
+	): TupleTypeNode<T1, T2>;
+
+	createTypeLiteralNode<
+		T extends TypeElement,
+	>(
+		value: T[],
+	): TypeLiteralNode<T>;
+
+	createTypeReferenceNode<
+		T1 extends string|EntityName,
+		T2 extends [TypeNode, ...TypeNode[]],
+	>(
+		name: string,
+		type_arguments: [TypeNode, ...TypeNode[]],
+	): TypeReferenceNode<T1, T2>;
+	createTypeReferenceNode<
+		T1 extends string,
+	>(
+		name: string,
+	): TypeReferenceNode<T1, never[]>;
+	createTypeReferenceNode<
+		T1 extends string,
+		T2 extends never[]|[TypeNode, ...TypeNode[]],
+	>(
+		name: string,
+		type_arguments?: [TypeNode, ...TypeNode[]],
+	): TypeReferenceNode<T1, T2>;
+
+	createUnionTypeNode<
+		T extends [TypeNode, TypeNode, ...TypeNode[]],
+	>(value: T): UnionTypeNode<T>;
+}
+
 export type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
@@ -232,6 +338,7 @@ export type {
 	Identifier,
 	IntersectionTypeNode,
 	LiteralTypeNode,
+	NodeFactory,
 	ObjectLiteralExpression,
 	StringLiteral,
 	TupleTypeNode,
