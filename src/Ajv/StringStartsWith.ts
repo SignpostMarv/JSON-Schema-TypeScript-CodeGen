@@ -20,7 +20,6 @@ import {
 } from './Keyword.ts';
 
 import type {
-	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 // eslint-disable-next-line imports/no-relative-parent-imports
@@ -140,7 +139,7 @@ export class StringStartsWith<
 		StringStartsWith.#ajv_check.add(ajv);
 	}
 
-	static generate_schema_definition(): Readonly<SchemaDefinitionDefinition> {
+	static generate_schema_definition(): Readonly<string_starts_with_schema> {
 		const definition: string_starts_with_schema = {
 			type: 'object',
 			required: ['type', 'starts_with'],

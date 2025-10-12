@@ -12,6 +12,5 @@ export * from './src/JSONSchema/Object.ts';
 export * from './src/JSONSchema/Ref.ts';
 export * from './src/JSONSchema/SomethingOf.ts';
 export * from './src/JSONSchema/String.ts';
-export * from './src/JSONSchema/types.ts';
 export * from './src/JSONSchema/Unknown.ts';
 export * from './src/JSONSchema/OneOf.ts';

@@ -47,6 +47,7 @@ import type {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
+	$defs_schema,
 	ObjectUnspecified,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
@@ -68,12 +69,7 @@ void describe('ObjectUnspecified', () => {
 		const full_schema_properties: Readonly<object_schema<
 			'both'
 		>['properties']> = Object.freeze({
-			$defs: {
-				type: 'object',
-				additionalProperties: {
-					type: 'object',
-				},
-			},
+			...$defs_schema.properties,
 			type: {type: 'string', const: 'object'},
 			required: {
 				type: 'array',
@@ -118,11 +114,13 @@ void describe('ObjectUnspecified', () => {
 			>['properties']
 		>> = {
 			neither: {
+				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
 				required: full_schema_properties.required,
 			},
 			both: {
+				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
 				required: full_schema_properties.required,
@@ -132,12 +130,14 @@ void describe('ObjectUnspecified', () => {
 				),
 			},
 			properties: {
+				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
 				required: full_schema_properties.required,
 				properties: full_schema_properties.properties,
 			},
 			pattern: {
+				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
 				required: full_schema_properties.required,

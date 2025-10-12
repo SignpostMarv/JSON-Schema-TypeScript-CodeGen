@@ -4,16 +4,13 @@ import type {
 } from 'typescript';
 
 import type {
-	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinitionWith$defs,
 	SchemalessTypeOptions,
 } from './Type.ts';
 import {
+	$defs_schema,
 	Type,
 } from './Type.ts';
-
-import type {
-	$defs_schema,
-} from './types.ts';
 
 import {
 	PositiveIntegerGuard,
@@ -272,13 +269,6 @@ type array_schema_properties<
 	],
 > = (
 	& {
-		$defs: (
-			| $defs_schema['$defs']
-			| {
-				type: 'object',
-				const: ObjectOfSchemas,
-			}
-		),
 		type: {
 			type: 'string',
 			const: 'array',
@@ -354,7 +344,7 @@ type array_schema<
 		SchemaObject,
 		...SchemaObject[],
 	],
-> = SchemaDefinitionDefinition<
+> = SchemaDefinitionDefinitionWith$defs<
 	{
 		items: {
 			with: {
@@ -1023,6 +1013,8 @@ class ArrayType<
 			MinItemsType_mode
 		>['properties'],
 		(
+			| '$schema'
+			| '$id'
 			| '$defs'
 			| 'type'
 			| 'uniqueItems'
@@ -1036,6 +1028,8 @@ class ArrayType<
 				MinItemsType_mode
 			>['properties'],
 			(
+				| '$schema'
+				| '$id'
 				| '$defs'
 				| 'type'
 				| 'uniqueItems'
@@ -1100,12 +1094,7 @@ class ArrayType<
 				},
 			};
 		} else {
-			base.$defs = {
-				type: 'object',
-				additionalProperties: {
-					type: 'object',
-				},
-			};
+			base.$defs = $defs_schema.properties.$defs;
 		}
 
 		return base;

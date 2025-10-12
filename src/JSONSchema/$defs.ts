@@ -3,10 +3,12 @@ import type {
 } from 'typescript';
 
 import type {
-	SchemaDefinitionDefinition,
+	$defs_schema_type,
+	SchemaDefinitionDefinitionWith$defs,
 	SchemalessTypeOptions,
 } from './Type.ts';
 import {
+	$defs_schema,
 	Type,
 } from './Type.ts';
 
@@ -38,48 +40,21 @@ type $defs_type = {
 	$defs: ObjectOfSchemas,
 };
 
-const $defs_schema = Object.freeze({
-	type: 'object',
-	additionalProperties: false,
-	required: ['$defs'],
-	properties: {
-		$schema: {
-			type: 'string',
-			enum: [
-				'https://json-schema.org/draft/2020-12/schema',
-			],
-		},
-		$id: {
-			type: 'string',
-			minLength: 1,
-		},
-		$defs: {
-			type: 'object',
-			minProperties: 1,
-			additionalProperties: {
-				type: 'object',
-				required: ['type'],
-				properties: {
-					type: {
-						type: 'string',
-						minLength: 1,
-					},
-				},
-			},
-		},
-	},
-} as const);
-
-type $defs_schema = SchemaDefinitionDefinition<
-	typeof $defs_schema['required'],
-	typeof $defs_schema['properties']
+type $defs_schema_definition = SchemaDefinitionDefinitionWith$defs<
+	$defs_schema_type['required'],
+	Record<string, never>
 >;
+
+export type {
+	$defs_schema,
+	$defs_type,
+};
 
 export class $defs extends Type<
 	unknown,
 	$defs_type,
 	$defs_type,
-	$defs_schema,
+	$defs_schema_definition,
 	Record<string, never>,
 	TypeLiteralNode<PropertySignature>,
 	ObjectLiteralExpression<[]>

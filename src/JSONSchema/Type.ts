@@ -19,6 +19,76 @@ import type {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
+type $defs_schema_type = Readonly<{
+	type: 'object',
+	additionalProperties: false,
+	required: readonly ['$defs'],
+	properties: {
+		$schema: {
+			type: 'string',
+			enum: readonly [
+				'https://json-schema.org/draft/2020-12/schema',
+			],
+		},
+		$id: {
+			type: 'string',
+			minLength: 1,
+		},
+		$defs: (
+			| {
+				type: 'object',
+				minProperties: 1,
+				additionalProperties: {
+					type: 'object',
+					required: readonly ['type'],
+					properties: {
+						type: {
+							type: 'string',
+							minLength: 1,
+						},
+					},
+				},
+			}
+			| {
+				type: 'object',
+				const: ObjectOfSchemas,
+			}
+		),
+	},
+}>;
+
+const $defs_schema: $defs_schema_type = Object.freeze({
+	type: 'object',
+	additionalProperties: false,
+	required: ['$defs'] as const,
+	properties: {
+		$schema: {
+			type: 'string',
+			enum: [
+				'https://json-schema.org/draft/2020-12/schema',
+			],
+		},
+		$id: {
+			type: 'string',
+			minLength: 1,
+		},
+		$defs: {
+			type: 'object',
+			minProperties: 1,
+			additionalProperties: {
+				type: 'object',
+				required: ['type'],
+				properties: {
+					type: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+			},
+		},
+	},
+} as const);
+
 type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
@@ -37,6 +107,33 @@ type SchemaDefinitionDefinition<
 		properties: Properties,
 	}
 );
+
+type SchemaDefinitionDefinitionWith$defs<
+	Required extends readonly [
+		string,
+		...string[],
+	] = readonly [
+		string,
+		...string[],
+	],
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
+> = SchemaDefinitionDefinition<
+	Required,
+	(
+		& typeof $defs_schema['properties']
+		& {
+			$defs: (
+				| typeof $defs_schema['properties']['$defs']
+				| {
+					type: 'object',
+					const: ObjectOfSchemas,
+				}
+			),
+		}
+		& Properties
+	)
+>;
+
 type SchemaDefinitionDefinitionWithNoSpecifiedProperties = {
 	type: 'object',
 	minProperties: 1,
@@ -244,7 +341,9 @@ abstract class Type<
 }
 
 export type {
+	$defs_schema_type,
 	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinitionWith$defs,
 	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 	TypeDefinitionSchema,
 	TypeOptions,
@@ -253,4 +352,5 @@ export type {
 
 export {
 	Type,
+	$defs_schema,
 };

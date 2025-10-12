@@ -10,16 +10,14 @@ import {
 
 import type {
 	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinitionWith$defs,
 	TypeDefinitionSchema,
 	TypeOptions,
 } from './Type.ts';
 import {
+	$defs_schema,
 	Type,
 } from './Type.ts';
-
-import type {
-	$defs_schema,
-} from './types.ts';
 
 import {
 	$ref,
@@ -111,10 +109,9 @@ type object_schema_required<
 
 type object_schema<
 	PropertiesMode extends object_properties_mode,
-> = SchemaDefinitionDefinition<
+> = SchemaDefinitionDefinitionWith$defs<
 	object_schema_required<PropertiesMode>,
 	(
-		& $defs_schema
 		& {
 			type: {
 				type: 'string',
@@ -338,16 +335,10 @@ class ObjectUnspecified<
 		const properties_for_partial: Partial<
 			object_schema<'both'>['properties']
 		> = {
+			...$defs_schema.properties,
 			type: {
 				type: 'string',
 				const: 'object',
-			},
-		};
-
-		properties_for_partial.$defs = {
-			type: 'object',
-			additionalProperties: {
-				type: 'object',
 			},
 		};
 

@@ -10,15 +10,13 @@ import {
 
 import type {
 	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinitionWith$defs,
 	SchemalessTypeOptions,
 } from './Type.ts';
 import {
+	$defs_schema,
 	Type,
 } from './Type.ts';
-
-import type {
-	$defs_schema,
-} from './types';
 
 import type {
 	adjust_name_callback,
@@ -102,12 +100,9 @@ type $ref_schema = SchemaDefinitionDefinition<
 			type: 'array',
 			const: ['$ref'],
 		},
-		properties: {
-			type: 'object',
-			required: ['$ref'],
-			additionalProperties: false,
-			properties: {
-				$defs: $defs_schema['$defs'],
+		properties: SchemaDefinitionDefinitionWith$defs<
+			['$ref'],
+			{
 				$ref: {
 					oneOf: [
 						{
@@ -134,8 +129,8 @@ type $ref_schema = SchemaDefinitionDefinition<
 						},
 					],
 				},
-			},
-		},
+			}
+		>,
 	}
 >;
 
@@ -295,12 +290,7 @@ class $ref extends
 					required: ['$ref'],
 					additionalProperties: false,
 					properties: {
-						$defs: {
-							type: 'object',
-							additionalProperties: {
-								type: 'object',
-							},
-						},
+						...$defs_schema.properties,
 						$ref: {
 							oneOf: [
 								{
