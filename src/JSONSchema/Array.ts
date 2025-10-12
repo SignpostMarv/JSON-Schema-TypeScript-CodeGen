@@ -417,8 +417,7 @@ type array_schema<
 		UniqueItems_mode,
 		Items,
 		PrefixItems
-	>,
-	'yes'
+	>
 >;
 
 class ArrayType<

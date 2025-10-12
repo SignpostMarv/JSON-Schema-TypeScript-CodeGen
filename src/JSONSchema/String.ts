@@ -238,8 +238,7 @@ type base_string_schema<
 		Pattern,
 		MinLength,
 		Const
-	>,
-	'yes'
+	>
 >;
 
 class BaseString<

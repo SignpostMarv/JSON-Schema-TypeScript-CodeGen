@@ -167,8 +167,7 @@ type object_schema<
 				pattern: 'with',
 			}[PropertiesMode]
 		>
-	),
-	'yes'
+	)
 >;
 
 type object_TypeLiteralNode<

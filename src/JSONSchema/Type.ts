@@ -23,41 +23,25 @@ type SchemaDefinitionDefinition<
 	Required extends readonly [
 		string,
 		...string[],
-	]|never[] = readonly [
+	] = readonly [
 		string,
 		...string[],
-	]|never[],
-	Properties extends (
-		| ObjectOfSchemas
-		| Record<string, never>
-	) = (
-		| ObjectOfSchemas
-		| Record<string, never>
-	),
-	HasProperties extends 'yes'|'no' = 'yes'|'no',
+	],
+	Properties extends ObjectOfSchemas = ObjectOfSchemas,
 > = (
 	& SchemaObject
-	& (
-		{
-			yes: {
+	& {
 				type: 'object',
 				required: Required,
 				additionalProperties: false,
 				properties: Properties,
-			},
-			no: {
+	}
+);
+type SchemaDefinitionDefinitionWithNoSpecifiedProperties = {
 				type: 'object',
 				minProperties: 1,
 				additionalProperties: Record<string, never>,
-			},
-		}[HasProperties]
-	)
-);
-
-type SchemaObjectDefinition = SchemaDefinitionDefinition<
-	[],
-	Record<string, never>
->;
+};
 
 type TypeDefinitionSchema<
 	Schema extends SchemaObject = SchemaObject,
@@ -105,8 +89,12 @@ abstract class Type<
 		{[key: string]: unknown}
 	),
 	SchemaDefinition extends (
-		SchemaDefinitionDefinition
-	) = SchemaDefinitionDefinition,
+		| SchemaDefinitionDefinition
+		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+	) = (
+		| SchemaDefinitionDefinition
+		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+	),
 	SchemaDefinitionOptions extends (
 		{[key: string]: unknown}
 	) = (
@@ -257,7 +245,7 @@ abstract class Type<
 
 export type {
 	SchemaDefinitionDefinition,
-	SchemaObjectDefinition,
+	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 	TypeDefinitionSchema,
 	TypeOptions,
 	SchemalessTypeOptions,

@@ -7,7 +7,7 @@ import type {
 
 import type {
 	SchemaDefinitionDefinition,
-	SchemaObjectDefinition,
+	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 } from './Type.ts';
 import {
 	Type,
@@ -155,8 +155,7 @@ type something_of_schema<
 					const: Choices,
 				},
 			},
-		}[Kind],
-		'yes'
+		}[Kind]
 	>,
 	unspecified: SchemaDefinitionDefinition<
 		[Kind],
@@ -171,7 +170,7 @@ type something_of_schema<
 				oneOf: {
 					type: 'array',
 					minItems: 2,
-					items: SchemaObjectDefinition,
+					items: SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 				},
 			},
 			anyOf: {
@@ -184,7 +183,7 @@ type something_of_schema<
 				anyOf: {
 					type: 'array',
 					minItems: 2,
-					items: SchemaObjectDefinition,
+					items: SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 				},
 			},
 			allOf: {
@@ -197,11 +196,10 @@ type something_of_schema<
 				allOf: {
 					type: 'array',
 					minItems: 2,
-					items: SchemaObjectDefinition,
+					items: SchemaDefinitionDefinitionWithNoSpecifiedProperties,
 				},
 			},
-		}[Kind],
-		'yes'
+		}[Kind]
 	>,
 }[Mode];
 
