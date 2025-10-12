@@ -20,8 +20,8 @@ import {
 } from './Keyword.ts';
 
 import type {
+	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
-	TypeDefinitionSchema,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 
@@ -37,11 +37,9 @@ type string_starts_with_type<
 	starts_with: StartsWith,
 };
 
-type string_starts_with_schema = TypeDefinitionSchema<{
-	type: 'object',
-	required: ['type', 'starts_with'],
-	additionalProperties: false,
-	properties: {
+type string_starts_with_schema = SchemaDefinitionDefinition<
+	['type', 'starts_with'],
+	{
 		type: {
 			type: 'string',
 			const: 'string',
@@ -50,8 +48,8 @@ type string_starts_with_schema = TypeDefinitionSchema<{
 			type: 'string',
 			minLength: 1,
 		},
-	},
-}>;
+	}
+>;
 
 export class StringStartsWith<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
