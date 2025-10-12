@@ -15,11 +15,6 @@ import {
 } from './Type.ts';
 
 import type {
-	ObjectOfSchemas,
-// eslint-disable-next-line imports/no-relative-parent-imports
-} from '../types.ts';
-
-import type {
 	CallExpression,
 	Identifier,
 	LiteralTypeNode,
@@ -232,7 +227,7 @@ type base_string_schema<
 		'non-empty': ['type', 'minLength'],
 		const: ['type'],
 	}[StringMode],
-	ObjectOfSchemas & string_schema_Properties<
+	string_schema_Properties<
 		StringMode,
 		Enum,
 		Pattern,
