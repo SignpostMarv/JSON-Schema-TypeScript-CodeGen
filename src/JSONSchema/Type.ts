@@ -31,16 +31,16 @@ type SchemaDefinitionDefinition<
 > = (
 	& SchemaObject
 	& {
-				type: 'object',
-				required: Required,
-				additionalProperties: false,
-				properties: Properties,
+		type: 'object',
+		required: Required,
+		additionalProperties: false,
+		properties: Properties,
 	}
 );
 type SchemaDefinitionDefinitionWithNoSpecifiedProperties = {
-				type: 'object',
-				minProperties: 1,
-				additionalProperties: Record<string, never>,
+	type: 'object',
+	minProperties: 1,
+	additionalProperties: Record<string, never>,
 };
 
 type TypeDefinitionSchema<
