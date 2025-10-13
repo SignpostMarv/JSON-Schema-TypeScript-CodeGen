@@ -210,7 +210,10 @@ abstract class Type<
 
 	#check_schema: ValidateFunction<TypeDefinition>;
 
-	static #maybe_add_$defs_check: ValidateFunction|undefined = undefined;
+	protected static maybe_add_$defs_check: (
+		| ValidateFunction
+		| undefined
+	) = undefined;
 
 	constructor({
 		ajv,
@@ -334,8 +337,8 @@ abstract class Type<
 		sub_schema: SchemaObject,
 	): SchemaObject {
 		if ('$defs' in schema) {
-			if (undefined === this.#maybe_add_$defs_check) {
-				this.#maybe_add_$defs_check = (new Ajv({
+			if (undefined === this.maybe_add_$defs_check) {
+				this.maybe_add_$defs_check = (new Ajv({
 					strict: true,
 				})).compile({
 					not: {
@@ -374,7 +377,7 @@ abstract class Type<
 				});
 			}
 
-			if (this.#maybe_add_$defs_check(sub_schema)) {
+			if (this.maybe_add_$defs_check(sub_schema)) {
 				return {
 					$defs: schema.$defs,
 					...sub_schema,
