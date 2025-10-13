@@ -1,6 +1,8 @@
 import type {
-	Ajv2020 as Ajv,
 	ValidateFunction,
+} from 'ajv/dist/2020.js';
+import {
+	Ajv2020 as Ajv,
 } from 'ajv/dist/2020.js';
 
 import type {
@@ -208,6 +210,8 @@ abstract class Type<
 
 	#check_schema: ValidateFunction<TypeDefinition>;
 
+	static #maybe_add_$defs_check: ValidateFunction|undefined = undefined;
+
 	constructor({
 		ajv,
 		schema_definition,
@@ -330,10 +334,52 @@ abstract class Type<
 		sub_schema: SchemaObject,
 	): SchemaObject {
 		if ('$defs' in schema) {
+			if (undefined === this.#maybe_add_$defs_check) {
+				this.#maybe_add_$defs_check = (new Ajv({
+					strict: true,
+				})).compile({
+					not: {
+						oneOf: [
+							{
+								type: 'object',
+								additionalProperties: false,
+								required: ['type'],
+								properties: {
+									type: {
+										type: 'string',
+										const: 'string',
+									},
+									enum: {
+										type: 'array',
+										minItems: 1,
+										uniqueItems: true,
+										items: {
+											type: 'string',
+										},
+									},
+									pattern: {
+										type: 'string',
+									},
+									minLength: {
+										type: 'integer',
+										minimum: 0,
+									},
+									const: {
+										type: 'string',
+									},
+								},
+							},
+						],
+					},
+				});
+			}
+
+			if (this.#maybe_add_$defs_check(sub_schema)) {
 			return {
 				$defs: schema.$defs,
 				...sub_schema,
 			};
+			}
 		}
 
 		return sub_schema;
