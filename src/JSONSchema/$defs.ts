@@ -73,34 +73,26 @@ export class $defs extends Type<
 		return factory.createObjectLiteralExpression([]);
 	}
 
-	async generate_typescript_type({
+	generate_typescript_type({
 		schema: {
 			$defs,
 		},
-		schema_parser,
 	}: {
 		schema: $defs_type,
 		schema_parser: SchemaParser,
 	}): Promise<TypeLiteralNode<PropertySignature>> {
-		const types = await Promise.all(Object.entries($defs).map(
-			async ([name, sub_schema]) => {
-				const sub_type = await schema_parser.parse(
-					sub_schema,
-				).generate_typescript_type({
-					schema: sub_schema,
-					schema_parser,
-				});
-
+		const types = Object.keys($defs).map(
+			(name) => {
 				return factory.createPropertySignature(
 					undefined,
 					name,
 					undefined,
-					sub_type,
+					undefined,
 				);
 			},
-		));
+		);
 
-		return factory.createTypeLiteralNode(types);
+		return Promise.resolve(factory.createTypeLiteralNode(types));
 	}
 
 	static generate_schema_definition() {

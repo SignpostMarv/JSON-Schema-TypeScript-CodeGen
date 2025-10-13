@@ -107,6 +107,53 @@ void describe('Printer', () => {
 						],
 					],
 				],
+				[
+					[
+						{},
+						{
+							// eslint-disable-next-line @stylistic/max-len
+							$schema: 'https://json-schema.org/draft/2020-12/schema',
+							$id: 'foobarbaz',
+							$defs: {
+								bar: {
+									type: 'string',
+									enum: [
+										'foo',
+										'bar',
+										'baz',
+									],
+								},
+								baz: {
+									type: 'string',
+									pattern: '^baz',
+								},
+							},
+						},
+					],
+					() => {},
+					[
+						[
+							'./index.ts',
+							`import type { foo } from "./types.ts";${
+								'\n\n'
+							}export const bar: foo = {};`,
+						],
+						[
+							'./types.ts',
+							`type bar = "foo" | "bar" | "baz";${
+								'\n\n'
+							}type baz = StringPassesRegex<"^baz">;${
+								'\n\n'
+							}export type foo = {${
+								'\n'
+							}    bar;${
+								'\n'
+							}    baz;${
+								'\n'
+							}};`,
+						],
+					],
+				],
 			],
 		],
 		[
