@@ -37,6 +37,10 @@ import {
 	adjust_name_finisher,
 } from './coercions.ts';
 
+import {
+	Type,
+} from './JSONSchema/Type.ts';
+
 type name_to_filename_callback = (name: string) => `./${string}.ts`;
 
 function data_name_to_filename_default(): './index.ts' {
@@ -205,10 +209,10 @@ class Printer {
 
 			const $def_filename = this.#type_filename_callback(name);
 
-			const $def_schema_with_$defs: SchemaObject = {
+			const $def_schema_with_$defs: SchemaObject = Type.maybe_add_$defs(
 				$defs,
-				...$def_schema,
-			};
+				$def_schema,
+			);
 
 			const node = factory.createTypeAliasDeclaration(
 				(
