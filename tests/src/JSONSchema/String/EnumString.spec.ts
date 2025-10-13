@@ -93,6 +93,7 @@ void describe('EnumString', () => {
 			ts_asserter<Awaited<
 				ReturnType<EnumString['generate_typescript_type']>
 			>>,
+			[string, string, ...string[]],
 		];
 
 		const data_sets: [DataSet, ...DataSet[]] = [
@@ -102,6 +103,7 @@ void describe('EnumString', () => {
 					enum: ['foo', 'bar'],
 				},
 				ts_assert.isUnionTypeNode,
+				['foo', 'bar'],
 			],
 			[
 				{
@@ -113,20 +115,57 @@ void describe('EnumString', () => {
 						SyntaxKind.StringKeyword,
 					);
 				},
+				['foo', 'bar', 'baz', 'bat'],
 			],
 		];
 
-		data_sets.forEach(([
+		function* split_data_sets<
+			J extends number,
+		>(data_sets: [DataSet, ...DataSet[]]): Generator<[
+			DataSet[0],
+			DataSet[1],
+			DataSet[2][J],
+			number,
+			J,
+		]> {
+			let i = 0;
+			for (const [
+				type_schema,
+				asserter,
+				data_to_check,
+			] of data_sets) {
+				let j = 0;
+
+				for (const value of data_to_check) {
+					yield [
+						type_schema,
+						asserter,
+						value,
+						i,
+						j as J,
+					];
+
+					++j;
+				}
+
+				++i;
+			}
+		}
+
+		for (const [
 			type_schema,
 			asserter,
-		], i) => {
+			value,
+			i,
+			j,
+		] of split_data_sets(data_sets)) {
 			const ajv = new Ajv({strict: true});
 			const instance = new EnumString(
 				'enum' in type_schema ? type_schema.enum : [],
 				{ajv},
 			);
 
-			void it(`behaves with data_sets[${i}]`, async () => {
+			void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
 				});
@@ -137,10 +176,6 @@ void describe('EnumString', () => {
 
 				assert.doesNotThrow(() => asserter(result));
 
-				const value = 'enum' in type_schema
-					? type_schema.enum[0]
-					: 'foo';
-
 				const data = instance.generate_typescript_data(
 					value,
 					new SchemaParser({ajv}),
@@ -150,6 +185,6 @@ void describe('EnumString', () => {
 				ts_assert.isStringLiteral(data);
 				assert.equal(data.text, value);
 			});
-		});
+		}
 	});
 });
