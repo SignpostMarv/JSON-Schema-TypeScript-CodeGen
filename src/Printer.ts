@@ -41,6 +41,10 @@ import {
 	Type,
 } from './JSONSchema/Type.ts';
 
+import {
+	$defs as $defs_type_handler,
+} from './JSONSchema/$defs.ts';
+
 type name_to_filename_callback = (name: string) => `./${string}.ts`;
 
 function data_name_to_filename_default(): './index.ts' {
@@ -319,6 +323,10 @@ class Printer {
 			outputs[type_filename] = [code];
 		} else {
 			outputs[type_filename].push(code);
+		}
+
+		if ($defs_type_handler.is_a(type_for_schema)) {
+			delete outputs[data_filename];
 		}
 
 		return Object.entries(outputs)

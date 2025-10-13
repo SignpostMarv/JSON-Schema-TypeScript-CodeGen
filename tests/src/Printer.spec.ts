@@ -133,12 +133,6 @@ void describe('Printer', () => {
 					() => {},
 					[
 						[
-							'./index.ts',
-							`import type { foo } from "./types.ts";${
-								'\n\n'
-							}export const bar: foo = {};`,
-						],
-						[
 							'./types.ts',
 							`type bar = "foo" | "bar" | "baz";${
 								'\n\n'
