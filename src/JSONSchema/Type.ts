@@ -375,10 +375,10 @@ abstract class Type<
 			}
 
 			if (this.#maybe_add_$defs_check(sub_schema)) {
-			return {
-				$defs: schema.$defs,
-				...sub_schema,
-			};
+				return {
+					$defs: schema.$defs,
+					...sub_schema,
+				};
 			}
 		}
 
