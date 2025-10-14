@@ -113,8 +113,7 @@ void describe('TemplatedString', () => {
 	void it('compiles to macro', () => {
 		const ajv = new Ajv({strict: true});
 
-		TemplatedString.configure_ajv(ajv);
-		TemplatedString.configure_ajv(ajv);
+		new TemplatedString({ajv});
 
 		const validator = ajv.compile({
 			type: 'string',

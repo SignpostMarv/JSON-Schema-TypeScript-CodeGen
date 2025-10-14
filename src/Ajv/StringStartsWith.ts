@@ -6,10 +6,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import type {
-	Ajv2020 as Ajv,
-} from 'ajv/dist/2020.js';
-
 // eslint-disable-next-line @stylistic/max-len
 // eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
 import type {
@@ -65,11 +61,16 @@ export class StringStartsWith<
 		TemplateLiteralTypeNode,
 		TemplateExpression
 	> {
-	static #ajv_check: WeakSet<Ajv> = new WeakSet();
-
 	constructor(prefix: StartsWith, options: SchemalessTypeOptions) {
 		super({
 			...options,
+			ajv_keyword: {
+				keyword: 'starts_with',
+				type: 'string',
+				macro: (
+					starts_with: string,
+				) => StringStartsWith.ajv_macro(starts_with),
+			},
 			type_definition: {
 				prefix,
 			},
@@ -119,24 +120,6 @@ export class StringStartsWith<
 		));
 	}
 
-	static ajv_keyword(ajv: Ajv): void {
-		if (StringStartsWith.#ajv_check.has(ajv)) {
-			return;
-		}
-
-		ajv.addKeyword({
-			keyword: 'starts_with',
-			type: 'string',
-			macro: (starts_with: string) => (
-				{
-					pattern: `^${RegExp.escape(starts_with)}.+$`,
-				}
-			),
-		});
-
-		StringStartsWith.#ajv_check.add(ajv);
-	}
-
 	static generate_schema_definition(): Readonly<string_starts_with_schema> {
 		const definition: string_starts_with_schema = {
 			type: 'object',
@@ -170,5 +153,11 @@ export class StringStartsWith<
 			type: 'string',
 			starts_with: prefix,
 		});
+	}
+
+	protected static ajv_macro(starts_with: string) {
+		return {
+			pattern: `^${RegExp.escape(starts_with)}.+$`,
+		};
 	}
 }

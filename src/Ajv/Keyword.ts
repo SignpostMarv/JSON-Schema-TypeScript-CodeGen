@@ -1,5 +1,5 @@
 import type {
-	Ajv2020 as Ajv,
+	MacroKeywordDefinition,
 } from 'ajv/dist/2020.js';
 
 import type {
@@ -10,12 +10,31 @@ import type {
 import type {
 	SchemaDefinitionDefinition,
 	TypeDefinitionSchema,
+	TypeOptions,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 import {
 	Type,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
+
+type KeywordTypeOptions<
+	SchemaDefinitionOptions extends {[key: string]: unknown},
+	TypeDefinitionOptions extends {[key: string]: unknown},
+> = (
+	& TypeOptions<
+		SchemaDefinitionOptions,
+		TypeDefinitionOptions
+	>
+	& {
+		ajv_keyword: (
+			& MacroKeywordDefinition
+			& {
+				keyword: string,
+			}
+		),
+	}
+);
 
 export abstract class KeywordType<
 	T,
@@ -45,12 +64,14 @@ export abstract class KeywordType<
 		SchemaTo,
 		DataTo
 	> {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	static ajv_keyword(ajv: Ajv): void {
-		throw new Error('Not implemented!');
-	}
+	constructor({
+		ajv_keyword,
+		...options
+	}: KeywordTypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
+		if (false === options.ajv.getKeyword(ajv_keyword.keyword)) {
+			options.ajv.addKeyword(ajv_keyword);
+		}
 
-	static configure_ajv(ajv: Ajv): void {
-		this.ajv_keyword(ajv);
+		super(options);
 	}
 }

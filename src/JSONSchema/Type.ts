@@ -240,7 +240,6 @@ abstract class Type<
 			schema_definition,
 		) as SchemaDefinition;
 
-		static_class.configure_ajv(ajv);
 		this.#check_schema = ajv.compile<TypeDefinition>(
 			this.schema_definition,
 		);
@@ -307,10 +306,6 @@ abstract class Type<
 			schema_parser: SchemaParser,
 		}
 	)): Promise<TSType>;
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	static configure_ajv(ajv: Ajv) {
-	}
 
 	static generate_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars

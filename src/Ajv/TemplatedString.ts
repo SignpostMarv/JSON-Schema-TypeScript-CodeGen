@@ -9,10 +9,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import type {
-	Ajv2020 as Ajv,
-} from 'ajv/dist/2020.js';
-
 import {
 	object_has_property,
 } from '@satisfactory-dev/predicates.ts';
@@ -229,8 +225,6 @@ export class TemplatedString<
 	> {
 	#regex: RegExp;
 
-	static #ajv_check: WeakSet<Ajv> = new WeakSet();
-
 	constructor(
 		options: SchemalessTypeOptions,
 		maybe_specified?: Parts,
@@ -251,6 +245,13 @@ export class TemplatedString<
 
 		super({
 			...options,
+			ajv_keyword: {
+				keyword: 'templated_string',
+				type: 'string',
+				macro: (
+					parts: TemplatedStringParts,
+				) => TemplatedString.ajv_macro(parts),
+			},
 			type_definition: {
 				parts: specified,
 			},
@@ -424,22 +425,10 @@ export class TemplatedString<
 		));
 	}
 
-	static ajv_keyword(ajv: Ajv): void {
-		if (TemplatedString.#ajv_check.has(ajv)) {
-			return;
-		}
-
-		ajv.addKeyword({
-			keyword: 'templated_string',
-			type: 'string',
-			macro: (parts: TemplatedStringParts) => (
-				{
-					pattern: this.#to_regex_string(parts),
-				}
-			),
-		});
-
-		TemplatedString.#ajv_check.add(ajv);
+	static ajv_macro(parts: TemplatedStringParts) {
+		return {
+			pattern: this.#to_regex_string(parts),
+		};
 	}
 
 	static generate_schema_definition(): Readonly<SchemaDefinitionDefinition> {
