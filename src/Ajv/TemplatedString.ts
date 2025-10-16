@@ -258,8 +258,8 @@ class TemplatedString<
 		this.#regex = TemplatedString.#to_regex(specified);
 	}
 
-	#template_spans(
-		schema: templated_string_type,
+	static #template_spans(
+		parts: TemplatedStringParts,
 	): [
 		TemplateHead,
 		[
@@ -272,11 +272,11 @@ class TemplatedString<
 
 		let specific_head: undefined|string = undefined;
 
-		if ('string' === typeof schema.templated_string[0]) {
-			[, ...span_parts] = schema.templated_string;
-			specific_head = schema.templated_string[0];
+		if ('string' === typeof parts[0]) {
+			[, ...span_parts] = parts;
+			specific_head = parts[0];
 		} else {
-			span_parts = [...schema.templated_string];
+			span_parts = [...parts];
 		}
 
 		const tail_part = span_parts.pop();
@@ -317,7 +317,7 @@ class TemplatedString<
 		return [head, middle, tail];
 	}
 
-	#template_span_types<
+	static #template_span_types<
 		T extends (
 			| TemplatedStringPart[]
 			| [
@@ -355,8 +355,8 @@ class TemplatedString<
 							(
 								object_has_property(part, 'templated_string')
 							)
-								? this.#generate_typescript_type(
-									part,
+								? TemplatedString.generate_typescript_type_from_parts(
+									part.templated_string,
 								) as template_spans_return_type<T2>
 								: factory.createKeywordTypeNode(
 									SyntaxKind.StringKeyword,
@@ -380,24 +380,14 @@ class TemplatedString<
 		return factory.createStringLiteral(data);
 	}
 
-	#generate_typescript_type(
-		schema: (
-			| templated_string_type<PartsOrDefault<Parts>>
-			| templated_string_type
-		),
-		data?: T,
+	static generate_typescript_type_from_parts(
+		parts: TemplatedStringParts,
 	): TemplateLiteralTypeNode {
-		if (undefined !== data && !this.#regex.test(data)) {
-			throw new TypeError(
-				'Specified data did not match expected regex!',
-			);
-		}
-
 		const [
 			head,
 			middle,
 			tail,
-		] = this.#template_spans(schema);
+		] = this.#template_spans(parts);
 		const result = factory.createTemplateLiteralType(
 			head,
 			[
@@ -416,9 +406,14 @@ class TemplatedString<
 		data?: T,
 		schema: templated_string_type<PartsOrDefault<Parts>>,
 	}): Promise<TemplateLiteralTypeNode> {
-		return Promise.resolve(this.#generate_typescript_type(
-			schema,
-			data,
+		if (data && !this.#regex.test(data)) {
+			throw new TypeError(
+				'Specified data did not match expected regex!',
+			);
+		}
+
+		return Promise.resolve(TemplatedString.generate_typescript_type_from_parts(
+			schema.templated_string,
 		));
 	}
 

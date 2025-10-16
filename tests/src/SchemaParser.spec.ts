@@ -183,36 +183,20 @@ void describe('SchemaParser', () => {
 
 					assert.equal(
 						type.members[1].type.head.text,
-						'',
+						'bar',
 					);
 
 					assert.equal(
 						type.members[1].type.templateSpans.length,
-						2,
-					);
-
-					ts_assert.isTemplateMiddle(
-						type.members[1].type.templateSpans[0].literal,
+						1,
 					);
 
 					ts_assert.isTemplateTail(
-						type.members[1].type.templateSpans[1].literal,
-					);
-
-					ts_assert.isLiteralTypeNode(
-						type.members[1].type.templateSpans[0].type,
-					);
-					ts_assert.isStringLiteral(
-						type.members[1].type.templateSpans[0].type.literal,
-					);
-					assert.equal(
-						type.members[1]
-							.type.templateSpans[0].type.literal.text,
-						'bar',
+						type.members[1].type.templateSpans[0].literal,
 					);
 
 					ts_assert.isTokenWithExpectedKind(
-						type.members[1].type.templateSpans[1].type,
+						type.members[1].type.templateSpans[0].type,
 						SyntaxKind.StringKeyword,
 					);
 				},

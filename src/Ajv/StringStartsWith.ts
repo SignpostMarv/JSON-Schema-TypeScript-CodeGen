@@ -2,20 +2,13 @@ import type {
 	TemplateExpression,
 	TemplateLiteralTypeNode,
 } from 'typescript';
-import {
-	SyntaxKind,
-} from 'typescript';
-
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
-import type {
-} from 'regexp.escape/auto';
 
 import type {
 	TemplatedStringParts,
 } from './TemplatedString.ts';
 import {
 	MacroToTemplatedString,
+	TemplatedString,
 } from './TemplatedString.ts';
 
 import type {
@@ -106,21 +99,14 @@ export class StringStartsWith<
 			| { schema: string_starts_with_type<StartsWith> }
 		),
 	): Promise<TemplateLiteralTypeNode> {
-		return Promise.resolve(factory.createTemplateLiteralType(
-			factory.createTemplateHead(''),
-			[
-				factory.createTemplateLiteralTypeSpan(
-					factory.createLiteralTypeNode(
-						factory.createStringLiteral(schema.starts_with),
-					),
-					factory.createTemplateMiddle(''),
-				),
-				factory.createTemplateLiteralTypeSpan(
-					factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-					factory.createTemplateTail(''),
-				),
-			],
-		));
+		return Promise.resolve(
+			TemplatedString.generate_typescript_type_from_parts(
+				[
+					schema.starts_with,
+					{type: 'string'},
+				],
+			),
+		);
 	}
 
 	static generate_schema_definition(): Readonly<string_starts_with_schema> {
