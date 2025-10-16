@@ -285,9 +285,11 @@ class TemplatedString<
 			);
 		}
 
-		return Promise.resolve(TemplatedString.generate_typescript_type_from_parts(
-			schema.templated_string,
-		));
+		return Promise.resolve(
+			TemplatedString.generate_typescript_type_from_parts(
+				schema.templated_string,
+			),
+		);
 	}
 
 	static ajv_macro(parts: TemplatedStringParts) {
@@ -429,6 +431,7 @@ class TemplatedString<
 							(
 								object_has_property(part, 'templated_string')
 							)
+								// eslint-disable-next-line @stylistic/max-len
 								? TemplatedString.generate_typescript_type_from_parts(
 									part.templated_string,
 								) as template_spans_return_type<T2>
