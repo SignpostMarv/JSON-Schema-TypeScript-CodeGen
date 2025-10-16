@@ -11,9 +11,12 @@ import {
 import type {
 } from 'regexp.escape/auto';
 
+import type {
+	TemplatedStringParts,
+} from './TemplatedString.ts';
 import {
-	KeywordType,
-} from './Keyword.ts';
+	MacroToTemplatedString,
+} from './TemplatedString.ts';
 
 import type {
 	SchemaDefinitionDefinition,
@@ -50,27 +53,26 @@ type string_starts_with_schema = SchemaDefinitionDefinition<
 export class StringStartsWith<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
 >
-	extends KeywordType<
+	extends MacroToTemplatedString<
 		StartsWith,
+		string,
 		string_starts_with_type<StartsWith>,
 		{
 			prefix: StartsWith,
 		},
 		string_starts_with_schema,
-		Record<string, never>,
-		TemplateLiteralTypeNode,
-		TemplateExpression
+		Record<string, never>
 	> {
 	constructor(prefix: StartsWith, options: SchemalessTypeOptions) {
-		super({
-			...options,
-			ajv_keyword: {
+		super(
+			{
 				keyword: 'starts_with',
-				type: 'string',
 				macro: (
 					starts_with: string,
 				) => StringStartsWith.ajv_macro(starts_with),
 			},
+			{
+			...options,
 			type_definition: {
 				prefix,
 			},
@@ -155,9 +157,14 @@ export class StringStartsWith<
 		});
 	}
 
-	protected static ajv_macro(starts_with: string) {
+	protected static ajv_macro(starts_with: string): {
+		templated_string: TemplatedStringParts,
+	} {
 		return {
-			pattern: `^${RegExp.escape(starts_with)}.+$`,
+			templated_string: [
+				starts_with,
+				{type: 'string'},
+			],
 		};
 	}
 }

@@ -1,5 +1,6 @@
 import type {
 	KeywordTypeNode,
+	TemplateExpression,
 	TemplateHead,
 	TemplateLiteralTypeNode,
 	TemplateLiteralTypeSpan,
@@ -26,6 +27,7 @@ import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
+	TypeOptions,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 
@@ -205,12 +207,7 @@ class RegexpFailureError extends TypeError {
 	}
 }
 
-export type {
-	TemplatedStringParts,
-	templated_string_type,
-};
-
-export class TemplatedString<
+class TemplatedString<
 	T extends Exclude<string, ''>,
 	Parts extends undefined|TemplatedStringParts,
 > extends
@@ -493,3 +490,67 @@ export class TemplatedString<
 		return new RegExp(this.#to_regex_string(parts));
 	}
 }
+
+abstract class MacroToTemplatedString<
+	T extends string,
+	MacroSchema,
+	TypeDefinition extends TypeDefinitionSchema = TypeDefinitionSchema,
+	TypeDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
+	SchemaDefinition extends (
+		SchemaDefinitionDefinition
+	) = SchemaDefinitionDefinition,
+	SchemaDefinitionOptions extends (
+		{[key: string]: unknown}
+	) = (
+		{[key: string]: unknown}
+	),
+> extends
+	KeywordType<
+		T,
+		TypeDefinition,
+		TypeDefinitionOptions,
+		SchemaDefinition,
+		SchemaDefinitionOptions,
+		TemplateLiteralTypeNode,
+		TemplateExpression
+	> {
+	constructor(
+		{
+			keyword,
+			macro,
+		}: {
+			keyword: Exclude<string, 'templated_string'>,
+			macro: (schema: MacroSchema) => {
+				templated_string: TemplatedStringParts,
+			},
+		},
+		options: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>,
+	) {
+		if (false === options.ajv.getKeyword('templated_string')) {
+			new TemplatedString({ajv: options.ajv});
+		}
+
+		super({
+			...options,
+			ajv_keyword: {
+				keyword,
+				type: 'string',
+				macro,
+			},
+		});
+	}
+}
+
+export type {
+	TemplatedStringParts,
+	templated_string_type,
+};
+
+export {
+	TemplatedString,
+	MacroToTemplatedString,
+};
