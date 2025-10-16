@@ -72,12 +72,13 @@ export class StringStartsWith<
 				) => StringStartsWith.ajv_macro(starts_with),
 			},
 			{
-			...options,
-			type_definition: {
-				prefix,
+				...options,
+				type_definition: {
+					prefix,
+				},
+				schema_definition: {},
 			},
-			schema_definition: {},
-		});
+		);
 	}
 
 	generate_typescript_data(
