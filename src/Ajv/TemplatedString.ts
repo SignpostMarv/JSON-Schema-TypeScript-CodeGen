@@ -258,6 +258,80 @@ class TemplatedString<
 		this.#regex = TemplatedString.#to_regex(specified);
 	}
 
+	generate_typescript_data(
+		data: `${T}`,
+	): StringLiteral {
+		if (!this.#regex.test(data)) {
+			throw new RegexpFailureError(
+				'Value does not match expected regex!',
+				this.#regex,
+				data,
+			);
+		}
+
+		return factory.createStringLiteral(data);
+	}
+
+	async generate_typescript_type({
+		data,
+		schema,
+	}: {
+		data?: T,
+		schema: templated_string_type<PartsOrDefault<Parts>>,
+	}): Promise<TemplateLiteralTypeNode> {
+		if (data && !this.#regex.test(data)) {
+			throw new TypeError(
+				'Specified data did not match expected regex!',
+			);
+		}
+
+		return Promise.resolve(TemplatedString.generate_typescript_type_from_parts(
+			schema.templated_string,
+		));
+	}
+
+	static ajv_macro(parts: TemplatedStringParts) {
+		return {
+			pattern: this.#to_regex_string(parts),
+		};
+	}
+
+	static generate_schema_definition(): Readonly<SchemaDefinitionDefinition> {
+		return templated_string_schema;
+	}
+
+	static generate_type_definition<
+		Parts extends TemplatedStringParts = TemplatedStringParts,
+	>({
+		parts: templated_string,
+	}: {
+		parts: Parts,
+	}): Readonly<templated_string_type<Parts>> {
+		return Object.freeze({
+			type: 'string',
+			templated_string,
+		});
+	}
+
+	static generate_typescript_type_from_parts(
+		parts: TemplatedStringParts,
+	): TemplateLiteralTypeNode {
+		const [
+			head,
+			middle,
+			tail,
+		] = this.#template_spans(parts);
+		const result = factory.createTemplateLiteralType(
+			head,
+			[
+				...middle,
+				tail,
+			],
+		);
+
+		return result;
+	}
+
 	static #template_spans(
 		parts: TemplatedStringParts,
 	): [
@@ -364,80 +438,6 @@ class TemplatedString<
 						)
 				)
 		));
-	}
-
-	generate_typescript_data(
-		data: `${T}`,
-	): StringLiteral {
-		if (!this.#regex.test(data)) {
-			throw new RegexpFailureError(
-				'Value does not match expected regex!',
-				this.#regex,
-				data,
-			);
-		}
-
-		return factory.createStringLiteral(data);
-	}
-
-	static generate_typescript_type_from_parts(
-		parts: TemplatedStringParts,
-	): TemplateLiteralTypeNode {
-		const [
-			head,
-			middle,
-			tail,
-		] = this.#template_spans(parts);
-		const result = factory.createTemplateLiteralType(
-			head,
-			[
-				...middle,
-				tail,
-			],
-		);
-
-		return result;
-	}
-
-	async generate_typescript_type({
-		data,
-		schema,
-	}: {
-		data?: T,
-		schema: templated_string_type<PartsOrDefault<Parts>>,
-	}): Promise<TemplateLiteralTypeNode> {
-		if (data && !this.#regex.test(data)) {
-			throw new TypeError(
-				'Specified data did not match expected regex!',
-			);
-		}
-
-		return Promise.resolve(TemplatedString.generate_typescript_type_from_parts(
-			schema.templated_string,
-		));
-	}
-
-	static ajv_macro(parts: TemplatedStringParts) {
-		return {
-			pattern: this.#to_regex_string(parts),
-		};
-	}
-
-	static generate_schema_definition(): Readonly<SchemaDefinitionDefinition> {
-		return templated_string_schema;
-	}
-
-	static generate_type_definition<
-		Parts extends TemplatedStringParts = TemplatedStringParts,
-	>({
-		parts: templated_string,
-	}: {
-		parts: Parts,
-	}): Readonly<templated_string_type<Parts>> {
-		return Object.freeze({
-			type: 'string',
-			templated_string,
-		});
 	}
 
 	static #parts_is_specified(
