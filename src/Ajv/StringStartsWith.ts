@@ -1,5 +1,4 @@
 import type {
-	TemplateExpression,
 	TemplateLiteralTypeNode,
 } from 'typescript';
 
@@ -16,11 +15,6 @@ import type {
 	SchemalessTypeOptions,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
-
-import {
-	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
-} from '../typescript/factory.ts';
 
 type string_starts_with_type<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
@@ -47,7 +41,7 @@ export class StringStartsWith<
 	StartsWith extends Exclude<string, ''> = Exclude<string, ''>,
 >
 	extends MacroToTemplatedString<
-		StartsWith,
+		`${StartsWith}${string}`,
 		string,
 		string_starts_with_type<StartsWith>,
 		{
@@ -63,6 +57,10 @@ export class StringStartsWith<
 				macro: (
 					starts_with: string,
 				) => StringStartsWith.ajv_macro(starts_with),
+				specified_parts: [
+					prefix,
+					{type: 'string'},
+				],
 			},
 			{
 				...options,
@@ -71,24 +69,6 @@ export class StringStartsWith<
 				},
 				schema_definition: {},
 			},
-		);
-	}
-
-	generate_typescript_data(
-		data: StartsWith,
-	): TemplateExpression {
-		return factory.createTemplateExpression(
-			factory.createTemplateHead(''),
-			[
-				factory.createTemplateSpan(
-					factory.createStringLiteral(data),
-					factory.createTemplateMiddle(''),
-				),
-				factory.createTemplateSpan(
-					factory.createIdentifier('string'),
-					factory.createTemplateTail(''),
-				),
-			],
 		);
 	}
 

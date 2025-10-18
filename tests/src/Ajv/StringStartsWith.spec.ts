@@ -50,22 +50,16 @@ void describe('StringStartsWith', () => {
 		const ajv = new Ajv({strict: true});
 		const instance = new StringStartsWith('foo', {ajv});
 
-		const data = instance.generate_typescript_data('foo');
+		const a = instance.generate_typescript_data('foo');
+		const b = instance.generate_typescript_data('foobar');
 
-		assert.equal(data.templateSpans.length, 2);
+		ts_assert.isStringLiteral(a);
+		ts_assert.isStringLiteral(b);
 
-		ts_assert.isTemplateMiddle(
-			data.templateSpans[0].literal,
-		);
+		assert.equal(a.text, 'foo');
 
-		ts_assert.isTemplateTail(
-			data.templateSpans[1].literal,
-		);
+		assert.equal(b.text, 'foobar');
 
-		ts_assert.isStringLiteral(data.templateSpans[0].expression);
-		assert.equal(data.templateSpans[0].expression.text, 'foo');
-
-		ts_assert.isIdentifier(data.templateSpans[1].expression);
-		assert.equal(data.templateSpans[1].expression.text, 'string');
+		assert.throws(() => instance.generate_typescript_data('bar' as 'foo'));
 	});
 });

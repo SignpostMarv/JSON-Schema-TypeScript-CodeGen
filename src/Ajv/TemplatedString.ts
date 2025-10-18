@@ -1,6 +1,5 @@
 import type {
 	KeywordTypeNode,
-	TemplateExpression,
 	TemplateHead,
 	TemplateLiteralTypeNode,
 	TemplateLiteralTypeSpan,
@@ -255,7 +254,7 @@ class TemplatedString<
 			schema_definition: {},
 		});
 
-		this.#regex = TemplatedString.#to_regex(specified);
+		this.#regex = TemplatedString.to_regex(specified);
 	}
 
 	generate_typescript_data(
@@ -332,6 +331,10 @@ class TemplatedString<
 		);
 
 		return result;
+	}
+
+	static to_regex(parts: TemplatedStringParts): RegExp {
+		return new RegExp(this.#to_regex_string(parts));
 	}
 
 	static #template_spans(
@@ -483,10 +486,6 @@ class TemplatedString<
 			return '.*';
 		}).join(')(')})`;
 	}
-
-	static #to_regex(parts: TemplatedStringParts): RegExp {
-		return new RegExp(this.#to_regex_string(parts));
-	}
 }
 
 abstract class MacroToTemplatedString<
@@ -514,17 +513,21 @@ abstract class MacroToTemplatedString<
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		TemplateLiteralTypeNode,
-		TemplateExpression
+		StringLiteral
 	> {
+	#regex: RegExp;
+
 	constructor(
 		{
 			keyword,
 			macro,
+			specified_parts,
 		}: {
 			keyword: Exclude<string, 'templated_string'>,
 			macro: (schema: MacroSchema) => {
 				templated_string: TemplatedStringParts,
 			},
+			specified_parts: TemplatedStringParts,
 		},
 		options: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>,
 	) {
@@ -540,6 +543,22 @@ abstract class MacroToTemplatedString<
 				macro,
 			},
 		});
+
+		this.#regex = TemplatedString.to_regex(specified_parts);
+	}
+
+	generate_typescript_data(
+		data: T,
+	): StringLiteral {
+		if (!this.#regex.test(data)) {
+			throw new RegexpFailureError(
+				'Value does not match expected regex!',
+				this.#regex,
+				data,
+			);
+		}
+
+		return factory.createStringLiteral(data);
 	}
 }
 
