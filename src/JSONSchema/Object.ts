@@ -117,8 +117,6 @@ type object_schema<
 				type: 'string',
 				const: 'object',
 			},
-		}
-		& {
 			required: {
 				type: 'array',
 				minItems: 1,
