@@ -148,6 +148,37 @@ void describe('Printer', () => {
 						],
 					],
 				],
+				[
+					[
+						{},
+						{
+							type: 'object',
+							$ref: '#/$defs/baz',
+							properties: {
+								bar: {
+									type: 'string',
+								},
+							},
+						},
+					],
+					() => {},
+					[
+						[
+							'./index.ts',
+							`import type { foo } from "./types.ts";${
+								'\n\n'
+							}export const bar: foo = {};`,
+						],
+						[
+							'./types.ts',
+							`export type foo = baz & {${
+								'\n'
+							}    bar?: string;${
+								'\n'
+							}};`,
+						],
+					],
+				],
 			],
 		],
 		[

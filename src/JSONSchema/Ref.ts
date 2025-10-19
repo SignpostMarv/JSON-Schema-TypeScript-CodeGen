@@ -262,6 +262,14 @@ class $ref extends
 		return $defs[local_$def];
 	}
 
+	static ensure_is_$ref_value(maybe: unknown): $ref_type['$ref'] {
+		if (!this.is_supported_$ref_value(maybe)) {
+			throw new TypeError('Not a supported $ref value!');
+		}
+
+		return maybe;
+	}
+
 	static generate_schema_definition(): Readonly<$ref_schema> {
 		const schema: $ref_schema = {
 			type: 'object',
@@ -374,6 +382,7 @@ export type {
 	LocalRef,
 	ExternalRef,
 	$ref_type,
+	pattern_either,
 };
 
 export {

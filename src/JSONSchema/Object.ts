@@ -19,6 +19,12 @@ import {
 	Type,
 } from './Type.ts';
 
+import type {
+	ExternalRef,
+	LocalRef,
+	pattern_either,
+} from './Ref.ts';
+
 import {
 	$ref,
 } from './Ref.ts';
@@ -37,6 +43,7 @@ import type {
 import type {
 	IntersectionTypeNode,
 	TypeLiteralNode,
+	TypeReferenceNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
@@ -75,6 +82,7 @@ type object_type<
 > = (
 	& {
 		$defs?: Defs,
+		$ref?: LocalRef|ExternalRef,
 		type: 'object',
 		required?: Required,
 	}
@@ -124,6 +132,10 @@ type object_schema<
 					type: 'string',
 					minLength: 1,
 				},
+			},
+			$ref: {
+				type: 'string',
+				pattern: pattern_either,
 			},
 		}
 		& OmitIf<
@@ -232,7 +244,13 @@ class ObjectUnspecified<
 		{
 			properties_mode: PropertiesMode,
 		},
-		object_TypeLiteralNode<PropertiesMode>,
+		(
+			| object_TypeLiteralNode<PropertiesMode>
+			| IntersectionTypeNode<[
+				TypeReferenceNode,
+				object_TypeLiteralNode<PropertiesMode>,
+			]>
+		),
 		ObjectLiteralExpression
 	> {
 	#adjust_name: adjust_name_callback;
@@ -293,7 +311,7 @@ class ObjectUnspecified<
 		);
 	}
 
-	generate_typescript_type(
+	async generate_typescript_type(
 		{
 			schema,
 			schema_parser,
@@ -307,12 +325,41 @@ class ObjectUnspecified<
 			>,
 			schema_parser: SchemaParser,
 		},
-	): Promise<object_TypeLiteralNode<PropertiesMode>> {
-		return ObjectUnspecified.#createTypeNode(
+	): Promise<(
+		| object_TypeLiteralNode<PropertiesMode>
+		| IntersectionTypeNode<[
+			TypeReferenceNode,
+			object_TypeLiteralNode<PropertiesMode>,
+		]>
+	)> {
+		let object_type: (
+			| Promise<object_TypeLiteralNode<PropertiesMode>>
+			| IntersectionTypeNode<[
+				TypeReferenceNode,
+				object_TypeLiteralNode<PropertiesMode>,
+			]>
+		) = ObjectUnspecified.#createTypeNode(
 			this.properties_mode,
 			schema,
 			schema_parser,
 		);
+
+		if ('string' === typeof schema?.$ref) {
+			const $ref_instance = schema_parser.parse_by_type({
+				$ref: schema.$ref,
+			}, (maybe): maybe is $ref => $ref.is_a(maybe));
+
+			object_type = factory.createIntersectionTypeNode([
+				await $ref_instance.generate_typescript_type({
+					schema: {
+						$ref: schema.$ref,
+					},
+				}),
+				await object_type,
+			]);
+		}
+
+		return object_type;
 	}
 
 	static generate_schema_definition<
@@ -337,6 +384,10 @@ class ObjectUnspecified<
 			type: {
 				type: 'string',
 				const: 'object',
+			},
+			$ref: {
+				type: 'string',
+				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 			},
 		};
 

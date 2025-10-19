@@ -32,7 +32,9 @@ import type {
 } from '../../index.ts';
 
 import type {
+	IntersectionTypeNode,
 	ObjectLiteralExpression,
+	TypeReferenceNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
 
@@ -48,6 +50,7 @@ import type {
 } from '../../../index.ts';
 import {
 	$defs_schema,
+	$ref,
 	ObjectUnspecified,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
@@ -71,6 +74,10 @@ void describe('ObjectUnspecified', () => {
 		>['properties']> = Object.freeze({
 			...$defs_schema.properties,
 			type: {type: 'string', const: 'object'},
+			$ref: {
+				type: 'string',
+				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+			},
 			required: {
 				type: 'array',
 				minItems: 1,
@@ -117,12 +124,20 @@ void describe('ObjectUnspecified', () => {
 				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
+				$ref: {
+					type: 'string',
+					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
 				required: full_schema_properties.required,
 			},
 			both: {
 				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
+				$ref: {
+					type: 'string',
+					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
 				required: full_schema_properties.required,
 				properties: full_schema_properties.properties,
 				patternProperties: (
@@ -133,6 +148,10 @@ void describe('ObjectUnspecified', () => {
 				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
+				$ref: {
+					type: 'string',
+					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
 				required: full_schema_properties.required,
 				properties: full_schema_properties.properties,
 			},
@@ -140,6 +159,10 @@ void describe('ObjectUnspecified', () => {
 				...$defs_schema.properties,
 				type: full_schema_properties.type,
 				$defs: full_schema_properties.$defs,
+				$ref: {
+					type: 'string',
+					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
 				required: full_schema_properties.required,
 				patternProperties: (
 					full_schema_properties.patternProperties
@@ -501,7 +524,13 @@ void describe('ObjectUnspecified', () => {
 			PatternProperties
 		>,
 		ts_asserter<ObjectLiteralExpression<DataAssertProperties>>,
-		ts_asserter<object_TypeLiteralNode<PropertiesMode>>,
+		ts_asserter<(
+			| object_TypeLiteralNode<PropertiesMode>
+			| IntersectionTypeNode<[
+				TypeReferenceNode,
+				object_TypeLiteralNode<PropertiesMode>,
+			]>
+		)>,
 	];
 
 	function type_schema_for_data_set<
@@ -587,6 +616,76 @@ void describe('ObjectUnspecified', () => {
 				ts_assert.isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
+					ts_assert.isPropertySignature(member, message);
+					ts_assert.isIdentifier(member.name, message);
+					assert.equal(member.questionToken, undefined);
+					assert.equal(member.name.text, 'foo', message);
+					not_undefined(member.type, message);
+					ts_assert.isTypeReferenceNode(member.type, message);
+					ts_assert.isIdentifier(member.type.typeName, message);
+					assert.equal(
+						member.type.typeName.text,
+						'Exclude',
+						message,
+					);
+					not_undefined(member.type.typeArguments, message);
+					assert.equal(member.type.typeArguments.length, 2);
+					ts_assert.isTokenWithExpectedKind(
+						member.type.typeArguments[0],
+						SyntaxKind.StringKeyword,
+						message,
+					);
+					ts_assert.isLiteralTypeNode(
+						member.type.typeArguments[1],
+						message,
+					);
+					ts_assert.isStringLiteral(
+						member.type.typeArguments[1].literal,
+						message,
+					);
+					assert.equal(
+						member.type.typeArguments[1].literal.text,
+						'',
+					);
+				});
+			},
+		],
+		[
+			{
+				properties_mode: 'properties',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				type: 'object',
+				$ref: $ref.ensure_is_$ref_value('#/$defs/some_other_type'),
+				required: ['foo'],
+				properties: {
+					foo: {
+						type: 'string',
+						minLength: 1,
+					},
+				},
+			}),
+			object_literal_expression_asserter({foo: 'bar'}),
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is IntersectionTypeNode<[
+				TypeReferenceNode,
+				object_TypeLiteralNode<PropertyMode>,
+			]> => {
+				ts_assert.isIntersectionTypeNode(value, message);
+				assert.equal(value.types.length, 2);
+
+				ts_assert.isTypeReferenceNode(value.types[0], message);
+				ts_assert.isIdentifier(value.types[0].typeName, message);
+				assert.equal(value.types[0].typeName.text, 'some_other_type');
+
+				ts_assert.isTypeLiteralNode(value.types[1], message);
+				assert.equal(1, value.types[1].members.length, message);
+				value.types[1].members.forEach((member) => {
 					ts_assert.isPropertySignature(member, message);
 					ts_assert.isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);

@@ -457,4 +457,29 @@ void describe('$ref', () => {
 			));
 		});
 	});
+
+	void describe('::ensure_is_$ref_value', () => {
+		type DataSet = [
+			string,
+			boolean,
+		];
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			['foo', false],
+			['#/$defs/foo', true],
+			['bar#/$defs/foo', true],
+		];
+
+		data_sets.forEach(([value, expectation], i) => {
+			const call = () => $ref.ensure_is_$ref_value(value);
+
+			void it(`behaves with data_sets[${i}]`, () => {
+				if (expectation) {
+					assert.doesNotThrow(call);
+				} else {
+					assert.throws(call);
+				}
+			});
+		});
+	});
 });
