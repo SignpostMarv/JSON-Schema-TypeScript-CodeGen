@@ -78,6 +78,9 @@ void describe('ObjectUnspecified', () => {
 				type: 'string',
 				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 			},
+			unevaluatedProperties: {
+				type: 'boolean',
+			},
 			required: {
 				type: 'array',
 				minItems: 1,
@@ -128,6 +131,9 @@ void describe('ObjectUnspecified', () => {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 				},
+				unevaluatedProperties: {
+					type: 'boolean',
+				},
 				required: full_schema_properties.required,
 			},
 			both: {
@@ -137,6 +143,9 @@ void describe('ObjectUnspecified', () => {
 				$ref: {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
+				unevaluatedProperties: {
+					type: 'boolean',
 				},
 				required: full_schema_properties.required,
 				properties: full_schema_properties.properties,
@@ -152,6 +161,9 @@ void describe('ObjectUnspecified', () => {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 				},
+				unevaluatedProperties: {
+					type: 'boolean',
+				},
 				required: full_schema_properties.required,
 				properties: full_schema_properties.properties,
 			},
@@ -162,6 +174,9 @@ void describe('ObjectUnspecified', () => {
 				$ref: {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
+				unevaluatedProperties: {
+					type: 'boolean',
 				},
 				required: full_schema_properties.required,
 				patternProperties: (

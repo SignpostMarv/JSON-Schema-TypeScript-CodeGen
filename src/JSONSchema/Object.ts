@@ -85,6 +85,7 @@ type object_type<
 		$ref?: LocalRef|ExternalRef,
 		type: 'object',
 		required?: Required,
+		unevaluatedProperties?: boolean,
 	}
 	& Omit<
 		{
@@ -136,6 +137,9 @@ type object_schema<
 			$ref: {
 				type: 'string',
 				pattern: pattern_either,
+			},
+			unevaluatedProperties: {
+				type: 'boolean',
 			},
 		}
 		& OmitIf<
@@ -388,6 +392,9 @@ class ObjectUnspecified<
 			$ref: {
 				type: 'string',
 				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+			},
+			unevaluatedProperties: {
+				type: 'boolean',
 			},
 		};
 
