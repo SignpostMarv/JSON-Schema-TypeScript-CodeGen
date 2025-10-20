@@ -51,6 +51,21 @@ import {
 } from '../../src/Ajv/index.ts';
 
 void describe('SchemaParser', () => {
+	void describe('::get_schema()', () => {
+		const parser = new SchemaParser();
+
+		parser.add_schema({
+			$id: 'foo',
+		});
+
+		void it('behaves when schema exists', () => {
+			not_undefined(parser.get_schema('foo'));
+		});
+		void it('behaves when schema does not exist', () => {
+			assert.equal(parser.get_schema('bar'), undefined);
+		});
+	});
+
 	void describe('::maybe_parse()', () => {
 		void it('behaves when type exists', () => {
 			const parser = new SchemaParser();
