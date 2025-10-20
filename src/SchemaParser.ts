@@ -90,6 +90,8 @@ type share_ajv_callback<T> = (ajv: Ajv) => T;
 class SchemaParser {
 	#ajv: Ajv;
 
+	#schemas: {[key in SchemaObjectWith$id['$id']]: SchemaObjectWith$id} = {};
+
 	types: [Type<unknown>, ...Type<unknown>[]];
 
 	constructor(options: SchemaParserOptions = {
@@ -121,6 +123,15 @@ class SchemaParser {
 		).forEach((inform_this: $ref) => {
 			inform_this.remote_defs[schema.$id] = schema.$defs || {};
 		});
+		this.#schemas[schema.$id] = schema;
+	}
+
+	get_schema(id: SchemaObjectWith$id['$id']): SchemaObjectWith$id|undefined {
+		if (id in this.#schemas) {
+			return this.#schemas[id];
+		}
+
+		return undefined;
 	}
 
 	maybe_parse<

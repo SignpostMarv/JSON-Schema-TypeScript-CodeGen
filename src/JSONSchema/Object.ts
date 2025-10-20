@@ -672,6 +672,7 @@ class ObjectUnspecified<
 		schema_parser: SchemaParser,
 	) {
 		const sub_schema = this.#sub_schema_for_property(
+			schema_parser,
 			properties_mode,
 			property,
 			schema,
@@ -886,6 +887,7 @@ class ObjectUnspecified<
 		schema_parser: SchemaParser,
 	) {
 		const sub_schema = this.#sub_schema_for_property(
+			schema_parser,
 			properties_mode,
 			property,
 			schema,
@@ -956,6 +958,7 @@ class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		schema_parser: SchemaParser,
 		properties_mode: PropertiesMode,
 		property: string,
 		schema: object_type<
@@ -967,6 +970,88 @@ class ObjectUnspecified<
 		>,
 		fallback_if_neither: Record<string, never>|unknown_type,
 	): SchemaObject {
+		if (
+			this.#is_schema_with_properties(schema)
+			&& !(property in schema.properties)
+			&& 'string' === typeof schema?.$ref
+			&& !schema.$ref.startsWith('#/$defs/')
+		) {
+			let checking_schema: (
+				| SchemaObject
+				| undefined
+			) = schema;
+
+			while (
+				undefined !== checking_schema
+				&& !(property in checking_schema.properties)
+				&& 'string' === typeof checking_schema.$ref
+			) {
+				if (!checking_schema.$ref.startsWith('#/$defs/')) {
+					const [
+						other_schema_id,
+						other_schema_ref_id,
+					] = checking_schema.$ref.split(
+						'#/$defs/',
+					) as [string, string];
+
+					const other_schema = schema_parser.get_schema(
+						other_schema_id,
+					);
+
+					if (
+						other_schema
+						&& '$defs' in other_schema
+						&& undefined !== other_schema.$defs
+						&& other_schema_ref_id in other_schema.$defs
+					) {
+						checking_schema = this.maybe_add_$defs(
+							other_schema,
+							other_schema.$defs[other_schema_ref_id],
+						);
+					} else {
+						checking_schema = undefined;
+					}
+				} else {
+					const $ref_id = checking_schema.$ref.split('#/$defs/')[1];
+
+					if (
+						'$defs' in checking_schema
+						&& undefined !== checking_schema.$defs
+						&& $ref_id in checking_schema.$defs
+					) {
+						checking_schema = this.maybe_add_$defs(
+							checking_schema,
+							checking_schema.$defs[$ref_id],
+						);
+					} else {
+						checking_schema = undefined;
+					}
+				}
+			}
+
+			if (checking_schema !== undefined) {
+				const maybe_type = schema_parser.parse_by_type<
+					ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>
+				>(
+					checking_schema,
+					(maybe): maybe is ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					> => ObjectUnspecified.is_a<ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>>(maybe) && 'properties' === maybe.properties_mode,
+				);
+
+				if (maybe_type && maybe_type.check_type(checking_schema)) {
+					schema = checking_schema as typeof schema;
+				}
+			}
+		}
+
 		if (
 			this.#is_schema_with_properties(schema)
 			&& property in schema.properties
