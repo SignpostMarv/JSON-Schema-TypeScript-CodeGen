@@ -219,12 +219,10 @@ class $ref extends
 	}
 
 	resolve_def(
-		{
-			$ref,
-		}: $ref_type,
+		schema: $ref_type,
 		local_$defs: ObjectOfSchemas,
 	) {
-		const match = regexp_either.exec($ref) as (
+		const match = regexp_either.exec(schema.$ref) as (
 			| null
 			| (
 				| [string, undefined|string, string]
@@ -233,7 +231,7 @@ class $ref extends
 		);
 
 		if (null === match) {
-			throw new TypeError(`Unsupported ref found: ${$ref}`);
+			throw new TypeError(`Unsupported ref found: ${schema.$ref}`);
 		}
 
 		const [, external_id, local_$def] = match;
@@ -259,7 +257,7 @@ class $ref extends
 			);
 		}
 
-		return $defs[local_$def];
+		return $ref.maybe_add_$defs(schema, $defs[local_$def]);
 	}
 
 	static ensure_is_$ref_value(maybe: unknown): $ref_type['$ref'] {
