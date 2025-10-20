@@ -116,45 +116,45 @@ type object_schema_required<
 );
 
 type object_schema_properties_base = {
-			type: {
-				type: 'string',
-				const: 'object',
-			},
-			required: {
-				type: 'array',
-				minItems: 1,
-				items: {
-					type: 'string',
-					minLength: 1,
-				},
-			},
-			$ref: {
-				type: 'string',
-				pattern: pattern_either,
-			},
-			unevaluatedProperties: {
-				type: 'boolean',
-			},
+	type: {
+		type: 'string',
+		const: 'object',
+	},
+	required: {
+		type: 'array',
+		minItems: 1,
+		items: {
+			type: 'string',
+			minLength: 1,
+		},
+	},
+	$ref: {
+		type: 'string',
+		pattern: pattern_either,
+	},
+	unevaluatedProperties: {
+		type: 'boolean',
+	},
 };
 
 type object_schema_properties_properties = {
-				properties: {
-					type: 'object',
-					minProperties: 1,
-					additionalProperties: {
-						type: 'object',
-					},
-				},
+	properties: {
+		type: 'object',
+		minProperties: 1,
+		additionalProperties: {
+			type: 'object',
+		},
+	},
 };
 
 type object_schema_properties_pattern = {
-				patternProperties: {
-					type: 'object',
-					minProperties: 1,
-					additionalProperties: {
-						type: 'object',
-					},
-				},
+	patternProperties: {
+		type: 'object',
+		minProperties: 1,
+		additionalProperties: {
+			type: 'object',
+		},
+	},
 };
 
 type object_properties_by_mode<
