@@ -194,6 +194,8 @@ type array_type<
 	],
 > = (
 	& {
+		$schema?: 'https://json-schema.org/draft/2020-12/schema',
+		$id?: Exclude<string, ''>,
 		$defs?: ObjectOfSchemas,
 		type: 'array',
 		uniqueItems: {
@@ -269,6 +271,16 @@ type array_schema_properties<
 	],
 > = (
 	& {
+		$schema: {
+			type: 'string',
+			enum: [
+				'https://json-schema.org/draft/2020-12/schema',
+			],
+		},
+		$id: {
+			type: 'string',
+			minLength: 1,
+		},
 		type: {
 			type: 'string',
 			const: 'array',
@@ -1045,10 +1057,22 @@ class ArrayType<
 					MinItemsType_mode
 				>['properties'],
 				(
+					| '$schema'
+					| '$id'
 					| 'type'
 					| 'uniqueItems'
 				)
 			> = {
+				$schema: {
+					type: 'string',
+					enum: [
+						'https://json-schema.org/draft/2020-12/schema',
+					],
+				},
+				$id: {
+					type: 'string',
+					minLength: 1,
+				},
 				type: {
 					type: 'string',
 					const: 'array',
@@ -1069,10 +1093,22 @@ class ArrayType<
 					MinItemsType_mode
 				>['properties'],
 				(
+					| '$schema'
+					| '$id'
 					| 'type'
 					| 'uniqueItems'
 				)
 			> = {
+				$schema: {
+					type: 'string',
+					enum: [
+						'https://json-schema.org/draft/2020-12/schema',
+					],
+				},
+				$id: {
+					type: 'string',
+					minLength: 1,
+				},
 				type: {
 					type: 'string',
 					const: 'array',
