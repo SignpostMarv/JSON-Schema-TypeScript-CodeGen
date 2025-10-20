@@ -279,6 +279,7 @@ class SchemaParser {
 	}
 
 	static #default_types(ajv: Ajv): [
+		Unknown,
 		String<string>,
 		EnumString<string, never[]>,
 		PatternString<string, undefined>,
@@ -317,9 +318,9 @@ class SchemaParser {
 		AllOf<unknown, 'unspecified'>,
 		AnyOf<unknown, 'unspecified'>,
 		$defs,
-		Unknown,
 	] {
 		return [
+			new Unknown({ajv}),
 			new String({
 				ajv,
 			}),
@@ -429,7 +430,6 @@ class SchemaParser {
 				},
 			}),
 			new $defs({ajv}, {}),
-			new Unknown({ajv}),
 		];
 	}
 }
