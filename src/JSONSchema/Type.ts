@@ -215,6 +215,41 @@ abstract class Type<
 		| undefined
 	) = undefined;
 
+	protected static maybe_add_$defs_excluded_schemas: [
+		SchemaObject,
+		...SchemaObject[],
+	] = [
+		{
+			type: 'object',
+			additionalProperties: false,
+			required: ['type'],
+			properties: {
+				type: {
+					type: 'string',
+					const: 'string',
+				},
+				enum: {
+					type: 'array',
+					minItems: 1,
+					uniqueItems: true,
+					items: {
+						type: 'string',
+					},
+				},
+				pattern: {
+					type: 'string',
+				},
+				minLength: {
+					type: 'integer',
+					minimum: 0,
+				},
+				const: {
+					type: 'string',
+				},
+			},
+		},
+	];
+
 	constructor({
 		ajv,
 		schema_definition,
@@ -307,6 +342,11 @@ abstract class Type<
 		}
 	)): Promise<TSType>;
 
+	static add_$defs_excluded_schemas(...schemas: SchemaObject[]) {
+		this.maybe_add_$defs_excluded_schemas.push(...schemas);
+		this.maybe_add_$defs_check = undefined;
+	}
+
 	static generate_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		_: {[key: string]: unknown},
@@ -337,37 +377,7 @@ abstract class Type<
 					strict: true,
 				})).compile({
 					not: {
-						oneOf: [
-							{
-								type: 'object',
-								additionalProperties: false,
-								required: ['type'],
-								properties: {
-									type: {
-										type: 'string',
-										const: 'string',
-									},
-									enum: {
-										type: 'array',
-										minItems: 1,
-										uniqueItems: true,
-										items: {
-											type: 'string',
-										},
-									},
-									pattern: {
-										type: 'string',
-									},
-									minLength: {
-										type: 'integer',
-										minimum: 0,
-									},
-									const: {
-										type: 'string',
-									},
-								},
-							},
-						],
+						oneOf: this.maybe_add_$defs_excluded_schemas,
 					},
 				});
 			}
