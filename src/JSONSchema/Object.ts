@@ -35,7 +35,6 @@ import type {
 
 import type {
 	ObjectOfSchemas,
-	OmitIf,
 	SchemaObject,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
@@ -116,12 +115,7 @@ type object_schema_required<
 	]
 );
 
-type object_schema<
-	PropertiesMode extends object_properties_mode,
-> = SchemaDefinitionDefinitionWith$defs<
-	object_schema_required<PropertiesMode>,
-	(
-		& {
+type object_schema_properties_base = {
 			type: {
 				type: 'string',
 				const: 'object',
@@ -141,9 +135,9 @@ type object_schema<
 			unevaluatedProperties: {
 				type: 'boolean',
 			},
-		}
-		& OmitIf<
-			{
+};
+
+type object_schema_properties_properties = {
 				properties: {
 					type: 'object',
 					minProperties: 1,
@@ -151,17 +145,9 @@ type object_schema<
 						type: 'object',
 					},
 				},
-			},
-			'properties',
-			{
-				neither: 'without',
-				both: 'with',
-				properties: 'with',
-				pattern: 'without',
-			}[PropertiesMode]
-		>
-		& OmitIf<
-			{
+};
+
+type object_schema_properties_pattern = {
 				patternProperties: {
 					type: 'object',
 					minProperties: 1,
@@ -169,15 +155,37 @@ type object_schema<
 						type: 'object',
 					},
 				},
-			},
-			'patternProperties',
-			{
-				neither: 'without',
-				both: 'with',
-				properties: 'without',
-				pattern: 'with',
-			}[PropertiesMode]
-		>
+};
+
+type object_properties_by_mode<
+	PropertiesMode extends object_properties_mode,
+> = {
+	both: (
+		& object_schema_properties_properties
+		& object_schema_properties_pattern
+	),
+	properties: object_schema_properties_properties,
+	pattern: object_schema_properties_pattern,
+	neither: {
+		additionalProperties: {
+			type: 'boolean',
+			const: false,
+		},
+		maxProperties: {
+			type: 'integer',
+			const: 0,
+		},
+	},
+}[PropertiesMode];
+
+type object_schema<
+	PropertiesMode extends object_properties_mode,
+> = SchemaDefinitionDefinitionWith$defs<
+	object_schema_required<PropertiesMode>,
+	(
+		& ObjectOfSchemas
+		& object_schema_properties_base
+		& object_properties_by_mode<PropertiesMode>
 	)
 >;
 
@@ -437,6 +445,25 @@ class ObjectUnspecified<
 				},
 			};
 			properties_for_partial.patternProperties = properties;
+		}
+
+		if ('neither' === properties_mode) {
+			(
+				properties_for_partial as Partial<
+					object_schema<'neither'>['properties']
+				>
+			).additionalProperties = {
+				type: 'boolean',
+				const: false,
+			};
+			(
+				properties_for_partial as Partial<
+					object_schema<'neither'>['properties']
+				>
+			).maxProperties = {
+				type: 'integer',
+				const: 0,
+			};
 		}
 
 		const unpartial_properties: object_schema<

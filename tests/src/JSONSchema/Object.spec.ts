@@ -135,6 +135,14 @@ void describe('ObjectUnspecified', () => {
 					type: 'boolean',
 				},
 				required: full_schema_properties.required,
+				additionalProperties: {
+					type: 'boolean',
+					const: false,
+				},
+				maxProperties: {
+					type: 'integer',
+					const: 0,
+				},
 			},
 			both: {
 				...$defs_schema.properties,
