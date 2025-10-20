@@ -156,6 +156,7 @@ type TypeOptions<
 	ajv: Ajv,
 	schema_definition: SchemaDefinitionOptions,
 	type_definition: TypeDefinitionOptions,
+	add_to_$defs_excluded?: true,
 };
 
 type SchemalessTypeOptions = Omit<
@@ -215,45 +216,14 @@ abstract class Type<
 		| undefined
 	) = undefined;
 
-	protected static maybe_add_$defs_excluded_schemas: [
-		SchemaObject,
-		...SchemaObject[],
-	] = [
-		{
-			type: 'object',
-			additionalProperties: false,
-			required: ['type'],
-			properties: {
-				type: {
-					type: 'string',
-					const: 'string',
-				},
-				enum: {
-					type: 'array',
-					minItems: 1,
-					uniqueItems: true,
-					items: {
-						type: 'string',
-					},
-				},
-				pattern: {
-					type: 'string',
-				},
-				minLength: {
-					type: 'integer',
-					minimum: 0,
-				},
-				const: {
-					type: 'string',
-				},
-			},
-		},
+	protected static maybe_add_$defs_excluded_schemas: SchemaObject[] = [
 	];
 
 	constructor({
 		ajv,
 		schema_definition,
 		type_definition,
+		add_to_$defs_excluded,
 	}: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
 		const static_class = (
 			this.constructor as typeof Type<
@@ -274,6 +244,11 @@ abstract class Type<
 		this.schema_definition = static_class.generate_schema_definition(
 			schema_definition,
 		) as SchemaDefinition;
+
+		if (add_to_$defs_excluded) {
+			Type.maybe_add_$defs_excluded_schemas.push(this.schema_definition);
+			Type.maybe_add_$defs_check = undefined;
+		}
 
 		this.#check_schema = ajv.compile<TypeDefinition>(
 			this.schema_definition,
@@ -342,8 +317,8 @@ abstract class Type<
 		}
 	)): Promise<TSType>;
 
-	static add_$defs_excluded_schemas(...schemas: SchemaObject[]) {
-		this.maybe_add_$defs_excluded_schemas.push(...schemas);
+	static clear_$defs_excluded_schemas() {
+		this.maybe_add_$defs_excluded_schemas = [];
 		this.maybe_add_$defs_check = undefined;
 	}
 
@@ -367,12 +342,23 @@ abstract class Type<
 		return maybe instanceof this;
 	}
 
+	/**
+	 * @todo refactor to SchemaParser
+	 */
 	static maybe_add_$defs(
 		schema: SchemaObject,
 		sub_schema: SchemaObject,
 	): SchemaObject {
 		if ('$defs' in schema) {
-			if (undefined === this.maybe_add_$defs_check) {
+			let modify = (
+				undefined === this.maybe_add_$defs_check
+				&& this.maybe_add_$defs_excluded_schemas.length < 1
+			);
+
+			if (
+				undefined === this.maybe_add_$defs_check
+				&& this.maybe_add_$defs_excluded_schemas.length >= 1
+			) {
 				this.maybe_add_$defs_check = (new Ajv({
 					strict: true,
 				})).compile({
@@ -382,7 +368,11 @@ abstract class Type<
 				});
 			}
 
-			if (this.maybe_add_$defs_check(sub_schema)) {
+			if (undefined !== this.maybe_add_$defs_check) {
+				modify = this.maybe_add_$defs_check(sub_schema);
+			}
+
+			if (modify) {
 				return {
 					$defs: schema.$defs,
 					...sub_schema,

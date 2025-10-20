@@ -5,6 +5,10 @@ import {
 import assert from 'node:assert/strict';
 
 import {
+	Ajv2020 as Ajv,
+} from 'ajv/dist/2020.js';
+
+import {
 	not_undefined,
 // eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
@@ -18,12 +22,28 @@ import {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/JSONSchema/Type.ts';
 
+import {
+	ConstString,
+	EnumString,
+	NonEmptyString,
+	PatternString,
+	String,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../../../src/JSONSchema/String.ts';
+
 void describe('Type', () => {
 	void describe('::maybe_add_$defs()', () => {
-		type DataSet = [
-			SchemaObject,
-			boolean,
-		];
+		type DataSet = (
+			| [
+				SchemaObject,
+				true,
+			]
+			| [
+				SchemaObject,
+				false,
+				(ajv: Ajv) => Type<unknown>,
+			]
+		);
 
 		const data_sets: [DataSet, ...DataSet[]] = [
 			[
@@ -48,6 +68,7 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
+				(ajv: Ajv) => new String({ajv}),
 			],
 			[
 				{
@@ -59,12 +80,14 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
+				(ajv: Ajv) => new String({ajv}),
 			],
 			[
 				{
 					type: 'string',
 				},
 				false,
+				(ajv: Ajv) => new String({ajv}),
 			],
 			[
 				{
@@ -72,6 +95,7 @@ void describe('Type', () => {
 					minLength: 1,
 				},
 				false,
+				(ajv: Ajv) => new NonEmptyString({ajv}),
 			],
 			[
 				{
@@ -79,6 +103,7 @@ void describe('Type', () => {
 					const: 'foo',
 				},
 				false,
+				(ajv: Ajv) => new ConstString(undefined, {ajv}),
 			],
 			[
 				{
@@ -89,6 +114,7 @@ void describe('Type', () => {
 					],
 				},
 				false,
+				(ajv: Ajv) => new EnumString([], {ajv}),
 			],
 			[
 				{
@@ -96,6 +122,7 @@ void describe('Type', () => {
 					pattern: '.+',
 				},
 				false,
+				(ajv: Ajv) => new PatternString(undefined, {ajv}),
 			],
 			[
 				{
@@ -111,8 +138,10 @@ void describe('Type', () => {
 		data_sets.forEach(([
 			sub_schema,
 			added,
+			initialise,
 		], i) => {
 			void it(`behaves with data_sets[${i}]`, () => {
+				Type.clear_$defs_excluded_schemas();
 				const schema = {
 					$defs: {
 						foo: {
@@ -120,6 +149,10 @@ void describe('Type', () => {
 						},
 					},
 				};
+
+				if (initialise) {
+					initialise(new Ajv({strict: true}));
+				}
 
 				const result = Type.maybe_add_$defs(schema, sub_schema);
 

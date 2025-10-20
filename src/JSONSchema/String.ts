@@ -134,6 +134,12 @@ type string_type<
 type basic_string_schema = SchemaDefinitionDefinition<
 	['type'],
 	{
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',
@@ -150,6 +156,12 @@ type enum_string_schema<
 > = SchemaDefinitionDefinition<
 	['type', 'enum'],
 	{
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',
@@ -177,6 +189,12 @@ type pattern_string_schema<
 > = SchemaDefinitionDefinition<
 	['type', 'pattern'],
 	{
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',
@@ -199,6 +217,12 @@ type non_empty_string_schema<
 > = SchemaDefinitionDefinition<
 	['type', 'minLength'],
 	{
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',
@@ -215,6 +239,12 @@ type const_string_schema<
 > = SchemaDefinitionDefinition<
 	['type'],
 	{
+		$defs: {
+			type: 'object',
+			additionalProperties: {
+				type: 'object',
+			},
+		},
 		type: {
 			type: 'string',
 			const: 'string',
@@ -603,6 +633,12 @@ class BaseString<
 				additionalProperties: false,
 				required: ['type'],
 				properties: {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -671,6 +707,12 @@ class BaseString<
 				additionalProperties: false,
 				required: ['type', 'enum'],
 				properties: {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -697,6 +739,12 @@ class BaseString<
 					MinLength,
 					Const
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -723,6 +771,12 @@ class BaseString<
 					MinLength,
 					Const
 				>['properties'] = {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -770,6 +824,12 @@ class BaseString<
 				additionalProperties: false,
 				required: ['type', 'minLength'],
 				properties: {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -833,6 +893,12 @@ class BaseString<
 				additionalProperties: false,
 				required: ['type'],
 				properties: {
+					$defs: {
+						type: 'object',
+						additionalProperties: {
+							type: 'object',
+						},
+					},
 					type: {
 						type: 'string',
 						const: 'string',
@@ -1045,6 +1111,7 @@ class String<
 			...options,
 			type_definition: specific_options,
 			schema_definition: specific_options,
+			add_to_$defs_excluded: true,
 		});
 	}
 }
@@ -1093,6 +1160,7 @@ class EnumString<
 			...options,
 			type_definition: specific_options,
 			schema_definition: specific_options,
+			add_to_$defs_excluded: true,
 		});
 	}
 }
@@ -1129,6 +1197,7 @@ class PatternString<
 			...options,
 			type_definition: specific_options,
 			schema_definition: specific_options,
+			add_to_$defs_excluded: true,
 		});
 	}
 }
@@ -1164,6 +1233,7 @@ class NonEmptyString<
 			...options,
 			type_definition: specific_options,
 			schema_definition: specific_options,
+			add_to_$defs_excluded: true,
 		});
 	}
 }
@@ -1208,6 +1278,7 @@ class ConstString<
 			...options,
 			type_definition: specific_options,
 			schema_definition: specific_options,
+			add_to_$defs_excluded: true,
 		});
 	}
 }
