@@ -32,8 +32,10 @@ import type {
 } from '../../index.ts';
 
 import type {
+	Identifier,
 	IntersectionTypeNode,
 	ObjectLiteralExpression,
+	StringLiteral,
 	TypeReferenceNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
@@ -1456,6 +1458,401 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			));
+		});
+
+		void describe(' with external schemas', () => {
+			const parser = new SchemaParser();
+
+			parser.add_schema({
+				$id: 'foo',
+				$defs: {
+					foobar: {
+						type: 'string',
+						const: 'foobar',
+					},
+					thing: {
+						type: 'object',
+						properties: {
+							foo: {
+								type: 'string',
+								const: 'foo',
+							},
+							foobar: {
+								$ref: '#/$defs/foobar',
+							},
+						},
+					},
+				},
+			});
+
+			parser.add_schema({
+				$id: 'bar',
+				$defs: {
+					barbar: {
+						type: 'string',
+						const: 'barbar',
+					},
+					thing: {
+						type: 'object',
+						$ref: 'foo#/$defs/thing',
+						properties: {
+							bar: {
+								type: 'string',
+								const: 'bar',
+							},
+							barbar: {
+								$ref: '#/$defs/barbar',
+							},
+						},
+					},
+				},
+			});
+
+			parser.add_schema({
+				$id: 'baz',
+				$defs: {
+					bazbar: {
+						type: 'string',
+						const: 'bazbar',
+					},
+					thing: {
+						type: 'object',
+						$ref: 'bar#/$defs/thing',
+						properties: {
+							baz: {
+								type: 'string',
+								const: 'baz',
+							},
+							bazbar: {
+								$ref: '#/$defs/bazbar',
+							},
+						},
+					},
+				},
+			});
+
+			void it('behaves with nested external $ref', () => {
+				const schema = Object.freeze({
+					type: 'object',
+					$ref: '#/$defs/thing',
+					$defs: {
+						bazbar: {
+							type: 'string',
+							const: 'bazbar',
+						},
+						thing: {
+							type: 'object',
+							$ref: 'bar#/$defs/thing',
+							properties: {
+								baz: {
+									type: 'string',
+									const: 'baz',
+								},
+								bazbar: {
+									$ref: '#/$defs/bazbar',
+								},
+							},
+						},
+					},
+					properties: {
+						baz: {
+							type: 'string',
+							const: 'baz',
+						},
+						bazbar: {
+							$ref: '#/$defs/bazbar',
+						},
+					},
+				});
+				const instance = parser.parse_by_type(schema);
+
+				is_instanceof<
+					ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>
+				>(
+					instance,
+					ObjectUnspecified,
+				);
+
+				const call = () => instance.generate_typescript_data(
+					{
+						foo: 'foo',
+						bar: 'bar',
+						baz: 'baz',
+						foobar: 'foobar',
+						barbar: 'barbar',
+						bazbar: 'bazbar',
+					},
+					parser,
+					schema,
+				);
+
+				assert.doesNotThrow(call);
+
+				const generated = call();
+
+				assert.equal(generated.properties.length, 6);
+
+				type property_assignment = (
+					& PropertyAssignment
+					& {
+						name: Identifier<string>,
+						initializer: StringLiteral,
+					}
+				);
+
+				assert.ok(generated.properties.every(
+					(maybe): maybe is property_assignment => {
+						ts_assert.isPropertyAssignment(maybe);
+						ts_assert.isIdentifier(maybe.name);
+						ts_assert.isStringLiteral(maybe.initializer);
+
+						return true;
+					},
+				));
+
+				const properties = generated.properties as unknown as [
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+				];
+
+				assert.equal(properties[0].name.text, 'foo');
+				assert.equal(properties[1].name.text, 'bar');
+				assert.equal(properties[2].name.text, 'baz');
+				assert.equal(properties[3].name.text, 'foobar');
+				assert.equal(properties[4].name.text, 'barbar');
+				assert.equal(properties[5].name.text, 'bazbar');
+
+				assert.equal(properties[0].initializer.text, 'foo');
+				assert.equal(properties[1].initializer.text, 'bar');
+				assert.equal(properties[2].initializer.text, 'baz');
+				assert.equal(properties[3].initializer.text, 'foobar');
+				assert.equal(properties[4].initializer.text, 'barbar');
+				assert.equal(properties[5].initializer.text, 'bazbar');
+			});
+
+			void it('behaves with nested internal $ref', () => {
+				const schema = Object.freeze({
+					type: 'object',
+					$ref: '#/$defs/thing',
+					$defs: {
+						bazbar: {
+							type: 'string',
+							const: 'bazbar',
+						},
+						barbar: {
+							type: 'string',
+							const: 'barbar',
+						},
+						foobar: {
+							type: 'string',
+							const: 'foobar',
+						},
+						foothing: {
+							type: 'object',
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+								foobar: {
+									$ref: '#/$defs/foobar',
+								},
+							},
+						},
+						barthing: {
+							type: 'object',
+							$ref: '#/$defs/foothing',
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+								barbar: {
+									$ref: '#/$defs/barbar',
+								},
+							},
+						},
+						thing: {
+							type: 'object',
+							$ref: '#/$defs/barthing',
+							properties: {
+								baz: {
+									type: 'string',
+									const: 'baz',
+								},
+								bazbar: {
+									$ref: '#/$defs/bazbar',
+								},
+							},
+						},
+					},
+					properties: {
+						baz: {
+							type: 'string',
+							const: 'baz',
+						},
+						bazbar: {
+							$ref: '#/$defs/bazbar',
+						},
+					},
+				});
+				const instance = parser.parse_by_type(schema);
+
+				is_instanceof<
+					ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>
+				>(
+					instance,
+					ObjectUnspecified,
+				);
+
+				const call = () => instance.generate_typescript_data(
+					{
+						foo: 'foo',
+						bar: 'bar',
+						baz: 'baz',
+						foobar: 'foobar',
+						barbar: 'barbar',
+						bazbar: 'bazbar',
+					},
+					parser,
+					schema,
+				);
+
+				assert.doesNotThrow(call);
+
+				const generated = call();
+
+				assert.equal(generated.properties.length, 6);
+
+				type property_assignment = (
+					& PropertyAssignment
+					& {
+						name: Identifier<string>,
+						initializer: StringLiteral,
+					}
+				);
+
+				assert.ok(generated.properties.every(
+					(maybe): maybe is property_assignment => {
+						ts_assert.isPropertyAssignment(maybe);
+						ts_assert.isIdentifier(maybe.name);
+						ts_assert.isStringLiteral(maybe.initializer);
+
+						return true;
+					},
+				));
+
+				const properties = generated.properties as unknown as [
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+					property_assignment,
+				];
+
+				assert.equal(properties[0].name.text, 'foo');
+				assert.equal(properties[1].name.text, 'bar');
+				assert.equal(properties[2].name.text, 'baz');
+				assert.equal(properties[3].name.text, 'foobar');
+				assert.equal(properties[4].name.text, 'barbar');
+				assert.equal(properties[5].name.text, 'bazbar');
+
+				assert.equal(properties[0].initializer.text, 'foo');
+				assert.equal(properties[1].initializer.text, 'bar');
+				assert.equal(properties[2].initializer.text, 'baz');
+				assert.equal(properties[3].initializer.text, 'foobar');
+				assert.equal(properties[4].initializer.text, 'barbar');
+				assert.equal(properties[5].initializer.text, 'bazbar');
+			});
+
+			void it('behaves with missing nested external $ref', () => {
+				const schema = Object.freeze({
+					type: 'object',
+					$ref: 'lolwhut#/$defs/thing',
+					properties: {
+						baz: {
+							type: 'string',
+							const: 'baz',
+						},
+					},
+				});
+				const instance = parser.parse_by_type(schema);
+
+				is_instanceof<
+					ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>
+				>(
+					instance,
+					ObjectUnspecified,
+				);
+
+				const call = () => instance.generate_typescript_data(
+					{
+						foo: 'foo',
+						bar: 'bar',
+						baz: 'baz',
+						foobar: 'foobar',
+						barbar: 'barbar',
+						bazbar: 'bazbar',
+					},
+					parser,
+					schema,
+				);
+
+				assert.throws(call);
+			});
+
+			void it('behaves with missing nested internal $ref', () => {
+				const schema = Object.freeze({
+					type: 'object',
+					$ref: '#/$defs/lolwhut',
+					properties: {
+						baz: {
+							type: 'string',
+							const: 'baz',
+						},
+					},
+				});
+				const instance = parser.parse_by_type(schema);
+
+				is_instanceof<
+					ObjectUnspecified<
+						{[key: string]: unknown},
+						'properties'
+					>
+				>(
+					instance,
+					ObjectUnspecified,
+				);
+
+				const call = () => instance.generate_typescript_data(
+					{
+						foo: 'foo',
+						bar: 'bar',
+						baz: 'baz',
+						foobar: 'foobar',
+						barbar: 'barbar',
+						bazbar: 'bazbar',
+					},
+					parser,
+					schema,
+				);
+
+				assert.throws(call);
+			});
 		});
 	});
 

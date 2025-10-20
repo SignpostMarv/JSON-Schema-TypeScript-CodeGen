@@ -1001,7 +1001,6 @@ class ObjectUnspecified<
 			this.#is_schema_with_properties(schema)
 			&& !(property in schema.properties)
 			&& 'string' === typeof schema?.$ref
-			&& !schema.$ref.startsWith('#/$defs/')
 		) {
 			let checking_schema: (
 				| SchemaObject
@@ -1084,7 +1083,10 @@ class ObjectUnspecified<
 			&& property in schema.properties
 			&& undefined !== schema.properties[property]
 		) {
-			return schema.properties[property];
+			return this.maybe_add_$defs(
+				schema,
+				schema.properties[property],
+			);
 		}
 
 		if (
