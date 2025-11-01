@@ -1205,6 +1205,62 @@ void describe('ArrayType', () => {
 					foo(actual);
 				},
 			);
+
+			void it(
+				'fails as expected when checking prefixItems schema',
+				async () => {
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					const instance = new ArrayType(
+						{
+							ajv,
+						},
+						{
+							array_options: {
+								array_mode: 'prefixItems',
+								specified_mode: 'specified',
+								unique_items_mode: 'yes',
+								min_items_mode: 'optional',
+								prefixItems: [
+									{
+										type: 'string',
+									},
+									{
+										type: 'string',
+									},
+									{
+										type: 'string',
+									},
+								],
+							},
+						},
+					);
+
+					const promise = instance.generate_typescript_type({
+						data: ['foo'],
+						schema: {
+							type: 'array',
+							minItems: PositiveIntegerGuard(3),
+							uniqueItems: true,
+							items: false,
+							prefixItems: [
+								{
+									type: 'string',
+								},
+								{
+									type: 'string',
+								},
+								{
+									type: 'string',
+								},
+							],
+						},
+						schema_parser,
+					});
+
+					await assert.rejects(promise);
+				},
+			);
 		});
 	}
 
