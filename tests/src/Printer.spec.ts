@@ -803,7 +803,7 @@ void describe('Printer', () => {
 				],
 				[
 					[
-						['foobar', 'barbaz'],
+						['foobar', 'barbaz', 'barfoobaz'],
 						{
 							$defs: {
 								foo: {
@@ -848,7 +848,9 @@ void describe('Printer', () => {
 								'\n'
 							}    "foobar",${
 								'\n'
-							}    "barbaz"${
+							}    "barbaz",${
+								'\n'
+							}    "barfoobaz"${
 								'\n'
 							}];`,
 						],

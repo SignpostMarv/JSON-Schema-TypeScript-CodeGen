@@ -1698,14 +1698,14 @@ class ArrayType<
 		>,
 		schema_parser: SchemaParser,
 	): Promise<TupleTypeNode<T2, T3>> {
+		if (data?.length !== schema.prefixItems.length) {
+			throw new TypeError('Data does not match schema length!');
+		}
+
 		const tuple_members: TypeNode[] = [];
 
 		let i = 0;
 		for (const sub_schema of schema.prefixItems) {
-			if (undefined === data || i >= data.length) {
-				break;
-			}
-
 			const maybe_modified = ArrayType.maybe_add_$defs(
 				schema,
 				sub_schema,
