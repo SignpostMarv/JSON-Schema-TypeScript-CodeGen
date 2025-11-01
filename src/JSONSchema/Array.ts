@@ -915,7 +915,9 @@ class ArrayType<
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
 		const validator = ajv.compile(sub_schema);
 
-		if (!(validator(value))) {
+		const validates = validator(value);
+
+		if (!validates) {
 			throw new SchemaValidationError(
 				'Supplied value not supported by index!',
 				validator,
