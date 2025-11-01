@@ -403,10 +403,7 @@ abstract class SomethingOf<
 			return [modified, result];
 		}
 
-		return [modified, schema_parser.parse_by_type(
-			data,
-			(maybe): maybe is Type<unknown> => maybe instanceof Type,
-		)];
+		return [modified, schema_parser.parse(modified)];
 	}
 
 	static generate_schema_definition<
