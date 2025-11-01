@@ -1691,14 +1691,14 @@ class ArrayType<
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
 	>(
-		data: T1,
+		data: T1|undefined,
 		schema: array_type<
 			'prefixItems',
 			'specified'
 		>,
 		schema_parser: SchemaParser,
 	): Promise<TupleTypeNode<T2, T3>> {
-		if (data?.length !== schema.prefixItems.length) {
+		if (undefined !== data && data.length !== schema.prefixItems.length) {
 			throw new TypeError('Data does not match schema length!');
 		}
 
@@ -1713,7 +1713,7 @@ class ArrayType<
 			const sub_type = await schema_parser.parse(
 				maybe_modified,
 			).generate_typescript_type({
-				data: data[i],
+				data: undefined === data ? undefined : data[i],
 				schema: maybe_modified,
 				schema_parser,
 			});
