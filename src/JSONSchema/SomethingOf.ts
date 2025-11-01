@@ -35,6 +35,11 @@ import {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
+import {
+	SchemaValidationError,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../SchemaValidationError.ts';
+
 type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 
 type something_of_kind = 'oneOf'|'anyOf'|'allOf';
@@ -362,7 +367,7 @@ abstract class SomethingOf<
 		const validator = ajv.compile(schema);
 
 		if (!validator(data)) {
-			throw new TypeError('Data was not valid!');
+			throw new SchemaValidationError('Data was not valid!', validator);
 		}
 
 		if (0 === Object.keys(schema).length) {

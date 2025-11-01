@@ -42,6 +42,11 @@ import {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
+import {
+	SchemaValidationError,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../SchemaValidationError.ts';
+
 type array_mode = 'items'|'prefixItems';
 
 type specified_mode = 'specified'|'unspecified';
@@ -911,7 +916,10 @@ class ArrayType<
 		const validator = ajv.compile(sub_schema);
 
 		if (!(validator(value))) {
-			throw new TypeError('Supplied value not supported by index!');
+			throw new SchemaValidationError(
+				'Supplied value not supported by index!',
+				validator,
+			);
 		}
 
 		const matched_type = schema_parser.parse(
