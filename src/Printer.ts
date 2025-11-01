@@ -231,6 +231,7 @@ class Printer {
 				await schema_parser.parse(
 					$def_schema_with_$defs,
 				).generate_typescript_type({
+					data,
 					schema: $def_schema_with_$defs,
 					schema_parser,
 				}),
