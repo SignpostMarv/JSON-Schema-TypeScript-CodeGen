@@ -142,6 +142,19 @@ type SchemaDefinitionDefinitionWithNoSpecifiedProperties = {
 	additionalProperties: Record<string, never>,
 };
 
+type SchemaDefinitionOneOf_choices = (
+	| SchemaDefinitionDefinition
+	| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+);
+
+type SchemaDefinitionOneOf = {
+	oneOf: [
+		SchemaDefinitionOneOf_choices,
+		SchemaDefinitionOneOf_choices,
+		...SchemaDefinitionOneOf_choices[],
+	],
+};
+
 type TypeDefinitionSchema<
 	Schema extends SchemaObject = SchemaObject,
 > = (
@@ -191,9 +204,11 @@ abstract class Type<
 	SchemaDefinition extends (
 		| SchemaDefinitionDefinition
 		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+		| SchemaDefinitionOneOf
 	) = (
 		| SchemaDefinitionDefinition
 		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+		| SchemaDefinitionOneOf
 	),
 	SchemaDefinitionOptions extends (
 		{[key: string]: unknown}
@@ -202,6 +217,7 @@ abstract class Type<
 	),
 	TSType extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
+	TypeDefinition_For_Generate extends TypeDefinitionSchema = TypeDefinition,
 > {
 	protected schema_definition: SchemaDefinition;
 
@@ -299,7 +315,7 @@ abstract class Type<
 	abstract generate_typescript_data(
 		data: T,
 		schema_parser: SchemaParser,
-		schema: TypeDefinition,
+		schema: TypeDefinition_For_Generate,
 	): DataTo;
 
 	abstract generate_typescript_type(options: (
@@ -308,11 +324,11 @@ abstract class Type<
 			data: T,
 		}
 		| {
-			schema: TypeDefinition,
+			schema: TypeDefinition_For_Generate,
 		}
 		| {
 			data?: T,
-			schema: TypeDefinition,
+			schema: TypeDefinition_For_Generate,
 			schema_parser: SchemaParser,
 		}
 	)): Promise<TSType>;
@@ -325,7 +341,11 @@ abstract class Type<
 	static generate_schema_definition(
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		_: {[key: string]: unknown},
-	): Readonly<SchemaDefinitionDefinition> {
+	): Readonly<(
+		| SchemaDefinitionDefinition
+		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+		| SchemaDefinitionOneOf
+	)> {
 		throw new Error('Not implemented!');
 	}
 
@@ -389,6 +409,7 @@ export type {
 	SchemaDefinitionDefinition,
 	SchemaDefinitionDefinitionWith$defs,
 	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
+	SchemaDefinitionOneOf,
 	TypeDefinitionSchema,
 	TypeOptions,
 	SchemalessTypeOptions,

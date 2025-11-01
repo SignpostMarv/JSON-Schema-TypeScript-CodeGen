@@ -80,6 +80,9 @@ void describe('ObjectUnspecified', () => {
 				type: 'string',
 				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 			},
+			additionalProperties: {
+				type: 'boolean',
+			},
 			unevaluatedProperties: {
 				type: 'boolean',
 			},
@@ -154,6 +157,9 @@ void describe('ObjectUnspecified', () => {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 				},
+				additionalProperties: {
+					type: 'boolean',
+				},
 				unevaluatedProperties: {
 					type: 'boolean',
 				},
@@ -171,6 +177,9 @@ void describe('ObjectUnspecified', () => {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
 				},
+				additionalProperties: {
+					type: 'boolean',
+				},
 				unevaluatedProperties: {
 					type: 'boolean',
 				},
@@ -184,6 +193,9 @@ void describe('ObjectUnspecified', () => {
 				$ref: {
 					type: 'string',
 					pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+				},
+				additionalProperties: {
+					type: 'boolean',
 				},
 				unevaluatedProperties: {
 					type: 'boolean',

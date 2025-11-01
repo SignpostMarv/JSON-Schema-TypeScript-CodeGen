@@ -51,7 +51,7 @@ type unique_items_mode = 'yes'|'no';
 type MinItemsType_mode = 'with'|'optional';
 
 type MinItemsType = ReturnType<typeof PositiveIntegerOrZeroGuard<number>>;
-type MaxItemsType = ReturnType<typeof PositiveIntegerGuard<number>>;
+type MaxItemsType = ReturnType<typeof PositiveIntegerOrZeroGuard<number>>;
 
 type array_options<
 	ArrayMode extends array_mode = array_mode,
@@ -311,7 +311,7 @@ type array_schema_properties<
 			},
 			maxItems: {
 				type: 'integer',
-				minimum: 1,
+				minimum: 0,
 			},
 		},
 		prefixItems: {
@@ -750,11 +750,11 @@ class ArrayType<
 					uniqueItems: 'yes' === options.unique_items_mode,
 				};
 
-				if (options.minItems) {
+				if ('number' === typeof options.minItems) {
 					sanity_check.minItems = options.minItems;
 				}
 
-				if (options.maxItems) {
+				if ('number' === typeof options.maxItems) {
 					sanity_check.maxItems = options.maxItems;
 				}
 
@@ -773,11 +773,11 @@ class ArrayType<
 					uniqueItems: 'yes' === options.unique_items_mode,
 				};
 
-				if (options.minItems) {
+				if ('number' === typeof options.minItems) {
 					sanity_check.minItems = options.minItems;
 				}
 
-				if (options.maxItems) {
+				if ('number' === typeof options.maxItems) {
 					sanity_check.maxItems = options.maxItems;
 				}
 
@@ -854,7 +854,7 @@ class ArrayType<
 					sanity_check.minItems = options.minItems;
 				}
 
-				if (options.maxItems) {
+				if ('number' === typeof options.maxItems) {
 					sanity_check.maxItems = options.maxItems;
 				}
 
@@ -914,9 +914,11 @@ class ArrayType<
 			throw new TypeError('Supplied value not supported by index!');
 		}
 
-		return schema_parser.parse(
+		const matched_type = schema_parser.parse(
 			sub_schema,
-		).generate_typescript_data(
+		);
+
+		return matched_type.generate_typescript_data(
 			value,
 			schema_parser,
 			sub_schema,
@@ -1175,7 +1177,7 @@ class ArrayType<
 			} as const,
 			maxItems: {
 				type: 'integer',
-				minimum: 1,
+				minimum: 0,
 			} as const,
 		};
 
@@ -1700,6 +1702,10 @@ class ArrayType<
 
 		let i = 0;
 		for (const sub_schema of schema.prefixItems) {
+			if (undefined === data || i >= data.length) {
+				break;
+			}
+
 			const maybe_modified = ArrayType.maybe_add_$defs(
 				schema,
 				sub_schema,

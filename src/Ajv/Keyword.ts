@@ -9,6 +9,8 @@ import type {
 
 import type {
 	SchemaDefinitionDefinition,
+	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
+	SchemaDefinitionOneOf,
 	TypeDefinitionSchema,
 	TypeOptions,
 // eslint-disable-next-line imports/no-relative-parent-imports
@@ -45,8 +47,14 @@ export abstract class KeywordType<
 		{[key: string]: unknown}
 	),
 	SchemaDefinition extends (
-		SchemaDefinitionDefinition
-	) = SchemaDefinitionDefinition,
+		| SchemaDefinitionDefinition
+		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+		| SchemaDefinitionOneOf
+	) = (
+		| SchemaDefinitionDefinition
+		| SchemaDefinitionDefinitionWithNoSpecifiedProperties
+		| SchemaDefinitionOneOf
+	),
 	SchemaDefinitionOptions extends (
 		{[key: string]: unknown}
 	) = (
@@ -54,6 +62,7 @@ export abstract class KeywordType<
 	),
 	SchemaTo extends TypeNode = TypeNode,
 	DataTo extends Expression = Expression,
+	TypeDefinition_For_Generate extends TypeDefinitionSchema = TypeDefinition,
 >
 	extends Type<
 		T,
@@ -62,7 +71,8 @@ export abstract class KeywordType<
 		SchemaDefinition,
 		SchemaDefinitionOptions,
 		SchemaTo,
-		DataTo
+		DataTo,
+		TypeDefinition_For_Generate
 	> {
 	constructor({
 		ajv_keyword,

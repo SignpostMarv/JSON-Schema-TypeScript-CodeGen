@@ -19,6 +19,7 @@ import type {
 	LiteralTypeNode as TSLiteralTypeNode,
 	NodeFactory as TSNodeFactory,
 	ObjectLiteralExpression as TSObjectLiteralExpression,
+	RestTypeNode as TSRestTypeNode,
 	StringLiteral as TSStringLiteral,
 	TupleTypeNode as TSTupleTypeNode,
 	TypeLiteralNode as TSTypeLiteralNode,
@@ -158,6 +159,40 @@ type StringLiteral<
 	}
 );
 
+type EmptyTupleTypeNode = (
+	& TSTupleTypeNode
+	& {
+		readonly elements: (
+			& TSTupleTypeNode['elements']
+			& never[]
+		),
+	}
+);
+
+type RestTypeNode<
+	T1 extends TypeNode,
+> = (
+	& TSRestTypeNode
+	& {
+		readonly type: T1,
+	}
+);
+
+type RestedTupleTypeNode<
+	T1 extends TypeNode,
+> = (
+	& TSTupleTypeNode
+	& {
+		readonly elements: (
+			& TSTupleTypeNode['elements']
+			& [
+				T1,
+				RestTypeNode<ArrayTypeNode<T1>>,
+			]
+		),
+	}
+);
+
 type TupleTypeNode<
 	T1 extends (
 		| TypeNode
@@ -282,10 +317,31 @@ interface NodeFactory extends TSNodeFactory {
 		multiLine?: T2,
 	): ObjectLiteralExpression<T1, T2>;
 
+	createRestTypeNode<T1 extends TypeNode>(node: T1): RestTypeNode<T1>;
+
 	createStringLiteral<
 		T extends string,
 	>(value: T): StringLiteral<T>;
 
+	createTupleTypeNode(value: never[]): EmptyTupleTypeNode;
+	createTupleTypeNode<
+		T1 extends (
+			| TypeNode
+			| NamedTupleMember
+		) = (
+			| TypeNode
+			| NamedTupleMember
+		),
+		T2 extends [
+			T1,
+			RestTypeNode<ArrayTypeNode<T1>>,
+		] = [
+			T1,
+			RestTypeNode<ArrayTypeNode<T1>>,
+		],
+	>(
+		value: T2,
+	): RestedTupleTypeNode<T1>;
 	createTupleTypeNode<
 		T1 extends (
 			| TypeNode
@@ -341,6 +397,8 @@ export type {
 	NodeFactory,
 	ObjectLiteralExpression,
 	StringLiteral,
+	RestedTupleTypeNode,
+	EmptyTupleTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
 	TypeReferenceNode,

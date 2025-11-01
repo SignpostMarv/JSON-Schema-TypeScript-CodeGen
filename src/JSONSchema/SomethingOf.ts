@@ -232,14 +232,19 @@ abstract class SomethingOf<
 		schema_parser: SchemaParser,
 		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
 	) {
-		return this.#sub_schema_handler(
+		const [
+			sub_schema,
+			matched_type,
+		] = this.#sub_schema_handler(
 			data,
 			schema,
 			schema_parser,
-		).generate_typescript_data(
+		);
+
+		return matched_type.generate_typescript_data(
 			data,
 			schema_parser,
-			schema,
+			sub_schema,
 		);
 	}
 
@@ -352,7 +357,7 @@ abstract class SomethingOf<
 		data: T,
 		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
 		schema_parser: SchemaParser,
-	): Type<unknown> {
+	): [SchemaObject, Type<unknown>] {
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
 		const validator = ajv.compile(schema);
 
@@ -361,14 +366,14 @@ abstract class SomethingOf<
 		}
 
 		if (0 === Object.keys(schema).length) {
-			return schema_parser.parse_by_type<
+			return [{}, schema_parser.parse_by_type<
 				Type<unknown>
 			>(
 				data,
 				(maybe): maybe is Type<unknown> => {
 					return Type.is_a(maybe);
 				},
-			);
+			)];
 		}
 
 		const choices = 'oneOf' in schema
@@ -395,13 +400,13 @@ abstract class SomethingOf<
 		);
 
 		if (result) {
-			return result;
+			return [modified, result];
 		}
 
-		return schema_parser.parse_by_type(
+		return [modified, schema_parser.parse_by_type(
 			data,
 			(maybe): maybe is Type<unknown> => maybe instanceof Type,
-		);
+		)];
 	}
 
 	static generate_schema_definition<

@@ -84,6 +84,7 @@ type object_type<
 		$ref?: LocalRef|ExternalRef,
 		type: 'object',
 		required?: Required,
+		additionalProperties?: boolean,
 		unevaluatedProperties?: boolean,
 	}
 	& Omit<
@@ -131,6 +132,9 @@ type object_schema_properties_base = {
 	$ref: {
 		type: 'string',
 		pattern: pattern_either,
+	},
+	additionalProperties: {
+		type: 'boolean',
 	},
 	unevaluatedProperties: {
 		type: 'boolean',
@@ -204,6 +208,16 @@ type object_TypeLiteralNode<
 		IndexSignatureDeclaration
 	>,
 }[PropertiesMode];
+
+type object_TypeLiteralNode_possibly_extended<
+	PropertiesMode extends object_properties_mode,
+> = (
+	| object_TypeLiteralNode<PropertiesMode>
+	| IntersectionTypeNode<[
+		TypeReferenceNode,
+		object_TypeLiteralNode<PropertiesMode>,
+	]>
+);
 
 type ObjectUncertain_options<
 	SchemaDefinition extends (
@@ -337,13 +351,7 @@ class ObjectUnspecified<
 			>,
 			schema_parser: SchemaParser,
 		},
-	): Promise<(
-		| object_TypeLiteralNode<PropertiesMode>
-		| IntersectionTypeNode<[
-			TypeReferenceNode,
-			object_TypeLiteralNode<PropertiesMode>,
-		]>
-	)> {
+	): Promise<object_TypeLiteralNode_possibly_extended<PropertiesMode>> {
 		let object_type: (
 			| Promise<object_TypeLiteralNode<PropertiesMode>>
 			| IntersectionTypeNode<[
@@ -400,6 +408,9 @@ class ObjectUnspecified<
 			$ref: {
 				type: 'string',
 				pattern: '^(.+)?#\\/\\$defs\\/(.+)$',
+			},
+			additionalProperties: {
+				type: 'boolean',
 			},
 			unevaluatedProperties: {
 				type: 'boolean',
@@ -726,9 +737,11 @@ class ObjectUnspecified<
 			};
 		}
 
-		return schema_parser.parse(
+		const instance = schema_parser.parse(
 			maybe_modified,
-		).generate_typescript_data(
+		);
+
+		return instance.generate_typescript_data(
 			value,
 			schema_parser,
 			maybe_modified,
@@ -1121,6 +1134,7 @@ export type {
 	object_type,
 	object_schema,
 	object_TypeLiteralNode,
+	object_TypeLiteralNode_possibly_extended,
 };
 
 export {

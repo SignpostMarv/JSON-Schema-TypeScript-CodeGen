@@ -14,6 +14,10 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import {
+	RegexpFailureError,
+} from './exceptions.ts';
+
+import {
 	KeywordType,
 } from './Keyword.ts';
 
@@ -193,18 +197,6 @@ type template_spans_return_type<
 				)
 		)
 );
-
-class RegexpFailureError extends TypeError {
-	readonly pattern: string;
-
-	readonly value: string;
-
-	constructor(message: string, regex: RegExp, value: string) {
-		super(message);
-		this.pattern = regex.toString();
-		this.value = value;
-	}
-}
 
 class TemplatedString<
 	T extends Exclude<string, ''>,
@@ -453,13 +445,13 @@ class TemplatedString<
 	}
 
 	static #to_regex_string(parts: TemplatedStringParts): string {
-		return `^${this.#to_regex_string_inner(
+		return `^${this.to_regex_string_inner(
 			parts,
 			true,
 		)}$`;
 	}
 
-	static #to_regex_string_inner(
+	static to_regex_string_inner(
 		parts: TemplatedStringParts,
 		capture_groups: boolean,
 	): string {
@@ -477,7 +469,7 @@ class TemplatedString<
 					return '.*';
 				}).join('|')})`;
 			} else if ('templated_string' in part) {
-				return this.#to_regex_string_inner(
+				return this.to_regex_string_inner(
 					part.templated_string,
 					false,
 				);
