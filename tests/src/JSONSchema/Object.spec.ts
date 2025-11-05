@@ -512,8 +512,26 @@ void describe('ObjectUnspecified', () => {
 							instance.type_def.$defs,
 							expected_$defs,
 						);
+
+						const type_def = instance.type_def;
+
 						assert.deepEqual(
-							instance.type_def.required,
+							(
+								type_def as Exclude<
+									object_type<
+										object_properties_mode,
+										SchemaObject,
+										[string, ...string[]],
+										ObjectOfSchemas,
+										ObjectOfSchemas
+									>,
+									{
+										type: 'object',
+										$defs: SchemaObject,
+										$ref: string,
+									}
+								>
+							)?.required,
 							expected_required,
 						);
 					});
@@ -700,6 +718,66 @@ void describe('ObjectUnspecified', () => {
 					assert.equal(
 						member.type.typeArguments[1].literal.text,
 						'',
+					);
+				});
+			},
+		],
+		[
+			{
+				properties_mode: 'neither',
+			},
+			{foo: 'bar'},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				type: 'object',
+				$defs: {
+					foo: {
+						type: 'object',
+						required: ['foo'],
+						properties: {
+							foo: {
+								type: 'string',
+								minLength: 1,
+							},
+						},
+					},
+				},
+				$ref: '#/$defs/foo',
+			}),
+			object_literal_expression_asserter({foo: 'bar'}),
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isIntersectionTypeNode(value, message);
+				assert.equal(value.types.length, 2);
+				ts_assert.isTypeReferenceNode(value.types[0]);
+				ts_assert.isIdentifier(value.types[0].typeName);
+				assert.equal(
+					value.types[0].typeName.text,
+					'foo',
+				);
+				value = value.types[1];
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isIndexSignatureDeclaration(member, message);
+					ts_assert.isIdentifier(member.parameters[0].name, message);
+					assert.equal(
+						member.parameters[0].questionToken,
+						undefined,
+					);
+					assert.equal(
+						member.parameters[0].name.text,
+						'key',
+						message,
+					);
+					not_undefined(member.type, message);
+					ts_assert.isTokenWithExpectedKind(
+						member.type,
+						SyntaxKind.UnknownKeyword,
+						message,
 					);
 				});
 			},

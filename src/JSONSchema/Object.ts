@@ -72,7 +72,7 @@ type object_properties_mode = (
 	| 'pattern'
 );
 
-type object_type<
+type object_type_base<
 	PropertiesMode extends object_properties_mode,
 	Defs extends SchemaObject,
 	Required extends readonly [string, ...string[]],
@@ -99,6 +99,27 @@ type object_type<
 			pattern: 'properties',
 		}[PropertiesMode]
 	>
+);
+
+type object_type<
+	PropertiesMode extends object_properties_mode,
+	Defs extends SchemaObject,
+	Required extends readonly [string, ...string[]],
+	Properties extends ObjectOfSchemas,
+	PatternProperties extends ObjectOfSchemas,
+> = (
+	| object_type_base<
+		PropertiesMode,
+		Defs,
+		Required,
+		Properties,
+		PatternProperties
+	>
+	| {
+		type: 'object',
+		$defs: Defs,
+		$ref: LocalRef|ExternalRef,
+	}
 );
 
 type object_schema_required<
@@ -560,7 +581,7 @@ class ObjectUnspecified<
 		Properties,
 		PatternProperties
 	>> {
-		const partial: Partial<object_type<
+		const partial: Partial<object_type_base<
 			'both',
 			Defs,
 			Required,
@@ -636,7 +657,7 @@ class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
-	): schema is object_type<
+	): schema is object_type_base<
 		'both' | 'properties',
 		Defs,
 		Required,
@@ -659,7 +680,7 @@ class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
-	): schema is object_type<
+	): schema is object_type_base<
 		'both'|'pattern',
 		Defs,
 		Required,
