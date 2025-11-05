@@ -1103,8 +1103,6 @@ class ObjectUnspecified<
 
 					if (matching) {
 						return matching;
-					} else {
-						checking_schema = undefined;
 					}
 				}
 			}
