@@ -11,6 +11,10 @@ import type {
 } from 'typescript';
 
 import type {
+	pattern_either,
+} from './Ref.ts';
+
+import type {
 	SchemaParser,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
@@ -20,6 +24,17 @@ import type {
 	SchemaObject,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
+
+type $defs_schema_type_subtype = Readonly<{
+	type: 'object',
+	required: readonly ['type'],
+	properties: {
+		type: {
+			type: 'string',
+			minLength: 1,
+		},
+	},
+}>;
 
 type $defs_schema_type = Readonly<{
 	type: 'object',
@@ -41,14 +56,38 @@ type $defs_schema_type = Readonly<{
 				type: 'object',
 				minProperties: 1,
 				additionalProperties: {
-					type: 'object',
-					required: readonly ['type'],
-					properties: {
-						type: {
-							type: 'string',
-							minLength: 1,
+					oneOf: readonly [
+						$defs_schema_type_subtype,
+						{
+							type: 'object',
+							additionalProperties: false,
+							required: readonly ['allOf'],
+							properties: {
+								allOf: {
+									type: 'array',
+									minItems: 2,
+									items: {
+										oneOf: readonly [
+											$defs_schema_type_subtype,
+											{
+												type: 'object',
+												additionalProperties: false,
+												required: readonly ['$ref'],
+												properties: {
+													$ref: {
+														type: 'string',
+														pattern: (
+															pattern_either
+														),
+													},
+												},
+											},
+										],
+									},
+								},
+							},
 						},
-					},
+					],
 				},
 			}
 			| {
@@ -58,6 +97,8 @@ type $defs_schema_type = Readonly<{
 		),
 	},
 }>;
+
+const pattern_either_value = '^(.+)?#\\/\\$defs\\/(.+)$';
 
 const $defs_schema: $defs_schema_type = Object.freeze({
 	type: 'object',
@@ -78,14 +119,56 @@ const $defs_schema: $defs_schema_type = Object.freeze({
 			type: 'object',
 			minProperties: 1,
 			additionalProperties: {
-				type: 'object',
-				required: ['type'],
-				properties: {
-					type: {
-						type: 'string',
-						minLength: 1,
+				oneOf: [
+					{
+						type: 'object',
+						required: ['type'] as const,
+						properties: {
+							type: {
+								type: 'string',
+								minLength: 1,
+							},
+						},
 					},
-				},
+					{
+						type: 'object',
+						additionalProperties: false,
+						required: ['allOf'] as const,
+						properties: {
+							allOf: {
+								type: 'array',
+								minItems: 2,
+								items: {
+									oneOf: [
+										{
+											type: 'object',
+											required: ['type'] as const,
+											properties: {
+												type: {
+													type: 'string',
+													minLength: 1,
+												},
+											},
+										},
+										{
+											type: 'object',
+											additionalProperties: false,
+											required: ['$ref'] as const,
+											properties: {
+												$ref: {
+													type: 'string',
+													pattern: (
+														pattern_either_value
+													),
+												},
+											},
+										},
+									] as const,
+								},
+							},
+						},
+					},
+				] as const,
 			},
 		},
 	},
