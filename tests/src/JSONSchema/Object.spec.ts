@@ -1781,6 +1781,72 @@ void describe('ObjectUnspecified', () => {
 			));
 		});
 
+		void it('fails when expected with allOf', () => {
+			const ajv = new Ajv({strict: true});
+			const instance = new ObjectUnspecified(
+				{
+					properties_mode: 'properties',
+				},
+				{
+					ajv,
+				},
+			);
+			const schema = type_schema_for_data_set<
+				'properties'
+			>({
+				$defs: {
+					foo: {
+						type: 'object',
+						required: ['foo'],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+						},
+					},
+					bar: {
+						type: 'object',
+						required: ['bar'],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					baz: {
+						allOf: [
+							{$ref: '#/$defs/foo'},
+							{$ref: '#/$defs/bar'},
+						],
+					},
+				},
+				type: 'object',
+				$ref: '#/$defs/baz',
+				required: [
+					'baz',
+				],
+				properties: {
+					baz: {
+						$ref: '#/$defs/baz',
+					},
+				},
+			});
+
+			assert.throws(() => instance.generate_typescript_data(
+				{
+					foo: 'bar',
+					bar: 'baz',
+					baz: {
+						foo: 'foobar',
+						bar: 'barbaz',
+						bat: 'bag',
+					},
+				},
+				new SchemaParser({ajv}),
+				schema,
+			));
+		});
+
 		void describe(' with external schemas', () => {
 			const parser = new SchemaParser();
 
