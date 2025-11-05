@@ -1614,6 +1614,84 @@ void describe('ObjectUnspecified', () => {
 				});
 			},
 		],
+		[
+			{
+				properties_mode: 'properties',
+			},
+			{
+				foo: 'bar',
+				bar: 'baz',
+				baz: {
+					foo: 'foobar',
+					bar: 'barbaz',
+				},
+			},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				$defs: {
+					foo: {
+						type: 'object',
+						required: ['foo'],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+						},
+					},
+					bar: {
+						type: 'object',
+						required: ['bar'],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					baz: {
+						allOf: [
+							{$ref: '#/$defs/foo'},
+							{$ref: '#/$defs/bar'},
+						],
+					},
+				},
+				type: 'object',
+				$ref: '#/$defs/baz',
+				required: [
+					'baz',
+				],
+				properties: {
+					baz: {
+						$ref: '#/$defs/baz',
+					},
+				},
+			}),
+			object_literal_expression_asserter({
+				foo: 'bar',
+				bar: 'baz',
+				baz: {
+					foo: 'foobar',
+					bar: 'barbaz',
+				},
+			}),
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isIntersectionTypeNode(value, message);
+				assert.equal(value.types.length, 2, message);
+				ts_assert.isTypeReferenceNode(value.types[0], message);
+				ts_assert.isIdentifier(value.types[0].typeName, message);
+				assert.equal(
+					value.types[0].typeName.text,
+					'baz',
+				);
+
+				value = value.types[1];
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+			},
+		],
 	];
 
 	void describe('::generate_typescript_data()', () => {
