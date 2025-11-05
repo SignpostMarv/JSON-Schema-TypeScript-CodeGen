@@ -1058,6 +1058,21 @@ class ObjectUnspecified<
 			throw new TypeError(
 				`Property "${property}" has no match on the specified schema!`,
 			);
+		} else if (
+			!this.#is_schema_with_pattern_properties(schema)
+			&& !this.#is_schema_with_properties(schema)
+			&& '$ref' in schema
+		) {
+			const maybe = this.#sub_schema_for_property_resolve_$ref(
+				schema_parser,
+				schema as SchemaObject & {
+					$ref: string,
+				},
+			);
+
+			if (maybe) {
+				schema = maybe;
+			}
 		}
 
 		if (
