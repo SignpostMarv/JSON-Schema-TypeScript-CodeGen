@@ -1017,43 +1017,47 @@ class ObjectUnspecified<
 			&& 2 === Object.keys(schema).length
 			&& '$defs' in schema
 		) {
-			if (!schema.$ref.startsWith('#/$defs/')) {
-				const [
-					other_schema_id,
-					other_schema_ref_id,
-				] = schema.$ref.split(
-					'#/$defs/',
-				) as [string, string];
+			const maybe_replace_schema = (
+				this.#sub_schema_for_property_resolve_$ref(
+					schema_parser,
+					schema as SchemaObject & {
+						$ref: string,
+					},
+				)
+			);
 
-				const other_schema = schema_parser.get_schema(
-					other_schema_id,
-				);
-
-				if (
-					other_schema
-					&& '$defs' in other_schema
-					&& undefined !== other_schema.$defs
-					&& other_schema_ref_id in other_schema.$defs
-				) {
-					schema = this.maybe_add_$defs(
-						other_schema,
-						other_schema.$defs[other_schema_ref_id],
-					);
-				}
-			} else {
-				const $ref_id = schema.$ref.split('#/$defs/')[1];
-
-				if (
-					'$defs' in schema
-					&& undefined !== schema.$defs
-					&& $ref_id in schema.$defs
-				) {
-					schema = this.maybe_add_$defs(
-						schema,
-						schema.$defs[$ref_id] as SchemaObject,
-					);
-				}
+			if (maybe_replace_schema) {
+				schema = maybe_replace_schema;
 			}
+		} else if (
+			!this.#is_schema_with_pattern_properties(schema)
+			&& !this.#is_schema_with_properties(schema)
+			&& 'allOf' in schema
+			&& undefined !== schema.allOf
+			&& 2 === Object.keys(schema).length
+			&& '$defs' in schema
+		) {
+			const matching = this.#sub_schema_for_property_from_allOf(
+				schema_parser,
+				properties_mode,
+				property,
+				schema as SchemaObject & {
+					allOf: [
+						SchemaObject,
+						SchemaObject,
+						...SchemaObject[],
+					],
+				},
+				fallback_if_neither,
+			);
+
+			if (matching) {
+				return matching;
+			}
+
+			throw new TypeError(
+				`Property "${property}" has no match on the specified schema!`,
+			);
 		}
 
 		if (
@@ -1071,75 +1075,31 @@ class ObjectUnspecified<
 				&& !(property in checking_schema.properties)
 				&& 'string' === typeof checking_schema.$ref
 			) {
-				if (!checking_schema.$ref.startsWith('#/$defs/')) {
-					const [
-						other_schema_id,
-						other_schema_ref_id,
-					] = checking_schema.$ref.split(
-						'#/$defs/',
-					) as [string, string];
-
-					const other_schema = schema_parser.get_schema(
-						other_schema_id,
-					);
-
-					if (
-						other_schema
-						&& '$defs' in other_schema
-						&& undefined !== other_schema.$defs
-						&& other_schema_ref_id in other_schema.$defs
-					) {
-						checking_schema = this.maybe_add_$defs(
-							other_schema,
-							other_schema.$defs[other_schema_ref_id],
-						);
-					} else {
-						checking_schema = undefined;
-					}
-				} else {
-					const $ref_id = checking_schema.$ref.split('#/$defs/')[1];
-
-					if (
-						'$defs' in checking_schema
-						&& undefined !== checking_schema.$defs
-						&& $ref_id in checking_schema.$defs
-					) {
-						checking_schema = this.maybe_add_$defs(
-							checking_schema,
-							checking_schema.$defs[$ref_id],
-						);
-					} else {
-						checking_schema = undefined;
-					}
-				}
+				checking_schema = this.#sub_schema_for_property_resolve_$ref(
+					schema_parser,
+					checking_schema as SchemaObject & {
+						$ref: string,
+					},
+				);
 
 				if (
 					checking_schema
 					&& 'allOf' in checking_schema
 					&& undefined !== checking_schema.allOf
 				) {
-					let matching: SchemaObject|undefined;
-
-					for (const candidate of checking_schema.allOf) {
-						try {
-							const maybe = this.#sub_schema_for_property(
-								schema_parser,
-								properties_mode,
-								property,
-								this.maybe_add_$defs(
-									checking_schema,
-									candidate,
-								),
-								fallback_if_neither,
-							);
-
-							if (undefined !== maybe) {
-								matching = maybe;
-							}
-						// eslint-disable-next-line @stylistic/max-len
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-						} catch (err) { /* empty */ }
-					}
+					const matching = this.#sub_schema_for_property_from_allOf(
+						schema_parser,
+						properties_mode,
+						property,
+						checking_schema as SchemaObject & {
+							allOf: [
+								SchemaObject,
+								SchemaObject,
+								...SchemaObject[],
+							],
+						},
+						fallback_if_neither,
+					);
 
 					if (matching) {
 						return matching;
@@ -1207,6 +1167,91 @@ class ObjectUnspecified<
 		throw new TypeError(
 			`Property "${property}" has no match on the specified schema!`,
 		);
+	}
+
+	static #sub_schema_for_property_resolve_$ref(
+		schema_parser: SchemaParser,
+		schema: SchemaObject & {$ref: string},
+	): SchemaObject|undefined {
+		if (!schema.$ref.startsWith('#/$defs/')) {
+			const [
+				other_schema_id,
+				other_schema_ref_id,
+			] = schema.$ref.split(
+				'#/$defs/',
+			) as [string, string];
+
+			const other_schema = schema_parser.get_schema(
+				other_schema_id,
+			);
+
+			if (
+				other_schema
+				&& '$defs' in other_schema
+				&& undefined !== other_schema.$defs
+				&& other_schema_ref_id in other_schema.$defs
+			) {
+				return this.maybe_add_$defs(
+					other_schema,
+					other_schema.$defs[other_schema_ref_id],
+				);
+			}
+		} else {
+			const $ref_id = schema.$ref.split('#/$defs/')[1];
+
+			if (
+				'$defs' in schema
+				&& undefined !== schema.$defs
+				&& $ref_id in schema.$defs
+			) {
+				return this.maybe_add_$defs(
+					schema,
+					schema.$defs[$ref_id],
+				);
+			}
+		}
+
+		return undefined;
+	}
+
+	static #sub_schema_for_property_from_allOf<
+		PropertiesMode extends object_properties_mode,
+	>(
+		schema_parser: SchemaParser,
+		properties_mode: PropertiesMode,
+		property: string,
+		schema: SchemaObject & {
+			allOf: [
+				SchemaObject,
+				SchemaObject,
+				...SchemaObject[],
+			],
+		},
+		fallback_if_neither: Record<string, never>|unknown_type,
+	): SchemaObject|undefined {
+		let matching: SchemaObject|undefined;
+
+		for (const candidate of schema.allOf) {
+			try {
+				const maybe = this.#sub_schema_for_property(
+					schema_parser,
+					properties_mode,
+					property,
+					this.maybe_add_$defs(
+						schema,
+						candidate,
+					),
+					fallback_if_neither,
+				);
+
+				if (undefined !== maybe) {
+					matching = maybe;
+				}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			} catch (err) { /* empty */ }
+		}
+
+		return matching;
 	}
 }
 
