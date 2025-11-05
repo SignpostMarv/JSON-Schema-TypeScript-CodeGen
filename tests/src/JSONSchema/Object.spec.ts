@@ -617,12 +617,12 @@ void describe('ObjectUnspecified', () => {
 				ts_assert.isIdentifier(property.name, message);
 				assert.equal(property.name.text, entries[i][0], message);
 				if ('string' === typeof entries[i][1]) {
-				ts_assert.isStringLiteral(property.initializer, message);
-				assert.equal(
-					property.initializer.text,
-					entries[i][1],
-					message,
-				);
+					ts_assert.isStringLiteral(property.initializer, message);
+					assert.equal(
+						property.initializer.text,
+						entries[i][1],
+						message,
+					);
 				} else {
 					do_assertions(
 						property.initializer,
