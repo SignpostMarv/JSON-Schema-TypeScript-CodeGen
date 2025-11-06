@@ -574,7 +574,7 @@ class ObjectUnspecified<
 		required?: Required,
 		properties?: Properties,
 		patternProperties?: PatternProperties,
-	}): Readonly<object_type<
+	}): Readonly<object_type_base<
 		PropertiesMode,
 		Defs,
 		Required,
@@ -610,7 +610,7 @@ class ObjectUnspecified<
 			partial.patternProperties = patternProperties;
 		}
 
-		const frozen = Object.freeze(partial as object_type<
+		const frozen = Object.freeze(partial as object_type_base<
 			PropertiesMode,
 			Defs,
 			Required,
@@ -1292,6 +1292,7 @@ class ObjectUnspecified<
 export type {
 	object_properties_mode,
 	object_type,
+	object_type_base,
 	object_schema,
 	object_TypeLiteralNode,
 	object_TypeLiteralNode_possibly_extended,

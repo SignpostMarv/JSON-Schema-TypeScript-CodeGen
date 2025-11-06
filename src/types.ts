@@ -6,11 +6,14 @@ type SchemaObject = (
 	& AjvSchemaObject
 	& {
 		$defs?: ObjectOfSchemas,
-		allOf?: [
-			SchemaObject,
-			SchemaObject,
-			...SchemaObject[],
-		],
+		allOf?: (
+			| [
+				SchemaObject,
+				SchemaObject,
+				...SchemaObject[],
+			]
+			| {$ref: string}[]
+		),
 	}
 );
 
