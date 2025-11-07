@@ -18,6 +18,9 @@ import {
 	String,
 } from './JSONSchema/String.ts';
 
+import type {
+	needs_import_from_module,
+} from './JSONSchema/Ref.ts';
 import {
 	$ref,
 } from './JSONSchema/Ref.ts';
@@ -114,6 +117,18 @@ class SchemaParser {
 		) => [...instance.needs_import.values()]));
 	}
 
+	get imports_from_module(): $ref['needs_import_from_module'] {
+		const result: $ref['needs_import_from_module'] = new Set(
+			this.types.filter(
+				(maybe) => maybe instanceof $ref,
+			).flatMap((
+				instance: $ref,
+			) => [...instance.needs_import_from_module.values()]),
+		);
+
+		return result;
+	}
+
 	add_schema(
 		schema: SchemaObjectWith$id,
 	) {
@@ -193,6 +208,14 @@ class SchemaParser {
 		}
 
 		return result;
+	}
+
+	needs_import_from_module(value: needs_import_from_module) {
+		this.types.filter(
+			(maybe) => maybe instanceof $ref,
+		).forEach(($ref) => {
+			$ref.needs_import_from_module.add(value);
+		});
 	}
 
 	parse(

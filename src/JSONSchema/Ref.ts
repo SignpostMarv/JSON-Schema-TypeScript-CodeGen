@@ -134,6 +134,11 @@ type $ref_schema = SchemaDefinitionDefinition<
 	}
 >;
 
+type needs_import_from_module = (
+	| 'StringPassesRegex'
+	| 'StringPassesRegexGuard'
+);
+
 class $ref extends
 	Type<
 		$ref_type,
@@ -147,6 +152,8 @@ class $ref extends
 	readonly #adjust_name: adjust_name_callback;
 
 	readonly needs_import: Set<string>;
+
+	readonly needs_import_from_module: Set<needs_import_from_module>;
 
 	readonly remote_defs: (
 		| {[key: string]: ObjectOfSchemas}
@@ -169,6 +176,7 @@ class $ref extends
 
 		this.#adjust_name = adjust_name || adjust_name_default;
 		this.needs_import = new Set();
+		this.needs_import_from_module = new Set();
 	}
 
 	generate_typescript_data(
@@ -381,6 +389,7 @@ export type {
 	ExternalRef,
 	$ref_type,
 	pattern_either,
+	needs_import_from_module,
 };
 
 export {

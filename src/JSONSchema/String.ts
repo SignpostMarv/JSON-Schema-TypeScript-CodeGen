@@ -346,7 +346,7 @@ class BaseString<
 			pattern: (
 				Pattern extends string
 					? CallExpression<
-						Identifier<'StringPassesRegex'>,
+						Identifier<'StringPassesRegexGuard'>,
 						'no',
 						never[],
 						[
@@ -376,7 +376,7 @@ class BaseString<
 		pattern: (
 			Pattern extends string
 				? CallExpression<
-					Identifier<'StringPassesRegex'>,
+					Identifier<'StringPassesRegexGuard'>,
 					'no',
 					never[],
 					[
@@ -395,7 +395,7 @@ class BaseString<
 			pattern: (
 				Pattern extends string
 					? CallExpression<
-						Identifier<'StringPassesRegex'>,
+						Identifier<'StringPassesRegexGuard'>,
 						'no',
 						never[],
 						[
@@ -417,7 +417,7 @@ class BaseString<
 			result = sanity_check as typeof result;
 		} else {
 			const sanity_check: CallExpression<
-				Identifier<'StringPassesRegex'>,
+				Identifier<'StringPassesRegexGuard'>,
 				'no',
 				never[],
 				[
@@ -425,14 +425,14 @@ class BaseString<
 					StringLiteral<T>,
 				]
 			> = factory.createCallExpression<
-				Identifier<'StringPassesRegex'>,
+				Identifier<'StringPassesRegexGuard'>,
 				never[],
 				[
 					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral<T>,
 				]
 			>(
-				factory.createIdentifier('StringPassesRegex'),
+				factory.createIdentifier('StringPassesRegexGuard'),
 				[],
 				[
 					factory.createStringLiteral(
@@ -443,6 +443,8 @@ class BaseString<
 			);
 
 			result = sanity_check as typeof result;
+
+			schema_parser.needs_import_from_module('StringPassesRegexGuard');
 		}
 
 		return result;
@@ -451,6 +453,7 @@ class BaseString<
 	generate_typescript_type(
 		{
 			schema,
+			schema_parser,
 		}: {
 			schema: string_type<
 				StringMode,
@@ -459,6 +462,7 @@ class BaseString<
 				MinLength,
 				Const
 			>,
+			schema_parser: SchemaParser,
 		},
 	): Promise<{
 		basic: KeywordTypeNode<SyntaxKind.StringKeyword>,
@@ -535,6 +539,8 @@ class BaseString<
 			);
 
 			result = sanity_check as typeof result;
+
+			schema_parser.needs_import_from_module('StringPassesRegex');
 		} else if ('const' in schema) {
 			let double_sanity_check: (
 				Const extends undefined

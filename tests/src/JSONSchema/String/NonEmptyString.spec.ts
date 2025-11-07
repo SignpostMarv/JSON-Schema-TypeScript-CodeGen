@@ -120,6 +120,7 @@ void describe('identify non-empty String types as expected', () => {
 							...schema,
 							minLength: PositiveIntegerGuard(1),
 						},
+						schema_parser: parser,
 					});
 					ts_assert.isTypeReferenceNode(typed);
 					ts_assert.isIdentifier(

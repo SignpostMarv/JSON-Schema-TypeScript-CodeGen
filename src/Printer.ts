@@ -16,6 +16,10 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
+import {
+	is_non_empty_array,
+} from '@satisfactory-dev/predicates.ts';
+
 // eslint-disable-next-line @stylistic/max-len
 // eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
 import {
@@ -306,11 +310,118 @@ class Printer {
 				source_file,
 			));
 
+		const import_code_for_data: string[] = [];
+
+		const import_types_from_modules: {
+			[key in (
+				'@signpostmarv/json-schema-typescript-codegen'
+			)]: string[]
+		} = {
+			'@signpostmarv/json-schema-typescript-codegen': [],
+		};
+
+		const imports_from_modules: {
+			[key in (
+				'@signpostmarv/json-schema-typescript-codegen'
+			)]: string[]
+		} = {
+			'@signpostmarv/json-schema-typescript-codegen': [],
+		};
+
+		for (const type_to_import of [
+			'StringPassesRegex',
+		] as const) {
+			if (schema_parser.imports_from_module.has(type_to_import)) {
+				import_types_from_modules[
+					'@signpostmarv/json-schema-typescript-codegen'
+				].push(
+					type_to_import,
+				);
+			}
+		}
+
+		for (const thing_to_import of [
+			'StringPassesRegexGuard',
+		] as const) {
+			if (schema_parser.imports_from_module.has(thing_to_import)) {
+				imports_from_modules[
+					'@signpostmarv/json-schema-typescript-codegen'
+				].push(
+					thing_to_import,
+				);
+			}
+		}
+
+		const filtered_module_type_imports = Object.entries(
+			import_types_from_modules,
+		).filter(([,maybe]) => maybe.length > 0);
+
+		const filtered_module_imports = Object.entries(
+			imports_from_modules,
+		).filter(([,maybe]) => maybe.length > 0);
+
+		for (const [
+			module_string,
+			imports_from_module,
+		] of filtered_module_type_imports) {
+			import_code.push(printer.printNode(
+				EmitHint.Unspecified,
+				factory.createImportDeclaration(
+					undefined,
+					factory.createImportClause(
+						SyntaxKind.TypeKeyword,
+						undefined,
+						factory.createNamedImports(imports_from_module.map(
+							(name) => factory.createImportSpecifier(
+								false,
+								undefined,
+								factory.createIdentifier(name),
+							),
+						)),
+					),
+					factory.createStringLiteral(
+						module_string,
+					),
+				),
+				source_file,
+			));
+		}
+
+		for (const [
+			module_string,
+			imports_from_module,
+		] of filtered_module_imports) {
+			import_code_for_data.push(printer.printNode(
+				EmitHint.Unspecified,
+				factory.createImportDeclaration(
+					undefined,
+					factory.createImportClause(
+						undefined,
+						undefined,
+						factory.createNamedImports(imports_from_module.map(
+							(name) => factory.createImportSpecifier(
+								false,
+								undefined,
+								factory.createIdentifier(name),
+							),
+						)),
+					),
+					factory.createStringLiteral(
+						module_string,
+					),
+				),
+				source_file,
+			));
+		}
+
 		if (import_code.length > 0) {
 			if (!(type_filename in outputs)) {
 				outputs[type_filename] = import_code;
 			} else {
-				outputs[type_filename].push(...import_code);
+				outputs[type_filename] = [
+					...import_code,
+					...outputs[type_filename],
+				];
 			}
 		}
 
@@ -324,6 +435,17 @@ class Printer {
 			outputs[type_filename] = [code];
 		} else {
 			outputs[type_filename].push(code);
+		}
+
+		if (is_non_empty_array<string>(import_code_for_data)) {
+			if (!(data_filename in outputs)) {
+				outputs[data_filename] = import_code_for_data;
+			} else {
+				outputs[data_filename] = [
+					...import_code_for_data,
+					...outputs[data_filename],
+				];
+			}
 		}
 
 		if ($defs_type_handler.is_a(type_for_schema)) {

@@ -129,6 +129,7 @@ void describe('PatternString', () => {
 			void it(`behaves with data_sets[${i}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
+					schema_parser: new SchemaParser({ajv}),
 				});
 
 				await assert.doesNotReject(() => promise);

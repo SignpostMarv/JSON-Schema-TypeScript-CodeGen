@@ -94,6 +94,7 @@ void describe('identify simple String types as expected', () => {
 
 					const typed = await instance.generate_typescript_type({
 						schema,
+						schema_parser: parser,
 					});
 					ts_assert.isTokenWithExpectedKind(
 						typed,

@@ -117,6 +117,7 @@ void describe('identify Const String types as expected', () => {
 
 					const typed = await instance.generate_typescript_type({
 						schema,
+						schema_parser: parser,
 					});
 
 					if ('const' in schema && undefined !== schema.const) {
