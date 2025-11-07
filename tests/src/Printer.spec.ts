@@ -134,7 +134,10 @@ void describe('Printer', () => {
 					[
 						[
 							'./types.ts',
-							`type bar = "foo" | "bar" | "baz";${
+							// eslint-disable-next-line @stylistic/max-len
+							`import type { StringPassesRegex } from "@signpostmarv/json-schema-typescript-codegen";${
+								'\n\n'
+							}type bar = "foo" | "bar" | "baz";${
 								'\n\n'
 							}type baz = StringPassesRegex<"^baz">;${
 								'\n\n'
@@ -783,9 +786,9 @@ void describe('Printer', () => {
 						],
 						[
 							'./types/foo.ts',
-							`type foo = \`foo\${string}\`;${
+							`import type { bar } from "./bar.ts";${
 								'\n\n'
-							}import type { bar } from "./bar.ts";${
+							}type foo = \`foo\${string}\`;${
 								'\n\n'
 							}export type foobar = [${
 								'\n'
@@ -856,9 +859,9 @@ void describe('Printer', () => {
 						],
 						[
 							'./types/foo.ts',
-							`type foo = \`foo\${string}\`;${
+							`import type { bar, barfoo } from "./bar.ts";${
 								'\n\n'
-							}import type { bar, barfoo } from "./bar.ts";${
+							}type foo = \`foo\${string}\`;${
 								'\n\n'
 							}export type foobar = [${
 								'\n'
