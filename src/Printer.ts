@@ -438,10 +438,10 @@ class Printer {
 		}
 
 		if (is_non_empty_array<string>(import_code_for_data)) {
-				outputs[data_filename] = [
-					...import_code_for_data,
-					...outputs[data_filename],
-				];
+			outputs[data_filename] = [
+				...import_code_for_data,
+				...outputs[data_filename],
+			];
 		}
 
 		if ($defs_type_handler.is_a(type_for_schema)) {
