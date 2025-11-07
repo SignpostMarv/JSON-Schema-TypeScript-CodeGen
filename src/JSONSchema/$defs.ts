@@ -108,7 +108,7 @@ export class $defs extends Type<
 				return factory.createPropertySignature(
 					undefined,
 					adjust_name_finisher(
-					name,
+						name,
 						this.#adjust_name,
 					),
 					undefined,
