@@ -429,7 +429,7 @@ class SchemaParser {
 					mode: 'unspecified',
 				},
 			}),
-			new $defs({ajv}, {}),
+			new $defs({ajv}, {}, {}),
 		];
 	}
 }

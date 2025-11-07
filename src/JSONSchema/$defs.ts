@@ -33,6 +33,16 @@ import type {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
+import type {
+	adjust_name_callback,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../coercions.ts';
+import {
+	adjust_name_default,
+	adjust_name_finisher,
+// eslint-disable-next-line imports/no-relative-parent-imports
+} from '../coercions.ts';
+
 
 type $defs_type = {
 	$schema?: 'https://json-schema.org/draft/2020-12/schema',
@@ -59,7 +69,17 @@ export class $defs extends Type<
 	TypeLiteralNode<PropertySignature>,
 	ObjectLiteralExpression<[]>
 > {
-	constructor(options: SchemalessTypeOptions, $defs: ObjectOfSchemas) {
+	readonly #adjust_name: adjust_name_callback;
+
+	constructor(
+		options: SchemalessTypeOptions,
+		$defs: ObjectOfSchemas,
+		{
+			adjust_name,
+		}: {
+			adjust_name?: adjust_name_callback,
+		},
+	) {
 		super({
 			...options,
 			schema_definition: {},
@@ -67,6 +87,8 @@ export class $defs extends Type<
 				$defs,
 			},
 		});
+
+		this.#adjust_name = adjust_name || adjust_name_default;
 	}
 
 	generate_typescript_data(): ObjectLiteralExpression<[]> {
@@ -85,7 +107,10 @@ export class $defs extends Type<
 			(name) => {
 				return factory.createPropertySignature(
 					undefined,
+					adjust_name_finisher(
 					name,
+						this.#adjust_name,
+					),
 					undefined,
 					undefined,
 				);

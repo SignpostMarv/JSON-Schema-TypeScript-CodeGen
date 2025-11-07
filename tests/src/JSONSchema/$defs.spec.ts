@@ -73,7 +73,7 @@ void describe('$defs', () => {
 	void describe('::generate_typescript_data()', () => {
 		data_sets.forEach(([specific_options], i) => {
 			const ajv = new Ajv({strict: true});
-			const instance = new $defs({ajv}, specific_options);
+			const instance = new $defs({ajv}, specific_options, {});
 
 			void it(`behaves with data_sets[${i}]`, () => {
 				const result = instance.generate_typescript_data();
@@ -88,8 +88,8 @@ void describe('$defs', () => {
 		data_sets.forEach(([specific_options, expectation], i) => {
 			const ajv = new Ajv({strict: true});
 			const schema_parser = new SchemaParser({ajv});
-			const a = new $defs({ajv}, specific_options);
-			const b = new $defs({ajv}, {});
+			const a = new $defs({ajv}, specific_options, {});
+			const b = new $defs({ajv}, {}, {});
 
 			void it(`behaves with data_sets[${i}]`, async () => {
 				const foo: ts_asserter = expectation;
