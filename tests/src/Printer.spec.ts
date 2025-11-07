@@ -153,6 +153,55 @@ void describe('Printer', () => {
 				],
 				[
 					[
+						{
+							foo: 'bazbat',
+						},
+						{
+							// eslint-disable-next-line @stylistic/max-len
+							$schema: 'https://json-schema.org/draft/2020-12/schema',
+							$id: 'foobarbaz',
+							$defs: {
+								baz: {
+									type: 'string',
+									pattern: '^baz',
+								},
+							},
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {$ref: '#/$defs/baz'},
+							},
+						},
+					],
+					() => {},
+					[
+						[
+							'./index.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`import { StringPassesRegexGuard } from "@signpostmarv/json-schema-typescript-codegen";${
+								'\n\n'
+							}import type { foo } from "./types.ts";${
+								'\n\n'
+							// eslint-disable-next-line @stylistic/max-len
+							}export const bar: foo = { foo: StringPassesRegexGuard("^baz", "bazbat") };`,
+						],
+						[
+							'./types.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`import type { StringPassesRegex } from "@signpostmarv/json-schema-typescript-codegen";${
+								'\n\n'
+							}type baz = StringPassesRegex<"^baz">;${
+								'\n\n'
+							}export type foo = {${
+								'\n'
+							}    foo: baz;${
+								'\n'
+							}};`,
+						],
+					],
+				],
+				[
+					[
 						{},
 						{
 							type: 'object',
