@@ -1633,7 +1633,7 @@ class ArrayType<
 		));
 
 		let i = 0;
-		while (tuple_members.length < schema.minItems && i < data.length) {
+		while (tuple_members.length < schema.minItems && i < data?.length) {
 			tuple_members.push(
 				await sub_type.generate_typescript_type({
 					data: data[i],
