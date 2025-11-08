@@ -246,7 +246,7 @@ class $ref extends
 		);
 
 		if (null === is_external) {
-		this.needs_import.add(name);
+			this.needs_import.add(name);
 		}
 
 		return Promise.resolve(factory.createTypeReferenceNode(
