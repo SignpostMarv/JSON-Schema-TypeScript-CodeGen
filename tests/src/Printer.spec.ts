@@ -683,6 +683,72 @@ void describe('Printer', () => {
 						],
 					],
 				],
+				[
+					[
+						['foobar', 'barbaz'],
+						{
+							type: 'array',
+							items: false,
+							prefixItems: [
+								{$ref: 'some-external-id#/$defs/foo'},
+								{$ref: 'some-external-id#/$defs/bar'},
+							],
+						},
+						'foobar',
+					],
+					(schema_parser: SchemaParser) => {
+						load_TemplatedString(schema_parser);
+						schema_parser.add_schema({
+							$id: 'some-external-id',
+							$defs: {
+								foo: {
+									type: 'string',
+									templated_string: [
+										'foo',
+										{type: 'string'},
+									],
+								},
+								bar: {
+									type: 'string',
+									templated_string: [
+										'bar',
+										{type: 'string'},
+									],
+								},
+							},
+						});
+					},
+					[
+						[
+							'./index.ts',
+							`import type { foobar } from "./types/foobar.ts";${
+								'\n\n'
+							}export const bar: foobar = [${
+								'\n'
+							}    "foobar",${
+								'\n'
+							}    "barbaz"${
+								'\n'
+							}];`,
+						],
+						[
+							'./types/foobar.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`import type { foo as some_external_id_foo } from "./some_external_id_foo.ts";${
+								'\n\n'
+							// eslint-disable-next-line @stylistic/max-len
+							}import type { bar as some_external_id_bar } from "./some_external_id_bar.ts";${
+								'\n\n'
+							}export type foobar = [${
+								'\n'
+							}    some_external_id_foo,${
+								'\n'
+							}    some_external_id_bar${
+								'\n'
+							}];`,
+						],
+					],
+				],
 			],
 		],
 		[

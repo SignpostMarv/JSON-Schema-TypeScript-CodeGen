@@ -184,12 +184,7 @@ class $ref extends
 		schema_parser: SchemaParser,
 		schema: $ref_type,
 	): Expression {
-		if (
-			!object_has_property(schema, '$defs')
-			|| undefined === schema.$defs
-		) {
-			throw new TypeError('No $defs specified!');
-		}
+		const maybe_modified = this.resolve_def(schema, schema?.$defs || {});
 
 		return schema_parser.parse_by_type<Type<unknown>>(
 			data,
@@ -197,7 +192,7 @@ class $ref extends
 		).generate_typescript_data(
 			data,
 			schema_parser,
-			this.resolve_def(schema, schema.$defs),
+			maybe_modified,
 		);
 	}
 
