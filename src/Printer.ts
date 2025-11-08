@@ -149,18 +149,18 @@ class Printer {
 
 		if (!(type_for_schema instanceof $defs_type_handler)) {
 			type_node = factory.createTypeAliasDeclaration(
-			[
-				factory.createToken(SyntaxKind.ExportKeyword),
-			],
-			adjusted_type_name,
-			undefined,
-			await type_for_schema
-				.generate_typescript_type({
-					data,
-					schema,
-					schema_parser,
-				}),
-		);
+				[
+					factory.createToken(SyntaxKind.ExportKeyword),
+				],
+				adjusted_type_name,
+				undefined,
+				await type_for_schema
+					.generate_typescript_type({
+						data,
+						schema,
+						schema_parser,
+					}),
+			);
 		} else {
 			let type_result = await type_for_schema
 				.generate_typescript_type({
