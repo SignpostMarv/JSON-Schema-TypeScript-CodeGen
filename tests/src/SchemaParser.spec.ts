@@ -51,6 +51,59 @@ import {
 } from '../../src/Ajv/index.ts';
 
 void describe('SchemaParser', () => {
+	void describe('::clear_imports()', () => {
+		void it('behaves as expected', () => {
+			const parser = new SchemaParser();
+
+			assert.equal(
+				parser.imports.size,
+				0,
+			);
+			assert.equal(
+				parser.imports_from_module.size,
+				0,
+			);
+
+			const $ref_instance = parser.types
+				.find((maybe) => maybe instanceof $ref);
+
+			not_undefined($ref_instance);
+
+			$ref_instance.needs_import.add('foo');
+
+			assert.equal(
+				parser.imports.size,
+				1,
+			);
+			assert.equal(
+				parser.imports_from_module.size,
+				0,
+			);
+
+			$ref_instance.needs_import_from_module.add('StringPassesRegex');
+
+			assert.equal(
+				parser.imports.size,
+				1,
+			);
+			assert.equal(
+				parser.imports_from_module.size,
+				1,
+			);
+
+			parser.clear_imports();
+
+			assert.equal(
+				parser.imports.size,
+				0,
+			);
+			assert.equal(
+				parser.imports_from_module.size,
+				0,
+			);
+		});
+	});
+
 	void describe('::get_schema()', () => {
 		const parser = new SchemaParser();
 
