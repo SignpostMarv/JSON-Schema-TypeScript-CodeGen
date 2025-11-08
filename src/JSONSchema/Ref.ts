@@ -208,6 +208,32 @@ class $ref extends
 	}: {
 		schema: $ref_type,
 	}): Promise<TypeReferenceNode> {
+		const is_external = /^(?!#)(.+)(#.+)/.exec($ref);
+
+		if (null !== is_external) {
+			const name_in_current_scope = adjust_name_finisher(
+				$ref.replace(
+					'#/$defs/',
+					'_',
+				),
+				this.#adjust_name,
+			);
+
+			const name_in_module_scope = adjust_name_finisher(
+				is_external[2].replace(
+					/^#\/\$defs\//,
+					'',
+				),
+				this.#adjust_name,
+			);
+
+			this.needs_import.add(`${
+				name_in_module_scope
+			} as ${
+				name_in_current_scope
+			}`);
+		}
+
 		const name = adjust_name_finisher(
 			$ref.replace(
 				/^#\/\$defs\//,
@@ -219,7 +245,9 @@ class $ref extends
 			this.#adjust_name,
 		);
 
+		if (null === is_external) {
 		this.needs_import.add(name);
+		}
 
 		return Promise.resolve(factory.createTypeReferenceNode(
 			name,

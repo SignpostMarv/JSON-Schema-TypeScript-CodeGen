@@ -300,14 +300,39 @@ class Printer {
 		const import_values = [...schema_parser.imports.values()];
 
 		const imports_unfiltered = (import_values)
-			.map((name) => adjust_name_finisher(
-				name,
-				this.#adjust_name_callback,
-			))
-			.map((name) => [
-				name,
-				this.#type_filename_callback(name),
-			] as const);
+			.map((name): [string, string] => {
+				if (/ as /.test(name)) {
+					const [
+						module_scope,
+						...current_scope
+					] = name.split(' as ');
+
+					return [
+						adjust_name_finisher(
+							module_scope,
+							this.#adjust_name_callback,
+						),
+						adjust_name_finisher(
+							current_scope.join(' as '),
+							this.#adjust_name_callback,
+						),
+					];
+				} else {
+					const adjusted = adjust_name_finisher(
+						name,
+						this.#adjust_name_callback,
+					);
+
+					return [adjusted, adjusted];
+				}
+			})
+			.map(([
+				module_scope,
+				current_scope,
+			]): [[string, string], `./${string}.ts`] => [
+				[module_scope, current_scope],
+				this.#type_filename_callback(current_scope),
+			]);
 
 		const imports = imports_unfiltered
 			.filter(([, maybe]) => maybe !== type_filename)
@@ -315,7 +340,12 @@ class Printer {
 				(
 					out,
 					[name, filename],
-				): {[key: `./${string}.ts`]: [string, ...string[]]} => {
+				): {
+					[key: `./${string}.ts`]: [
+						[string, string],
+						...([string, string])[],
+					],
+				} => {
 					if (!(filename in out)) {
 						out[filename] = [name];
 					} else {
@@ -336,11 +366,26 @@ class Printer {
 						SyntaxKind.TypeKeyword,
 						undefined,
 						factory.createNamedImports(to_import.map(
-							(name) => factory.createImportSpecifier(
-								false,
-								undefined,
-								factory.createIdentifier(name),
-							),
+							([
+								module_scope,
+								current_scope,
+							]) => {
+								if (module_scope === current_scope) {
+									return factory.createImportSpecifier(
+										false,
+										undefined,
+										factory.createIdentifier(module_scope),
+									);
+								} else {
+									return factory.createImportSpecifier(
+										false,
+										factory.createIdentifier(module_scope),
+										factory.createIdentifier(
+											current_scope,
+										),
+									);
+								}
+							},
 						)),
 					),
 					factory.createStringLiteral(
