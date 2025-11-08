@@ -5,7 +5,6 @@ import type {
 	TemplateLiteralTypeSpan,
 } from 'typescript';
 import {
-	isLiteralTypeNode,
 	SyntaxKind,
 } from 'typescript';
 
@@ -364,11 +363,7 @@ class TemplatedString<
 		] = this.#template_span_types(span_parts).map((part) => {
 			return factory.createTemplateLiteralTypeSpan(
 				part,
-				factory.createTemplateMiddle(
-					isLiteralTypeNode(part)
-						? (part.literal as StringLiteral).text
-						: '',
-				),
+				factory.createTemplateMiddle(''),
 			);
 		});
 
@@ -378,11 +373,7 @@ class TemplatedString<
 
 		const tail = factory.createTemplateLiteralTypeSpan(
 			tail_part_type,
-			factory.createTemplateTail(
-				isLiteralTypeNode(tail_part_type)
-					? tail_part_type.literal.text
-					: '',
-			),
+			factory.createTemplateTail(''),
 		);
 
 		return [head, middle, tail];
