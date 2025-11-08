@@ -263,7 +263,9 @@ class Printer {
 			}
 		}
 
-		const imports = (schema_parser.imports.values())
+		const import_values = [...schema_parser.imports.values()];
+
+		const imports_unfiltered = (import_values)
 			.map((name) => adjust_name_finisher(
 				name,
 				this.#adjust_name_callback,
@@ -271,7 +273,9 @@ class Printer {
 			.map((name) => [
 				name,
 				this.#type_filename_callback(name),
-			] as const)
+			] as const);
+
+		const imports = imports_unfiltered
 			.filter(([, maybe]) => maybe !== type_filename)
 			.reduce(
 				(
