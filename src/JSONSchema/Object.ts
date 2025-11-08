@@ -1,4 +1,5 @@
 import type {
+	ComputedPropertyName,
 	IndexSignatureDeclaration,
 	ObjectLiteralExpression,
 	PropertySignature,
@@ -45,15 +46,6 @@ import type {
 	TypeReferenceNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
-
-import type {
-	adjust_name_callback,
-// eslint-disable-next-line imports/no-relative-parent-imports
-} from '../coercions.ts';
-import {
-	adjust_name_default,
-// eslint-disable-next-line imports/no-relative-parent-imports
-} from '../coercions.ts';
 
 import {
 	factory,
@@ -300,13 +292,10 @@ class ObjectUnspecified<
 		),
 		ObjectLiteralExpression
 	> {
-	#adjust_name: adjust_name_callback;
-
 	readonly properties_mode: PropertiesMode;
 
 	constructor(
 		options: {
-			adjust_name?: adjust_name_callback,
 			properties_mode: PropertiesMode,
 			$defs?: Defs,
 			required?: Required,
@@ -333,8 +322,6 @@ class ObjectUnspecified<
 			type_definition: options,
 			schema_definition: options,
 		});
-
-		this.#adjust_name = options?.adjust_name || adjust_name_default;
 		this.properties_mode = options.properties_mode;
 	}
 
@@ -354,7 +341,6 @@ class ObjectUnspecified<
 			data,
 			schema,
 			schema_parser,
-			this.#adjust_name,
 		);
 	}
 
@@ -401,6 +387,16 @@ class ObjectUnspecified<
 		}
 
 		return object_type;
+	}
+
+	static #computedProperty_or_string(
+		property: string,
+	): ComputedPropertyName|string {
+		return /[?[\] ]/.test(property)
+			? factory.createComputedPropertyName(
+				factory.createStringLiteral(property),
+			)
+			: property;
 	}
 
 	static generate_schema_definition<
@@ -787,7 +783,6 @@ class ObjectUnspecified<
 			PatternProperties
 		>,
 		schema_parser: SchemaParser,
-		adjust_name: adjust_name_callback,
 	): ObjectLiteralExpression {
 		return factory.createObjectLiteralExpression(
 			Object.entries(
@@ -805,11 +800,7 @@ class ObjectUnspecified<
 				);
 
 				return factory.createPropertyAssignment(
-					this.#needs_computedProperty(property)
-						? factory.createComputedPropertyName(
-							factory.createStringLiteral(property),
-						)
-						: property,
+					this.#computedProperty_or_string(property),
 					type,
 				);
 			}),
@@ -861,13 +852,7 @@ class ObjectUnspecified<
 				property,
 			): Promise<PropertySignature> => factory.createPropertySignature(
 				undefined,
-				(
-					this.#needs_computedProperty(property)
-						? factory.createComputedPropertyName(
-							factory.createStringLiteral(property),
-						)
-						: property
-				),
+				this.#computedProperty_or_string(property),
 				(
 					(
 						this.#is_schema_with_required(schema)
@@ -987,10 +972,6 @@ class ObjectUnspecified<
 			schema: sub_schema,
 			schema_parser,
 		});
-	}
-
-	static #needs_computedProperty(property: string): boolean {
-		return /[?[\] ]/.test(property);
 	}
 
 	static #patterned_literal_node(
