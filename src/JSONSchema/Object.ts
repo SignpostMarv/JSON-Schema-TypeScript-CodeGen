@@ -805,7 +805,11 @@ class ObjectUnspecified<
 				);
 
 				return factory.createPropertyAssignment(
-					adjust_name(property),
+					this.#needs_computedProperty(property)
+						? factory.createComputedPropertyName(
+							factory.createStringLiteral(property),
+						)
+						: property,
 					type,
 				);
 			}),
@@ -858,7 +862,7 @@ class ObjectUnspecified<
 			): Promise<PropertySignature> => factory.createPropertySignature(
 				undefined,
 				(
-					/[?[\] ]/.test(property)
+					this.#needs_computedProperty(property)
 						? factory.createComputedPropertyName(
 							factory.createStringLiteral(property),
 						)
@@ -983,6 +987,10 @@ class ObjectUnspecified<
 			schema: sub_schema,
 			schema_parser,
 		});
+	}
+
+	static #needs_computedProperty(property: string): boolean {
+		return /[?[\] ]/.test(property);
 	}
 
 	static #patterned_literal_node(
