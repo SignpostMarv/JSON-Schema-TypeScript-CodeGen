@@ -228,6 +228,11 @@ void describe('$ref', () => {
 			assert.deepEqual(
 				instance.resolve_def($ref_value, {}),
 				{
+					$defs: {
+						bar: {
+							type: 'string',
+						},
+					},
 					type: 'string',
 				},
 			);
