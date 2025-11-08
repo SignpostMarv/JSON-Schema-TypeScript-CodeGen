@@ -265,7 +265,7 @@ class $ref extends
 			);
 		}
 
-		return $ref.maybe_add_$defs(schema, $defs[local_$def]);
+		return $ref.maybe_add_$defs({$defs}, $defs[local_$def]);
 	}
 
 	static ensure_is_$ref_value(maybe: unknown): $ref_type['$ref'] {
