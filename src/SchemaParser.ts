@@ -146,6 +146,15 @@ class SchemaParser {
 		this.#schemas[schema.$id] = schema;
 	}
 
+	clear_imports() {
+		this.types.filter(
+			(maybe) => maybe instanceof $ref,
+		).forEach(($ref) => {
+			$ref.needs_import.clear();
+			$ref.needs_import_from_module.clear();
+		});
+	}
+
 	get_schema(id: SchemaObjectWith$id['$id']): SchemaObjectWith$id|undefined {
 		if (id in this.#schemas) {
 			return this.#schemas[id];
