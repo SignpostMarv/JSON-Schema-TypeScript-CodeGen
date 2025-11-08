@@ -7,6 +7,7 @@ import {
 
 import type {
 	Expression,
+	NamedExports,
 	TypeNode,
 } from 'typescript';
 
@@ -298,7 +299,7 @@ abstract class Type<
 	) = (
 		{[key: string]: unknown}
 	),
-	TSType extends TypeNode = TypeNode,
+	TSType extends TypeNode|NamedExports = TypeNode,
 	DataTo extends Expression = Expression,
 	TypeDefinition_For_Generate extends TypeDefinitionSchema = TypeDefinition,
 > {

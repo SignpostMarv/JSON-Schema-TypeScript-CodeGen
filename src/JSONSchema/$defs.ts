@@ -1,5 +1,5 @@
 import type {
-	PropertySignature,
+	NamedExports,
 } from 'typescript';
 
 import type {
@@ -14,7 +14,6 @@ import {
 
 import type {
 	ObjectLiteralExpression,
-	TypeLiteralNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
@@ -66,7 +65,7 @@ export class $defs extends Type<
 	$defs_type,
 	$defs_schema_definition,
 	Record<string, never>,
-	TypeLiteralNode<PropertySignature>,
+	NamedExports,
 	ObjectLiteralExpression<[]>
 > {
 	readonly #adjust_name: adjust_name_callback;
@@ -102,22 +101,21 @@ export class $defs extends Type<
 	}: {
 		schema: $defs_type,
 		schema_parser: SchemaParser,
-	}): Promise<TypeLiteralNode<PropertySignature>> {
+	}): Promise<NamedExports> {
 		const types = Object.keys($defs).map(
 			(name) => {
-				return factory.createPropertySignature(
+				return factory.createExportSpecifier(
+					true,
 					undefined,
 					adjust_name_finisher(
 						name,
 						this.#adjust_name,
 					),
-					undefined,
-					undefined,
 				);
 			},
 		);
 
-		return Promise.resolve(factory.createTypeLiteralNode(types));
+		return Promise.resolve(factory.createNamedExports(types));
 	}
 
 	static generate_schema_definition() {

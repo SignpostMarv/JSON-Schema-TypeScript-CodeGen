@@ -4,6 +4,10 @@ import {
 	relative,
 } from 'node:path';
 
+import type {
+	ExportDeclaration,
+	TypeAliasDeclaration,
+} from 'typescript';
 import {
 	createPrinter,
 	createSourceFile,
@@ -45,6 +49,9 @@ import {
 	Type,
 } from './JSONSchema/Type.ts';
 
+import type {
+	$defs_type,
+} from './JSONSchema/$defs.ts';
 import {
 	$defs as $defs_type_handler,
 } from './JSONSchema/$defs.ts';
@@ -138,7 +145,10 @@ class Printer {
 			),
 		);
 
-		const type_node = factory.createTypeAliasDeclaration(
+		let type_node: TypeAliasDeclaration|ExportDeclaration;
+
+		if (!(type_for_schema instanceof $defs_type_handler)) {
+			type_node = factory.createTypeAliasDeclaration(
 			[
 				factory.createToken(SyntaxKind.ExportKeyword),
 			],
@@ -151,6 +161,30 @@ class Printer {
 					schema_parser,
 				}),
 		);
+		} else {
+			let type_result = await type_for_schema
+				.generate_typescript_type({
+					schema: schema as $defs_type,
+					schema_parser,
+				});
+
+			type_result = factory.updateNamedExports(
+				type_result,
+				type_result.elements
+					.map((element) => factory.updateExportSpecifier(
+						element,
+						false,
+						element.propertyName,
+						element.name,
+					)),
+			);
+
+			type_node = factory.createExportDeclaration(
+				undefined,
+				true,
+				type_result,
+			);
+		}
 
 		const printer = createPrinter({
 			newLine: NewLineKind.LineFeed,

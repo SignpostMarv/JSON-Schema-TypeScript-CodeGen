@@ -90,12 +90,17 @@ type SchemaParserOptions = (
 
 type share_ajv_callback<T> = (ajv: Ajv) => T;
 
+type SchemaParser_types_member = (
+	| Type<unknown>
+	| $defs
+);
+
 class SchemaParser {
 	#ajv: Ajv;
 
 	#schemas: {[key in SchemaObjectWith$id['$id']]: SchemaObjectWith$id} = {};
 
-	types: [Type<unknown>, ...Type<unknown>[]];
+	types: [SchemaParser_types_member, ...SchemaParser_types_member[]];
 
 	constructor(options: SchemaParserOptions = {
 		ajv_options: {
@@ -153,13 +158,13 @@ class SchemaParser {
 		T extends Type<unknown>,
 	>(
 		schema: SchemaObject,
-		must_be_of_type: typeof Type<unknown>,
+		must_be_of_type: typeof Type<unknown>|typeof $defs,
 	): T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			const maybe: (
 				| undefined
-				| Type<unknown>
+				| SchemaParser_types_member
 			) = type.can_handle_schema(schema);
 
 			if (maybe) {
@@ -190,7 +195,7 @@ class SchemaParser {
 	>(
 		value: unknown,
 		must_be_of_type?: (maybe: unknown) => maybe is T,
-	): Type<unknown>|T|undefined {
+	): SchemaParser_types_member|T|undefined {
 		let result: T|undefined = undefined;
 		for (const type of this.types) {
 			if (type.check_type(value)) {
