@@ -19,9 +19,6 @@ import ts_assert from '@signpostmarv/ts-assert';
 import type {
 	PropertySignature,
 } from 'typescript';
-import {
-	isPropertySignature,
-} from 'typescript';
 
 import type {
 	ts_asserter,
@@ -39,11 +36,6 @@ import type {
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
 
-import {
-	is_TypeLiteralNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
-} from '../../assertions.ts';
-
 void describe('$defs', () => {
 	type DataSet = [
 		ConstructorParameters<typeof $defs>[1],
@@ -58,12 +50,12 @@ void describe('$defs', () => {
 				},
 			},
 			(maybe) => {
-				is_TypeLiteralNode(maybe, isPropertySignature);
+				ts_assert.isNamedExports(maybe);
 
-				assert.equal(maybe.members.length, 1);
+				assert.equal(maybe.elements.length, 1);
 
-				not_undefined(maybe.members[0].name);
-				const {name} = maybe.members[0];
+				not_undefined(maybe.elements[0].name);
+				const {name} = maybe.elements[0];
 				ts_assert.isIdentifier(name);
 				assert.equal(name.text, 'foo');
 			},

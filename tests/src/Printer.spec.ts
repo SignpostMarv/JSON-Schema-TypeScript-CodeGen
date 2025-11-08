@@ -141,13 +141,7 @@ void describe('Printer', () => {
 								'\n\n'
 							}type baz = StringPassesRegex<"^baz">;${
 								'\n\n'
-							}export type foo = {${
-								'\n'
-							}    bar;${
-								'\n'
-							}    baz;${
-								'\n'
-							}};`,
+							}export type { bar, baz };`,
 						],
 					],
 				],
