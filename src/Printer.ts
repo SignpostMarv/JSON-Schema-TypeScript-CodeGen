@@ -186,7 +186,16 @@ class Printer {
 							),
 						]),
 					),
-					factory.createStringLiteral(type_filename),
+					factory.createStringLiteral(
+						`./${
+							relative(
+								dirname(data_filename),
+								dirname(type_filename),
+							)
+						}/${
+							basename(type_filename)
+						}`.replace(/^\.\/\//, './'),
+					),
 					undefined,
 				),
 				source_file,
