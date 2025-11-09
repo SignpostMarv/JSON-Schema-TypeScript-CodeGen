@@ -880,9 +880,10 @@ void describe('ObjectUnspecified', () => {
 				assert.equal(value.properties.length, 1);
 				value.properties.forEach((property) => {
 					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
+					ts_assert.isComputedPropertyName(property.name, message);
+					ts_assert.isStringLiteral(property.name.expression);
 					assert.equal(
-						property.name.text,
+						property.name.expression.text,
 						'f o o',
 						message,
 					);
