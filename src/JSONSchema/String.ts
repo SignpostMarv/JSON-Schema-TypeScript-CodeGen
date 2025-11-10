@@ -350,8 +350,8 @@ class BaseString<
 						'no',
 						never[],
 						[
-							StringLiteral<Exclude<Pattern, undefined>>,
 							StringLiteral,
+							StringLiteral<Exclude<Pattern, undefined>>,
 						]
 					>
 					: StringLiteral
@@ -380,8 +380,8 @@ class BaseString<
 					'no',
 					never[],
 					[
-						StringLiteral<Exclude<Pattern, undefined>>,
 						StringLiteral<T>,
+						StringLiteral<Exclude<Pattern, undefined>>,
 					]
 				>
 				: StringLiteral<T>
@@ -399,8 +399,8 @@ class BaseString<
 						'no',
 						never[],
 						[
-							StringLiteral<Exclude<Pattern, undefined>>,
 							StringLiteral<T>,
+							StringLiteral<Exclude<Pattern, undefined>>,
 						]
 					>
 					: StringLiteral<T>
@@ -421,24 +421,24 @@ class BaseString<
 				'no',
 				never[],
 				[
-					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral<T>,
+					StringLiteral<Exclude<Pattern, undefined>>,
 				]
 			> = factory.createCallExpression<
 				Identifier<'StringPassesRegexGuard'>,
 				never[],
 				[
-					StringLiteral<Exclude<Pattern, undefined>>,
 					StringLiteral<T>,
+					StringLiteral<Exclude<Pattern, undefined>>,
 				]
 			>(
 				factory.createIdentifier('StringPassesRegexGuard'),
 				[],
 				[
+					factory.createStringLiteral(data),
 					factory.createStringLiteral(
 						schema.pattern as Exclude<Pattern, undefined>,
 					),
-					factory.createStringLiteral(data),
 				],
 			);
 
