@@ -186,10 +186,12 @@ class $ref extends
 	): Expression {
 		const maybe_modified = this.resolve_def(schema, schema?.$defs || {});
 
-		return schema_parser.parse_by_type<Type<unknown>>(
+		const matching_type = schema_parser.parse_by_type<Type<unknown>>(
 			data,
 			(maybe): maybe is Type<unknown> => Type.is_a(maybe),
-		).generate_typescript_data(
+		);
+
+		return matching_type.generate_typescript_data(
 			data,
 			schema_parser,
 			maybe_modified,
