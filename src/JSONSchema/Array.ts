@@ -301,10 +301,7 @@ type array_schema_properties<
 	& {
 		items: {
 			items: {
-				specified: {
-					type: 'object',
-					const: Items,
-				},
+				specified: Items,
 				unspecified: {
 					type: 'object',
 					minProperties: 0,
@@ -1201,10 +1198,7 @@ class ArrayType<
 				[SchemaObject, ...SchemaObject[]]
 			>['properties'] = {
 				...base,
-				items: {
-					type: 'object',
-					const: options.items,
-				},
+				items: options.items,
 			};
 
 			result = sanity_check as typeof result;
