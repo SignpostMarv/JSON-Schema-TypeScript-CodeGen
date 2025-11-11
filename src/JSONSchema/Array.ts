@@ -1849,6 +1849,7 @@ export type {
 	MinItemsType_mode,
 	array_options,
 	array_type,
+	array_schema,
 };
 
 export {

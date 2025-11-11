@@ -1290,6 +1290,7 @@ class ConstString<
 }
 
 export type {
+	basic_string_schema,
 	basic_string_type,
 	enum_string_type,
 	pattern_string_type,
