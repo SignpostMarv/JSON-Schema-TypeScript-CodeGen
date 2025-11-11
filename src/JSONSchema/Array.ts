@@ -668,11 +668,19 @@ class ArrayType<
 		>,
 	): Readonly<array_schema<
 		ArrayMode,
-		SpecifiedMode
+		SpecifiedMode,
+		UniqueItems_mode,
+		MinItems_mode,
+		Items,
+		PrefixItems
 	>> {
 		const required: array_schema<
 			ArrayMode,
-			SpecifiedMode
+			SpecifiedMode,
+			UniqueItems_mode,
+			MinItems_mode,
+			Items,
+			PrefixItems
 		>['required'] = this.#generate_schema_definition_required(
 			options,
 		);
@@ -690,7 +698,11 @@ class ArrayType<
 
 		const result: array_schema<
 			ArrayMode,
-			SpecifiedMode
+			SpecifiedMode,
+			UniqueItems_mode,
+			MinItems_mode,
+			Items,
+			PrefixItems
 		> = {
 			type: 'object',
 			additionalProperties: false,
@@ -1342,11 +1354,19 @@ class ArrayType<
 		>,
 	): array_schema<
 		ArrayMode,
-		SpecifiedMode
+		SpecifiedMode,
+		UniqueItems_mode,
+		MinItems_mode,
+		Items,
+		PrefixItems
 	>['required'] {
 		let result: array_schema<
 			ArrayMode,
-			SpecifiedMode
+			SpecifiedMode,
+			UniqueItems_mode,
+			MinItems_mode,
+			Items,
+			PrefixItems
 		>['required'];
 
 		if (this.#is_any_items_options(options)) {
