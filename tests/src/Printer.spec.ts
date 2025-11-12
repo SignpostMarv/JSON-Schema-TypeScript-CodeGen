@@ -177,7 +177,12 @@ void describe('Printer', () => {
 							}import type { foo } from "./types.ts";${
 								'\n\n'
 							// eslint-disable-next-line @stylistic/max-len
-							}export const bar: foo = { foo: StringPassesRegexGuard("^baz", "bazbat") };`,
+							}export const bar: foo = {${
+								'\n'
+							// eslint-disable-next-line @stylistic/max-len
+							}    foo: StringPassesRegexGuard("bazbat", "^baz")${
+								'\n'
+							}};`,
 						],
 						[
 							'./types.ts',
