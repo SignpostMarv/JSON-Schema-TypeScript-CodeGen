@@ -710,6 +710,10 @@ class ArrayType<
 			properties,
 		};
 
+		if (options.$defs) {
+			result.$defs = options.$defs;
+		}
+
 		return Object.freeze(result);
 	}
 
