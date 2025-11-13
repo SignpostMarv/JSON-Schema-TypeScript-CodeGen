@@ -37,6 +37,7 @@ import type {
 import {
 	$ref,
 	ConstString,
+	ObjectUnspecified,
 	OneOf,
 	SchemaParser,
 	Type,
@@ -167,6 +168,24 @@ void describe('SchemaParser', () => {
 
 			is_instanceof(actual, Unknown);
 			*/
+		});
+
+		void it('behave when type exists but excluded', () => {
+			const parser = new SchemaParser();
+
+			let actual = parser.maybe_parse(
+				{type: 'string', const: 'foo'},
+				Type,
+			);
+
+			is_instanceof(actual, ConstString);
+
+			actual = parser.maybe_parse(
+				{type: 'string', const: 'foo'},
+				ObjectUnspecified as unknown as typeof Type<unknown>,
+			);
+
+			assert.equal(actual, undefined);
 		});
 	});
 
