@@ -942,7 +942,7 @@ class ArrayType<
 
 		const matched_type = Object.keys(sub_schema).length > 0
 			? schema_parser.parse(
-			sub_schema,
+				sub_schema,
 			)
 			: schema_parser.parse_by_type(value);
 

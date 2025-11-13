@@ -752,8 +752,8 @@ class ObjectUnspecified<
 			instance = schema_parser.parse_by_type(value);
 		} else {
 			instance = schema_parser.parse(
-			maybe_modified,
-		);
+				maybe_modified,
+			);
 		}
 
 		return instance.generate_typescript_data(
