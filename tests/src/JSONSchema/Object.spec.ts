@@ -1926,6 +1926,173 @@ void describe('ObjectUnspecified', () => {
 			));
 		});
 
+		void it('succeeds when expected with allOf', () => {
+			const ajv = new Ajv({strict: true});
+			const instance = new ObjectUnspecified(
+				{
+					properties_mode: 'properties',
+				},
+				{
+					ajv,
+				},
+			);
+			const schema = type_schema_for_data_set<
+				'properties'
+			>({
+				$defs: {
+					foo: {
+						type: 'object',
+						required: ['foo'],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+						},
+					},
+					bar: {
+						type: 'object',
+						required: ['bar'],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					bat: {
+						type: 'object',
+						required: ['bat'],
+						properties: {
+							bat: {
+								type: 'string',
+							},
+						},
+					},
+					baz: {
+						allOf: [
+							{$ref: '#/$defs/foo'},
+							{$ref: '#/$defs/bar'},
+							{$ref: '#/$defs/bat'},
+						],
+					},
+				},
+				type: 'object',
+				$ref: '#/$defs/baz',
+				required: [
+					'baz',
+				],
+				properties: {
+					baz: {
+						$ref: '#/$defs/baz',
+					},
+				},
+			});
+
+			const result = instance.generate_typescript_data(
+				{
+					foo: 'bar',
+					bar: 'baz',
+					baz: {
+						foo: 'foobar',
+						bar: 'barbaz',
+						bat: 'bag',
+					},
+				},
+				new SchemaParser({ajv}),
+				schema,
+			);
+
+			ts_assert.isObjectLiteralExpression(result);
+			assert.equal(result.properties.length, 3);
+
+			ts_assert.isPropertyAssignment(result.properties[0]);
+			ts_assert.isPropertyAssignment(result.properties[1]);
+			ts_assert.isPropertyAssignment(result.properties[2]);
+
+			ts_assert.isIdentifier(result.properties[0].name);
+			ts_assert.isIdentifier(result.properties[1].name);
+			ts_assert.isIdentifier(result.properties[2].name);
+
+			assert.equal(result.properties[0].name.text, 'foo');
+			assert.equal(result.properties[1].name.text, 'bar');
+			assert.equal(result.properties[2].name.text, 'baz');
+
+			ts_assert.isStringLiteral(result.properties[0].initializer);
+			ts_assert.isStringLiteral(result.properties[1].initializer);
+			ts_assert.isObjectLiteralExpression(
+				result.properties[2].initializer,
+			);
+
+			assert.equal(result.properties[0].initializer.text, 'bar');
+			assert.equal(result.properties[1].initializer.text, 'baz');
+
+			assert.equal(
+				result.properties[2].initializer.properties.length,
+				3,
+			);
+
+			ts_assert.isPropertyAssignment(
+				result.properties[2].initializer.properties[0],
+			);
+			ts_assert.isPropertyAssignment(
+				result.properties[2].initializer.properties[1],
+			);
+			ts_assert.isPropertyAssignment(
+				result.properties[2].initializer.properties[2],
+			);
+
+			ts_assert.isIdentifier(
+				result.properties[2].initializer.properties[0].name,
+			);
+			ts_assert.isIdentifier(
+				result.properties[2].initializer.properties[1].name,
+			);
+			ts_assert.isIdentifier(
+				result.properties[2].initializer.properties[2].name,
+			);
+
+			assert.equal(
+				result.properties[2].initializer.properties[0].name.text,
+				'foo',
+			);
+			assert.equal(
+				result.properties[2].initializer.properties[1].name.text,
+				'bar',
+			);
+			assert.equal(
+				result.properties[2].initializer.properties[2].name.text,
+				'bat',
+			);
+
+			ts_assert.isStringLiteral(
+				result.properties[2].initializer.properties[0].initializer,
+			);
+			ts_assert.isStringLiteral(
+				result.properties[2].initializer.properties[1].initializer,
+			);
+			ts_assert.isStringLiteral(
+				result.properties[2].initializer.properties[2].initializer,
+			);
+
+			assert.equal(
+				result.properties[
+					2
+				].initializer.properties[0].initializer.text,
+				'foobar',
+			);
+			assert.equal(
+				result.properties[
+					2
+				].initializer.properties[1].initializer.text,
+				'barbaz',
+			);
+			assert.equal(
+				result.properties[
+					2
+				].initializer.properties[2].initializer.text,
+				'bag',
+			);
+		});
+
 		void describe(' with external schemas', () => {
 			const parser = new SchemaParser();
 
