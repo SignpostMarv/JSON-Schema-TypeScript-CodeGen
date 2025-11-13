@@ -734,7 +734,7 @@ class ObjectUnspecified<
 			{},
 		);
 
-		let maybe_modified = ObjectUnspecified.maybe_add_$defs(
+		const maybe_modified = ObjectUnspecified.maybe_add_$defs(
 			schema,
 			sub_schema,
 		);
@@ -746,17 +746,15 @@ class ObjectUnspecified<
 			throw new TypeError('Supplied value not supported by property!');
 		}
 
-		if (0 === Object.keys(sub_schema).length) {
-			maybe_modified = {
-				type: 'object',
-				additionalProperties: false,
-				maxProperties: 0,
-			};
-		}
+		let instance: Type<unknown>;
 
-		const instance = schema_parser.parse(
+		if (0 === Object.keys(sub_schema).length) {
+			instance = schema_parser.parse_by_type(value);
+		} else {
+			instance = schema_parser.parse(
 			maybe_modified,
 		);
+		}
 
 		return instance.generate_typescript_data(
 			value,

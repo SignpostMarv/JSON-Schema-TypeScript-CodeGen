@@ -342,9 +342,27 @@ void describe('ArrayType', () => {
 							},
 							(maybe) => {
 								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								ts_assert.isParenthesizedTypeNode(
 									maybe.elementType,
-									SyntaxKind.UnknownKeyword,
+								);
+								ts_assert.isUnionTypeNode(
+									maybe.elementType.type,
+								);
+								assert.equal(
+									maybe.elementType.type.types.length,
+									3,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[0],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[1],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[2],
+									SyntaxKind.StringKeyword,
 								);
 							},
 						],
@@ -459,9 +477,27 @@ void describe('ArrayType', () => {
 							},
 							(maybe) => {
 								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								ts_assert.isParenthesizedTypeNode(
 									maybe.elementType,
-									SyntaxKind.UnknownKeyword,
+								);
+								ts_assert.isUnionTypeNode(
+									maybe.elementType.type,
+								);
+								assert.equal(
+									maybe.elementType.type.types.length,
+									3,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[0],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[1],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[2],
+									SyntaxKind.StringKeyword,
 								);
 							},
 						],
@@ -781,9 +817,27 @@ void describe('ArrayType', () => {
 							},
 							(maybe) => {
 								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								ts_assert.isParenthesizedTypeNode(
 									maybe.elementType,
-									SyntaxKind.UnknownKeyword,
+								);
+								ts_assert.isUnionTypeNode(
+									maybe.elementType.type,
+								);
+								assert.equal(
+									maybe.elementType.type.types.length,
+									3,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[0],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[1],
+									SyntaxKind.StringKeyword,
+								);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType.type.types[2],
+									SyntaxKind.StringKeyword,
 								);
 							},
 						],

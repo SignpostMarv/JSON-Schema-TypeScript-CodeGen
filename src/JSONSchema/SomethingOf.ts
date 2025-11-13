@@ -1,9 +1,18 @@
 import type {
 	Expression,
 	KeywordTypeNode,
+	PropertyAssignment,
 	SyntaxKind,
 	TypeNode,
 } from 'typescript';
+import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+} from 'typescript';
+
+import {
+	object_has_property,
+} from '@satisfactory-dev/predicates.ts';
 
 import type {
 	SchemaDefinitionDefinition,
@@ -12,6 +21,17 @@ import type {
 import {
 	Type,
 } from './Type.ts';
+
+import type {
+	$ref_type,
+} from './Ref.ts';
+import {
+	$ref,
+} from './Ref.ts';
+
+import {
+	$defs,
+} from './$defs.ts';
 
 import type {
 	ObjectOfSchemas,
@@ -237,6 +257,14 @@ abstract class SomethingOf<
 		schema_parser: SchemaParser,
 		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
 	) {
+		if (SomethingOf.#is_allOf(schema)) {
+			return this.#merge_subschema_for_data(
+				data,
+				schema,
+				schema_parser,
+			);
+		}
+
 		const [
 			sub_schema,
 			matched_type,
@@ -358,6 +386,131 @@ abstract class SomethingOf<
 		return result;
 	}
 
+	static #is_allOf<
+		Mode extends something_of_mode = something_of_mode,
+		Choices extends type_choices = type_choices,
+		Defs extends ObjectOfSchemas = ObjectOfSchemas,
+	>(
+		schema: something_of_type<something_of_kind, Mode, Choices, Defs>,
+	): schema is something_of_type<'allOf', Mode, Choices, Defs> {
+		return 'allOf' in schema;
+	}
+
+	#merge_subschema_for_data(
+		data: T,
+		schema: something_of_type<'allOf', Mode, TypeChoices, Defs>,
+		schema_parser: SchemaParser,
+	): Expression {
+		const properties: PropertyAssignment[] = [];
+
+		const choices = schema.allOf.map((sub_schema) => {
+			if ('$ref' in sub_schema) {
+				const $ref_type = schema_parser.types
+					.find((maybe) => maybe instanceof $ref);
+
+				if (undefined === $ref_type) {
+					throw new TypeError(
+						'$ref schema found but could not get parser type!',
+					);
+				}
+
+				return $ref_type.resolve_def(
+					sub_schema as $ref_type,
+					schema.$defs || {},
+				);
+			}
+
+			return sub_schema;
+		});
+
+		const has_const = choices.find((maybe) => 'const' in maybe);
+
+		if (has_const) {
+			return schema_parser.parse(has_const).generate_typescript_data(
+				data,
+				schema_parser,
+				has_const,
+			);
+		}
+
+		if ('object' !== typeof data || null === data) {
+			throw new TypeError('Only object data supported here!');
+		}
+
+		const expected_properties = Object.keys(data);
+		const found_properties: string[] = [];
+
+		for (const unmodified of choices) {
+			const resolved = SomethingOf.maybe_add_$defs(schema, unmodified);
+
+			if ('object' !== resolved.type) {
+				throw new TypeError('Only object types supported here!');
+			} else if ('patternProperties' in resolved) {
+				throw new TypeError('patternProperties not yet supported!');
+			}
+
+			const sub_data: {[key: string]: unknown} = {};
+
+			for (const property of Object.keys(resolved.properties)) {
+				if (found_properties.includes(property)) {
+					throw new TypeError(
+						`Schema contains multiple references to ${property}`,
+					);
+				}
+
+				if (!object_has_property(data, property)) {
+					throw new TypeError(
+						`Data does not have property ${property}`,
+					);
+				}
+
+				sub_data[property] = data[property];
+
+				found_properties.push(property);
+			}
+
+			if ('$ref' in resolved) {
+				throw new Error('nested $ref not implemented!');
+			}
+
+			const sub_type = schema_parser.parse(resolved);
+
+			const resolved_data = sub_type.generate_typescript_data(
+				sub_data,
+				schema_parser,
+				resolved,
+			);
+
+			if (!isObjectLiteralExpression(resolved_data)) {
+				throw new TypeError('Was expecting ObjectLiteralExpression!');
+			}
+
+			for (const property of resolved_data.properties) {
+				if (!isPropertyAssignment(property)) {
+					throw new TypeError('Was expecting PropertyAssignment!');
+				}
+
+				properties.push(property);
+			}
+		}
+
+		const missing = expected_properties
+			.filter((maybe) => !found_properties.includes(maybe));
+
+		if (missing.length > 0) {
+			throw new TypeError(
+				`Schema is missing definition for some properties: ${
+					missing.join(', ')
+				}`,
+			);
+		}
+
+		return factory.createObjectLiteralExpression(
+			properties,
+			true,
+		);
+	}
+
 	#sub_schema_handler(
 		data: T,
 		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
@@ -376,7 +529,10 @@ abstract class SomethingOf<
 			>(
 				data,
 				(maybe): maybe is Type<unknown> => {
-					return Type.is_a(maybe);
+					return Type.is_a(maybe) && (
+						!(maybe instanceof SomethingOf)
+						&& !(maybe instanceof $defs)
+					);
 				},
 			)];
 		}

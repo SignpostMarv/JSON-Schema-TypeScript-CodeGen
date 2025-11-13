@@ -2,6 +2,9 @@ import type {
 	Expression,
 	TypeNode,
 } from 'typescript';
+import {
+	SyntaxKind,
+} from 'typescript';
 
 import type {
 	SchemaDefinitionDefinitionWith$defs,
@@ -937,9 +940,11 @@ class ArrayType<
 			);
 		}
 
-		const matched_type = schema_parser.parse(
+		const matched_type = Object.keys(sub_schema).length > 0
+			? schema_parser.parse(
 			sub_schema,
-		);
+			)
+			: schema_parser.parse_by_type(value);
 
 		return matched_type.generate_typescript_data(
 			value,
@@ -1700,6 +1705,32 @@ class ArrayType<
 		>,
 		schema_parser: SchemaParser,
 	): Promise<ArrayTypeNode<T2>> {
+		if (0 === Object.keys(schema?.items || {}).length) {
+			if (data.length < 0) {
+				return factory.createArrayTypeNode(
+					factory.createKeywordTypeNode(
+						SyntaxKind.NeverKeyword,
+					) as T2,
+				);
+			}
+
+			return factory.createArrayTypeNode(
+				factory.createUnionTypeNode(
+					await Promise.all(
+						data.map(
+							(sub_data) => schema_parser
+								.parse_by_type(sub_data)
+								.generate_typescript_type({
+									data: sub_data,
+									schema: {},
+									schema_parser,
+								}),
+						),
+					),
+				) as unknown as T2,
+			);
+		}
+
 		const sub_type = schema_parser.parse(ArrayType.maybe_add_$defs(
 			schema,
 			schema.items,

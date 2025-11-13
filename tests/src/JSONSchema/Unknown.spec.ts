@@ -26,6 +26,10 @@ import {
 void describe('Unknown', () => {
 	void it('comes out of SchemaParser as expected', () => {
 		const parser = new SchemaParser({ajv_options: {}});
+		parser.types = parser.share_ajv((ajv) => [
+			new Unknown({ajv}),
+			...parser.types,
+		]);
 
 		const instance = parser.maybe_parse_by_type(
 			{},

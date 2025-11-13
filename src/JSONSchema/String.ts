@@ -389,6 +389,14 @@ class BaseString<
 		'non-empty': StringLiteral<T>,
 		const: StringLiteral<T>,
 	}[StringMode] {
+		const validator = schema_parser.share_ajv(
+			(ajv) => ajv.compile(schema),
+		);
+
+		if (!validator(data)) {
+			throw new TypeError('Data does not match schema!');
+		}
+
 		let result: {
 			basic: StringLiteral<T>,
 			enum: StringLiteral<T>,
