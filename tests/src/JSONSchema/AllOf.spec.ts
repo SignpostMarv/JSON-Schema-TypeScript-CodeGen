@@ -237,12 +237,17 @@ void describe('AllOf', () => {
 					foo(result);
 
 					if (undefined !== data) {
+						const generated_type_definition = AllOf
+							.generate_type_definition<'allOf'>(
+								type_definition,
+							);
+
+						const parser = new SchemaParser({ajv});
+
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
-							new SchemaParser({ajv}),
-							AllOf.generate_type_definition<'allOf'>(
-								type_definition,
-							),
+							parser,
+							generated_type_definition,
 						));
 					}
 				});
