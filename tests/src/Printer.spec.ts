@@ -176,7 +176,6 @@ void describe('Printer', () => {
 								'\n\n'
 							}import type { foo } from "./types.ts";${
 								'\n\n'
-							// eslint-disable-next-line @stylistic/max-len
 							}export const bar: foo = {${
 								'\n'
 							// eslint-disable-next-line @stylistic/max-len
