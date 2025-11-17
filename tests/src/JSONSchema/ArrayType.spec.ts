@@ -43,6 +43,7 @@ import type {
 import {
 	ArrayType,
 	PositiveIntegerGuard,
+	PositiveIntegerOrZeroGuard,
 	SchemaParser,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
@@ -430,6 +431,71 @@ void describe('ArrayType', () => {
 								ts_assert.isTokenWithExpectedKind(
 									maybe.elements[1].type.elementType,
 									SyntaxKind.StringKeyword,
+								);
+							},
+						],
+					],
+				],
+			],
+		],
+		[
+			{
+				array_options: {
+					array_mode: 'items',
+					specified_mode: 'unspecified',
+					unique_items_mode: 'no',
+					min_items_mode: 'optional',
+					minItems: PositiveIntegerOrZeroGuard(0),
+					maxItems: PositiveIntegerGuard(5),
+				},
+			},
+			[],
+			[
+				[
+					[],
+					[
+						[
+							{
+								type: 'array',
+								items: {},
+								uniqueItems: false,
+							},
+							(maybe) => {
+								ts_assert.isArrayLiteralExpression(maybe);
+
+								assert.equal(maybe.elements.length, 0);
+							},
+							(maybe) => {
+								ts_assert.isArrayTypeNode(maybe);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType,
+									SyntaxKind.NeverKeyword,
+								);
+							},
+						],
+					],
+				],
+				[
+					[],
+					[
+						[
+							{
+								type: 'array',
+								uniqueItems: false,
+							} as unknown as DataSubSetSubset<
+								array_mode,
+								MinItemsType_mode
+							>[0],
+							(maybe) => {
+								ts_assert.isArrayLiteralExpression(maybe);
+
+								assert.equal(maybe.elements.length, 0);
+							},
+							(maybe) => {
+								ts_assert.isArrayTypeNode(maybe);
+								ts_assert.isTokenWithExpectedKind(
+									maybe.elementType,
+									SyntaxKind.NeverKeyword,
 								);
 							},
 						],
