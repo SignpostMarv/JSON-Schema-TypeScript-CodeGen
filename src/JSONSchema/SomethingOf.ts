@@ -270,7 +270,12 @@ abstract class SomethingOf<
 			matched_type,
 		] = this.#sub_schema_handler(
 			data,
-			schema,
+			schema as something_of_type<
+				Exclude<Kind, 'allOf'>,
+				Mode,
+				TypeChoices,
+				Defs
+			>,
 			schema_parser,
 		);
 
@@ -519,7 +524,12 @@ abstract class SomethingOf<
 
 	#sub_schema_handler(
 		data: T,
-		schema: something_of_type<Kind, Mode, TypeChoices, Defs>,
+		schema: something_of_type<
+			Exclude<Kind, 'allOf'>,
+			Mode,
+			TypeChoices,
+			Defs
+		>,
 		schema_parser: SchemaParser,
 	): [SchemaObject, Type<unknown>] {
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
@@ -545,7 +555,7 @@ abstract class SomethingOf<
 
 		const choices = 'oneOf' in schema
 			? schema.oneOf
-			: ('allOf' in schema ? schema.allOf : schema.anyOf);
+			: schema.anyOf;
 
 		const sub_schema = choices.map((
 			sub_schema,
