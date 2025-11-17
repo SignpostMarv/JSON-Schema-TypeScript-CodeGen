@@ -410,6 +410,20 @@ void describe('AllOf', () => {
 			[
 				{
 					allOf: [
+						{$ref: '#/$defs/foo'},
+						{$ref: '#/$defs/bar'},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				undefined,
+			],
+			[
+				{
+					allOf: [
 						{
 							type: 'object',
 							required: ['foo'],

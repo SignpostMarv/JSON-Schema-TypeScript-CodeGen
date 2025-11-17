@@ -433,7 +433,11 @@ abstract class SomethingOf<
 			);
 		}
 
-		if ('object' !== typeof data || null === data) {
+		if (
+			'object' !== typeof data
+			|| null === data
+			|| Array.isArray(data)
+		) {
 			throw new TypeError('Only object data supported here!');
 		}
 
