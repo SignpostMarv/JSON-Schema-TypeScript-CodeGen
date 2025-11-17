@@ -10,6 +10,7 @@ import {
 
 import type {
 	Expression,
+	Node,
 	TypeNode,
 } from 'typescript';
 import {
@@ -30,6 +31,7 @@ import type {
 	ObjectOfSchemas,
 	PositiveIntegerGuard,
 	schema_choices,
+	SchemaObject,
 	something_of_mode,
 	Type,
 	type_choices,
@@ -251,6 +253,251 @@ void describe('AllOf', () => {
 						));
 					}
 				});
+			});
+		});
+	});
+	void describe(`::generate_typescript_data()${
+		' from '
+	} from SchemaParser::parse()`, () => {
+		type DataSet = [
+			(
+				& SchemaObject
+				& {
+					allOf: [SchemaObject, SchemaObject, ...SchemaObject[]],
+				}
+			),
+			unknown,
+			(
+				| undefined
+				| ((maybe: Node) => asserts maybe is Expression)
+			),
+			( // for manipulating schema parser before running
+				| undefined
+				// eslint-disable-next-line @stylistic/comma-dangle
+				| ((schema_parser: SchemaParser) => void)
+			),
+		];
+
+		const data_sets: [DataSet, ...DataSet[]] = [
+			[
+				{
+					allOf: [
+						{
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				(maybe) => {
+					ts_assert.isObjectLiteralExpression(maybe);
+
+					assert.equal(
+						maybe.properties.length,
+						2,
+					);
+
+					ts_assert.isPropertyAssignment(maybe.properties[0]);
+					ts_assert.isPropertyAssignment(maybe.properties[1]);
+				},
+				undefined,
+			],
+			[
+				{
+					$defs: {
+						foo: {
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						bar: {
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					},
+					allOf: [
+						{$ref: '#/$defs/foo'},
+						{$ref: '#/$defs/bar'},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				(maybe) => {
+					ts_assert.isObjectLiteralExpression(maybe);
+
+					assert.equal(
+						maybe.properties.length,
+						2,
+					);
+
+					ts_assert.isPropertyAssignment(maybe.properties[0]);
+					ts_assert.isPropertyAssignment(maybe.properties[1]);
+				},
+				undefined,
+			],
+			[
+				{
+					$defs: {
+						foo: {
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						bar: {
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					},
+					allOf: [
+						{$ref: '#/$defs/foo'},
+						{$ref: '#/$defs/bar'},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				(schema_parser) => {
+					schema_parser.types = schema_parser.types.filter(
+						(maybe) => !(maybe instanceof $ref),
+					) as SchemaParser['types'];
+				},
+			],
+			[
+				{
+					allOf: [
+						{
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					],
+				},
+				[
+					'foo',
+					'bar',
+				],
+				undefined,
+				undefined,
+			],
+			[
+				{
+					allOf: [
+						{
+							type: 'array',
+							minItems: 1,
+							items: {},
+						},
+						{
+							type: 'array',
+							minItems: 2,
+							items: {},
+						},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				undefined,
+			],
+		];
+
+		data_sets.forEach((
+			[
+				schema,
+				data,
+				asserter,
+				modifier,
+			],
+			i,
+		) => {
+			void it(`behaves with data_sets[${i}]`, () => {
+				const schema_parser = new SchemaParser();
+
+				if (modifier) {
+					modifier(schema_parser);
+				}
+
+				const instance = schema_parser.parse(schema);
+
+				const result = () => instance.generate_typescript_data(
+					data,
+					schema_parser,
+					schema,
+				);
+
+				if (undefined === asserter) {
+					assert.throws(result);
+
+					return;
+				}
+
+				const foo: (
+					maybe: Node,
+				) => asserts maybe is Expression = asserter;
+
+				foo(result());
 			});
 		});
 	});
