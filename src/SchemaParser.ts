@@ -43,10 +43,6 @@ import type {
 } from './types.ts';
 
 import {
-	Unknown,
-} from './JSONSchema/Unknown.ts';
-
-import {
 	OneOf,
 } from './JSONSchema/OneOf.ts';
 
@@ -235,16 +231,6 @@ class SchemaParser {
 	parse(
 		schema: SchemaObject,
 	): Type<unknown> {
-		if (0 === Object.keys(schema).length) {
-			const result = this.types.find<Unknown>(
-				(maybe) => maybe instanceof Unknown,
-			);
-
-			if (result) {
-				return result;
-			}
-		}
-
 		const result = this.maybe_parse<
 			Type<unknown>
 		>(
@@ -354,10 +340,6 @@ class SchemaParser {
 		AllOf<unknown, 'unspecified'>,
 		AnyOf<unknown, 'unspecified'>,
 		$defs,
-
-		/*
-		Unknown,
-		*/
 	] {
 		return [
 			new String({
@@ -469,10 +451,6 @@ class SchemaParser {
 				},
 			}),
 			new $defs({ajv}, {}, {}),
-
-			/*
-			new Unknown({ajv}),
-			*/
 		];
 	}
 }

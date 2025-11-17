@@ -31,10 +31,6 @@ import {
 } from './Ref.ts';
 
 import type {
-	unknown_type,
-} from './Unknown.ts';
-
-import type {
 	ObjectOfSchemas,
 	SchemaObject,
 // eslint-disable-next-line imports/no-relative-parent-imports
@@ -1052,7 +1048,7 @@ class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
-		fallback_if_neither: Record<string, never>|unknown_type,
+		fallback_if_neither: Record<string, never>,
 	): SchemaObject {
 		if (
 			!this.#is_schema_with_pattern_properties(schema)
@@ -1267,7 +1263,7 @@ class ObjectUnspecified<
 				...SchemaObject[],
 			],
 		},
-		fallback_if_neither: Record<string, never>|unknown_type,
+		fallback_if_neither: Record<string, never>,
 	): SchemaObject|undefined {
 		let matching: SchemaObject|undefined;
 

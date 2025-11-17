@@ -18,10 +18,6 @@ import {
 // eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-import {
-	is_non_empty_array,
-} from '@satisfactory-dev/predicates.ts';
-
 // eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
@@ -41,7 +37,6 @@ import {
 	OneOf,
 	SchemaParser,
 	Type,
-	Unknown,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
@@ -124,17 +119,6 @@ void describe('SchemaParser', () => {
 		void it('behaves when type exists', () => {
 			const parser = new SchemaParser();
 
-			/*
-			let actual = parser.maybe_parse<
-				Unknown
-			>(
-				Unknown.generate_type_definition(),
-				Type,
-			);
-
-			is_instanceof(actual, Unknown);
-			*/
-
 			const ajv = parser.share_ajv((ajv) => ajv);
 
 			class Foo extends ConstString {
@@ -150,24 +134,13 @@ void describe('SchemaParser', () => {
 			parser.types = [new Foo(), ...parser.types];
 
 			const actual = parser.maybe_parse<
-				Unknown
+				ConstString
 			>(
 				{},
 				Type,
 			);
 
 			is_instanceof(actual, Foo);
-
-			/*
-			actual = parser.maybe_parse<
-				Unknown
-			>(
-				Unknown.generate_type_definition(),
-				Unknown,
-			);
-
-			is_instanceof(actual, Unknown);
-			*/
 		});
 
 		void it('behave when type exists but excluded', () => {
@@ -192,16 +165,6 @@ void describe('SchemaParser', () => {
 	void describe('::parse()', () => {
 		void it('fails with {}', () => {
 			const parser = new SchemaParser();
-
-			const types = parser.types.filter(
-				(maybe) => !(maybe instanceof Unknown),
-			);
-
-			if (!is_non_empty_array<Type<unknown>>(types)) {
-				assert.fail('Types is empty!');
-			}
-
-			parser.types = types;
 
 			assert.throws(() => parser.parse({}));
 		});
