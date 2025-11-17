@@ -451,6 +451,8 @@ abstract class SomethingOf<
 				throw new TypeError('Only object types supported here!');
 			} else if ('patternProperties' in resolved) {
 				throw new TypeError('patternProperties not yet supported!');
+			} else if (!('properties' in resolved)) {
+				throw new TypeError('properties not present in schema!');
 			}
 
 			const sub_data: {[key: string]: unknown} = {};
