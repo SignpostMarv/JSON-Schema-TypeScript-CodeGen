@@ -2700,6 +2700,65 @@ void describe('ObjectUnspecified', () => {
 
 				assert.throws(call);
 			});
+
+			void it(
+				'fails as expected when property is missing',
+				() => {
+					const ajv = new Ajv({strict: true});
+					const instance = new ObjectUnspecified(
+						{
+							properties_mode: 'properties',
+						},
+						{ajv},
+					);
+
+					const type_schema: object_type_with_allOf<
+						'properties',
+						ObjectOfSchemas,
+						[string, ...string[]],
+						ObjectOfSchemas,
+						ObjectOfSchemas
+					> = {
+						$defs: {
+							prop: {
+								type: 'string',
+							},
+						},
+						allOf: [
+							{
+								type: 'object',
+								additionalProperties: false,
+								required: ['foo'],
+								properties: {
+									foo: {
+										$ref: '#/$defs/prop',
+									},
+								},
+							},
+							{
+								type: 'object',
+								additionalProperties: false,
+								required: ['bar'],
+								properties: {
+									bar: {
+										$ref: '#/$defs/prop',
+									},
+								},
+							},
+						],
+					};
+
+					assert.throws(() => instance.generate_typescript_data(
+						{
+							foo: 'foo',
+							bar: 'bar',
+							baz: 'baz',
+						},
+						new SchemaParser({ajv}),
+						type_schema,
+					));
+				},
+			);
 		});
 	});
 
