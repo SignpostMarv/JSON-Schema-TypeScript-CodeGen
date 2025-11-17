@@ -11,9 +11,11 @@ import {
 import type {
 	Expression,
 	Node,
+	ObjectLiteralExpression,
 	TypeNode,
 } from 'typescript';
 import {
+	factory,
 	SyntaxKind,
 } from 'typescript';
 
@@ -28,6 +30,8 @@ import type {
 import type {
 	all_of_schema_options,
 	all_of_type_options,
+	object_properties_mode,
+	object_schema,
 	ObjectOfSchemas,
 	PositiveIntegerGuard,
 	schema_choices,
@@ -41,6 +45,7 @@ import {
 	$ref,
 	AllOf,
 	ConstString,
+	ObjectUnspecified,
 	PatternString,
 	SchemaParser,
 // eslint-disable-next-line imports/no-relative-parent-imports
@@ -656,6 +661,179 @@ void describe('AllOf', () => {
 				},
 				undefined,
 				undefined,
+			],
+			[
+				{
+					allOf: [
+						{
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				(schema_parser) => {
+					const ajv = schema_parser.share_ajv((ajv) => ajv);
+
+					const foo = class extends ObjectUnspecified<
+						{[key: string]: unknown},
+						object_properties_mode,
+						SchemaObject,
+						readonly [string, ...string[]],
+						ObjectOfSchemas,
+						ObjectOfSchemas
+					> {
+						generate_typescript_data() {
+							return factory.createKeywordTypeNode(
+								SyntaxKind.UnknownKeyword,
+							) as unknown as ObjectLiteralExpression;
+						}
+
+						static generate_schema_definition<
+							PropertiesMode extends object_properties_mode,
+						>({
+							properties_mode,
+						}: {
+							properties_mode: PropertiesMode,
+						}): Readonly<object_schema<
+							PropertiesMode
+						>> {
+							return ObjectUnspecified
+								.generate_schema_definition({
+									properties_mode,
+								});
+						}
+					};
+
+					schema_parser.types = [
+						new AllOf<unknown, 'unspecified'>({
+							ajv,
+							type_definition: {
+								kind: 'allOf',
+								mode: 'unspecified',
+							},
+							schema_definition: {
+								kind: 'allOf',
+								mode: 'unspecified',
+							},
+						}),
+						new $ref({}, {ajv}),
+						new foo({properties_mode: 'properties'}, {ajv}),
+					];
+
+					return schema_parser;
+				},
+			],
+			[
+				{
+					allOf: [
+						{
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				(schema_parser) => {
+					const ajv = schema_parser.share_ajv((ajv) => ajv);
+
+					const foo = class extends ObjectUnspecified<
+						{[key: string]: unknown},
+						object_properties_mode,
+						SchemaObject,
+						readonly [string, ...string[]],
+						ObjectOfSchemas,
+						ObjectOfSchemas
+					> {
+						generate_typescript_data() {
+							return factory.createObjectLiteralExpression([
+								factory.createMethodDeclaration(
+									undefined,
+									undefined,
+									'foo',
+									undefined,
+									undefined,
+									[],
+									undefined,
+									undefined,
+								),
+							]);
+						}
+
+						static generate_schema_definition<
+							PropertiesMode extends object_properties_mode,
+						>({
+							properties_mode,
+						}: {
+							properties_mode: PropertiesMode,
+						}): Readonly<object_schema<
+							PropertiesMode
+						>> {
+							return ObjectUnspecified
+								.generate_schema_definition({
+									properties_mode,
+								});
+						}
+					};
+
+					schema_parser.types = [
+						new AllOf<unknown, 'unspecified'>({
+							ajv,
+							type_definition: {
+								kind: 'allOf',
+								mode: 'unspecified',
+							},
+							schema_definition: {
+								kind: 'allOf',
+								mode: 'unspecified',
+							},
+						}),
+						new $ref({}, {ajv}),
+						new foo({properties_mode: 'properties'}, {ajv}),
+					];
+
+					return schema_parser;
+				},
 			],
 		];
 
