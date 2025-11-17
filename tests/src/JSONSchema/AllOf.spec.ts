@@ -511,6 +511,46 @@ void describe('AllOf', () => {
 				undefined,
 				undefined,
 			],
+			[
+				{
+					$defs: {
+						foo: {
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+						bar: {
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					},
+					allOf: [
+						{$ref: '#/$defs/foo'},
+						{$ref: '#/$defs/bar'},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				undefined,
+			],
 		];
 
 		data_sets.forEach((
