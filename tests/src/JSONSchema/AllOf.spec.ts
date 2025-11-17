@@ -423,6 +423,42 @@ void describe('AllOf', () => {
 			],
 			[
 				{
+					$defs: {
+						foo: {
+							type: 'object',
+							required: ['foo'],
+							patternProperties: {
+								'^foo': {
+									type: 'string',
+									const: 'foo',
+								},
+							},
+						},
+						bar: {
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+					},
+					allOf: [
+						{$ref: '#/$defs/foo'},
+						{$ref: '#/$defs/bar'},
+					],
+				},
+				{
+					foobar: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				undefined,
+			],
+			[
+				{
 					allOf: [
 						{
 							type: 'object',
