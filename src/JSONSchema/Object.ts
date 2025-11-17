@@ -112,7 +112,39 @@ type object_type<
 		$defs: Defs,
 		$ref: LocalRef|ExternalRef,
 	}
+	| object_type_with_allOf<
+		PropertiesMode,
+		Defs,
+		Required,
+		Properties,
+		PatternProperties
+	>
 );
+
+type object_type_with_allOf<
+	PropertiesMode extends object_properties_mode,
+	Defs extends SchemaObject,
+	Required extends readonly [string, ...string[]],
+	Properties extends ObjectOfSchemas,
+	PatternProperties extends ObjectOfSchemas,
+> = SchemaObject & {
+	allOf: [
+		object_type<
+			PropertiesMode,
+			Defs,
+			Required,
+			Properties,
+			PatternProperties
+		>,
+		...object_type<
+			PropertiesMode,
+			Defs,
+			Required,
+			Properties,
+			PatternProperties
+		>[],
+	],
+};
 
 type object_schema_required<
 	PropertiesMode extends object_properties_mode,
@@ -371,7 +403,10 @@ class ObjectUnspecified<
 			schema_parser,
 		);
 
-		if ('string' === typeof schema?.$ref) {
+		if (
+			'string' === typeof schema?.$ref
+			&& $ref.is_supported_$ref_value(schema.$ref)
+		) {
 			const $ref_instance = schema_parser.parse_by_type({
 				$ref: schema.$ref,
 			}, (maybe): maybe is $ref => $ref.is_a(maybe));
@@ -1264,6 +1299,7 @@ export type {
 	object_properties_mode,
 	object_type,
 	object_type_base,
+	object_type_with_allOf,
 	object_schema,
 	object_TypeLiteralNode,
 	object_TypeLiteralNode_possibly_extended,

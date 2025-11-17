@@ -26,6 +26,10 @@ import {
 // eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
+import {
+	object_has_non_empty_array_property,
+} from '@satisfactory-dev/predicates.ts';
+
 import type {
 	ts_asserter,
 // eslint-disable-next-line imports/no-relative-parent-imports
@@ -44,15 +48,18 @@ import type {
 	object_properties_mode,
 	object_schema,
 	object_type,
+	object_type_with_allOf,
 	object_TypeLiteralNode,
 	ObjectOfSchemas,
 	OmitIf,
 	SchemaObject,
+	something_of_type,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	$defs_schema,
 	$ref,
+	AllOf,
 	ObjectUnspecified,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
@@ -571,13 +578,22 @@ void describe('ObjectUnspecified', () => {
 			>
 		),
 		T,
-		object_type<
-			PropertiesMode,
-			Defs,
-			Required,
-			Properties,
-			PatternProperties
-		>,
+		(
+			| object_type_with_allOf<
+				PropertiesMode,
+				Defs,
+				Required,
+				Properties,
+				PatternProperties
+			>
+			| object_type<
+				PropertiesMode,
+				Defs,
+				Required,
+				Properties,
+				PatternProperties
+			>
+		),
 		ts_asserter<ObjectLiteralExpression<DataAssertProperties>>,
 		ts_asserter<(
 			| object_TypeLiteralNode<PropertiesMode>
@@ -599,13 +615,15 @@ void describe('ObjectUnspecified', () => {
 		Properties extends ObjectOfSchemas = ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas = ObjectOfSchemas,
 	>(
-		type_schema: object_type<
-			PropertiesMode,
-			Defs,
-			Required,
-			Properties,
-			PatternProperties
-		>,
+		type_schema: (
+			| object_type<
+				PropertiesMode,
+				Defs,
+				Required,
+				Properties,
+				PatternProperties
+			>
+		),
 	) {
 		return type_schema;
 	}
@@ -1771,6 +1789,118 @@ void describe('ObjectUnspecified', () => {
 				assert.equal(1, value.members.length, message);
 			},
 		],
+		[
+			{
+				properties_mode: 'properties',
+			},
+			{
+				foo: 'bar',
+				bar: 'baz',
+				baz: {
+					foo: 'foobar',
+					bar: 'barbaz',
+				},
+			},
+			type_schema_for_data_set<
+				'properties'
+			>({
+				$defs: {
+					foo: {
+						type: 'object',
+						required: ['foo'],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+						},
+					},
+					bar: {
+						type: 'object',
+						required: ['bar'],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					baz: {
+						allOf: [
+							{$ref: '#/$defs/foo'},
+							{$ref: '#/$defs/bar'},
+						],
+					},
+				},
+				allOf: [
+					{
+						type: 'object',
+						required: [
+							'foo',
+						],
+						properties: {
+							foo: {
+								type: 'string',
+							},
+						},
+					},
+					{
+						type: 'object',
+						required: [
+							'bar',
+						],
+						properties: {
+							bar: {
+								type: 'string',
+							},
+						},
+					},
+					{
+						type: 'object',
+						required: [
+							'baz',
+						],
+						properties: {
+							baz: {
+								$ref: '#/$defs/baz',
+							},
+						},
+					},
+				],
+			}),
+			object_literal_expression_asserter({
+				foo: 'bar',
+				bar: 'baz',
+				baz: {
+					foo: 'foobar',
+					bar: 'barbaz',
+				},
+			}),
+			<PropertyMode extends object_properties_mode>(
+				value: Node,
+				message?: string|Error,
+			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				ts_assert.isTypeLiteralNode(value, message);
+				assert.equal(1, value.members.length, message);
+				value.members.forEach((member) => {
+					ts_assert.isIndexSignatureDeclaration(member, message);
+					ts_assert.isIdentifier(member.parameters[0].name, message);
+					assert.equal(
+						member.parameters[0].questionToken,
+						undefined,
+					);
+					assert.equal(
+						member.parameters[0].name.text,
+						'key',
+						message,
+					);
+					not_undefined(member.type, message);
+					ts_assert.isTokenWithExpectedKind(
+						member.type,
+						SyntaxKind.UnknownKeyword,
+						message,
+					);
+				});
+			},
+		],
 	];
 
 	void describe('::generate_typescript_data()', () => {
@@ -1781,13 +1911,73 @@ void describe('ObjectUnspecified', () => {
 			data_asserter,
 		], i) => {
 			const ajv = new Ajv({strict: true});
+			function do_test_allOf(
+				instance: AllOf<typeof input>,
+				schema_parser: SchemaParser,
+				schema: something_of_type<'allOf'>,
+			) {
+				assert.ok(instance.check_type(schema));
+				const data = instance.generate_typescript_data(
+					input,
+					schema_parser,
+					schema,
+				);
+				const foo: ts_asserter<ObjectLiteralExpression<[
+					PropertyAssignment,
+				]>> = data_asserter;
+				foo(data);
+
+				assert.throws(() => instance.generate_typescript_data(
+					Object.fromEntries(
+						Object.keys(input).map(
+							(property) => [property, null],
+						),
+					),
+					schema_parser,
+					schema,
+				));
+			}
+
 			function do_test(
-				instance: ObjectUnspecified<
-					typeof input,
-					typeof specific_options['properties_mode']
-				>,
+				instance: (
+					| AllOf<
+						typeof input
+					>
+					| ObjectUnspecified<
+						typeof input,
+						typeof specific_options['properties_mode']
+					>
+				),
 				schema_parser: SchemaParser,
 			) {
+				if (
+					!(instance instanceof ObjectUnspecified)
+				) {
+					if (!object_has_non_empty_array_property(
+						type_schema,
+						'allOf',
+					)) {
+						assert.fail('Not a supported allOf schema!');
+					}
+
+					assert.ok(
+						type_schema.allOf.every((maybe) => {
+							return (
+								'type' in maybe
+								&& 'object' === maybe.type
+							);
+						}),
+					);
+
+					do_test_allOf(
+						instance,
+						schema_parser,
+						type_schema as something_of_type<'allOf'>,
+					);
+
+					return;
+				}
+
 				assert.ok(instance.check_type(type_schema));
 				const data = instance.generate_typescript_data(
 					input,
@@ -1820,13 +2010,37 @@ void describe('ObjectUnspecified', () => {
 			void it(`behaves from schema parser with data_sets[${i}]`, () => {
 				const schema_parser = new SchemaParser();
 				const instance = schema_parser.parse(type_schema);
-				is_instanceof<
-					ObjectUnspecified<typeof input, object_properties_mode>
-				>(instance, ObjectUnspecified);
-				assert.equal(
-					instance.properties_mode,
-					specific_options.properties_mode,
-				);
+
+				if (!(instance instanceof AllOf)) {
+					is_instanceof<
+						ObjectUnspecified<typeof input, object_properties_mode>
+					>(instance, ObjectUnspecified);
+					assert.equal(
+						instance.properties_mode,
+						specific_options.properties_mode,
+					);
+				} else {
+					assert.ok(
+						object_has_non_empty_array_property(
+							type_schema,
+							'allOf',
+						),
+					);
+
+					for (const sub_type of type_schema.allOf) {
+						const sub_instance = schema_parser.parse(sub_type);
+						is_instanceof<
+							ObjectUnspecified<
+								typeof input,
+								object_properties_mode
+							>
+						>(sub_instance, ObjectUnspecified);
+						assert.equal(
+							sub_instance.properties_mode,
+							specific_options.properties_mode,
+						);
+					}
+				}
 
 				do_test(instance, schema_parser);
 			});
@@ -2535,19 +2749,52 @@ void describe('ObjectUnspecified', () => {
 				async () => {
 					const schema_parser = new SchemaParser();
 					const instance = schema_parser.parse(type_schema);
-					is_instanceof<
-						ObjectUnspecified<typeof input, object_properties_mode>
-					>(instance, ObjectUnspecified);
-					assert.equal(
-						instance.properties_mode,
-						specific_options.properties_mode,
-					);
 
-					await do_test(
-						instance,
-						schema_parser,
-						PositiveIntegerOrZeroGuard(i),
-					);
+					if (!(instance instanceof AllOf)) {
+						is_instanceof<
+							ObjectUnspecified<
+								typeof input,
+								object_properties_mode
+							>
+						>(instance, ObjectUnspecified);
+						assert.equal(
+							instance.properties_mode,
+							specific_options.properties_mode,
+						);
+
+						await do_test(
+							instance,
+							schema_parser,
+							PositiveIntegerOrZeroGuard(i),
+						);
+					} else {
+						assert.ok(
+							object_has_non_empty_array_property(
+								type_schema,
+								'allOf',
+							),
+						);
+
+						for (const sub_type of type_schema.allOf) {
+							const sub_instance = schema_parser.parse(sub_type);
+							is_instanceof<
+								ObjectUnspecified<
+									typeof input,
+									object_properties_mode
+								>
+							>(sub_instance, ObjectUnspecified);
+							assert.equal(
+								sub_instance.properties_mode,
+								specific_options.properties_mode,
+							);
+
+							await do_test(
+								sub_instance,
+								schema_parser,
+								PositiveIntegerOrZeroGuard(i),
+							);
+						}
+					}
 				},
 			);
 		});
