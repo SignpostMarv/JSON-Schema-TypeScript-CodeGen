@@ -627,6 +627,36 @@ void describe('AllOf', () => {
 				undefined,
 				undefined,
 			],
+			[
+				{
+					allOf: [
+						{
+							type: 'object',
+							required: ['foo'],
+							properties: {
+								foo: {
+									type: 'string',
+									const: 'foo',
+								},
+								bar: {
+									type: 'string',
+									const: 'bar',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['bar'],
+						},
+					],
+				},
+				{
+					foo: 'foo',
+					bar: 'bar',
+				},
+				undefined,
+				undefined,
+			],
 		];
 
 		data_sets.forEach((
