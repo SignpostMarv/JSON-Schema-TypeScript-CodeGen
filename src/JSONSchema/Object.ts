@@ -1282,12 +1282,6 @@ class ObjectUnspecified<
 
 				if (
 					undefined !== maybe
-					&& (
-						undefined === matching
-						|| (
-							Object.keys(maybe).length > 0
-						)
-					)
 				) {
 					matching = maybe;
 				}
