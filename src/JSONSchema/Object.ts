@@ -1048,7 +1048,7 @@ class ObjectUnspecified<
 			Properties,
 			PatternProperties
 		>,
-		fallback_if_neither: Record<string, never>,
+		fallback_if_neither: Record<string, never>|undefined,
 	): SchemaObject {
 		if (
 			!this.#is_schema_with_pattern_properties(schema)
@@ -1086,7 +1086,6 @@ class ObjectUnspecified<
 						...SchemaObject[],
 					],
 				},
-				fallback_if_neither,
 			);
 
 			if (matching) {
@@ -1136,7 +1135,6 @@ class ObjectUnspecified<
 								...SchemaObject[],
 							],
 						},
-						fallback_if_neither,
 					);
 
 					if (matching) {
@@ -1196,7 +1194,10 @@ class ObjectUnspecified<
 			}
 		}
 
-		if ('neither' === properties_mode) {
+		if (
+			'neither' === properties_mode
+			&& undefined !== fallback_if_neither
+		) {
 			return fallback_if_neither;
 		}
 
@@ -1263,7 +1264,6 @@ class ObjectUnspecified<
 				...SchemaObject[],
 			],
 		},
-		fallback_if_neither: Record<string, never>,
 	): SchemaObject|undefined {
 		let matching: SchemaObject|undefined;
 
@@ -1277,7 +1277,7 @@ class ObjectUnspecified<
 						schema,
 						candidate,
 					),
-					fallback_if_neither,
+					undefined,
 				);
 
 				if (
