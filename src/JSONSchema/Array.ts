@@ -1706,7 +1706,7 @@ class ArrayType<
 		schema_parser: SchemaParser,
 	): Promise<ArrayTypeNode<T2>> {
 		if (0 === Object.keys(schema?.items || {}).length) {
-			if (data.length < 1) {
+			if (undefined === data || data.length < 1) {
 				return factory.createArrayTypeNode(
 					factory.createKeywordTypeNode(
 						SyntaxKind.NeverKeyword,

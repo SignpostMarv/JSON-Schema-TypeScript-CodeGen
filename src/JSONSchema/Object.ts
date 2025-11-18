@@ -1280,7 +1280,15 @@ class ObjectUnspecified<
 					fallback_if_neither,
 				);
 
-				if (undefined !== maybe) {
+				if (
+					undefined !== maybe
+					&& (
+						undefined === matching
+						|| (
+							Object.keys(maybe).length > 0
+						)
+					)
+				) {
 					matching = maybe;
 				}
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
