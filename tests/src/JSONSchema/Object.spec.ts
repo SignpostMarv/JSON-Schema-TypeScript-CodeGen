@@ -2072,6 +2072,40 @@ void describe('ObjectUnspecified', () => {
 					},
 				},
 			));
+
+			assert.throws(() => instance.generate_typescript_data(
+				{
+					foo: 'bar',
+				},
+				new SchemaParser({ajv}),
+				{
+					$defs: {
+						prop: {
+							type: 'string',
+						},
+					},
+					allOf: [
+						{
+							type: 'object',
+							required: ['bar'],
+							properties: {
+								bar: {
+									$ref: '#/$defs/prop',
+								},
+							},
+						},
+						{
+							type: 'object',
+							required: ['baz'],
+							properties: {
+								baz: {
+									$ref: '#/$defs/prop',
+								},
+							},
+						},
+					],
+				},
+			));
 		});
 
 		void it('fails when expected with allOf', () => {
