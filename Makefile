@@ -33,6 +33,4 @@ coverage--skip-lint:
 	@./node_modules/.bin/c8 node ./tests.ts
 
 npm-prep: tests
-	@echo 'building from ./tsconfig.app-npm.json'
-	@./node_modules/.bin/tsc --project ./tsconfig.app-npm.json
 	@npm publish --dry-run
