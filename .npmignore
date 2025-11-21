@@ -4,7 +4,8 @@
 /tests/**/*.*
 /*.js
 /*.d.ts
-!index.ts
+!index.js
+!index.d.ts
 /coverage/
 /.c8rc*.json
 /.devcontainer/

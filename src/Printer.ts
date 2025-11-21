@@ -29,6 +29,11 @@ import {
 import {
 } from './typescript/factory.ts';
 
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
+import {
+} from './javascript/types.ts';
+
 import type {
 	SchemaParser,
 } from './SchemaParser.ts';

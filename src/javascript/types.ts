@@ -48,7 +48,4 @@ declare global {
 	}
 }
 
-// eslint-disable-next-line imports/no-unresolved
-export * from 'regexp.escape/auto';
-
 export {};

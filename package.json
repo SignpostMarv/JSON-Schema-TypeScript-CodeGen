@@ -10,28 +10,30 @@
   "funding": "https://github.com/SignpostMarv/JSON-Schema-TypeScript-CodeGen?sponsor=1",
   "exports": {
     ".": {
-      "types": "./index.ts",
-      "default": "./index.ts"
+      "types": "./index.d.ts",
+      "default": "./index.js"
     },
     "./ajv": {
-      "types": "./src/Ajv/index.ts",
-      "default": "./src/Ajv/index.ts"
+      "types": "./src/Ajv/index.d.ts",
+      "default": "./src/Ajv/index.js"
     },
     "./javascript-overrides": {
-      "types": "./src/javascript/typescript.ts",
-      "default": "./src/javascript/typescript.ts"
+      "types": "./src/javascript/typescript.d.ts",
+      "default": "./src/javascript/typescript.js"
     },
     "./typescript-overrides": {
-      "types": "./src/typescript/index.ts",
-      "default": "./src/typescript/index.ts"
+      "types": "./src/typescript/index.d.ts",
+      "default": "./src/typescript/index.js"
     }
   },
   "engines": {
     "node": "^24.0"
   },
   "files": [
-    "index.ts",
-    "src"
+    "index.js",
+    "index.d.ts",
+    "src/**/*.js",
+    "src/**/*.d.ts"
   ],
   "devDependencies": {
     "@satisfactory-dev/custom-assert": "^0.2.3",
