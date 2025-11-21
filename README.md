@@ -37,6 +37,6 @@ Templated Strings in TypeScript also allow one to be less verbose in how one rep
 
 ### Notes
 
-- Currently distributed as a pure typescript package
+- ~~Currently distributed as a pure typescript package~~ it _would_ be distributed as a pure typescript package, were it not for [nodejs/node#57215](https://github.com/nodejs/node/issues/57215)
 - Inherently tied to [Ajv](https://github.com/ajv-validator/ajv) due to the requirement for their custom keywords implementation.
 - Does not currently have a complete implementation of standard JSON keywords
