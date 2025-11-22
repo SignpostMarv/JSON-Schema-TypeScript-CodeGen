@@ -768,36 +768,13 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isIntersectionTypeNode(value, message);
-				assert.equal(value.types.length, 2);
-				ts_assert.isTypeReferenceNode(value.types[0]);
-				ts_assert.isIdentifier(value.types[0].typeName);
+				ts_assert.isTypeReferenceNode(value, message);
+				ts_assert.isIdentifier(value.typeName, message);
 				assert.equal(
-					value.types[0].typeName.text,
+					value.typeName.text,
 					'foo',
+					message,
 				);
-				value = value.types[1];
-				ts_assert.isTypeLiteralNode(value, message);
-				assert.equal(1, value.members.length, message);
-				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
-					ts_assert.isIdentifier(member.parameters[0].name, message);
-					assert.equal(
-						member.parameters[0].questionToken,
-						undefined,
-					);
-					assert.equal(
-						member.parameters[0].name.text,
-						'key',
-						message,
-					);
-					not_undefined(member.type, message);
-					ts_assert.isTokenWithExpectedKind(
-						member.type,
-						SyntaxKind.UnknownKeyword,
-						message,
-					);
-				});
 			},
 		],
 		[

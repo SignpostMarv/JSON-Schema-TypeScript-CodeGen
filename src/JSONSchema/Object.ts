@@ -253,6 +253,7 @@ type object_TypeLiteralNode<
 type object_TypeLiteralNode_possibly_extended<
 	PropertiesMode extends object_properties_mode,
 > = (
+	| TypeReferenceNode
 	| object_TypeLiteralNode<PropertiesMode>
 	| IntersectionTypeNode<[
 		TypeReferenceNode,
@@ -312,6 +313,7 @@ class ObjectUnspecified<
 			properties_mode: PropertiesMode,
 		},
 		(
+			| TypeReferenceNode
 			| object_TypeLiteralNode<PropertiesMode>
 			| IntersectionTypeNode<[
 				TypeReferenceNode,
@@ -387,6 +389,22 @@ class ObjectUnspecified<
 			schema_parser: SchemaParser,
 		},
 	): Promise<object_TypeLiteralNode_possibly_extended<PropertiesMode>> {
+		if (
+			'string' === typeof schema?.$ref
+			&& $ref.is_supported_$ref_value(schema.$ref)
+			&& !('properties' in schema)
+		) {
+			const $ref_instance = schema_parser.parse_by_type({
+				$ref: schema.$ref,
+			}, (maybe): maybe is $ref => $ref.is_a(maybe));
+
+			return $ref_instance.generate_typescript_type({
+				schema: {
+					$ref: schema.$ref,
+				},
+			});
+		}
+
 		let object_type: (
 			| Promise<object_TypeLiteralNode<PropertiesMode>>
 			| IntersectionTypeNode<[
