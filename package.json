@@ -18,8 +18,8 @@
       "default": "./src/Ajv/index.js"
     },
     "./javascript-overrides": {
-      "types": "./src/javascript/typescript.d.ts",
-      "default": "./src/javascript/typescript.js"
+      "types": "./src/javascript/types.d.ts",
+      "default": "./src/javascript/types.js"
     },
     "./typescript-overrides": {
       "types": "./src/typescript/index.d.ts",
