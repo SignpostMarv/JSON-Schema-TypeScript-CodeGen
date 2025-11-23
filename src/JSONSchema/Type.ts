@@ -88,6 +88,35 @@ type $defs_schema_type = Readonly<{
 								},
 							},
 						},
+						{
+							type: 'object',
+							additionalProperties: false,
+							required: readonly ['oneOf'],
+							properties: {
+								oneOf: {
+									type: 'array',
+									minItems: 2,
+									items: {
+										oneOf: readonly [
+											$defs_schema_type_subtype,
+											{
+												type: 'object',
+												additionalProperties: false,
+												required: readonly ['$ref'],
+												properties: {
+													$ref: {
+														type: 'string',
+														pattern: (
+															pattern_either
+														),
+													},
+												},
+											},
+										],
+									},
+								},
+							},
+						},
 					],
 				},
 			}
@@ -137,6 +166,44 @@ const $defs_schema: $defs_schema_type = Object.freeze({
 						required: ['allOf'] as const,
 						properties: {
 							allOf: {
+								type: 'array',
+								minItems: 2,
+								items: {
+									oneOf: [
+										{
+											type: 'object',
+											required: ['type'] as const,
+											properties: {
+												type: {
+													type: 'string',
+													minLength: 1,
+												},
+											},
+										},
+										{
+											type: 'object',
+											additionalProperties: false,
+											required: ['$ref'] as const,
+											properties: {
+												$ref: {
+													type: 'string',
+													pattern: (
+														pattern_either_value
+													),
+												},
+											},
+										},
+									] as const,
+								},
+							},
+						},
+					},
+					{
+						type: 'object',
+						additionalProperties: false,
+						required: ['oneOf'] as const,
+						properties: {
+							oneOf: {
 								type: 'array',
 								minItems: 2,
 								items: {
