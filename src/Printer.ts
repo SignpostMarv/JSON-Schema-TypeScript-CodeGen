@@ -534,6 +534,44 @@ class Printer {
 			outputs[type_filename].push(code);
 		}
 
+		if (
+			!(type_for_schema instanceof $defs_type_handler)
+			&& Object.keys($defs).length > 0
+		) {
+			const type_for_$defs = schema_parser.parse_require_$defs({
+				$defs,
+			});
+
+			let type_result = await type_for_$defs
+				.generate_typescript_type({
+					schema: {
+						$defs,
+					},
+					schema_parser,
+				});
+			type_result = factory.updateNamedExports(
+				type_result,
+				type_result.elements
+					.map((element) => factory.updateExportSpecifier(
+						element,
+						false,
+						element.propertyName,
+						element.name,
+					)),
+			);
+			type_node = factory.createExportDeclaration(
+				undefined,
+				true,
+				type_result,
+			);
+			const code = printer.printNode(
+				EmitHint.Unspecified,
+				type_node,
+				source_file,
+			);
+			outputs[type_filename].push(code);
+		}
+
 		if (is_non_empty_array<string>(import_code_for_data)) {
 			outputs[data_filename] = [
 				...import_code_for_data,

@@ -38,6 +38,7 @@ import {
 } from './guarded.ts';
 
 import type {
+	ObjectOfSchemas,
 	SchemaObject,
 	SchemaObjectWith$id,
 } from './types.ts';
@@ -160,7 +161,7 @@ class SchemaParser {
 	}
 
 	maybe_parse<
-		T extends Type<unknown>,
+		T extends Type<unknown>|$defs,
 	>(
 		schema: SchemaObject,
 		must_be_of_type: typeof Type<unknown>|typeof $defs,
@@ -282,6 +283,22 @@ class SchemaParser {
 		}
 
 		return result;
+	}
+
+	parse_require_$defs(
+		schema: SchemaObject & {
+			$defs: ObjectOfSchemas,
+		},
+	): $defs {
+		const maybe = this.maybe_parse<$defs>(schema, $defs);
+
+		if (undefined === maybe) {
+			throw new TypeError(
+				'$defs schema did not match expected type handler!',
+			);
+		}
+
+		return maybe;
 	}
 
 	share_ajv<T>(

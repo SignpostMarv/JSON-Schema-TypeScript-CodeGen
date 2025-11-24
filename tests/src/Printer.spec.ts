@@ -103,7 +103,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...item[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { item };`,
 						],
 					],
 				],
@@ -194,7 +196,9 @@ void describe('Printer', () => {
 								'\n'
 							}    foo: baz;${
 								'\n'
-							}};`,
+							}};${
+								'\n\n'
+							}export type { baz };`,
 						],
 					],
 				],
@@ -289,7 +293,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...item[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { item };`,
 						],
 					],
 				],
@@ -389,7 +395,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...(foo | bar)[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar };`,
 						],
 					],
 				],
@@ -448,7 +456,9 @@ void describe('Printer', () => {
 								'\n'
 							}    bar${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar };`,
 						],
 					],
 				],
@@ -508,7 +518,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...item[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { item };`,
 						],
 					],
 				],
@@ -616,7 +628,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...(foo | bar)[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar };`,
 						],
 					],
 				],
@@ -683,7 +697,9 @@ void describe('Printer', () => {
 								'\n'
 							}    bar${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar };`,
 						],
 					],
 				],
@@ -809,7 +825,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...item[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { item };`,
 						],
 					],
 				],
@@ -909,7 +927,9 @@ void describe('Printer', () => {
 								'\n'
 							}    ...(foo | bar)[]${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar };`,
 						],
 						[
 							'./types/bar.ts',
@@ -984,7 +1004,9 @@ void describe('Printer', () => {
 								'\n'
 							}    barfoo${
 								'\n'
-							}];`,
+							}];${
+								'\n\n'
+							}export type { foo, bar, barfoo };`,
 						],
 						[
 							'./types/bar.ts',

@@ -270,6 +270,33 @@ void describe('SchemaParser', () => {
 		});
 	});
 
+	void describe('::parse_require_$defs()', () => {
+		void it('succeeds', () => {
+			const parser = new SchemaParser();
+
+			assert.doesNotThrow(() => parser.parse_require_$defs({
+				$defs: {
+					foo: {
+						type: 'string',
+					},
+				},
+			}));
+		});
+
+		void it('fails successfully', () => {
+			const parser = new SchemaParser();
+
+			assert.throws(() => parser.parse_require_$defs({
+				$defs: {
+					foo: {
+						type: 'string',
+					},
+				},
+				$ref: '#/$defs/foo',
+			}));
+		});
+	});
+
 	void describe('::share_ajv()', () => {
 		// intended to return the same instance as input
 		type DataSetSameReturn<T> = [
