@@ -115,6 +115,13 @@ type object_type<
 		Properties,
 		PatternProperties
 	>
+	| object_type_with_oneOf<
+		PropertiesMode,
+		Defs,
+		Required,
+		Properties,
+		PatternProperties
+	>
 );
 
 type object_type_with_allOf<
@@ -125,6 +132,31 @@ type object_type_with_allOf<
 	PatternProperties extends ObjectOfSchemas,
 > = SchemaObject & {
 	allOf: [
+		object_type<
+			PropertiesMode,
+			Defs,
+			Required,
+			Properties,
+			PatternProperties
+		>,
+		...object_type<
+			PropertiesMode,
+			Defs,
+			Required,
+			Properties,
+			PatternProperties
+		>[],
+	],
+};
+
+type object_type_with_oneOf<
+	PropertiesMode extends object_properties_mode,
+	Defs extends SchemaObject,
+	Required extends readonly [string, ...string[]],
+	Properties extends ObjectOfSchemas,
+	PatternProperties extends ObjectOfSchemas,
+> = SchemaObject & {
+	oneOf: [
 		object_type<
 			PropertiesMode,
 			Defs,
@@ -1088,6 +1120,28 @@ class ObjectUnspecified<
 		if (
 			!this.#is_schema_with_pattern_properties(schema)
 			&& !this.#is_schema_with_properties(schema)
+			&& 'oneOf' in schema
+			&& undefined !== schema.oneOf
+			&& 2 === Object.keys(schema).length
+			&& '$defs' in schema
+		) {
+			return this.#sub_schema_for_property_from_oneOf(
+				schema_parser,
+				properties_mode,
+				property,
+				schema as SchemaObject & {
+					oneOf: [
+						SchemaObject,
+						SchemaObject,
+						...SchemaObject[],
+					],
+				},
+			);
+		}
+
+		if (
+			!this.#is_schema_with_pattern_properties(schema)
+			&& !this.#is_schema_with_properties(schema)
 			&& 'allOf' in schema
 			&& undefined !== schema.allOf
 			&& 2 === Object.keys(schema).length
@@ -1309,6 +1363,45 @@ class ObjectUnspecified<
 
 		return matching;
 	}
+
+	static #sub_schema_for_property_from_oneOf<
+		PropertiesMode extends object_properties_mode,
+	>(
+		schema_parser: SchemaParser,
+		properties_mode: PropertiesMode,
+		property: string,
+		schema: SchemaObject & {
+			oneOf: [
+				SchemaObject,
+				SchemaObject,
+				...SchemaObject[],
+			],
+		},
+	): SchemaObject {
+		for (const candidate of schema.oneOf) {
+			try {
+				const maybe = this.#sub_schema_for_property(
+					schema_parser,
+					properties_mode,
+					property,
+					this.maybe_add_$defs(
+						schema,
+						candidate,
+					),
+					undefined,
+				);
+
+				if (
+					undefined !== maybe
+				) {
+					return maybe;
+				}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			} catch (err) { /* empty */ }
+		}
+
+		throw new TypeError('No match found!');
+	}
 }
 
 export type {
@@ -1316,6 +1409,7 @@ export type {
 	object_type,
 	object_type_base,
 	object_type_with_allOf,
+	object_type_with_oneOf,
 	object_schema,
 	object_TypeLiteralNode,
 	object_TypeLiteralNode_possibly_extended,
