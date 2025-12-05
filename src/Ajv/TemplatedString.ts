@@ -455,15 +455,21 @@ class TemplatedString<
 		const join = capture_groups ? ')(' : ')(?:';
 
 		return `${open}${parts.map((part) => {
+			return this.#to_regex_string_sub_part(part);
+		}).join(join)})`;
+	}
+
+	static #to_regex_string_sub_part(
+		part: (
+			| TemplatedStringPart
+			| TemplatedStringPartBasic
+		),
+	): string {
 			if ('string' === typeof part) {
 				return RegExp.escape(part);
 			} else if (Array.isArray(part)) {
 				return `(?:${part.map((sub_part) => {
-					if ('string' === typeof sub_part) {
-						return RegExp.escape(sub_part);
-					}
-
-					return '.*';
+				return this.#to_regex_string_sub_part(sub_part);
 				}).join('|')})`;
 			} else if ('templated_string' in part) {
 				return this.to_regex_string_inner(
@@ -473,7 +479,6 @@ class TemplatedString<
 			}
 
 			return '.*';
-		}).join(join)})`;
 	}
 }
 
