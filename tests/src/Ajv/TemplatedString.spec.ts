@@ -609,6 +609,80 @@ void describe('TemplatedString', () => {
 				],
 			],
 		],
+		[
+			['foo', {type: 'string'}],
+			[
+				['foo', true],
+				['foob', true],
+				['fo', false],
+			],
+			[
+				[
+					'foo',
+					(maybe) => {
+						ts_assert.isStringLiteral(maybe);
+						assert.equal(maybe.text, 'foo');
+					},
+					(maybe) => {
+						ts_assert.isTemplateLiteralTypeNode(maybe);
+						assert.equal(maybe.head.text, 'foo');
+						assert.equal(maybe.templateSpans.length, 1);
+
+						const [tail] = maybe.templateSpans;
+
+						ts_assert.isTemplateTail(tail.literal);
+						ts_assert.isTokenWithExpectedKind(
+							tail.type,
+							SyntaxKind.StringKeyword,
+						);
+					},
+				],
+			],
+		],
+		[
+			['foo', {type: 'string', minLength: 1}],
+			[
+				['foo', false],
+				['foob', true],
+				['fo', false],
+			],
+			[
+				[
+					'foob',
+					(maybe) => {
+						ts_assert.isStringLiteral(maybe);
+						assert.equal(maybe.text, 'foob');
+					},
+					(maybe) => {
+						ts_assert.isTemplateLiteralTypeNode(maybe);
+						assert.equal(maybe.head.text, 'foo');
+						assert.equal(maybe.templateSpans.length, 1);
+
+						const [tail] = maybe.templateSpans;
+
+						ts_assert.isTemplateTail(tail.literal);
+						ts_assert.isTypeReferenceNode(tail.type);
+						ts_assert.isIdentifier(tail.type.typeName);
+						assert.equal(tail.type.typeName.text, 'Exclude');
+						assert.equal(tail.type.typeArguments?.length, 2);
+						ts_assert.isTokenWithExpectedKind(
+							tail.type.typeArguments[0],
+							SyntaxKind.StringKeyword,
+						);
+						ts_assert.isLiteralTypeNode(
+							tail.type.typeArguments[1],
+						);
+						ts_assert.isStringLiteral(
+							tail.type.typeArguments[1].literal,
+						);
+						assert.equal(
+							'',
+							tail.type.typeArguments[1].literal.text,
+						);
+					},
+				],
+			],
+		],
 	];
 
 	void describe('::check_type()', () => {

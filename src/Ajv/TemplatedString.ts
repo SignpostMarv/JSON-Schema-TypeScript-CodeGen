@@ -47,6 +47,7 @@ import type {
 import type {
 	LiteralTypeNode,
 	StringLiteral,
+	TypeReferenceNode,
 	UnionTypeNode,
 // eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
@@ -117,6 +118,13 @@ const templated_string_schema = Object.freeze({
 						},
 					},
 					{
+						type: 'object',
+						const: {
+							type: 'string',
+							minLength: 1,
+						},
+					},
+					{
 						type: 'array',
 						minItems: 2,
 						items: {
@@ -164,6 +172,10 @@ type template_spans_return_type<
 		| {
 			type: 'string',
 		}
+		| {
+			type: 'string',
+			minLength: 1,
+		}
 		| [
 			TemplatedStringPartBasic,
 			TemplatedStringPartBasic,
@@ -197,7 +209,22 @@ type template_spans_return_type<
 				: (
 					T extends templated_string_type
 						? TemplateLiteralTypeNode
-						: KeywordTypeNode<SyntaxKind.StringKeyword>
+						: (
+							T extends {
+								type: 'string',
+								minLength: 1,
+							}
+								? TypeReferenceNode<
+									'Exclude',
+									[
+										KeywordTypeNode<
+											SyntaxKind.StringKeyword
+										>,
+										LiteralTypeNode<StringLiteral>,
+									]
+								>
+								: KeywordTypeNode<SyntaxKind.StringKeyword>
+						)
 				)
 		)
 );
@@ -426,12 +453,37 @@ class TemplatedString<
 								? TemplatedString.generate_typescript_type_from_parts(
 									part.templated_string,
 								) as template_spans_return_type<T2>
-								: factory.createKeywordTypeNode(
-									SyntaxKind.StringKeyword,
+								: this.#template_span_types__string(
+									part,
 								) as template_spans_return_type<T2>
 						)
 				)
 		));
+	}
+
+	static #template_span_types__string<
+		T extends (
+			| {type: 'string'}
+			| {type: 'string', minLength: 1}
+		),
+	>(
+		part: T,
+	): template_spans_return_type<T> {
+		return object_has_property(part, 'minLength')
+			? factory.createTypeReferenceNode(
+				'Exclude',
+				[
+					factory.createKeywordTypeNode(
+						SyntaxKind.StringKeyword,
+					),
+					factory.createLiteralTypeNode(
+						factory.createStringLiteral(''),
+					),
+				],
+			) as template_spans_return_type<T>
+			: factory.createKeywordTypeNode(
+				SyntaxKind.StringKeyword,
+			) as template_spans_return_type<T>;
 	}
 
 	static #parts_is_specified(
@@ -476,6 +528,14 @@ class TemplatedString<
 				part.templated_string,
 				false,
 			);
+		} else if (
+			object_has_property(part, 'type')
+			&& object_has_property(part, 'minLength')
+			&& 2 === Object.keys(part).length
+			&& 'string' === part.type
+			&& 1 === part.minLength
+		) {
+			return '.+';
 		}
 
 		return '.*';
