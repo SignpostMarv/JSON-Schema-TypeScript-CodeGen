@@ -452,6 +452,7 @@ class TemplatedString<
 		capture_groups: boolean,
 	): string {
 		const open = capture_groups ? '(' : '(?:';
+		const join = capture_groups ? ')(' : ')(?:';
 
 		return `${open}${parts.map((part) => {
 			if ('string' === typeof part) {
@@ -472,7 +473,7 @@ class TemplatedString<
 			}
 
 			return '.*';
-		}).join(')(')})`;
+		}).join(join)})`;
 	}
 }
 
