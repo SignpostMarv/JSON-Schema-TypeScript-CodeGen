@@ -465,20 +465,20 @@ class TemplatedString<
 			| TemplatedStringPartBasic
 		),
 	): string {
-			if ('string' === typeof part) {
-				return RegExp.escape(part);
-			} else if (Array.isArray(part)) {
-				return `(?:${part.map((sub_part) => {
+		if ('string' === typeof part) {
+			return RegExp.escape(part);
+		} else if (Array.isArray(part)) {
+			return `(?:${part.map((sub_part) => {
 				return this.#to_regex_string_sub_part(sub_part);
-				}).join('|')})`;
-			} else if ('templated_string' in part) {
-				return this.to_regex_string_inner(
-					part.templated_string,
-					false,
-				);
-			}
+			}).join('|')})`;
+		} else if ('templated_string' in part) {
+			return this.to_regex_string_inner(
+				part.templated_string,
+				false,
+			);
+		}
 
-			return '.*';
+		return '.*';
 	}
 }
 
