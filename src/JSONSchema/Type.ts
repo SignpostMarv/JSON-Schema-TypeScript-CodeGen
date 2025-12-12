@@ -516,10 +516,12 @@ abstract class Type<
 	/**
 	 * @todo refactor to SchemaParser
 	 */
-	static maybe_add_$defs(
+	static maybe_add_$defs<
+		T extends SchemaObject,
+	>(
 		schema: SchemaObject,
-		sub_schema: SchemaObject,
-	): SchemaObject {
+		sub_schema: T,
+	): T {
 		if ('$defs' in schema) {
 			let modify = (
 				undefined === this.maybe_add_$defs_check
