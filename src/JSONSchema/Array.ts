@@ -1655,11 +1655,17 @@ class ArrayType<
 			schema.items,
 		));
 
+		if (undefined !== data && data.length < schema.minItems) {
+			throw new TypeError(
+				'Cannot supply data with fewer items than schema!',
+			);
+		}
+
 		let i = 0;
-		while (tuple_members.length < schema.minItems && i < data?.length) {
+		while (tuple_members.length < schema.minItems) {
 			tuple_members.push(
 				await sub_type.generate_typescript_type({
-					data: data[i],
+					data: undefined === data ? undefined : data[i],
 					schema: schema.items,
 					schema_parser,
 				}),
@@ -1670,7 +1676,7 @@ class ArrayType<
 		tuple_members.push(factory.createRestTypeNode(
 			factory.createArrayTypeNode(
 				await sub_type.generate_typescript_type({
-					data: schema.items,
+					data: undefined,
 					schema: schema.items,
 					schema_parser,
 				}),

@@ -1327,6 +1327,90 @@ void describe('ArrayType', () => {
 			);
 
 			void it(
+				'fails as expected when passing insufficient data',
+				async () => {
+					const ajv = new Ajv({strict: true});
+					const schema_parser = new SchemaParser({ajv});
+					const instance = new ArrayType(
+						{
+							ajv,
+						},
+						{
+							array_options: {
+								array_mode: 'items',
+								specified_mode: 'specified',
+								unique_items_mode: 'yes',
+								min_items_mode: 'optional',
+								items: {
+									type: 'string',
+								},
+							},
+						},
+					);
+
+					let promise = instance.generate_typescript_type({
+						data: ['foo', 'bar', 'baz'],
+						schema: {
+							type: 'array',
+							minItems: PositiveIntegerGuard(3),
+							uniqueItems: true,
+							items: {
+								type: 'string',
+							},
+						},
+						schema_parser,
+					});
+
+					await assert.doesNotReject(promise);
+
+					promise = instance.generate_typescript_type({
+						data: ['foo', 'bar', 'baz', 'bat'],
+						schema: {
+							type: 'array',
+							minItems: PositiveIntegerGuard(3),
+							uniqueItems: true,
+							items: {
+								type: 'string',
+							},
+						},
+						schema_parser,
+					});
+
+					await assert.doesNotReject(promise);
+
+					promise = instance.generate_typescript_type({
+						data: undefined as unknown as unknown[],
+						schema: {
+							type: 'array',
+							minItems: PositiveIntegerGuard(3),
+							uniqueItems: true,
+							items: {
+								type: 'string',
+							},
+						},
+						schema_parser,
+					});
+
+					await assert.doesNotReject(promise);
+
+					promise = instance.generate_typescript_type({
+						data: ['foo', 'bar'],
+						schema: {
+							type: 'array',
+							minItems: PositiveIntegerGuard(3),
+							uniqueItems: true,
+							items: {
+								type: 'string',
+							},
+						},
+						schema_parser,
+					});
+
+					await assert.rejects(promise);
+				},
+			);
+
+			void it(
 				'fails as expected when checking prefixItems schema',
 				async () => {
 					const ajv = new Ajv({strict: true});
