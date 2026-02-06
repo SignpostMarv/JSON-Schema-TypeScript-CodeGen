@@ -32,6 +32,16 @@ const config = [
 					`${import.meta.dirname}/src/**/*.ts`,
 				],
 			}],
+			'@stylistic/type-annotation-spacing': ['error', {
+				before: false,
+				after: true,
+				overrides: {
+					arrow: {
+						before: true,
+						after: true,
+					},
+				},
+			}],
 		},
 	},
 ];
