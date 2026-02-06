@@ -45,6 +45,8 @@ import {
 
 import type {
 	TypeReferenceNode,
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-internal-modules, imports/no-relative-parent-imports
 } from '../typescript/types';
 
 type $ref_mode = 'either'|'external'|'local';
