@@ -49,9 +49,6 @@
     "prettier": "^3.5.3",
     "typescript-eslint": "^8.42.0"
   },
-  "optionalDependencies": {
-    "@typescript-eslint/parser": "^8.42.0"
-  },
   "dependencies": {
     "@satisfactory-dev/predicates.ts": "^0.2.0",
     "ajv": "^8.17.1",
