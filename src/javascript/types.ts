@@ -1,6 +1,5 @@
 import type {
 	StringPassesRegex,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 declare global {

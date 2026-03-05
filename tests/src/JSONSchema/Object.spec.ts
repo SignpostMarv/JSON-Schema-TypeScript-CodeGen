@@ -20,10 +20,8 @@ import {
 import {
 	is_instanceof,
 	not_undefined,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
@@ -32,7 +30,6 @@ import {
 
 import type {
 	ts_asserter,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
 import type {
@@ -41,7 +38,6 @@ import type {
 	ObjectLiteralExpression,
 	StringLiteral,
 	TypeReferenceNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
 
 import type {
@@ -55,7 +51,6 @@ import type {
 	OmitIf,
 	SchemaObject,
 	something_of_type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	$defs_schema,
@@ -65,7 +60,6 @@ import {
 	OneOf,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 void describe('ObjectUnspecified', () => {

@@ -12,22 +12,18 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 import type {
 	pattern_string_type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 import {
 	PatternString,
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 
 void describe('PatternString', () => {

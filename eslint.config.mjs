@@ -2,7 +2,6 @@ import {
 	typescript,
 } from '@signpostmarv/eslint-config';
 
-// eslint-disable-next-line imports/no-unresolved
 import parser from '@typescript-eslint/parser';
 
 const config = [
@@ -35,5 +34,4 @@ const config = [
 	},
 ];
 
-// eslint-disable-next-line imports/no-default-export
 export default config;

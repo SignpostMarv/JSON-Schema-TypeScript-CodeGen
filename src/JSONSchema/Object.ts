@@ -33,24 +33,20 @@ import {
 import type {
 	ObjectOfSchemas,
 	SchemaObject,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import type {
 	IntersectionTypeNode,
 	TypeLiteralNode,
 	TypeReferenceNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 type object_properties_mode = (

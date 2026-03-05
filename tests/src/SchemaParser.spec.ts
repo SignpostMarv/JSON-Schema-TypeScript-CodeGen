@@ -15,20 +15,16 @@ import {
 import {
 	is_instanceof,
 	not_undefined,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import {
 	bool_throw,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../index.ts';
 
 import type {
 	share_ajv_callback,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 import {
 	$ref,
@@ -37,13 +33,11 @@ import {
 	OneOf,
 	SchemaParser,
 	Type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
 import {
 	StringStartsWith,
 	TemplatedString,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../src/Ajv/index.ts';
 
 void describe('SchemaParser', () => {

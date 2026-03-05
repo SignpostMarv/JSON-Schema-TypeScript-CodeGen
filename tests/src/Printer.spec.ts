@@ -7,12 +7,10 @@ import assert from 'node:assert/strict';
 import {
 	Printer,
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
 import {
 	TemplatedString,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../src/Ajv/index.ts';
 
 void describe('Printer', () => {

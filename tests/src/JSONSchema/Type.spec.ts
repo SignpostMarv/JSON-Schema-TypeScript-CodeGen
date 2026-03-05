@@ -10,16 +10,13 @@ import {
 
 import {
 	not_undefined,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
 import type {
 	SchemaObject,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/types.ts';
 import {
 	Type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/JSONSchema/Type.ts';
 
 import {
@@ -28,7 +25,6 @@ import {
 	NonEmptyString,
 	PatternString,
 	String,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/JSONSchema/String.ts';
 
 void describe('Type', () => {

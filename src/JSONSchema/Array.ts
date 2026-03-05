@@ -18,36 +18,30 @@ import {
 import {
 	PositiveIntegerGuard,
 	PositiveIntegerOrZeroGuard,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../guarded.ts';
 
 import type {
 	ObjectOfSchemas,
 	PositiveInteger,
 	SchemaObject,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	TupleTypeNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import {
 	SchemaValidationError,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaValidationError.ts';
 
 type array_mode = 'items'|'prefixItems';

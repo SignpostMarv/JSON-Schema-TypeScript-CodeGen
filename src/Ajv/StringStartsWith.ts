@@ -13,7 +13,6 @@ import {
 import type {
 	SchemaDefinitionDefinition,
 	SchemalessTypeOptions,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 
 type string_starts_with_type<

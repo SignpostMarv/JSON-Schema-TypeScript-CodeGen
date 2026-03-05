@@ -13,11 +13,9 @@ import type {
 	SchemaDefinitionOneOf,
 	TypeDefinitionSchema,
 	TypeOptions,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 import {
 	Type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 
 type KeywordTypeOptions<

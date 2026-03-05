@@ -10,10 +10,8 @@ import type {
 
 import {
 	not_undefined,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
@@ -25,11 +23,9 @@ import type {
 	ArrayTypeNode,
 	TupleTypeNode,
 	TypeLiteralNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../src/typescript/index.ts';
 import {
 	PositiveIntegerOrZeroGuard,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../index.ts';
 
 function is_Error<

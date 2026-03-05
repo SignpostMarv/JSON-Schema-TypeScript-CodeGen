@@ -21,28 +21,23 @@ import type {
 	StringLiteral,
 	TypeReferenceNode,
 	UnionTypeNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	PositiveIntegerGuard,
 	PositiveIntegerOrZeroGuard,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../guarded.ts';
 
 import {
 	StringTupleToLiteralTypeNodeTuple,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/coercions.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';

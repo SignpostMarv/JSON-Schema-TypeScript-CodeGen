@@ -24,13 +24,9 @@ import {
 	is_non_empty_array,
 } from '@satisfactory-dev/predicates.ts';
 
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
 import {
 } from './typescript/factory.ts';
 
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
 import {
 } from './javascript/types.ts';
 

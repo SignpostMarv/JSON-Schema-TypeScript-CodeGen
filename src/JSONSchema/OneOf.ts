@@ -11,7 +11,6 @@ import {
 
 import type {
 	ObjectOfSchemas,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 type one_of_type_options<

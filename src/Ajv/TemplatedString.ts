@@ -8,8 +8,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-unassigned-import, imports/no-empty-named-blocks
 import type {
 } from 'regexp.escape/auto';
 
@@ -27,7 +25,6 @@ import {
 
 import type {
 	ObjectOfSchemas,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import type {
@@ -35,13 +32,9 @@ import type {
 	SchemalessTypeOptions,
 	TypeDefinitionSchema,
 	TypeOptions,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../JSONSchema/Type.ts';
 
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-empty-named-blocks, imports/no-unassigned-import
 import type {
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../javascript/types.ts';
 
 import type {
@@ -49,12 +42,10 @@ import type {
 	StringLiteral,
 	TypeReferenceNode,
 	UnionTypeNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 type TemplatedStringPartBasic = (

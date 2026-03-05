@@ -18,26 +18,21 @@ import {
 
 import {
 	is_instanceof,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	basic_string_type,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 import {
 	ObjectUnspecified,
 	SchemaParser,
 	String,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../../index.ts';
 
 import {
 	throws_Error,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 void describe('identify simple String types as expected', () => {

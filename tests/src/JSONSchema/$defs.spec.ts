@@ -10,10 +10,8 @@ import {
 
 import {
 	not_undefined,
-// eslint-disable-next-line imports/no-unresolved
 } from '@satisfactory-dev/custom-assert';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
@@ -22,18 +20,15 @@ import type {
 
 import type {
 	ts_asserter,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../types.ts';
 
 import {
 	$defs,
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 import type {
 	TypeLiteralNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
 
 void describe('$defs', () => {

@@ -16,19 +16,16 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-// eslint-disable-next-line imports/no-unresolved
 import ts_assert from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
 import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	TupleTypeNode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../src/typescript/index.ts';
 
 import type {
@@ -38,19 +35,16 @@ import type {
 	MinItemsType_mode,
 	specified_mode,
 	unique_items_mode,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 import {
 	ArrayType,
 	PositiveIntegerGuard,
 	PositiveIntegerOrZeroGuard,
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../../index.ts';
 
 import {
 	throws_Error,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../../index.ts';
 
 void describe('ArrayType', () => {

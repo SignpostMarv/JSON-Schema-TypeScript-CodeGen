@@ -17,13 +17,11 @@ import type {
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import type {
 	ObjectOfSchemas,
 	SchemaObject,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 type $defs_schema_type_subtype = Readonly<{

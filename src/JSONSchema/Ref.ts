@@ -20,33 +20,26 @@ import {
 
 import type {
 	adjust_name_callback,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 import {
 	adjust_name_default,
 	adjust_name_finisher,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import type {
 	ObjectOfSchemas,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import type {
 	TypeReferenceNode,
-// eslint-disable-next-line @stylistic/max-len
-// eslint-disable-next-line imports/no-internal-modules, imports/no-relative-parent-imports
 } from '../typescript/types';
 
 type $ref_mode = 'either'|'external'|'local';
@@ -74,9 +67,11 @@ type pattern_local = `^#\\/\\$defs\\/${ref_identifier}$`;
 const pattern_either: pattern_either = (
 	'^(.+)?#\\/\\$defs\\/(.+)$'
 );
+// eslint-disable-next-line no-useless-assignment
 const pattern_external: pattern_external = (
 	'^(.+)#\\/\\$defs\\/(.+)$'
 );
+// eslint-disable-next-line no-useless-assignment
 const pattern_local: pattern_local = (
 	'^#\\/\\$defs\\/(.+)$'
 );

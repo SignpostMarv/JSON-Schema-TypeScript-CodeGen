@@ -14,32 +14,26 @@ import {
 
 import type {
 	ObjectLiteralExpression,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/types.ts';
 
 import {
 	factory,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../typescript/factory.ts';
 
 import type {
 	ObjectOfSchemas,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../types.ts';
 
 import type {
 	SchemaParser,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../SchemaParser.ts';
 
 import type {
 	adjust_name_callback,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 import {
 	adjust_name_default,
 	adjust_name_finisher,
-// eslint-disable-next-line imports/no-relative-parent-imports
 } from '../coercions.ts';
 
 
