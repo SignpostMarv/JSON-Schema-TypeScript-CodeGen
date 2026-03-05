@@ -4,7 +4,6 @@ import {
 
 // eslint-disable-next-line imports/no-unresolved
 import parser from '@typescript-eslint/parser';
-import imports from 'eslint-plugin-import';
 
 const config = [
 	{
@@ -21,17 +20,7 @@ const config = [
 		ignores: ['**/*.d.ts', '**/*.js', '**/*.mjs'],
 	},
 	{
-		plugins: {
-			imports,
-		},
 		rules: {
-			'imports/no-internal-modules': ['error', {
-				allow: [
-					'ajv/dist/2020.js',
-					`${import.meta.dirname}/src/*.ts`,
-					`${import.meta.dirname}/src/**/*.ts`,
-				],
-			}],
 			'@stylistic/type-annotation-spacing': ['error', {
 				before: false,
 				after: true,
