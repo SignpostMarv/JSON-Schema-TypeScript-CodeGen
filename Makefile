@@ -30,7 +30,10 @@ tests: lint
 coverage: lint coverage--skip-lint
 
 coverage--skip-lint:
-	@node --experimental-test-coverage --test
+	@node --experimental-test-coverage --test-coverage-include='${PWD}/src/**/*.ts' --test
+
+coverage--lcov:
+	@node --experimental-test-coverage --test-coverage-include='${PWD}/src/**/*.ts' --test --test-reporter=lcov --test-reporter-destination=coverage/lcov.info
 
 npm-prep: tests
 	@echo 'building from ./tsconfig.app-npm.json'
