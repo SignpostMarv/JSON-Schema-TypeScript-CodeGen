@@ -596,7 +596,7 @@ class Printer {
 			delete outputs[data_filename];
 		}
 
-		let result = Object.entries(outputs)
+		let result: PrinterResult[] = Object.entries(outputs)
 			.map(([filename, code]) => new PrinterResult(
 				code.join('\n\n'),
 				filename,
