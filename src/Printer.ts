@@ -210,42 +210,44 @@ class Printer {
 				),
 			);
 
-		outputs[data_filename] = [
-			printer.printNode(
-				EmitHint.Unspecified,
-				factory.createImportDeclaration(
-					undefined,
-					factory.createImportClause(
-						SyntaxKind.TypeKeyword,
+			outputs[data_filename] = [
+				printer.printNode(
+					EmitHint.Unspecified,
+					factory.createImportDeclaration(
 						undefined,
-						factory.createNamedImports([
-							factory.createImportSpecifier(
-								false,
-								undefined,
-								factory.createIdentifier(adjusted_type_name),
-							),
-						]),
+						factory.createImportClause(
+							SyntaxKind.TypeKeyword,
+							undefined,
+							factory.createNamedImports([
+								factory.createImportSpecifier(
+									false,
+									undefined,
+									factory.createIdentifier(
+										adjusted_type_name,
+									),
+								),
+							]),
+						),
+						factory.createStringLiteral(
+							`./${
+								relative(
+									dirname(data_filename),
+									dirname(type_filename),
+								)
+							}/${
+								basename(type_filename)
+							}`.replace(/^\.\/\//, './'),
+						),
+						undefined,
 					),
-					factory.createStringLiteral(
-						`./${
-							relative(
-								dirname(data_filename),
-								dirname(type_filename),
-							)
-						}/${
-							basename(type_filename)
-						}`.replace(/^\.\/\//, './'),
-					),
-					undefined,
+					source_file,
 				),
-				source_file,
-			),
-			printer.printNode(
-				EmitHint.Unspecified,
-				data_node,
-				source_file,
-			),
-		];
+				printer.printNode(
+					EmitHint.Unspecified,
+					data_node,
+					source_file,
+				),
+			];
 		}
 
 		const $defs = schema.$defs || {};
@@ -292,17 +294,17 @@ class Printer {
 			);
 
 			if (output_types) {
-			const code = printer.printNode(
-				EmitHint.Unspecified,
-				node,
-				source_file,
-			);
+				const code = printer.printNode(
+					EmitHint.Unspecified,
+					node,
+					source_file,
+				);
 
-			if (!($def_filename in outputs)) {
-				outputs[$def_filename] = [code];
-			} else {
-				outputs[$def_filename].push(code);
-			}
+				if (!($def_filename in outputs)) {
+					outputs[$def_filename] = [code];
+				} else {
+					outputs[$def_filename].push(code);
+				}
 			}
 		}
 
@@ -527,17 +529,17 @@ class Printer {
 		}
 
 		if (output_types) {
-		const code = printer.printNode(
-			EmitHint.Unspecified,
-			type_node,
-			source_file,
-		);
+			const code = printer.printNode(
+				EmitHint.Unspecified,
+				type_node,
+				source_file,
+			);
 
-		if (!(type_filename in outputs)) {
-			outputs[type_filename] = [code];
-		} else {
-			outputs[type_filename].push(code);
-		}
+			if (!(type_filename in outputs)) {
+				outputs[type_filename] = [code];
+			} else {
+				outputs[type_filename].push(code);
+			}
 		}
 
 		if (
@@ -566,17 +568,17 @@ class Printer {
 					)),
 			);
 			if (output_types) {
-			type_node = factory.createExportDeclaration(
-				undefined,
-				true,
-				type_result,
-			);
-			const code = printer.printNode(
-				EmitHint.Unspecified,
-				type_node,
-				source_file,
-			);
-			outputs[type_filename].push(code);
+				type_node = factory.createExportDeclaration(
+					undefined,
+					true,
+					type_result,
+				);
+				const code = printer.printNode(
+					EmitHint.Unspecified,
+					type_node,
+					source_file,
+				);
+				outputs[type_filename].push(code);
 			}
 		}
 
