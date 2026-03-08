@@ -108,6 +108,8 @@ class Printer {
 		schema_parser: SchemaParser,
 		type_name: string = 'foo',
 		data_name: string = 'bar',
+		output_types: boolean = true,
+		output_data: boolean = true,
 	) {
 		const adjusted_type_name = adjust_name_finisher(
 			type_name,
@@ -124,27 +126,6 @@ class Printer {
 		if (!type_for_schema.check_type(data)) {
 			throw new TypeError('Data not of expected type for schema!');
 		}
-
-		const data_node = factory.createVariableStatement(
-			[
-				factory.createToken(SyntaxKind.ExportKeyword),
-			],
-			factory.createVariableDeclarationList(
-				[
-					factory.createVariableDeclaration(
-						adjusted_data_name,
-						undefined,
-						factory.createTypeReferenceNode(adjusted_type_name),
-						type_for_schema.generate_typescript_data(
-							data,
-							schema_parser,
-							schema,
-						),
-					),
-				],
-				NodeFlags.Const,
-			),
-		);
 
 		let type_node: TypeAliasDeclaration|ExportDeclaration;
 
@@ -205,6 +186,30 @@ class Printer {
 			ScriptKind.TS,
 		);
 
+		if (output_data) {
+			const data_node = factory.createVariableStatement(
+				[
+					factory.createToken(SyntaxKind.ExportKeyword),
+				],
+				factory.createVariableDeclarationList(
+					[
+						factory.createVariableDeclaration(
+							adjusted_data_name,
+							undefined,
+							factory.createTypeReferenceNode(
+								adjusted_type_name,
+							),
+							type_for_schema.generate_typescript_data(
+								data,
+								schema_parser,
+								schema,
+							),
+						),
+					],
+					NodeFlags.Const,
+				),
+			);
+
 		outputs[data_filename] = [
 			printer.printNode(
 				EmitHint.Unspecified,
@@ -241,6 +246,7 @@ class Printer {
 				source_file,
 			),
 		];
+		}
 
 		const $defs = schema.$defs || {};
 
@@ -285,6 +291,7 @@ class Printer {
 				}),
 			);
 
+			if (output_types) {
 			const code = printer.printNode(
 				EmitHint.Unspecified,
 				node,
@@ -295,6 +302,7 @@ class Printer {
 				outputs[$def_filename] = [code];
 			} else {
 				outputs[$def_filename].push(code);
+			}
 			}
 		}
 
@@ -507,7 +515,7 @@ class Printer {
 			));
 		}
 
-		if (import_code.length > 0) {
+		if (import_code.length > 0 && output_types) {
 			if (!(type_filename in outputs)) {
 				outputs[type_filename] = import_code;
 			} else {
@@ -518,6 +526,7 @@ class Printer {
 			}
 		}
 
+		if (output_types) {
 		const code = printer.printNode(
 			EmitHint.Unspecified,
 			type_node,
@@ -528,6 +537,7 @@ class Printer {
 			outputs[type_filename] = [code];
 		} else {
 			outputs[type_filename].push(code);
+		}
 		}
 
 		if (
@@ -555,6 +565,7 @@ class Printer {
 						element.name,
 					)),
 			);
+			if (output_types) {
 			type_node = factory.createExportDeclaration(
 				undefined,
 				true,
@@ -566,9 +577,13 @@ class Printer {
 				source_file,
 			);
 			outputs[type_filename].push(code);
+			}
 		}
 
-		if (is_non_empty_array<string>(import_code_for_data)) {
+		if (
+			is_non_empty_array<string>(import_code_for_data)
+			&& output_data
+		) {
 			outputs[data_filename] = [
 				...import_code_for_data,
 				...outputs[data_filename],
@@ -579,11 +594,27 @@ class Printer {
 			delete outputs[data_filename];
 		}
 
-		return Object.entries(outputs)
+		let result = Object.entries(outputs)
 			.map(([filename, code]) => new PrinterResult(
 				code.join('\n\n'),
 				filename,
 			));
+
+		if (!output_data) {
+			result = result.filter(
+				({filename: maybe}) => maybe !== data_filename,
+			);
+		}
+
+		if (!output_types) {
+			result = result.filter(
+				({filename: maybe}) => (!(maybe !== data_filename)),
+			);
+		}
+
+		result.sort(({filename: a}, {filename: b}) => a.localeCompare(b));
+
+		return result;
 	}
 }
 

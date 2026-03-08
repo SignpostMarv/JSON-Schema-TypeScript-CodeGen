@@ -502,11 +502,6 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
-							'./types/item.ts',
-							// eslint-disable-next-line @stylistic/max-len
-							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
-						],
-						[
 							'./types/foo.ts',
 							`import type { item } from "./item.ts";${
 								'\n\n'
@@ -519,6 +514,11 @@ void describe('Printer', () => {
 							}];${
 								'\n\n'
 							}export type { item };`,
+						],
+						[
+							'./types/item.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
 						],
 					],
 				],
@@ -607,12 +607,12 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
-							'./types/foo.ts',
-							`export type foo = \`foo\${string}\`;`,
-						],
-						[
 							'./types/bar.ts',
 							`export type bar = \`bar\${string}\`;`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = \`foo\${string}\`;`,
 						],
 						[
 							'./types/foobar.ts',
@@ -676,12 +676,12 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
-							'./types/foo.ts',
-							`export type foo = \`foo\${string}\`;`,
-						],
-						[
 							'./types/bar.ts',
 							`export type bar = \`bar\${string}\`;`,
+						],
+						[
+							'./types/foo.ts',
+							`export type foo = \`foo\${string}\`;`,
 						],
 						[
 							'./types/foobar.ts',
@@ -809,11 +809,6 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
-							'./types/ite.ts',
-							// eslint-disable-next-line @stylistic/max-len
-							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
-						],
-						[
 							'./types/foo.ts',
 							`import type { item } from "./ite.ts";${
 								'\n\n'
@@ -826,6 +821,11 @@ void describe('Printer', () => {
 							}];${
 								'\n\n'
 							}export type { item };`,
+						],
+						[
+							'./types/ite.ts',
+							// eslint-disable-next-line @stylistic/max-len
+							`export type item = \`\${string}\${"bar" | "baz"}\`;`,
 						],
 					],
 				],
@@ -914,6 +914,10 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;`,
+						],
+						[
 							'./types/foo.ts',
 							`import type { bar } from "./bar.ts";${
 								'\n\n'
@@ -928,10 +932,6 @@ void describe('Printer', () => {
 							}];${
 								'\n\n'
 							}export type { foo, bar };`,
-						],
-						[
-							'./types/bar.ts',
-							`export type bar = \`bar\${string}\`;`,
 						],
 					],
 				],
@@ -989,6 +989,12 @@ void describe('Printer', () => {
 							}];`,
 						],
 						[
+							'./types/bar.ts',
+							`export type bar = \`bar\${string}\`;${
+								'\n\n'
+							}export type barfoo = \`barfoo\${string}\`;`,
+						],
+						[
 							'./types/foo.ts',
 							`import type { bar, barfoo } from "./bar.ts";${
 								'\n\n'
@@ -1005,12 +1011,6 @@ void describe('Printer', () => {
 							}];${
 								'\n\n'
 							}export type { foo, bar, barfoo };`,
-						],
-						[
-							'./types/bar.ts',
-							`export type bar = \`bar\${string}\`;${
-								'\n\n'
-							}export type barfoo = \`barfoo\${string}\`;`,
 						],
 					],
 				],
@@ -1067,6 +1067,187 @@ void describe('Printer', () => {
 					);
 				});
 			});
+
+			void it(`omits data with data_sets[${i}][${j}]`, async () => {
+				const schema_parser = new SchemaParser({ajv_options: {}});
+
+				modify_schema_parser(schema_parser);
+
+				const printer = new Printer(...constructor_params);
+
+				const params: Parameters<Printer['parse']> = [
+					parse_params[0],
+					parse_params[1],
+					schema_parser,
+				];
+
+				if (parse_params.length > 2) {
+					params.push(parse_params[2]);
+				}
+
+				if (parse_params.length > 3) {
+					params.push(parse_params[3]);
+				}
+
+				if (parse_params.length <= 2) {
+					params.push('foo', 'bar');
+				} else if (parse_params.length <= 3) {
+					params.push('bar');
+				}
+
+				assert.equal(
+					params.length,
+					5,
+				);
+
+				params.push(true, false);
+
+				const promise = printer.parse(...params);
+
+				await assert.doesNotReject(() => promise);
+
+				const actual = await promise;
+
+				const filtered = expectations.filter(
+					([maybe]) => maybe.startsWith('./types'),
+				);
+
+				assert.equal(
+					actual.length,
+					filtered.length,
+				);
+
+				actual.forEach(({filename, code}, k) => {
+					const [
+						expected_filename,
+						expected_code,
+					] = filtered[k];
+
+					assert.equal(
+						filename,
+						expected_filename,
+					);
+					assert.equal(
+						code,
+						expected_code,
+					);
+				});
+			});
+
+			void it(`omits types with data_sets[${i}][${j}]`, async () => {
+				const schema_parser = new SchemaParser({ajv_options: {}});
+
+				modify_schema_parser(schema_parser);
+
+				const printer = new Printer(...constructor_params);
+
+				const params: Parameters<Printer['parse']> = [
+					parse_params[0],
+					parse_params[1],
+					schema_parser,
+				];
+
+				if (parse_params.length > 2) {
+					params.push(parse_params[2]);
+				}
+
+				if (parse_params.length > 3) {
+					params.push(parse_params[3]);
+				}
+
+				if (parse_params.length <= 2) {
+					params.push('foo', 'bar');
+				} else if (parse_params.length <= 3) {
+					params.push('bar');
+				}
+
+				assert.equal(
+					params.length,
+					5,
+				);
+
+				params.push(false, true);
+
+				const promise = printer.parse(...params);
+
+				await assert.doesNotReject(() => promise);
+
+				const actual = await promise;
+
+				const filtered = expectations.filter(
+					([maybe]) => !maybe.startsWith('./types'),
+				);
+
+				assert.equal(
+					actual.length,
+					filtered.length,
+				);
+
+				actual.forEach(({filename, code}, k) => {
+					const [
+						expected_filename,
+						expected_code,
+					] = filtered[k];
+
+					assert.equal(
+						filename,
+						expected_filename,
+					);
+					assert.equal(
+						code,
+						expected_code,
+					);
+				});
+			});
+
+			void it(
+				`omits types and data with data_sets[${i}][${j}]`,
+				async () => {
+					const schema_parser = new SchemaParser({ajv_options: {}});
+
+					modify_schema_parser(schema_parser);
+
+					const printer = new Printer(...constructor_params);
+
+					const params: Parameters<Printer['parse']> = [
+						parse_params[0],
+						parse_params[1],
+						schema_parser,
+					];
+
+					if (parse_params.length > 2) {
+						params.push(parse_params[2]);
+					}
+
+					if (parse_params.length > 3) {
+						params.push(parse_params[3]);
+					}
+
+					if (parse_params.length <= 2) {
+						params.push('foo', 'bar');
+					} else if (parse_params.length <= 3) {
+						params.push('bar');
+					}
+
+					assert.equal(
+						params.length,
+						5,
+					);
+
+					params.push(false, false);
+
+					const promise = printer.parse(...params);
+
+					await assert.doesNotReject(() => promise);
+
+					const actual = await promise;
+
+					assert.equal(
+						actual.length,
+						0,
+					);
+				},
+			);
 		});
 	});
 
