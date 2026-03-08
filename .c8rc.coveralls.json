@@ -1,7 +1,0 @@
-{
-	"reporter": ["lcovonly"],
-	"report-dir": "./coverage",
-	"all": true,
-	"include": ["src", "./index.ts"],
-	"exclude": ["./*.ts", "./**/*.d.ts", "./**/*/types.ts", "./**/*.js"]
-}
