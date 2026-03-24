@@ -1096,7 +1096,7 @@ class ObjectUnspecified<
 		>,
 		fallback_if_neither: Record<string, never>|undefined,
 	): SchemaObject {
-		if (
+		while (
 			!this.#is_schema_with_pattern_properties(schema)
 			&& !this.#is_schema_with_properties(schema)
 			&& '$ref' in schema
@@ -1110,6 +1110,8 @@ class ObjectUnspecified<
 
 			if (maybe) {
 				schema = maybe;
+			} else {
+				break;
 			}
 		}
 
