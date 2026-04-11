@@ -40,7 +40,7 @@
     "@signpostmarv/eslint-config": "^0.8.2",
     "@signpostmarv/ts-assert": "^0.4.1",
     "@stylistic/eslint-plugin": "^5.9.0",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.6.0",
     "@types/regexp.escape": "^2.0.0",
     "eslint": "^10.0.2",
     "prettier": "^3.5.3",
