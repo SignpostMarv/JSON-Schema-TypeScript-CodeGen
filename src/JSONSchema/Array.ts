@@ -175,9 +175,9 @@ function expression_at_index_verifier_default<
 		typeof PositiveIntegerOrZeroGuard<number>
 	>,
 >(
-	data: T,
-	expression: Expression,
-): expression is T5[Index] {
+	_: T,
+	__: Expression,
+): __ is T5[Index] {
 	return true;
 }
 

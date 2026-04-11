@@ -620,7 +620,7 @@ class ObjectUnspecified<
 		const required: object_schema<
 			PropertiesMode
 		>['required'] = [
-			...['type'],
+			'type',
 			...values_for_properties_mode,
 		] as object_schema<
 			PropertiesMode

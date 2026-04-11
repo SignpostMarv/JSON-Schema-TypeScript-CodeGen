@@ -1567,9 +1567,9 @@ void describe('ArrayType', () => {
 						min_items_mode: 'optional',
 					},
 					expression_at_index_verifier: (
-						data,
-						maybe,
-					): maybe is Expression => false,
+						_,
+						__,
+					): __ is Expression => false,
 				},
 				[
 					[
@@ -1613,9 +1613,9 @@ void describe('ArrayType', () => {
 						min_items_mode: 'optional',
 					},
 					expression_at_index_verifier: (
-						data,
-						maybe,
-					): maybe is Expression => false,
+						_,
+						__,
+					): __ is Expression => false,
 				},
 				[
 					[
