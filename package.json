@@ -36,7 +36,7 @@
     "src/**/*.d.ts"
   ],
   "devDependencies": {
-    "@satisfactory-dev/custom-assert": "^0.2.4",
+    "@satisfactory-dev/custom-assert": "^0.2.5",
     "@signpostmarv/eslint-config": "^0.8.2",
     "@signpostmarv/ts-assert": "^0.4.1",
     "@stylistic/eslint-plugin": "^5.9.0",
