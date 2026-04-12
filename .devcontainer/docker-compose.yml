@@ -5,4 +5,4 @@ services:
         restart: always
         command: sleep infinity
         volumes:
-            - ../../:/workspaces:cached
+            - ../:/app/:cached
