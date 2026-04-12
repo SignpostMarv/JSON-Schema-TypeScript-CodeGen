@@ -8,9 +8,6 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import type {
-} from 'regexp.escape/auto';
-
 import {
 	object_has_property,
 } from '@satisfactory-dev/predicates.ts';

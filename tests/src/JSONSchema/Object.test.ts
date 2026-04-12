@@ -22,7 +22,21 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isComputedPropertyName,
+	isIdentifier,
+	isIndexSignatureDeclaration,
+	isIntersectionTypeNode,
+	isLiteralTypeNode,
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	isPropertySignature,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+	isTypeLiteralNode,
+	isTypeReferenceNode,
+	isUnionTypeNode,
+} from '@signpostmarv/ts-assert';
 
 import {
 	object_has_non_empty_array_property,
@@ -641,15 +655,15 @@ void describe('ObjectUnspecified', () => {
 			PropertyAssignment,
 			...PropertyAssignment[],
 		]> {
-			ts_assert.isObjectLiteralExpression(value, message);
+			isObjectLiteralExpression(value, message);
 			not_undefined(value.properties, message);
 			assert.equal(value.properties.length, entries.length, message);
 			value.properties.forEach((property, i) => {
-				ts_assert.isPropertyAssignment(property, message);
-				ts_assert.isIdentifier(property.name, message);
+				isPropertyAssignment(property, message);
+				isIdentifier(property.name, message);
 				assert.equal(property.name.text, entries[i][0], message);
 				if ('string' === typeof entries[i][1]) {
-					ts_assert.isStringLiteral(property.initializer, message);
+					isStringLiteral(property.initializer, message);
 					assert.equal(
 						property.initializer.text,
 						entries[i][1],
@@ -699,16 +713,16 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'Exclude',
@@ -716,16 +730,16 @@ void describe('ObjectUnspecified', () => {
 					);
 					not_undefined(member.type.typeArguments, message);
 					assert.equal(member.type.typeArguments.length, 2);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type.typeArguments[0],
 						SyntaxKind.StringKeyword,
 						message,
 					);
-					ts_assert.isLiteralTypeNode(
+					isLiteralTypeNode(
 						member.type.typeArguments[1],
 						message,
 					);
-					ts_assert.isStringLiteral(
+					isStringLiteral(
 						member.type.typeArguments[1].literal,
 						message,
 					);
@@ -764,8 +778,8 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeReferenceNode(value, message);
-				ts_assert.isIdentifier(value.typeName, message);
+				isTypeReferenceNode(value, message);
+				isIdentifier(value.typeName, message);
 				assert.equal(
 					value.typeName.text,
 					'foo',
@@ -799,23 +813,23 @@ void describe('ObjectUnspecified', () => {
 				TypeReferenceNode,
 				object_TypeLiteralNode<PropertyMode>,
 			]> => {
-				ts_assert.isIntersectionTypeNode(value, message);
+				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2);
 
-				ts_assert.isTypeReferenceNode(value.types[0], message);
-				ts_assert.isIdentifier(value.types[0].typeName, message);
+				isTypeReferenceNode(value.types[0], message);
+				isIdentifier(value.types[0].typeName, message);
 				assert.equal(value.types[0].typeName.text, 'some_other_type');
 
-				ts_assert.isTypeLiteralNode(value.types[1], message);
+				isTypeLiteralNode(value.types[1], message);
 				assert.equal(1, value.types[1].members.length, message);
 				value.types[1].members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'Exclude',
@@ -823,16 +837,16 @@ void describe('ObjectUnspecified', () => {
 					);
 					not_undefined(member.type.typeArguments, message);
 					assert.equal(member.type.typeArguments.length, 2);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type.typeArguments[0],
 						SyntaxKind.StringKeyword,
 						message,
 					);
-					ts_assert.isLiteralTypeNode(
+					isLiteralTypeNode(
 						member.type.typeArguments[1],
 						message,
 					);
-					ts_assert.isStringLiteral(
+					isStringLiteral(
 						member.type.typeArguments[1].literal,
 						message,
 					);
@@ -866,19 +880,19 @@ void describe('ObjectUnspecified', () => {
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
+				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 1);
 				value.properties.forEach((property) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isComputedPropertyName(property.name, message);
-					ts_assert.isStringLiteral(property.name.expression);
+					isPropertyAssignment(property, message);
+					isComputedPropertyName(property.name, message);
+					isStringLiteral(property.name.expression);
 					assert.equal(
 						property.name.expression.text,
 						'f o o',
 						message,
 					);
-					ts_assert.isStringLiteral(property.initializer, message);
+					isStringLiteral(property.initializer, message);
 					assert.equal(property.initializer.text, 'bar');
 				});
 			},
@@ -886,12 +900,12 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isComputedPropertyName(member.name, message);
-					ts_assert.isStringLiteral(member.name.expression);
+					isPropertySignature(member, message);
+					isComputedPropertyName(member.name, message);
+					isStringLiteral(member.name.expression);
 					assert.equal(
 						member.name.expression.text,
 						'f o o',
@@ -899,8 +913,8 @@ void describe('ObjectUnspecified', () => {
 					);
 					assert.equal(member.questionToken, undefined);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'Exclude',
@@ -908,16 +922,16 @@ void describe('ObjectUnspecified', () => {
 					);
 					not_undefined(member.type.typeArguments, message);
 					assert.equal(member.type.typeArguments.length, 2);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type.typeArguments[0],
 						SyntaxKind.StringKeyword,
 						message,
 					);
-					ts_assert.isLiteralTypeNode(
+					isLiteralTypeNode(
 						member.type.typeArguments[1],
 						message,
 					);
-					ts_assert.isStringLiteral(
+					isStringLiteral(
 						member.type.typeArguments[1].literal,
 						message,
 					);
@@ -949,16 +963,16 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					not_undefined(member.questionToken);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'Exclude',
@@ -966,16 +980,16 @@ void describe('ObjectUnspecified', () => {
 					);
 					not_undefined(member.type.typeArguments, message);
 					assert.equal(member.type.typeArguments.length, 2);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type.typeArguments[0],
 						SyntaxKind.StringKeyword,
 						message,
 					);
-					ts_assert.isLiteralTypeNode(
+					isLiteralTypeNode(
 						member.type.typeArguments[1],
 						message,
 					);
-					ts_assert.isStringLiteral(
+					isStringLiteral(
 						member.type.typeArguments[1].literal,
 						message,
 					);
@@ -1013,15 +1027,15 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'foo',
@@ -1057,15 +1071,15 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'_1',
@@ -1101,15 +1115,15 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'v1_1',
@@ -1145,15 +1159,15 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'__class',
@@ -1189,13 +1203,13 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
+					isIndexSignatureDeclaration(member, message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'foo',
@@ -1248,12 +1262,12 @@ void describe('ObjectUnspecified', () => {
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
+				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 8);
 				value.properties.forEach((property, i) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
+					isPropertyAssignment(property, message);
+					isIdentifier(property.name, message);
 					assert.equal(
 						property.name.text,
 						[
@@ -1268,7 +1282,7 @@ void describe('ObjectUnspecified', () => {
 						][i],
 						message,
 					);
-					ts_assert.isStringLiteral(property.initializer, message);
+					isStringLiteral(property.initializer, message);
 					assert.equal(
 						property.initializer.text,
 						[
@@ -1289,17 +1303,17 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
+					isIndexSignatureDeclaration(member, message);
 					not_undefined(member.type, message);
-					ts_assert.isUnionTypeNode(member.type, message);
+					isUnionTypeNode(member.type, message);
 					assert.equal(2, member.type.types.length);
 					for (let i = 0; i < member.type.types.length; ++i) {
 						const sub_type: Node = member.type.types[i];
-						ts_assert.isTypeReferenceNode(sub_type, message);
-						ts_assert.isIdentifier(sub_type.typeName, message);
+						isTypeReferenceNode(sub_type, message);
+						isIdentifier(sub_type.typeName, message);
 						assert.equal(
 							sub_type.typeName.text,
 							0 === i ? 'foo' : 'bar',
@@ -1358,12 +1372,12 @@ void describe('ObjectUnspecified', () => {
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
-				ts_assert.isObjectLiteralExpression(value, message);
+				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 8);
 				value.properties.forEach((property, i) => {
-					ts_assert.isPropertyAssignment(property, message);
-					ts_assert.isIdentifier(property.name, message);
+					isPropertyAssignment(property, message);
+					isIdentifier(property.name, message);
 					assert.equal(
 						property.name.text,
 						[
@@ -1378,7 +1392,7 @@ void describe('ObjectUnspecified', () => {
 						][i],
 						message,
 					);
-					ts_assert.isStringLiteral(property.initializer, message);
+					isStringLiteral(property.initializer, message);
 					assert.equal(
 						property.initializer.text,
 						[
@@ -1399,20 +1413,20 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isIntersectionTypeNode(value, message);
+				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
 
 
-				ts_assert.isTypeLiteralNode(value.types[0], message);
+				isTypeLiteralNode(value.types[0], message);
 				assert.equal(1, value.types[0].members.length, message);
 				value.types[0].members.forEach((member) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);
 					assert.equal(member.name.text, 'foo', message);
 					not_undefined(member.type, message);
-					ts_assert.isTypeReferenceNode(member.type, message);
-					ts_assert.isIdentifier(member.type.typeName, message);
+					isTypeReferenceNode(member.type, message);
+					isIdentifier(member.type.typeName, message);
 					assert.equal(
 						member.type.typeName.text,
 						'foo',
@@ -1421,17 +1435,17 @@ void describe('ObjectUnspecified', () => {
 					assert.equal(member.type.typeArguments, undefined);
 				});
 
-				ts_assert.isTypeLiteralNode(value.types[1], message);
+				isTypeLiteralNode(value.types[1], message);
 				assert.equal(1, value.types[1].members.length, message);
 				value.types[1].members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
+					isIndexSignatureDeclaration(member, message);
 					not_undefined(member.type, message);
-					ts_assert.isUnionTypeNode(member.type, message);
+					isUnionTypeNode(member.type, message);
 					assert.equal(2, member.type.types.length);
 					for (let i = 0; i < member.type.types.length; ++i) {
 						const sub_type: Node = member.type.types[i];
-						ts_assert.isTypeReferenceNode(sub_type, message);
-						ts_assert.isIdentifier(sub_type.typeName, message);
+						isTypeReferenceNode(sub_type, message);
+						isIdentifier(sub_type.typeName, message);
 						assert.equal(
 							sub_type.typeName.text,
 							0 === i ? 'foo' : 'bar',
@@ -1457,12 +1471,12 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
+					isIndexSignatureDeclaration(member, message);
 					not_undefined(member.type, message);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type,
 						SyntaxKind.UnknownKeyword,
 						message,
@@ -1541,11 +1555,11 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(3, value.members.length, message);
 				value.members.forEach((member, i) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);
 					assert.equal(member.name.text, [
 						'foo',
@@ -1554,17 +1568,17 @@ void describe('ObjectUnspecified', () => {
 					][i], message);
 					not_undefined(member.type, message);
 					if (i < 2) {
-						ts_assert.isTokenWithExpectedKind(
+						isTokenWithExpectedKind(
 							member.type,
 							SyntaxKind.StringKeyword,
 							message,
 						);
 					} else {
-						ts_assert.isTypeReferenceNode(
+						isTypeReferenceNode(
 							member.type,
 							message,
 						);
-						ts_assert.isIdentifier(
+						isIdentifier(
 							member.type.typeName,
 							message,
 						);
@@ -1655,28 +1669,28 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isIntersectionTypeNode(value, message);
+				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
-				ts_assert.isTypeReferenceNode(value.types[0], message);
-				ts_assert.isIdentifier(value.types[0].typeName, message);
+				isTypeReferenceNode(value.types[0], message);
+				isIdentifier(value.types[0].typeName, message);
 				assert.equal(
 					value.types[0].typeName.text,
 					'has_baz',
 				);
 
 				value = value.types[1];
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(2, value.members.length, message);
 				value.members.forEach((member, i) => {
-					ts_assert.isPropertySignature(member, message);
-					ts_assert.isIdentifier(member.name, message);
+					isPropertySignature(member, message);
+					isIdentifier(member.name, message);
 					assert.equal(member.questionToken, undefined);
 					assert.equal(member.name.text, [
 						'foo',
 						'bar',
 					][i], message);
 					not_undefined(member.type, message);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type,
 						SyntaxKind.StringKeyword,
 						message,
@@ -1748,17 +1762,17 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isIntersectionTypeNode(value, message);
+				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
-				ts_assert.isTypeReferenceNode(value.types[0], message);
-				ts_assert.isIdentifier(value.types[0].typeName, message);
+				isTypeReferenceNode(value.types[0], message);
+				isIdentifier(value.types[0].typeName, message);
 				assert.equal(
 					value.types[0].typeName.text,
 					'baz',
 				);
 
 				value = value.types[1];
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 			},
 		],
@@ -1851,11 +1865,11 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
-					ts_assert.isIdentifier(member.parameters[0].name, message);
+					isIndexSignatureDeclaration(member, message);
+					isIdentifier(member.parameters[0].name, message);
 					assert.equal(
 						member.parameters[0].questionToken,
 						undefined,
@@ -1866,7 +1880,7 @@ void describe('ObjectUnspecified', () => {
 						message,
 					);
 					not_undefined(member.type, message);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type,
 						SyntaxKind.UnknownKeyword,
 						message,
@@ -1953,11 +1967,11 @@ void describe('ObjectUnspecified', () => {
 				value: Node,
 				message?: string|Error,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
-				ts_assert.isTypeLiteralNode(value, message);
+				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
-					ts_assert.isIndexSignatureDeclaration(member, message);
-					ts_assert.isIdentifier(member.parameters[0].name, message);
+					isIndexSignatureDeclaration(member, message);
+					isIdentifier(member.parameters[0].name, message);
 					assert.equal(
 						member.parameters[0].questionToken,
 						undefined,
@@ -1968,7 +1982,7 @@ void describe('ObjectUnspecified', () => {
 						message,
 					);
 					not_undefined(member.type, message);
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						member.type,
 						SyntaxKind.UnknownKeyword,
 						message,
@@ -2409,24 +2423,24 @@ void describe('ObjectUnspecified', () => {
 				schema,
 			);
 
-			ts_assert.isObjectLiteralExpression(result);
+			isObjectLiteralExpression(result);
 			assert.equal(result.properties.length, 3);
 
-			ts_assert.isPropertyAssignment(result.properties[0]);
-			ts_assert.isPropertyAssignment(result.properties[1]);
-			ts_assert.isPropertyAssignment(result.properties[2]);
+			isPropertyAssignment(result.properties[0]);
+			isPropertyAssignment(result.properties[1]);
+			isPropertyAssignment(result.properties[2]);
 
-			ts_assert.isIdentifier(result.properties[0].name);
-			ts_assert.isIdentifier(result.properties[1].name);
-			ts_assert.isIdentifier(result.properties[2].name);
+			isIdentifier(result.properties[0].name);
+			isIdentifier(result.properties[1].name);
+			isIdentifier(result.properties[2].name);
 
 			assert.equal(result.properties[0].name.text, 'foo');
 			assert.equal(result.properties[1].name.text, 'bar');
 			assert.equal(result.properties[2].name.text, 'baz');
 
-			ts_assert.isStringLiteral(result.properties[0].initializer);
-			ts_assert.isStringLiteral(result.properties[1].initializer);
-			ts_assert.isObjectLiteralExpression(
+			isStringLiteral(result.properties[0].initializer);
+			isStringLiteral(result.properties[1].initializer);
+			isObjectLiteralExpression(
 				result.properties[2].initializer,
 			);
 
@@ -2438,23 +2452,23 @@ void describe('ObjectUnspecified', () => {
 				3,
 			);
 
-			ts_assert.isPropertyAssignment(
+			isPropertyAssignment(
 				result.properties[2].initializer.properties[0],
 			);
-			ts_assert.isPropertyAssignment(
+			isPropertyAssignment(
 				result.properties[2].initializer.properties[1],
 			);
-			ts_assert.isPropertyAssignment(
+			isPropertyAssignment(
 				result.properties[2].initializer.properties[2],
 			);
 
-			ts_assert.isIdentifier(
+			isIdentifier(
 				result.properties[2].initializer.properties[0].name,
 			);
-			ts_assert.isIdentifier(
+			isIdentifier(
 				result.properties[2].initializer.properties[1].name,
 			);
-			ts_assert.isIdentifier(
+			isIdentifier(
 				result.properties[2].initializer.properties[2].name,
 			);
 
@@ -2471,13 +2485,13 @@ void describe('ObjectUnspecified', () => {
 				'bat',
 			);
 
-			ts_assert.isStringLiteral(
+			isStringLiteral(
 				result.properties[2].initializer.properties[0].initializer,
 			);
-			ts_assert.isStringLiteral(
+			isStringLiteral(
 				result.properties[2].initializer.properties[1].initializer,
 			);
-			ts_assert.isStringLiteral(
+			isStringLiteral(
 				result.properties[2].initializer.properties[2].initializer,
 			);
 
@@ -2646,9 +2660,9 @@ void describe('ObjectUnspecified', () => {
 
 				assert.ok(generated.properties.every(
 					(maybe): maybe is property_assignment => {
-						ts_assert.isPropertyAssignment(maybe);
-						ts_assert.isIdentifier(maybe.name);
-						ts_assert.isStringLiteral(maybe.initializer);
+						isPropertyAssignment(maybe);
+						isIdentifier(maybe.name);
+						isStringLiteral(maybe.initializer);
 
 						return true;
 					},
@@ -2785,9 +2799,9 @@ void describe('ObjectUnspecified', () => {
 
 				assert.ok(generated.properties.every(
 					(maybe): maybe is property_assignment => {
-						ts_assert.isPropertyAssignment(maybe);
-						ts_assert.isIdentifier(maybe.name);
-						ts_assert.isStringLiteral(maybe.initializer);
+						isPropertyAssignment(maybe);
+						isIdentifier(maybe.name);
+						isStringLiteral(maybe.initializer);
 
 						return true;
 					},

@@ -20,7 +20,10 @@ import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isStringLiteral,
+	isTokenWithExpectedKind,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	basic_string_type,
@@ -91,7 +94,7 @@ void describe('identify simple String types as expected', () => {
 						schema,
 						schema_parser: parser,
 					});
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						typed,
 						SyntaxKind.StringKeyword,
 					);
@@ -108,7 +111,7 @@ void describe('identify simple String types as expected', () => {
 
 					const converted = get_converted();
 
-					ts_assert.isStringLiteral(converted);
+					isStringLiteral(converted);
 
 					assert.equal(
 						converted.text,

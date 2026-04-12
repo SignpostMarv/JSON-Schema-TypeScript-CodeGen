@@ -22,7 +22,13 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIdentifier,
+	isLiteralTypeNode,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+	isTypeReferenceNode,
+} from '@signpostmarv/ts-assert';
 
 import {
 	throws_Error,
@@ -117,8 +123,8 @@ void describe('identify non-empty String types as expected', () => {
 						},
 						schema_parser: parser,
 					});
-					ts_assert.isTypeReferenceNode(typed);
-					ts_assert.isIdentifier(
+					isTypeReferenceNode(typed);
+					isIdentifier(
 						typed.typeName,
 					);
 					assert.equal(
@@ -129,12 +135,12 @@ void describe('identify non-empty String types as expected', () => {
 
 					array_has_size(typed.typeArguments, 2);
 
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						typed.typeArguments[0],
 						SyntaxKind.StringKeyword,
 					);
-					ts_assert.isLiteralTypeNode(typed.typeArguments[1]);
-					ts_assert.isStringLiteral(
+					isLiteralTypeNode(typed.typeArguments[1]);
+					isStringLiteral(
 						typed.typeArguments[1].literal,
 					);
 					assert.equal(
@@ -153,7 +159,7 @@ void describe('identify non-empty String types as expected', () => {
 
 					const converted = get_converted();
 
-					ts_assert.isStringLiteral(converted);
+					isStringLiteral(converted);
 
 					assert.equal(
 						converted.text,

@@ -12,7 +12,9 @@ import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isStringLiteral,
+} from '@signpostmarv/ts-assert';
 
 import {
 	SchemaParser,
@@ -49,8 +51,8 @@ void describe('StringStartsWith', () => {
 		const a = instance.generate_typescript_data('foo');
 		const b = instance.generate_typescript_data('foobar');
 
-		ts_assert.isStringLiteral(a);
-		ts_assert.isStringLiteral(b);
+		isStringLiteral(a);
+		isStringLiteral(b);
 
 		assert.equal(a.text, 'foo');
 

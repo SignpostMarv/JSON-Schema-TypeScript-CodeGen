@@ -16,7 +16,17 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isArrayLiteralExpression,
+	isArrayTypeNode,
+	isParenthesizedTypeNode,
+	isRestTypeNode,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+	isTupleTypeNode,
+	isTypeReferenceNode,
+	isUnionTypeNode,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
@@ -323,39 +333,39 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isParenthesizedTypeNode(
+								isArrayTypeNode(maybe);
+								isParenthesizedTypeNode(
 									maybe.elementType,
 								);
-								ts_assert.isUnionTypeNode(
+								isUnionTypeNode(
 									maybe.elementType.type,
 								);
 								assert.equal(
 									maybe.elementType.type.types.length,
 									3,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[0],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[1],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[2],
 									SyntaxKind.StringKeyword,
 								);
@@ -368,21 +378,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -396,33 +406,33 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 2);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isRestTypeNode(maybe.elements[1]);
-								ts_assert.isArrayTypeNode(
+								isRestTypeNode(maybe.elements[1]);
+								isArrayTypeNode(
 									maybe.elements[1].type,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1].type.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -455,13 +465,13 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 0);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.NeverKeyword,
 								);
@@ -481,13 +491,13 @@ void describe('ArrayType', () => {
 								MinItemsType_mode
 							>[0],
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 0);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.NeverKeyword,
 								);
@@ -523,39 +533,39 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isParenthesizedTypeNode(
+								isArrayTypeNode(maybe);
+								isParenthesizedTypeNode(
 									maybe.elementType,
 								);
-								ts_assert.isUnionTypeNode(
+								isUnionTypeNode(
 									maybe.elementType.type,
 								);
 								assert.equal(
 									maybe.elementType.type.types.length,
 									3,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[0],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[1],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[2],
 									SyntaxKind.StringKeyword,
 								);
@@ -568,21 +578,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -596,33 +606,33 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 2);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isRestTypeNode(maybe.elements[1]);
-								ts_assert.isArrayTypeNode(
+								isRestTypeNode(maybe.elements[1]);
+								isArrayTypeNode(
 									maybe.elements[1].type,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1].type.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -658,21 +668,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -685,21 +695,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -713,33 +723,33 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 2);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isRestTypeNode(maybe.elements[1]);
-								ts_assert.isArrayTypeNode(
+								isRestTypeNode(maybe.elements[1]);
+								isArrayTypeNode(
 									maybe.elements[1].type,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1].type.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -780,21 +790,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -814,21 +824,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTypeReferenceNode(
+								isArrayTypeNode(maybe);
+								isTypeReferenceNode(
 									maybe.elementType,
 								);
 							},
@@ -863,39 +873,39 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isParenthesizedTypeNode(
+								isArrayTypeNode(maybe);
+								isParenthesizedTypeNode(
 									maybe.elementType,
 								);
-								ts_assert.isUnionTypeNode(
+								isUnionTypeNode(
 									maybe.elementType.type,
 								);
 								assert.equal(
 									maybe.elementType.type.types.length,
 									3,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[0],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[1],
 									SyntaxKind.StringKeyword,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elementType.type.types[2],
 									SyntaxKind.StringKeyword,
 								);
@@ -908,21 +918,21 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isArrayTypeNode(maybe);
-								ts_assert.isTokenWithExpectedKind(
+								isArrayTypeNode(maybe);
+								isTokenWithExpectedKind(
 									maybe.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -936,33 +946,33 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 2);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isRestTypeNode(maybe.elements[1]);
-								ts_assert.isArrayTypeNode(
+								isRestTypeNode(maybe.elements[1]);
+								isArrayTypeNode(
 									maybe.elements[1].type,
 								);
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1].type.elementType,
 									SyntaxKind.StringKeyword,
 								);
@@ -998,34 +1008,34 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
@@ -1063,34 +1073,34 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
@@ -1131,34 +1141,34 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
@@ -1199,34 +1209,34 @@ void describe('ArrayType', () => {
 								uniqueItems: false,
 							},
 							(maybe) => {
-								ts_assert.isArrayLiteralExpression(maybe);
+								isArrayLiteralExpression(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isStringLiteral(maybe.elements[0]);
-								ts_assert.isStringLiteral(maybe.elements[1]);
-								ts_assert.isStringLiteral(maybe.elements[2]);
+								isStringLiteral(maybe.elements[0]);
+								isStringLiteral(maybe.elements[1]);
+								isStringLiteral(maybe.elements[2]);
 
 								assert.equal('foo', maybe.elements[0].text);
 								assert.equal('bar', maybe.elements[1].text);
 								assert.equal('baz', maybe.elements[2].text);
 							},
 							(maybe) => {
-								ts_assert.isTupleTypeNode(maybe);
+								isTupleTypeNode(maybe);
 
 								assert.equal(maybe.elements.length, 3);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[0],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);
 
-								ts_assert.isTokenWithExpectedKind(
+								isTokenWithExpectedKind(
 									maybe.elements[1],
 									SyntaxKind.StringKeyword,
 								);

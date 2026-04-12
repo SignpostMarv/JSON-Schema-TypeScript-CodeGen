@@ -12,7 +12,12 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isCallExpression,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+	isTypeReferenceNode,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
@@ -97,14 +102,14 @@ void describe('PatternString', () => {
 					type: 'string',
 					pattern: '[^z]$',
 				},
-				ts_assert.isTypeReferenceNode,
+				isTypeReferenceNode,
 			],
 			[
 				{
 					type: 'string',
 				},
 				(value) => {
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						value,
 						SyntaxKind.StringKeyword,
 					);
@@ -145,12 +150,12 @@ void describe('PatternString', () => {
 				);
 
 				if (!('pattern' in type_schema)) {
-					ts_assert.isStringLiteral(data);
+					isStringLiteral(data);
 					assert.equal(data.text, value);
 				} else {
-					ts_assert.isCallExpression(data);
+					isCallExpression(data);
 					assert.equal(data.arguments.length, 2);
-					ts_assert.isStringLiteral(data.arguments[1]);
+					isStringLiteral(data.arguments[1]);
 					assert.equal(data.arguments[1].text, value);
 				}
 			});

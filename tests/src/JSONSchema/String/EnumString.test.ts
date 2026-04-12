@@ -12,7 +12,11 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isStringLiteral,
+	isTokenWithExpectedKind,
+	isUnionTypeNode,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
@@ -98,7 +102,7 @@ void describe('EnumString', () => {
 					type: 'string',
 					enum: ['foo', 'bar'],
 				},
-				ts_assert.isUnionTypeNode,
+				isUnionTypeNode,
 				['foo', 'bar'],
 			],
 			[
@@ -106,7 +110,7 @@ void describe('EnumString', () => {
 					type: 'string',
 				},
 				(value) => {
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						value,
 						SyntaxKind.StringKeyword,
 					);
@@ -179,7 +183,7 @@ void describe('EnumString', () => {
 					type_schema,
 				);
 
-				ts_assert.isStringLiteral(data);
+				isStringLiteral(data);
 				assert.equal(data.text, value);
 			});
 		}

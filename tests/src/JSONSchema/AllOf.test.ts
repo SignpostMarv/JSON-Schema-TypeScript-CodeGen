@@ -19,7 +19,13 @@ import {
 	SyntaxKind,
 } from 'typescript';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIntersectionTypeNode,
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
@@ -90,8 +96,8 @@ void describe('AllOf', () => {
 			[
 				[
 					'foo',
-					ts_assert.isStringLiteral,
-					(maybe) => ts_assert.isTokenWithExpectedKind(
+					isStringLiteral,
+					(maybe) => isTokenWithExpectedKind(
 						maybe,
 						SyntaxKind.StringKeyword,
 					),
@@ -142,8 +148,8 @@ void describe('AllOf', () => {
 			[
 				[
 					'foo',
-					ts_assert.isStringLiteral,
-					ts_assert.isIntersectionTypeNode,
+					isStringLiteral,
+					isIntersectionTypeNode,
 				],
 			],
 			[],
@@ -190,8 +196,8 @@ void describe('AllOf', () => {
 			[
 				[
 					'foo',
-					ts_assert.isStringLiteral,
-					ts_assert.isIntersectionTypeNode,
+					isStringLiteral,
+					isIntersectionTypeNode,
 				],
 			],
 			[],
@@ -310,15 +316,15 @@ void describe('AllOf', () => {
 					bar: 'bar',
 				},
 				(maybe) => {
-					ts_assert.isObjectLiteralExpression(maybe);
+					isObjectLiteralExpression(maybe);
 
 					assert.equal(
 						maybe.properties.length,
 						2,
 					);
 
-					ts_assert.isPropertyAssignment(maybe.properties[0]);
-					ts_assert.isPropertyAssignment(maybe.properties[1]);
+					isPropertyAssignment(maybe.properties[0]);
+					isPropertyAssignment(maybe.properties[1]);
 				},
 				undefined,
 			],
@@ -356,15 +362,15 @@ void describe('AllOf', () => {
 					bar: 'bar',
 				},
 				(maybe) => {
-					ts_assert.isObjectLiteralExpression(maybe);
+					isObjectLiteralExpression(maybe);
 
 					assert.equal(
 						maybe.properties.length,
 						2,
 					);
 
-					ts_assert.isPropertyAssignment(maybe.properties[0]);
-					ts_assert.isPropertyAssignment(maybe.properties[1]);
+					isPropertyAssignment(maybe.properties[0]);
+					isPropertyAssignment(maybe.properties[1]);
 				},
 				undefined,
 			],

@@ -19,7 +19,11 @@ import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isLiteralTypeNode,
+	isStringLiteral,
+	isTokenWithExpectedKind,
+} from '@signpostmarv/ts-assert';
 
 import {
 	throws_Error,
@@ -116,9 +120,9 @@ void describe('identify Const String types as expected', () => {
 					});
 
 					if ('const' in schema && undefined !== schema.const) {
-						ts_assert.isLiteralTypeNode(typed);
+						isLiteralTypeNode(typed);
 					} else {
-						ts_assert.isTokenWithExpectedKind(
+						isTokenWithExpectedKind(
 							typed,
 							SyntaxKind.StringKeyword,
 						);
@@ -136,7 +140,7 @@ void describe('identify Const String types as expected', () => {
 
 					const converted = get_converted();
 
-					ts_assert.isStringLiteral(converted);
+					isStringLiteral(converted);
 
 					assert.equal(
 						converted.text,

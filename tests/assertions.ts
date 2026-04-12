@@ -12,7 +12,13 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isArrayLiteralExpression,
+	isArrayTypeNode,
+	isRestTypeNode,
+	isTupleTypeNode,
+	isTypeLiteralNode,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	ts_asserter,
@@ -115,7 +121,7 @@ function is_TypeLiteralNode<
 	predicate: ts_asserter<T>,
 	message?: string|Error,
 ): asserts value is TypeLiteralNode<T> {
-	ts_assert.isTypeLiteralNode(value, message);
+	isTypeLiteralNode(value, message);
 	assert.ok(
 		value.members.every((maybe) => bool_throw(
 			maybe,
@@ -176,7 +182,7 @@ function is_TupleTypeNode<
 		message = last_is_rest;
 		last_is_rest = true;
 	}
-	ts_assert.isTupleTypeNode(value, message);
+	isTupleTypeNode(value, message);
 	const elements = [...value.elements];
 	let last: TypeNode|NamedTupleMember|undefined;
 	if (last_is_rest) {
@@ -196,9 +202,9 @@ function is_TupleTypeNode<
 
 	if (last_is_rest) {
 		not_undefined(last);
-		ts_assert.isRestTypeNode(last, message);
+		isRestTypeNode(last, message);
 		const last_type = last.type;
-		ts_assert.isArrayTypeNode(last_type, message);
+		isArrayTypeNode(last_type, message);
 		assert.doesNotThrow(() => predicate(last_type.elementType, message, {
 			index: PositiveIntegerOrZeroGuard(value.elements.length - 1),
 			is_last: true,
@@ -213,7 +219,7 @@ function is_ArrayTypeNode<
 	predicate: ts_asserter<T>,
 	message?: string|Error,
 ): asserts value is ArrayTypeNode<T> {
-	ts_assert.isArrayTypeNode(value, message);
+	isArrayTypeNode(value, message);
 	predicate(value.elementType, message);
 }
 
@@ -226,7 +232,7 @@ function is_ArrayLiteralExpression<
 	expected_length: ReturnType<typeof PositiveIntegerOrZeroGuard<number>>,
 	message?: string|Error,
 ): asserts value is ArrayLiteralExpression<T1, T2, boolean> {
-	ts_assert.isArrayLiteralExpression(value, message);
+	isArrayLiteralExpression(value, message);
 
 	if (value.elements.length !== expected_length) {
 		throw new RangeError(

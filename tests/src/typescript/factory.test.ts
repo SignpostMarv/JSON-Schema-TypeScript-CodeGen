@@ -3,7 +3,9 @@ import {
 	it,
 } from 'node:test';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isArrayLiteralExpression,
+} from '@signpostmarv/ts-assert';
 
 import {
 	factory,
@@ -11,7 +13,7 @@ import {
 
 void describe('ts.factory.createArrayLiteralExpression()', () => {
 	void it('behave as expected', () => {
-		ts_assert.isArrayLiteralExpression(
+		isArrayLiteralExpression(
 			factory.createArrayLiteralExpression([]),
 		);
 	});

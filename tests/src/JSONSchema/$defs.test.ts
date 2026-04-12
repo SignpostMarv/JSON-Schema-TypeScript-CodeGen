@@ -12,7 +12,11 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIdentifier,
+	isNamedExports,
+	isObjectLiteralExpression,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	PropertySignature,
@@ -45,13 +49,13 @@ void describe('$defs', () => {
 				},
 			},
 			(maybe) => {
-				ts_assert.isNamedExports(maybe);
+				isNamedExports(maybe);
 
 				assert.equal(maybe.elements.length, 1);
 
 				not_undefined(maybe.elements[0].name);
 				const {name} = maybe.elements[0];
-				ts_assert.isIdentifier(name);
+				isIdentifier(name);
 				assert.equal(name.text, 'foo');
 			},
 		],
@@ -65,7 +69,7 @@ void describe('$defs', () => {
 			void it(`behaves with data_sets[${i}]`, () => {
 				const result = instance.generate_typescript_data();
 
-				ts_assert.isObjectLiteralExpression(result);
+				isObjectLiteralExpression(result);
 				assert.equal(result.properties.length, 0);
 			});
 		});

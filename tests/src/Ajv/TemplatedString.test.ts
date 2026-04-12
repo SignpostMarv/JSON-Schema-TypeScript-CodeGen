@@ -23,7 +23,17 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIdentifier,
+	isLiteralTypeNode,
+	isStringLiteral,
+	isTemplateLiteralTypeNode,
+	isTemplateMiddle,
+	isTemplateTail,
+	isTokenWithExpectedKind,
+	isTypeReferenceNode,
+	isUnionTypeNode,
+} from '@signpostmarv/ts-assert';
 
 import {
 	SchemaParser,
@@ -45,13 +55,13 @@ import type {
 function is_unspecified_data(
 	maybe: Node,
 ): asserts maybe is TemplateExpression {
-	ts_assert.isStringLiteral(maybe);
+	isStringLiteral(maybe);
 }
 
 function is_unspecified_type(
 	maybe: Node,
 ): asserts maybe is TemplateExpression {
-	ts_assert.isTemplateLiteralTypeNode(maybe);
+	isTemplateLiteralTypeNode(maybe);
 	assert.equal(maybe.head.text, '');
 
 	const spans = [...maybe.templateSpans];
@@ -61,16 +71,16 @@ function is_unspecified_type(
 	not_undefined(tail);
 
 	for (const middle of spans) {
-		ts_assert.isTemplateTail(middle.literal);
+		isTemplateTail(middle.literal);
 
-		ts_assert.isTokenWithExpectedKind(
+		isTokenWithExpectedKind(
 			middle.type,
 			SyntaxKind.StringKeyword,
 		);
 	}
 
-	ts_assert.isTemplateTail(tail.literal);
-	ts_assert.isTokenWithExpectedKind(
+	isTemplateTail(tail.literal);
+	isTokenWithExpectedKind(
 		tail.type,
 		SyntaxKind.StringKeyword,
 	);
@@ -177,18 +187,18 @@ void describe('TemplatedString', () => {
 				[
 					'foo',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foo');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateTail(tail.literal);
+						isTokenWithExpectedKind(
 							tail.type,
 							SyntaxKind.StringKeyword,
 						);
@@ -213,25 +223,25 @@ void describe('TemplatedString', () => {
 				[
 					'foopretendthisisrandombar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foopretendthisisrandombar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 2);
 
 						const [middle, tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateMiddle(middle.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateMiddle(middle.literal);
+						isTokenWithExpectedKind(
 							middle.type,
 							SyntaxKind.StringKeyword,
 						);
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isLiteralTypeNode(tail.type);
-						ts_assert.isStringLiteral(tail.type.literal);
+						isTemplateTail(tail.literal);
+						isLiteralTypeNode(tail.type);
+						isStringLiteral(tail.type.literal);
 						assert.equal(tail.type.literal.text, 'bar');
 					},
 				],
@@ -254,27 +264,27 @@ void describe('TemplatedString', () => {
 				[
 					'foopretendthisisrandombar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foopretendthisisrandombar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 2);
 
 						const [middle, tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateMiddle(middle.literal);
-						ts_assert.isLiteralTypeNode(middle.type);
-						ts_assert.isStringLiteral(middle.type.literal);
+						isTemplateMiddle(middle.literal);
+						isLiteralTypeNode(middle.type);
+						isStringLiteral(middle.type.literal);
 						assert.equal(
 							middle.type.literal.text,
 							'pretendthisisrandom',
 						);
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isLiteralTypeNode(tail.type);
-						ts_assert.isStringLiteral(tail.type.literal);
+						isTemplateTail(tail.literal);
+						isLiteralTypeNode(tail.type);
+						isStringLiteral(tail.type.literal);
 						assert.equal(tail.type.literal.text, 'bar');
 					},
 				],
@@ -298,23 +308,23 @@ void describe('TemplatedString', () => {
 				[
 					'foo',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foo');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, '');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isUnionTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isUnionTypeNode(tail.type);
 						assert.equal(tail.type.types.length, 2);
-						ts_assert.isLiteralTypeNode(tail.type.types[0]);
-						ts_assert.isLiteralTypeNode(tail.type.types[1]);
-						ts_assert.isStringLiteral(tail.type.types[0].literal);
-						ts_assert.isStringLiteral(tail.type.types[1].literal);
+						isLiteralTypeNode(tail.type.types[0]);
+						isLiteralTypeNode(tail.type.types[1]);
+						isStringLiteral(tail.type.types[0].literal);
+						isStringLiteral(tail.type.types[1].literal);
 						assert.equal(tail.type.types[0].literal.text, 'foo');
 						assert.equal(tail.type.types[1].literal.text, 'bar');
 					},
@@ -339,75 +349,75 @@ void describe('TemplatedString', () => {
 				[
 					'foo',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foo');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, '');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isUnionTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isUnionTypeNode(tail.type);
 						assert.equal(tail.type.types.length, 2);
-						ts_assert.isLiteralTypeNode(tail.type.types[0]);
-						ts_assert.isTokenWithExpectedKind(
+						isLiteralTypeNode(tail.type.types[0]);
+						isTokenWithExpectedKind(
 							tail.type.types[1],
 							SyntaxKind.StringKeyword,
 						);
-						ts_assert.isStringLiteral(tail.type.types[0].literal);
+						isStringLiteral(tail.type.types[0].literal);
 						assert.equal(tail.type.types[0].literal.text, 'foo');
 					},
 				],
 				[
 					'bar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'bar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, '');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isUnionTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isUnionTypeNode(tail.type);
 						assert.equal(tail.type.types.length, 2);
-						ts_assert.isLiteralTypeNode(tail.type.types[0]);
-						ts_assert.isTokenWithExpectedKind(
+						isLiteralTypeNode(tail.type.types[0]);
+						isTokenWithExpectedKind(
 							tail.type.types[1],
 							SyntaxKind.StringKeyword,
 						);
-						ts_assert.isStringLiteral(tail.type.types[0].literal);
+						isStringLiteral(tail.type.types[0].literal);
 						assert.equal(tail.type.types[0].literal.text, 'foo');
 					},
 				],
 				[
 					'baz',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'baz');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, '');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isUnionTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isUnionTypeNode(tail.type);
 						assert.equal(tail.type.types.length, 2);
-						ts_assert.isLiteralTypeNode(tail.type.types[0]);
-						ts_assert.isTokenWithExpectedKind(
+						isLiteralTypeNode(tail.type.types[0]);
+						isTokenWithExpectedKind(
 							tail.type.types[1],
 							SyntaxKind.StringKeyword,
 						);
-						ts_assert.isStringLiteral(tail.type.types[0].literal);
+						isStringLiteral(tail.type.types[0].literal);
 						assert.equal(tail.type.types[0].literal.text, 'foo');
 					},
 				],
@@ -441,18 +451,18 @@ void describe('TemplatedString', () => {
 				[
 					'foobar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foobar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTemplateLiteralTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isTemplateLiteralTypeNode(tail.type);
 						assert.equal(
 							tail.type.head.text,
 							'bar',
@@ -461,8 +471,8 @@ void describe('TemplatedString', () => {
 
 						const [tail_tail] = tail.type.templateSpans;
 
-						ts_assert.isTemplateTail(tail_tail.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateTail(tail_tail.literal);
+						isTokenWithExpectedKind(
 							tail_tail.type,
 							SyntaxKind.StringKeyword,
 						);
@@ -471,18 +481,18 @@ void describe('TemplatedString', () => {
 				[
 					'foobarpretendthisisrandom',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foobarpretendthisisrandom');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTemplateLiteralTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isTemplateLiteralTypeNode(tail.type);
 						assert.equal(
 							tail.type.head.text,
 							'bar',
@@ -491,8 +501,8 @@ void describe('TemplatedString', () => {
 
 						const [tail_tail] = tail.type.templateSpans;
 
-						ts_assert.isTemplateTail(tail_tail.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateTail(tail_tail.literal);
+						isTokenWithExpectedKind(
 							tail_tail.type,
 							SyntaxKind.StringKeyword,
 						);
@@ -528,18 +538,18 @@ void describe('TemplatedString', () => {
 				[
 					'foobar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foobar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTemplateLiteralTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isTemplateLiteralTypeNode(tail.type);
 						assert.equal(
 							tail.type.head.text,
 							'',
@@ -551,33 +561,33 @@ void describe('TemplatedString', () => {
 							tail_tail,
 						] = tail.type.templateSpans;
 
-						ts_assert.isTemplateMiddle(tail_middle.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateMiddle(tail_middle.literal);
+						isTokenWithExpectedKind(
 							tail_middle.type,
 							SyntaxKind.StringKeyword,
 						);
 
-						ts_assert.isTemplateTail(tail_tail.literal);
-						ts_assert.isLiteralTypeNode(tail_tail.type);
-						ts_assert.isStringLiteral(tail_tail.type.literal);
+						isTemplateTail(tail_tail.literal);
+						isLiteralTypeNode(tail_tail.type);
+						isStringLiteral(tail_tail.type.literal);
 						assert.equal(tail_tail.type.literal.text, 'bar');
 					},
 				],
 				[
 					'foopretendthisisrandombar',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foopretendthisisrandombar');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTemplateLiteralTypeNode(tail.type);
+						isTemplateTail(tail.literal);
+						isTemplateLiteralTypeNode(tail.type);
 						assert.equal(
 							tail.type.head.text,
 							'',
@@ -589,15 +599,15 @@ void describe('TemplatedString', () => {
 							tail_tail,
 						] = tail.type.templateSpans;
 
-						ts_assert.isTemplateMiddle(tail_middle.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateMiddle(tail_middle.literal);
+						isTokenWithExpectedKind(
 							tail_middle.type,
 							SyntaxKind.StringKeyword,
 						);
 
-						ts_assert.isTemplateTail(tail_tail.literal);
-						ts_assert.isLiteralTypeNode(tail_tail.type);
-						ts_assert.isStringLiteral(tail_tail.type.literal);
+						isTemplateTail(tail_tail.literal);
+						isLiteralTypeNode(tail_tail.type);
+						isStringLiteral(tail_tail.type.literal);
 						assert.equal(tail_tail.type.literal.text, 'bar');
 					},
 				],
@@ -614,18 +624,18 @@ void describe('TemplatedString', () => {
 				[
 					'foo',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foo');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTokenWithExpectedKind(
+						isTemplateTail(tail.literal);
+						isTokenWithExpectedKind(
 							tail.type,
 							SyntaxKind.StringKeyword,
 						);
@@ -644,29 +654,29 @@ void describe('TemplatedString', () => {
 				[
 					'foob',
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foob');
 					},
 					(maybe) => {
-						ts_assert.isTemplateLiteralTypeNode(maybe);
+						isTemplateLiteralTypeNode(maybe);
 						assert.equal(maybe.head.text, 'foo');
 						assert.equal(maybe.templateSpans.length, 1);
 
 						const [tail] = maybe.templateSpans;
 
-						ts_assert.isTemplateTail(tail.literal);
-						ts_assert.isTypeReferenceNode(tail.type);
-						ts_assert.isIdentifier(tail.type.typeName);
+						isTemplateTail(tail.literal);
+						isTypeReferenceNode(tail.type);
+						isIdentifier(tail.type.typeName);
 						assert.equal(tail.type.typeName.text, 'Exclude');
 						assert.equal(tail.type.typeArguments?.length, 2);
-						ts_assert.isTokenWithExpectedKind(
+						isTokenWithExpectedKind(
 							tail.type.typeArguments[0],
 							SyntaxKind.StringKeyword,
 						);
-						ts_assert.isLiteralTypeNode(
+						isLiteralTypeNode(
 							tail.type.typeArguments[1],
 						);
-						ts_assert.isStringLiteral(
+						isStringLiteral(
 							tail.type.typeArguments[1].literal,
 						);
 						assert.equal(

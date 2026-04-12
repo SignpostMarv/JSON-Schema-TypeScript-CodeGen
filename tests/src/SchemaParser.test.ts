@@ -17,7 +17,14 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIdentifier,
+	isPropertySignature,
+	isTemplateLiteralTypeNode,
+	isTemplateTail,
+	isTokenWithExpectedKind,
+	isTypeLiteralNode,
+} from '@signpostmarv/ts-assert';
 
 import {
 	bool_throw,
@@ -202,30 +209,30 @@ void describe('SchemaParser', () => {
 
 					const type = await type_promise;
 
-					ts_assert.isTypeLiteralNode(type);
+					isTypeLiteralNode(type);
 
 					assert.equal(type.members.length, 2);
 					assert.ok(type.members.every(
 						(maybe) => bool_throw(
 							maybe,
-							ts_assert.isPropertySignature,
+							isPropertySignature,
 						),
 					));
 
-					ts_assert.isIdentifier(type.members[0].name);
+					isIdentifier(type.members[0].name);
 					assert.equal(type.members[0].name.text, 'foo');
 
-					ts_assert.isIdentifier(type.members[1].name);
+					isIdentifier(type.members[1].name);
 					assert.equal(type.members[1].name.text, 'bar');
 
 					not_undefined(type.members[0].type);
 					not_undefined(type.members[1].type);
 
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						type.members[0].type,
 						SyntaxKind.StringKeyword,
 					);
-					ts_assert.isTemplateLiteralTypeNode(
+					isTemplateLiteralTypeNode(
 						type.members[1].type,
 					);
 
@@ -239,11 +246,11 @@ void describe('SchemaParser', () => {
 						1,
 					);
 
-					ts_assert.isTemplateTail(
+					isTemplateTail(
 						type.members[1].type.templateSpans[0].literal,
 					);
 
-					ts_assert.isTokenWithExpectedKind(
+					isTokenWithExpectedKind(
 						type.members[1].type.templateSpans[0].type,
 						SyntaxKind.StringKeyword,
 					);

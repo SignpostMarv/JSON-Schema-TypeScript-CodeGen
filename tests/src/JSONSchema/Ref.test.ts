@@ -14,7 +14,11 @@ import {
 	is_instanceof,
 } from '@satisfactory-dev/custom-assert';
 
-import ts_assert from '@signpostmarv/ts-assert';
+import {
+	isIdentifier,
+	isStringLiteral,
+	isTypeReferenceNode,
+} from '@signpostmarv/ts-assert';
 
 import type {
 	TypeReferenceNode,
@@ -184,8 +188,8 @@ void describe('$ref', () => {
 					const result = await instance.generate_typescript_type({
 						schema: data,
 					});
-					ts_assert.isTypeReferenceNode(result);
-					ts_assert.isIdentifier(result.typeName);
+					isTypeReferenceNode(result);
+					isIdentifier(result.typeName);
 					assert.equal(result.typeName.text, expectation);
 				});
 			});
@@ -365,12 +369,12 @@ void describe('$ref', () => {
 						$ref: '#/$defs/foo',
 					},
 					(maybe) => {
-						ts_assert.isStringLiteral(maybe);
+						isStringLiteral(maybe);
 						assert.equal(maybe.text, 'foo');
 					},
 					(maybe) => {
-						ts_assert.isTypeReferenceNode(maybe);
-						ts_assert.isIdentifier(maybe.typeName);
+						isTypeReferenceNode(maybe);
+						isIdentifier(maybe.typeName);
 
 						assert.equal(maybe.typeArguments, undefined);
 						assert.equal(maybe.typeName.text, 'foo');
