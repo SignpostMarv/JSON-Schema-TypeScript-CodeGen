@@ -17,10 +17,6 @@
       "types": "./src/Ajv/index.d.ts",
       "default": "./src/Ajv/index.js"
     },
-    "./javascript-overrides": {
-      "types": "./src/javascript/types.d.ts",
-      "default": "./src/javascript/types.js"
-    },
     "./typescript-overrides": {
       "types": "./src/typescript/index.d.ts",
       "default": "./src/typescript/index.js"
@@ -47,6 +43,7 @@
   },
   "peerDependencies": {
     "@satisfactory-dev/predicates.ts": "^0.3.0",
+    "@signpostmarv/js-types": "^0.1.0",
     "ajv": "^8.18.0",
     "typescript": "^6.0.2"
   }

@@ -13,6 +13,9 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import {
+} from '@signpostmarv/js-types';
+
+import {
 	RegexpFailureError,
 } from './exceptions.ts';
 
@@ -30,9 +33,6 @@ import type {
 	TypeDefinitionSchema,
 	TypeOptions,
 } from '../JSONSchema/Type.ts';
-
-import type {
-} from '../javascript/types.ts';
 
 import type {
 	LiteralTypeNode,

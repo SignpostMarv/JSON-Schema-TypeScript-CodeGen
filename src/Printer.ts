@@ -25,10 +25,10 @@ import {
 } from '@satisfactory-dev/predicates.ts';
 
 import {
-} from './typescript/factory.ts';
+} from '@signpostmarv/js-types';
 
 import {
-} from './javascript/types.ts';
+} from './typescript/factory.ts';
 
 import type {
 	SchemaParser,
