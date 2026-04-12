@@ -6,3 +6,8 @@ services:
         command: sleep infinity
         volumes:
             - ../:/app/:cached
+            - npm-cache:/home/vscode/.npm
+
+volumes:
+    npm-cache:
+        external: true
