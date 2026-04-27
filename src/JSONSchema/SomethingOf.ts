@@ -1,3 +1,7 @@
+import {
+	compile,
+} from '@satisfactory-dev/ajv-utilities';
+
 import type {
 	Expression,
 	KeywordTypeNode,
@@ -54,7 +58,6 @@ import {
 import {
 	SchemaValidationError,
 } from '../SchemaValidationError.ts';
-import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type type_choices = [SchemaObject, SchemaObject, ...SchemaObject[]];
 

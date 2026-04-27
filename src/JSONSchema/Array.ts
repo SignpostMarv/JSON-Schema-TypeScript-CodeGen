@@ -1,3 +1,7 @@
+import {
+	compile,
+} from '@satisfactory-dev/ajv-utilities';
+
 import type {
 	Expression,
 	TypeNode,
@@ -43,7 +47,6 @@ import {
 import {
 	SchemaValidationError,
 } from '../SchemaValidationError.ts';
-import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type array_mode = 'items'|'prefixItems';
 

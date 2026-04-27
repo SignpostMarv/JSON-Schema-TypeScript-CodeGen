@@ -1,3 +1,7 @@
+import {
+	compile,
+} from '@satisfactory-dev/ajv-utilities';
+
 import type {
 	ValidateFunction,
 } from 'ajv/dist/2020.js';
@@ -23,7 +27,6 @@ import type {
 	ObjectOfSchemas,
 	SchemaObject,
 } from '../types.ts';
-import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type $defs_schema_type_subtype = Readonly<{
 	type: 'object',

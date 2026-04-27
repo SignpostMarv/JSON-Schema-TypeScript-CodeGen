@@ -266,6 +266,12 @@ void describe('AllOf', () => {
 	void describe(`::generate_typescript_data()${
 		' from '
 	} from SchemaParser::parse()`, () => {
+		// for manipulating schema parser before running
+		type SchemaParser_callback = (
+			| undefined
+			| ((schema_parser: SchemaParser) => void)
+		);
+
 		type DataSet = [
 			(
 				& SchemaObject
@@ -278,11 +284,7 @@ void describe('AllOf', () => {
 				| undefined
 				| ((maybe: Node) => asserts maybe is Expression)
 			),
-			( // for manipulating schema parser before running
-				| undefined
-				// eslint-disable-next-line @stylistic/comma-dangle
-				| ((schema_parser: SchemaParser) => void)
-			),
+			SchemaParser_callback,
 		];
 
 		const data_sets: [DataSet, ...DataSet[]] = [

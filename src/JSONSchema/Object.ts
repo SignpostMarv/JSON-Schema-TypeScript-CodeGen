@@ -1,3 +1,7 @@
+import {
+	compile,
+} from '@satisfactory-dev/ajv-utilities';
+
 import type {
 	ComputedPropertyName,
 	IndexSignatureDeclaration,
@@ -48,7 +52,6 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
-import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type object_properties_mode = (
 	| 'neither'

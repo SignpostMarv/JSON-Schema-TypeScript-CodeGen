@@ -1,3 +1,7 @@
+import {
+	compile,
+} from '@satisfactory-dev/ajv-utilities';
+
 import type {
 	KeywordTypeNode,
 } from 'typescript';
@@ -39,7 +43,6 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
-import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
 
