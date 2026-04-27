@@ -39,6 +39,7 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type string_mode = 'basic'|'enum'|'pattern'|'non-empty'|'const';
 
@@ -385,7 +386,7 @@ class BaseString<
 		const: StringLiteral<T>,
 	}[StringMode] {
 		const validator = schema_parser.share_ajv(
-			(ajv) => ajv.compile(schema),
+			(ajv) => compile(ajv, schema),
 		);
 
 		if (!validator(data)) {

@@ -43,6 +43,7 @@ import {
 import {
 	SchemaValidationError,
 } from '../SchemaValidationError.ts';
+import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type array_mode = 'items'|'prefixItems';
 
@@ -923,7 +924,7 @@ class ArrayType<
 			),
 		);
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile(sub_schema);
+		const validator = compile(ajv, sub_schema);
 
 		const validates = validator(value);
 

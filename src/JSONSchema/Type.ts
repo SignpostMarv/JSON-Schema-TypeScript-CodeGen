@@ -23,6 +23,7 @@ import type {
 	ObjectOfSchemas,
 	SchemaObject,
 } from '../types.ts';
+import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type $defs_schema_type_subtype = Readonly<{
 	type: 'object',
@@ -415,10 +416,11 @@ abstract class Type<
 			Type.maybe_add_$defs_check = undefined;
 		}
 
-		this.#check_schema = ajv.compile<TypeDefinition>(
+		this.#check_schema = compile<TypeDefinition>(
+			ajv,
 			this.schema_definition,
 		);
-		this.#check_type = ajv.compile<T>(this.type_definition);
+		this.#check_type = compile<T>(ajv, this.type_definition);
 	}
 
 	can_handle_schema(

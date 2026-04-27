@@ -48,6 +48,7 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+import { compile } from '@satisfactory-dev/ajv-utilities';
 
 type object_properties_mode = (
 	| 'neither'
@@ -817,7 +818,7 @@ class ObjectUnspecified<
 		);
 
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = ajv.compile<T>(maybe_modified);
+		const validator = compile<T>(ajv, maybe_modified);
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by property!');
