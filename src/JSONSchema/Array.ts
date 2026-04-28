@@ -1,7 +1,3 @@
-import {
-	compile,
-} from '@satisfactory-dev/ajv-utilities';
-
 import type {
 	Expression,
 	TypeNode,
@@ -47,6 +43,10 @@ import {
 import {
 	SchemaValidationError,
 } from '../SchemaValidationError.ts';
+
+import type {
+	MaybeCacheCompile,
+} from '../MaybeCacheCompile.ts';
 
 type array_mode = 'items'|'prefixItems';
 
@@ -566,6 +566,7 @@ class ArrayType<
 					index,
 					schema,
 					schema_parser,
+					this.schema_compiler,
 				);
 
 				if (!(this.#expression_at_index_verifier(
@@ -918,6 +919,7 @@ class ArrayType<
 			PrefixItems
 		>,
 		schema_parser: SchemaParser,
+		schema_compiler: MaybeCacheCompile,
 	): Expression {
 		const sub_schema = ArrayType.maybe_add_$defs(
 			schema,
@@ -927,7 +929,7 @@ class ArrayType<
 			),
 		);
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = compile(ajv, sub_schema);
+		const validator = schema_compiler.compile(ajv, sub_schema);
 
 		const validates = validator(value);
 

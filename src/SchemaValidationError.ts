@@ -1,11 +1,11 @@
 import type {
-	ValidateFunction,
-} from 'ajv/dist/2020.js';
+	Is,
+} from './MaybeCacheCompile.ts';
 
 export class SchemaValidationError extends TypeError {
 	readonly validator;
 
-	constructor(message: string, validator: ValidateFunction) {
+	constructor(message: string, validator: Is) {
 		super(message);
 		this.validator = validator;
 	}

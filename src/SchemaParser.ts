@@ -59,6 +59,11 @@ import {
 	$defs,
 } from './JSONSchema/$defs.ts';
 
+import {
+	AlwaysFreshCompile,
+	type MaybeCacheCompile,
+} from './MaybeCacheCompile.ts';
+
 type supported_type = (
 	| Type<unknown>
 );
@@ -78,6 +83,7 @@ type SchemaParserOptions = (
 		}
 	)
 	& {
+		schema_compiler?: MaybeCacheCompile,
 		types?: [
 			Type<unknown>,
 			...Type<unknown>[],
@@ -104,10 +110,13 @@ class SchemaParser {
 		},
 	}) {
 		this.#ajv = SchemaParser.#AjvFactory(options);
-		const {types} = options;
+		const {types, schema_compiler} = options;
 		this.types = (
 			types
-			|| SchemaParser.#default_types(this.#ajv)
+			|| SchemaParser.#default_types(
+				this.#ajv,
+				schema_compiler || new AlwaysFreshCompile(),
+			)
 		);
 	}
 
@@ -318,7 +327,10 @@ class SchemaParser {
 		});
 	}
 
-	static #default_types(ajv: Ajv): [
+	static #default_types(
+		ajv: Ajv,
+		schema_compiler: MaybeCacheCompile,
+	): [
 		String<string>,
 		EnumString<string, never[]>,
 		PatternString<string, undefined>,
@@ -361,35 +373,37 @@ class SchemaParser {
 		return [
 			new String({
 				ajv,
+				schema_compiler,
 			}),
-			new EnumString([], {ajv}),
-			new PatternString(undefined, {ajv}),
-			new ConstString(undefined, {ajv}),
-			new NonEmptyString({ajv}),
+			new EnumString([], {ajv, schema_compiler}),
+			new PatternString(undefined, {ajv, schema_compiler}),
+			new ConstString(undefined, {ajv, schema_compiler}),
+			new NonEmptyString({ajv, schema_compiler}),
 			new $ref(
 				{},
 				{
 					ajv,
+					schema_compiler,
 				},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'properties'},
-				{ajv},
+				{ajv, schema_compiler},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'pattern'},
-				{ajv},
+				{ajv, schema_compiler},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'both'},
-				{ajv},
+				{ajv, schema_compiler},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'neither'},
-				{ajv},
+				{ajv, schema_compiler},
 			),
 			new ArrayType(
-				{ajv},
+				{ajv, schema_compiler},
 				{
 					array_options: {
 						array_mode: 'items',
@@ -400,7 +414,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv},
+				{ajv, schema_compiler},
 				{
 					array_options: {
 						array_mode: 'prefixItems',
@@ -412,7 +426,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv},
+				{ajv, schema_compiler},
 				{
 					array_options: {
 						array_mode: 'items',
@@ -423,7 +437,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv},
+				{ajv, schema_compiler},
 				{
 					array_options: {
 						array_mode: 'prefixItems',
@@ -436,6 +450,7 @@ class SchemaParser {
 			),
 			new OneOf<unknown, 'unspecified'>({
 				ajv,
+				schema_compiler,
 				type_definition: {
 					kind: 'oneOf',
 					mode: 'unspecified',
@@ -447,6 +462,7 @@ class SchemaParser {
 			}),
 			new AllOf<unknown, 'unspecified'>({
 				ajv,
+				schema_compiler,
 				type_definition: {
 					kind: 'allOf',
 					mode: 'unspecified',
@@ -458,6 +474,7 @@ class SchemaParser {
 			}),
 			new AnyOf<unknown, 'unspecified'>({
 				ajv,
+				schema_compiler,
 				type_definition: {
 					kind: 'anyOf',
 					mode: 'unspecified',
@@ -467,7 +484,7 @@ class SchemaParser {
 					mode: 'unspecified',
 				},
 			}),
-			new $defs({ajv}, {}, {}),
+			new $defs({ajv, schema_compiler}, {}, {}),
 		];
 	}
 }

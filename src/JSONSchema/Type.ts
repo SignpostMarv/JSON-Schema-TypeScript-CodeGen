@@ -1,7 +1,3 @@
-import {
-	compile,
-} from '@satisfactory-dev/ajv-utilities';
-
 import type {
 	ValidateFunction,
 } from 'ajv/dist/2020.js';
@@ -27,6 +23,12 @@ import type {
 	ObjectOfSchemas,
 	SchemaObject,
 } from '../types.ts';
+
+import {
+	AlwaysFreshCompile,
+	type Is,
+	type MaybeCacheCompile,
+} from '../MaybeCacheCompile.ts';
 
 type $defs_schema_type_subtype = Readonly<{
 	type: 'object',
@@ -323,6 +325,7 @@ type TypeOptions<
 	schema_definition: SchemaDefinitionOptions,
 	type_definition: TypeDefinitionOptions,
 	add_to_$defs_excluded?: true,
+	schema_compiler?: MaybeCacheCompile,
 };
 
 type SchemalessTypeOptions = Omit<
@@ -372,13 +375,15 @@ abstract class Type<
 	DataTo extends Expression = Expression,
 	TypeDefinition_For_Generate extends TypeDefinitionSchema = TypeDefinition,
 > {
+	protected schema_compiler: MaybeCacheCompile;
+
 	protected schema_definition: SchemaDefinition;
 
 	protected type_definition: TypeDefinition;
 
-	#check_type: ValidateFunction<T>;
+	#check_type: Is<T>;
 
-	#check_schema: ValidateFunction<TypeDefinition>;
+	#check_schema: Is<TypeDefinition>;
 
 	protected static maybe_add_$defs_check: (
 		| ValidateFunction
@@ -393,6 +398,7 @@ abstract class Type<
 		schema_definition,
 		type_definition,
 		add_to_$defs_excluded,
+		schema_compiler,
 	}: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
 		const static_class = (
 			this.constructor as typeof Type<
@@ -405,6 +411,8 @@ abstract class Type<
 				DataTo
 			>
 		);
+
+		this.schema_compiler = schema_compiler || new AlwaysFreshCompile();
 
 		this.type_definition = static_class.generate_type_definition(
 			type_definition,
@@ -419,11 +427,14 @@ abstract class Type<
 			Type.maybe_add_$defs_check = undefined;
 		}
 
-		this.#check_schema = compile<TypeDefinition>(
+		this.#check_schema = this.schema_compiler.compile<TypeDefinition>(
 			ajv,
 			this.schema_definition,
 		);
-		this.#check_type = compile<T>(ajv, this.type_definition);
+		this.#check_type = this.schema_compiler.compile<T>(
+			ajv,
+			this.type_definition,
+		);
 	}
 
 	can_handle_schema(

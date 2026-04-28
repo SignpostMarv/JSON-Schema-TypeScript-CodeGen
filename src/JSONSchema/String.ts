@@ -1,7 +1,3 @@
-import {
-	compile,
-} from '@satisfactory-dev/ajv-utilities';
-
 import type {
 	KeywordTypeNode,
 } from 'typescript';
@@ -389,7 +385,7 @@ class BaseString<
 		const: StringLiteral<T>,
 	}[StringMode] {
 		const validator = schema_parser.share_ajv(
-			(ajv) => compile(ajv, schema),
+			(ajv) => this.schema_compiler.compile(ajv, schema),
 		);
 
 		if (!validator(data)) {

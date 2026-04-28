@@ -1,7 +1,3 @@
-import {
-	compile,
-} from '@satisfactory-dev/ajv-utilities';
-
 import type {
 	ComputedPropertyName,
 	IndexSignatureDeclaration,
@@ -52,6 +48,10 @@ import {
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
+
+import type {
+	MaybeCacheCompile,
+} from '../MaybeCacheCompile.ts';
 
 type object_properties_mode = (
 	| 'neither'
@@ -366,6 +366,7 @@ class ObjectUnspecified<
 		},
 		{
 			ajv,
+			schema_compiler,
 		}: ObjectUncertain_options<
 			object_schema<
 				PropertiesMode
@@ -383,6 +384,7 @@ class ObjectUnspecified<
 			ajv,
 			type_definition: options,
 			schema_definition: options,
+			schema_compiler,
 		});
 		this.properties_mode = options.properties_mode;
 	}
@@ -403,6 +405,7 @@ class ObjectUnspecified<
 			data,
 			schema,
 			schema_parser,
+			this.schema_compiler,
 		);
 	}
 
@@ -806,6 +809,7 @@ class ObjectUnspecified<
 			PatternProperties
 		>,
 		schema_parser: SchemaParser,
+		schema_compiler: MaybeCacheCompile,
 	) {
 		const sub_schema = this.#sub_schema_for_property(
 			schema_parser,
@@ -821,7 +825,7 @@ class ObjectUnspecified<
 		);
 
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = compile<T>(ajv, maybe_modified);
+		const validator = schema_compiler.compile<T>(ajv, maybe_modified);
 
 		if (!(validator(value))) {
 			throw new TypeError('Supplied value not supported by property!');
@@ -862,6 +866,7 @@ class ObjectUnspecified<
 			PatternProperties
 		>,
 		schema_parser: SchemaParser,
+		schema_compiler: MaybeCacheCompile,
 	): ObjectLiteralExpression {
 		return factory.createObjectLiteralExpression(
 			Object.entries(
@@ -876,6 +881,7 @@ class ObjectUnspecified<
 					property,
 					schema,
 					schema_parser,
+					schema_compiler,
 				);
 
 				return factory.createPropertyAssignment(

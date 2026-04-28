@@ -1,7 +1,3 @@
-import {
-	compile,
-} from '@satisfactory-dev/ajv-utilities';
-
 import type {
 	Expression,
 	KeywordTypeNode,
@@ -532,7 +528,7 @@ abstract class SomethingOf<
 		schema_parser: SchemaParser,
 	): [SchemaObject, Type<unknown>] {
 		const ajv = schema_parser.share_ajv((ajv) => ajv);
-		const validator = compile(ajv, schema);
+		const validator = this.schema_compiler.compile(ajv, schema);
 
 		if (!validator(data)) {
 			throw new SchemaValidationError('Data was not valid!', validator);
@@ -560,7 +556,7 @@ abstract class SomethingOf<
 			sub_schema,
 		) => SomethingOf.maybe_add_$defs(schema, sub_schema)).find((maybe) => {
 			const ajv = schema_parser.share_ajv((ajv) => ajv);
-			const validator = compile(ajv, maybe);
+			const validator = this.schema_compiler.compile(ajv, maybe);
 
 			return validator(data);
 		}) as SchemaObject;

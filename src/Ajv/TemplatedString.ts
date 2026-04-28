@@ -574,7 +574,10 @@ abstract class MacroToTemplatedString<
 		options: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>,
 	) {
 		if (false === options.ajv.getKeyword('templated_string')) {
-			new TemplatedString({ajv: options.ajv});
+			new TemplatedString({
+				ajv: options.ajv,
+				schema_compiler: options.schema_compiler,
+			});
 		}
 
 		super({
