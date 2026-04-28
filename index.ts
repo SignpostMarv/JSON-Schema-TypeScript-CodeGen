@@ -13,3 +13,4 @@ export * from './src/JSONSchema/Ref.ts';
 export * from './src/JSONSchema/SomethingOf.ts';
 export * from './src/JSONSchema/String.ts';
 export * from './src/JSONSchema/OneOf.ts';
+export * from './src/MaybeCacheCompile.ts';
