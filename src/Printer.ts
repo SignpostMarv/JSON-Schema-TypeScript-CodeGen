@@ -2,7 +2,7 @@ import {
 	basename,
 	dirname,
 	relative,
-} from 'node:path';
+} from 'path';
 
 import type {
 	ExportDeclaration,
