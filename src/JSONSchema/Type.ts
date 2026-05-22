@@ -12,10 +12,6 @@ import type {
 } from 'typescript';
 
 import type {
-	pattern_either,
-} from './Ref.ts';
-
-import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
 
@@ -30,221 +26,9 @@ import {
 	type MaybeCacheCompile,
 } from '../MaybeCacheCompile.ts';
 
-type $defs_schema_type_subtype = Readonly<{
-	type: 'object',
-	required: readonly ['type'],
-	properties: {
-		type: {
-			type: 'string',
-			minLength: 1,
-		},
-	},
-}>;
-
-type $defs_schema_type = Readonly<{
-	type: 'object',
-	additionalProperties: false,
-	required: readonly ['$defs'],
-	properties: {
-		$schema: {
-			type: 'string',
-			enum: readonly [
-				'https://json-schema.org/draft/2020-12/schema',
-			],
-		},
-		$id: {
-			type: 'string',
-			minLength: 1,
-		},
-		$defs: (
-			| {
-				type: 'object',
-				minProperties: 1,
-				additionalProperties: {
-					oneOf: readonly [
-						$defs_schema_type_subtype,
-						{
-							type: 'object',
-							additionalProperties: false,
-							required: readonly ['allOf'],
-							properties: {
-								allOf: {
-									type: 'array',
-									minItems: 2,
-									items: {
-										oneOf: readonly [
-											$defs_schema_type_subtype,
-											{
-												type: 'object',
-												additionalProperties: false,
-												required: readonly ['$ref'],
-												properties: {
-													$ref: {
-														type: 'string',
-														pattern: (
-															pattern_either
-														),
-													},
-												},
-											},
-										],
-									},
-								},
-							},
-						},
-						{
-							type: 'object',
-							additionalProperties: false,
-							required: readonly ['oneOf'],
-							properties: {
-								oneOf: {
-									type: 'array',
-									minItems: 2,
-									items: {
-										oneOf: readonly [
-											$defs_schema_type_subtype,
-											{
-												type: 'object',
-												additionalProperties: false,
-												required: readonly ['$ref'],
-												properties: {
-													$ref: {
-														type: 'string',
-														pattern: (
-															pattern_either
-														),
-													},
-												},
-											},
-										],
-									},
-								},
-							},
-						},
-					],
-				},
-			}
-			| {
-				type: 'object',
-				const: ObjectOfSchemas,
-			}
-		),
-	},
-}>;
-
-const pattern_either_value = '^(.+)?#\\/\\$defs\\/(.+)$';
-
-const $defs_schema: $defs_schema_type = Object.freeze({
-	type: 'object',
-	additionalProperties: false,
-	required: ['$defs'] as const,
-	properties: {
-		$schema: {
-			type: 'string',
-			enum: [
-				'https://json-schema.org/draft/2020-12/schema',
-			],
-		},
-		$id: {
-			type: 'string',
-			minLength: 1,
-		},
-		$defs: {
-			type: 'object',
-			minProperties: 1,
-			additionalProperties: {
-				oneOf: [
-					{
-						type: 'object',
-						required: ['type'] as const,
-						properties: {
-							type: {
-								type: 'string',
-								minLength: 1,
-							},
-						},
-					},
-					{
-						type: 'object',
-						additionalProperties: false,
-						required: ['allOf'] as const,
-						properties: {
-							allOf: {
-								type: 'array',
-								minItems: 2,
-								items: {
-									oneOf: [
-										{
-											type: 'object',
-											required: ['type'] as const,
-											properties: {
-												type: {
-													type: 'string',
-													minLength: 1,
-												},
-											},
-										},
-										{
-											type: 'object',
-											additionalProperties: false,
-											required: ['$ref'] as const,
-											properties: {
-												$ref: {
-													type: 'string',
-													pattern: (
-														pattern_either_value
-													),
-												},
-											},
-										},
-									] as const,
-								},
-							},
-						},
-					},
-					{
-						type: 'object',
-						additionalProperties: false,
-						required: ['oneOf'] as const,
-						properties: {
-							oneOf: {
-								type: 'array',
-								minItems: 2,
-								items: {
-									oneOf: [
-										{
-											type: 'object',
-											required: ['type'] as const,
-											properties: {
-												type: {
-													type: 'string',
-													minLength: 1,
-												},
-											},
-										},
-										{
-											type: 'object',
-											additionalProperties: false,
-											required: ['$ref'] as const,
-											properties: {
-												$ref: {
-													type: 'string',
-													pattern: (
-														pattern_either_value
-													),
-												},
-											},
-										},
-									] as const,
-								},
-							},
-						},
-					},
-				] as const,
-			},
-		},
-	},
-} as const);
+import type {
+	$defs_schema,
+} from './$defs.ts';
 
 type SchemaDefinitionDefinition<
 	Required extends readonly [
@@ -277,10 +61,10 @@ type SchemaDefinitionDefinitionWith$defs<
 > = SchemaDefinitionDefinition<
 	Required,
 	(
-		& typeof $defs_schema['properties']
+		& $defs_schema['properties']
 		& {
 			$defs: (
-				| typeof $defs_schema['properties']['$defs']
+				| $defs_schema['properties']['$defs']
 				| {
 					type: 'object',
 					const: ObjectOfSchemas,
@@ -572,7 +356,6 @@ abstract class Type<
 }
 
 export type {
-	$defs_schema_type,
 	SchemaDefinitionDefinition,
 	SchemaDefinitionDefinitionWith$defs,
 	SchemaDefinitionDefinitionWithNoSpecifiedProperties,
@@ -584,5 +367,4 @@ export type {
 
 export {
 	Type,
-	$defs_schema,
 };

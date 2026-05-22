@@ -14,7 +14,6 @@ import type {
 	SchemalessTypeOptions,
 } from './Type.ts';
 import {
-	$defs_schema,
 	Type,
 } from './Type.ts';
 
@@ -41,6 +40,10 @@ import {
 import type {
 	TypeReferenceNode,
 } from '../typescript/types';
+
+import {
+	$defs,
+} from './$defs.ts';
 
 type $ref_mode = 'either'|'external'|'local';
 
@@ -325,7 +328,7 @@ class $ref extends
 					required: ['$ref'],
 					additionalProperties: false,
 					properties: {
-						...$defs_schema.properties,
+						...$defs.generate_schema_definition().properties,
 						$ref: {
 							oneOf: [
 								{

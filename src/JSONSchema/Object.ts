@@ -16,7 +16,6 @@ import type {
 	TypeOptions,
 } from './Type.ts';
 import {
-	$defs_schema,
 	Type,
 } from './Type.ts';
 
@@ -52,6 +51,10 @@ import type {
 import type {
 	MaybeCacheCompile,
 } from '../MaybeCacheCompile.ts';
+
+import {
+	$defs,
+} from './$defs.ts';
 
 type object_properties_mode = (
 	| 'neither'
@@ -501,7 +504,7 @@ class ObjectUnspecified<
 		const properties_for_partial: Partial<
 			object_schema<'both'>['properties']
 		> = {
-			...$defs_schema.properties,
+			...$defs.generate_schema_definition().properties,
 			type: {
 				type: 'string',
 				const: 'object',

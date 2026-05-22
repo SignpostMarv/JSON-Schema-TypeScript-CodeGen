@@ -67,7 +67,7 @@ import type {
 	something_of_type,
 } from '../../../index.ts';
 import {
-	$defs_schema,
+	$defs,
 	$ref,
 	AllOf,
 	ObjectUnspecified,
@@ -87,6 +87,8 @@ void describe('ObjectUnspecified', () => {
 		> = [
 			PropertiesMode,
 		];
+
+		const $defs_schema = $defs.generate_schema_definition();
 
 		const full_schema_properties: Readonly<object_schema<
 			'both'

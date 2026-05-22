@@ -11,7 +11,6 @@ import type {
 	SchemalessTypeOptions,
 } from './Type.ts';
 import {
-	$defs_schema,
 	Type,
 } from './Type.ts';
 
@@ -47,6 +46,10 @@ import {
 import type {
 	MaybeCacheCompile,
 } from '../MaybeCacheCompile.ts';
+
+import {
+	$defs,
+} from './$defs.ts';
 
 type array_mode = 'items'|'prefixItems';
 
@@ -1160,7 +1163,7 @@ class ArrayType<
 				},
 			};
 		} else {
-			base.$defs = $defs_schema.properties.$defs;
+			base.$defs = $defs.generate_schema_definition().properties.$defs;
 		}
 
 		return base;
