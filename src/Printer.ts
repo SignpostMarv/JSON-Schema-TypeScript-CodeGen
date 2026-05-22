@@ -27,9 +27,6 @@ import {
 import {
 } from '@signpostmarv/js-types';
 
-import {
-} from './typescript/factory.ts';
-
 import type {
 	SchemaParser,
 } from './SchemaParser.ts';

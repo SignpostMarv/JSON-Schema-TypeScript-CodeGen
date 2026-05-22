@@ -48,10 +48,6 @@ import type {
 } from '../typescript/types.ts';
 
 import {
-	factory,
-} from '../typescript/factory.ts';
-
-import {
 	SchemaValidationError,
 } from '../SchemaValidationError.ts';
 
@@ -372,11 +368,11 @@ abstract class SomethingOf<
 		if (SomethingOf.#is_allOf_schema(schema)) {
 			const sanity_check: IntersectionTypeNode<
 				[TypeNode, ...TypeNode[]]
-			> = factory.createIntersectionTypeNode(sub_types);
+			> = this.factory.createIntersectionTypeNode(sub_types);
 
 			result = sanity_check as typeof result;
 		} else {
-			const sanity_check: UnionTypeNode = factory.createUnionTypeNode(
+			const sanity_check = this.factory.createUnionTypeNode(
 				sub_types,
 			);
 
@@ -511,7 +507,7 @@ abstract class SomethingOf<
 			);
 		}
 
-		return factory.createObjectLiteralExpression(
+		return this.factory.createObjectLiteralExpression(
 			properties,
 			true,
 		);

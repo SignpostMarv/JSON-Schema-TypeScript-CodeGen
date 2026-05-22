@@ -36,14 +36,11 @@ import type {
 
 import type {
 	LiteralTypeNode,
+	NodeFactory,
 	StringLiteral,
 	TypeReferenceNode,
 	UnionTypeNode,
 } from '../typescript/types.ts';
-
-import {
-	factory,
-} from '../typescript/factory.ts';
 
 type TemplatedStringPartBasic = (
 	| string
@@ -279,7 +276,7 @@ class TemplatedString<
 			);
 		}
 
-		return factory.createStringLiteral(data);
+		return this.factory.createStringLiteral(data);
 	}
 
 	async generate_typescript_type({
@@ -297,6 +294,7 @@ class TemplatedString<
 
 		return Promise.resolve(
 			TemplatedString.generate_typescript_type_from_parts(
+				this.factory,
 				schema.templated_string,
 			),
 		);
@@ -326,13 +324,14 @@ class TemplatedString<
 	}
 
 	static generate_typescript_type_from_parts(
+		factory: NodeFactory,
 		parts: TemplatedStringParts,
 	): TemplateLiteralTypeNode {
 		const [
 			head,
 			middle,
 			tail,
-		] = this.#template_spans(parts);
+		] = this.#template_spans(factory, parts);
 		const result = factory.createTemplateLiteralType(
 			head,
 			[
@@ -349,6 +348,7 @@ class TemplatedString<
 	}
 
 	static #template_spans(
+		factory: NodeFactory,
 		parts: TemplatedStringParts,
 	): [
 		TemplateHead,
@@ -380,14 +380,14 @@ class TemplatedString<
 		const middle: [
 			TemplateLiteralTypeSpan,
 			...TemplateLiteralTypeSpan[],
-		] = this.#template_span_types(span_parts).map((part) => {
+		] = this.#template_span_types(factory, span_parts).map((part) => {
 			return factory.createTemplateLiteralTypeSpan(
 				part,
 				factory.createTemplateMiddle(''),
 			);
 		});
 
-		const [tail_part_type] = this.#template_span_types([
+		const [tail_part_type] = this.#template_span_types(factory, [
 			tail_part as TemplatedStringPart,
 		]);
 
@@ -408,7 +408,10 @@ class TemplatedString<
 				...TemplatedStringPartBasic[],
 			]
 		),
-	>(span_parts: T) {
+	>(
+		factory: NodeFactory,
+		span_parts: T,
+	) {
 		return span_parts.map(<
 			T2 extends (
 				| string
@@ -431,7 +434,7 @@ class TemplatedString<
 				: (
 					Array.isArray(part)
 						? factory.createUnionTypeNode(
-							this.#template_span_types(part),
+							this.#template_span_types(factory, part),
 						) as template_spans_return_type<T2>
 						: (
 							(
@@ -439,9 +442,11 @@ class TemplatedString<
 							)
 								// eslint-disable-next-line @stylistic/max-len
 								? TemplatedString.generate_typescript_type_from_parts(
+									factory,
 									part.templated_string,
 								) as template_spans_return_type<T2>
 								: this.#template_span_types__string(
+									factory,
 									part,
 								) as template_spans_return_type<T2>
 						)
@@ -455,6 +460,7 @@ class TemplatedString<
 			| {type: 'string', minLength: 1}
 		),
 	>(
+		factory: NodeFactory,
 		part: T,
 	): template_spans_return_type<T> {
 		return object_has_property(part, 'minLength')
@@ -577,6 +583,7 @@ abstract class MacroToTemplatedString<
 			new TemplatedString({
 				ajv: options.ajv,
 				schema_compiler: options.schema_compiler,
+				factory: options.factory,
 			});
 		}
 
@@ -603,7 +610,7 @@ abstract class MacroToTemplatedString<
 			);
 		}
 
-		return factory.createStringLiteral(data);
+		return this.factory.createStringLiteral(data);
 	}
 }
 

@@ -13,6 +13,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -39,7 +40,13 @@ import {
 	SchemaParser,
 } from '../../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../../src/typescript/coercions.ts';
+
 void describe('identify Const String types as expected', () => {
+	const factory = coerce_factory(ts_factory);
+
 	const const_expectations: [
 		const_string_type,
 
@@ -95,13 +102,19 @@ void describe('identify Const String types as expected', () => {
 						: 'directly'
 				} with dataset item ${i}`,
 				async () => {
-					const parser = new SchemaParser();
+					const parser = new SchemaParser({
+						ajv_options: {},
+						factory,
+					});
 					let instance: undefined|Type<unknown> = from_parser_default
 						? parser.parse(schema)
-						: new ConstString(literal, {ajv: new Ajv({
-							...ajv_options,
-							strict: true,
-						})});
+						: new ConstString(literal, {
+							ajv: new Ajv({
+								...ajv_options,
+								strict: true,
+							}),
+							factory,
+						});
 
 					if (!('const' in schema) && from_parser_default) {
 						is_instanceof(instance, String);
@@ -156,8 +169,9 @@ void describe('identify Const String types as expected', () => {
 				ajv,
 				types: [new ObjectUnspecified(
 					{properties_mode: 'neither'},
-					{ajv},
+					{ajv, factory},
 				)],
+				factory,
 			});
 
 			throws_Error(
@@ -184,7 +198,7 @@ void describe('identify Const String types as expected', () => {
 			test_value,
 			expectation,
 		], i) => {
-			const instance = new ConstString(specific, {ajv});
+			const instance = new ConstString(specific, {ajv, factory});
 			assert.equal(
 				instance.check_type(test_value),
 				expectation,

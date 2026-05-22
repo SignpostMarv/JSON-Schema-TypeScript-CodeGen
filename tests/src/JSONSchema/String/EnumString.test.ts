@@ -10,6 +10,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -30,7 +31,13 @@ import {
 	SchemaParser,
 } from '../../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../../src/typescript/coercions.ts';
+
 void describe('EnumString', () => {
+	const factory = coerce_factory(ts_factory);
+
 	void describe('::check_type()', () => {
 		type DataSet = [
 			enum_string_type<[string, string, ...string[]]>,
@@ -60,8 +67,8 @@ void describe('EnumString', () => {
 				pass_or_fail,
 			], j) => {
 				const ajv = new Ajv({strict: true});
-				const a = new EnumString(type_schema.enum, {ajv});
-				const b = new EnumString([], {ajv});
+				const a = new EnumString(type_schema.enum, {ajv, factory});
+				const b = new EnumString([], {ajv, factory});
 
 				void it(
 					`${
@@ -162,13 +169,13 @@ void describe('EnumString', () => {
 			const ajv = new Ajv({strict: true});
 			const instance = new EnumString(
 				'enum' in type_schema ? type_schema.enum : [],
-				{ajv},
+				{ajv, factory},
 			);
 
 			void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
-					schema_parser: new SchemaParser({ajv}),
+					schema_parser: new SchemaParser({ajv, factory}),
 				});
 
 				await assert.doesNotReject(() => promise);
@@ -179,7 +186,7 @@ void describe('EnumString', () => {
 
 				const data = instance.generate_typescript_data(
 					value,
-					new SchemaParser({ajv}),
+					new SchemaParser({ajv, factory}),
 					type_schema,
 				);
 

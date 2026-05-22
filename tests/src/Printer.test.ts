@@ -5,6 +5,10 @@ import {
 import assert from 'node:assert/strict';
 
 import {
+	factory as ts_factory,
+} from 'typescript';
+
+import {
 	Printer,
 	SchemaParser,
 } from '../../index.ts';
@@ -13,7 +17,13 @@ import {
 	TemplatedString,
 } from '../../src/Ajv/index.ts';
 
+import {
+	coerce_factory,
+} from '../../src/typescript/coercions.ts';
+
 void describe('Printer', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type ParseExpectation = [
 		`./${string}.ts`,
 		string,
@@ -47,7 +57,7 @@ void describe('Printer', () => {
 	function load_TemplatedString(schema_parser: SchemaParser) {
 		const additional_types = schema_parser.share_ajv(
 			(ajv) => [
-				new TemplatedString({ajv}),
+				new TemplatedString({ajv, factory}),
 			],
 		);
 
@@ -1028,7 +1038,10 @@ void describe('Printer', () => {
 			expectations,
 		], j) => {
 			void it(`behaves with data_sets[${i}][${j}]`, async () => {
-				const schema_parser = new SchemaParser({ajv_options: {}});
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 
 				modify_schema_parser(schema_parser);
 
@@ -1069,7 +1082,10 @@ void describe('Printer', () => {
 			});
 
 			void it(`omits data with data_sets[${i}][${j}]`, async () => {
-				const schema_parser = new SchemaParser({ajv_options: {}});
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 
 				modify_schema_parser(schema_parser);
 
@@ -1135,7 +1151,10 @@ void describe('Printer', () => {
 			});
 
 			void it(`omits types with data_sets[${i}][${j}]`, async () => {
-				const schema_parser = new SchemaParser({ajv_options: {}});
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 
 				modify_schema_parser(schema_parser);
 
@@ -1203,7 +1222,10 @@ void describe('Printer', () => {
 			void it(
 				`omits types and data with data_sets[${i}][${j}]`,
 				async () => {
-					const schema_parser = new SchemaParser({ajv_options: {}});
+					const schema_parser = new SchemaParser({
+						ajv_options: {},
+						factory,
+					});
 
 					modify_schema_parser(schema_parser);
 
@@ -1253,7 +1275,7 @@ void describe('Printer', () => {
 
 	void it('fails if data does not match type', async () => {
 		const instance = new Printer();
-		const schema_parser = new SchemaParser({ajv_options: {}});
+		const schema_parser = new SchemaParser({ajv_options: {}, factory});
 
 		const promise = instance.parse(
 			'foo',
@@ -1271,7 +1293,7 @@ void describe('Printer', () => {
 
 	void it('fails if $defs matches type name', async () => {
 		const instance = new Printer();
-		const schema_parser = new SchemaParser({ajv_options: {}});
+		const schema_parser = new SchemaParser({ajv_options: {}, factory});
 
 		const promise = instance.parse(
 			['foobar'],

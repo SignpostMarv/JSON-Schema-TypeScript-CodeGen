@@ -10,6 +10,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -47,10 +48,16 @@ import {
 	TemplatedString,
 } from '../../src/Ajv/index.ts';
 
+import {
+	coerce_factory,
+} from '../../src/typescript/coercions.ts';
+
 void describe('SchemaParser', () => {
+	const factory = coerce_factory(ts_factory);
+
 	void describe('::clear_imports()', () => {
 		void it('behaves as expected', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			assert.equal(
 				parser.imports.size,
@@ -102,7 +109,7 @@ void describe('SchemaParser', () => {
 	});
 
 	void describe('::get_schema()', () => {
-		const parser = new SchemaParser();
+		const parser = new SchemaParser({ajv_options: {}, factory});
 
 		parser.add_schema({
 			$id: 'foo',
@@ -118,13 +125,13 @@ void describe('SchemaParser', () => {
 
 	void describe('::maybe_parse()', () => {
 		void it('behaves when type exists', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			const ajv = parser.share_ajv((ajv) => ajv);
 
 			class Foo extends ConstString {
 				constructor() {
-					super(undefined, {ajv});
+					super(undefined, {ajv, factory});
 				}
 
 				can_handle_schema(): this {
@@ -145,7 +152,7 @@ void describe('SchemaParser', () => {
 		});
 
 		void it('behave when type exists but excluded', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			let actual = parser.maybe_parse(
 				{type: 'string', const: 'foo'},
@@ -165,13 +172,13 @@ void describe('SchemaParser', () => {
 
 	void describe('::parse()', () => {
 		void it('fails with {}', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			assert.throws(() => parser.parse({}));
 		});
 
 		void it('fails with an unrecognised type', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			assert.throws(() => parser.parse({type: 'whut'}));
 		});
@@ -194,9 +201,9 @@ void describe('SchemaParser', () => {
 						},
 					};
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv});
+					const schema_parser = new SchemaParser({ajv, factory});
 					schema_parser.types.push(
-						new StringStartsWith('bar', {ajv}),
+						new StringStartsWith('bar', {ajv, factory}),
 					);
 					const instance = schema_parser.parse(schema);
 
@@ -261,9 +268,9 @@ void describe('SchemaParser', () => {
 
 	void describe('::parse_by_type()', () => {
 		void it('fails as expected', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 			const ajv = new Ajv({strict: true});
-			assert.ok(!OneOf.is_a(new $ref({}, {ajv})));
+			assert.ok(!OneOf.is_a(new $ref({}, {ajv, factory})));
 			assert.throws(() => parser.parse_by_type(
 				{$ref: '#/$defs/foo'},
 				(maybe) => TemplatedString.is_a(maybe),
@@ -273,7 +280,7 @@ void describe('SchemaParser', () => {
 
 	void describe('::parse_require_$defs()', () => {
 		void it('succeeds', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			assert.doesNotThrow(() => parser.parse_require_$defs({
 				$defs: {
@@ -285,7 +292,7 @@ void describe('SchemaParser', () => {
 		});
 
 		void it('fails successfully', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			assert.throws(() => parser.parse_require_$defs({
 				$defs: {
@@ -325,7 +332,7 @@ void describe('SchemaParser', () => {
 			i,
 		) => {
 			const ajv = new Ajv({strict: true});
-			const parser = new SchemaParser({ajv});
+			const parser = new SchemaParser({ajv, factory});
 
 			void it(`behaves with data_sets[${i}]`, () => {
 				const result_direct = data_set[0](ajv);

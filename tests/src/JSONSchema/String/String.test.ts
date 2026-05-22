@@ -14,6 +14,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -38,7 +39,13 @@ import {
 	throws_Error,
 } from '../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../../src/typescript/coercions.ts';
+
 void describe('identify simple String types as expected', () => {
+	const factory = coerce_factory(ts_factory);
+
 	const string_expectations: [
 		basic_string_type, // input for SchemaParser
 		// Ajv Options
@@ -76,17 +83,19 @@ void describe('identify simple String types as expected', () => {
 						: 'directly'
 				} with dataset item ${i}`,
 				async () => {
-					const parser = new SchemaParser();
+					const parser = new SchemaParser({
+						ajv_options: {},
+						factory,
+					});
 					const instance = from_parser_default
 						? parser.parse(schema)
-						: new String(
-							{
-								ajv: new Ajv({
-									...ajv_options,
-									strict: true,
-								}),
-							},
-						);
+						: new String({
+							ajv: new Ajv({
+								...ajv_options,
+								strict: true,
+							}),
+							factory,
+						});
 
 					is_instanceof<String>(instance, String);
 
@@ -127,9 +136,10 @@ void describe('identify simple String types as expected', () => {
 					types: [
 						new ObjectUnspecified(
 							{properties_mode: 'both'},
-							{ajv},
+							{ajv, factory},
 						),
 					],
+					factory,
 				});
 
 				throws_Error(
@@ -144,6 +154,7 @@ void describe('identify simple String types as expected', () => {
 		assert.throws(
 			() => (new String({
 				ajv: new Ajv({strict: true}),
+				factory,
 			}).can_handle_schema(
 				{
 					type: 'string',
@@ -155,6 +166,7 @@ void describe('identify simple String types as expected', () => {
 		assert.throws(
 			() => (new String({
 				ajv: new Ajv({strict: true}),
+				factory,
 			}).can_handle_schema(
 				{
 					type: 'string',

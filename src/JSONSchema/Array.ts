@@ -28,16 +28,13 @@ import type {
 import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
+	NodeFactory,
 	TupleTypeNode,
 } from '../typescript/types.ts';
 
 import type {
 	SchemaParser,
 } from '../SchemaParser.ts';
-
-import {
-	factory,
-} from '../typescript/factory.ts';
 
 import {
 	SchemaValidationError,
@@ -561,7 +558,7 @@ class ArrayType<
 			throw new TypeError('data does not pass type check!');
 		}
 
-		return factory.createArrayLiteralExpression(
+		return this.factory.createArrayLiteralExpression(
 			data.map((value, i): T4 => {
 				const index = PositiveIntegerOrZeroGuard(i);
 				const element = ArrayType.#convert(
@@ -624,6 +621,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				TupleTypeNode<T2, T3>
 			> = ArrayType.#generate_typescript_type_has_prefixItems(
+				this.factory,
 				data,
 				schema as array_type<
 					'prefixItems',
@@ -641,6 +639,7 @@ class ArrayType<
 				}[MinItems_mode],
 				prefixItems: TupleTypeNode<T2, T3>,
 			}[ArrayMode]> = ArrayType.#generate_typescript_type_has_items(
+				this.factory,
 				data,
 				schema,
 				schema_parser,
@@ -1569,6 +1568,7 @@ class ArrayType<
 		ArrayMode extends array_mode,
 		MinItems_mode extends MinItemsType_mode,
 	>(
+		factory: NodeFactory,
 		data: T1,
 		schema: (
 			| array_type<
@@ -1599,6 +1599,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				TupleTypeNode<T2, T3>
 			> = this.#generate_typescript_type_has_items_and_minItems(
+				factory,
 				data,
 				schema,
 				schema_parser,
@@ -1609,6 +1610,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				ArrayTypeNode<T2>
 			> = this.#generate_typescript_type_has_items_only(
+				factory,
 				data,
 				schema,
 				schema_parser,
@@ -1641,6 +1643,7 @@ class ArrayType<
 			...SchemaObject[],
 		],
 	>(
+		factory: NodeFactory,
 		data: T1,
 		schema: array_type<
 			'items',
@@ -1703,6 +1706,7 @@ class ArrayType<
 			...SchemaObject[],
 		],
 	>(
+		factory: NodeFactory,
 		data: T1,
 		schema: array_type<
 			'items',
@@ -1759,6 +1763,7 @@ class ArrayType<
 		T2 extends TypeNode,
 		T3 extends [T2, ...T2[]],
 	>(
+		factory: NodeFactory,
 		data: T1|undefined|array_type<
 			'prefixItems',
 			'specified'

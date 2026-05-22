@@ -14,6 +14,7 @@ import type {
 } from 'typescript';
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import ts_assert from '@signpostmarv/ts-assert';
@@ -40,7 +41,13 @@ import {
 	SchemaParser,
 } from '../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../src/typescript/coercions.ts';
+
 void describe('OneOf', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type DataSet<
 		Mode extends something_of_mode = something_of_mode,
 		TypeChoices extends type_choices = type_choices,
@@ -92,7 +99,7 @@ void describe('OneOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({}, {ajv}),
+					(ajv) => new $ref({}, {ajv, factory}),
 					false,
 				],
 			],
@@ -218,11 +225,12 @@ void describe('OneOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
+						factory,
 					});
 
 					const result = instance.generate_typescript_data(
 						data,
-						new SchemaParser({ajv}),
+						new SchemaParser({ajv, factory}),
 						OneOf.generate_type_definition<'oneOf'>(
 							type_definition,
 						),
@@ -235,7 +243,7 @@ void describe('OneOf', () => {
 					if (undefined !== data) {
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
-							new SchemaParser({ajv}),
+							new SchemaParser({ajv, factory}),
 							OneOf.generate_type_definition<'oneOf'>(
 								type_definition,
 							),
@@ -264,6 +272,7 @@ void describe('OneOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
+						factory,
 					});
 
 					const promise = instance.generate_typescript_type({
@@ -273,7 +282,7 @@ void describe('OneOf', () => {
 						>(
 							type_definition,
 						),
-						schema_parser: new SchemaParser({ajv}),
+						schema_parser: new SchemaParser({ajv, factory}),
 					});
 
 					await assert.doesNotReject(() => promise);
@@ -300,6 +309,7 @@ void describe('OneOf', () => {
 					ajv,
 					type_definition,
 					schema_definition,
+					factory,
 				});
 
 				assert.ok(OneOf.is_a(instance));
@@ -314,10 +324,11 @@ void describe('OneOf', () => {
 							kind: 'oneOf',
 							mode: 'unspecified',
 						},
+						factory,
 					}),
 				));
 				assert.ok(!OneOf.is_a<OneOf<unknown>>(
-					new $ref({}, {ajv}),
+					new $ref({}, {ajv, factory}),
 				));
 			});
 

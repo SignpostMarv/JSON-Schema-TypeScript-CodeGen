@@ -17,6 +17,10 @@ import {
 } from '@signpostmarv/ts-assert';
 
 import {
+	factory as ts_factory,
+} from 'typescript';
+
+import {
 	SchemaParser,
 	String,
 } from '../../../index.ts';
@@ -25,13 +29,18 @@ import {
 	StringStartsWith,
 } from '../../../src/Ajv/index.ts';
 
+import {
+	coerce_factory,
+} from '../../../src/typescript/coercions.ts';
+
 void describe('StringStartsWith', () => {
 	void it('comes out of SchemaParser', () => {
+		const factory = coerce_factory(ts_factory);
 		const ajv = new Ajv({strict: true});
-		const schema_parser = new SchemaParser({ajv});
+		const schema_parser = new SchemaParser({ajv, factory});
 		schema_parser.types = [
-			new StringStartsWith('foo', {ajv}),
-			new StringStartsWith('baz', {ajv}),
+			new StringStartsWith('foo', {ajv, factory}),
+			new StringStartsWith('baz', {ajv, factory}),
 			...schema_parser.types,
 		];
 
@@ -45,8 +54,9 @@ void describe('StringStartsWith', () => {
 	});
 
 	void describe('::generate_typescript_data()', () => {
+		const factory = coerce_factory(ts_factory);
 		const ajv = new Ajv({strict: true});
-		const instance = new StringStartsWith('foo', {ajv});
+		const instance = new StringStartsWith('foo', {ajv, factory});
 
 		const a = instance.generate_typescript_data('foo');
 		const b = instance.generate_typescript_data('foobar');

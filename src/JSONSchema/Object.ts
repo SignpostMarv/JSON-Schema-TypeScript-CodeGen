@@ -36,13 +36,10 @@ import type {
 
 import type {
 	IntersectionTypeNode,
+	NodeFactory,
 	TypeLiteralNode,
 	TypeReferenceNode,
 } from '../typescript/types.ts';
-
-import {
-	factory,
-} from '../typescript/factory.ts';
 
 import type {
 	SchemaParser,
@@ -370,6 +367,7 @@ class ObjectUnspecified<
 		{
 			ajv,
 			schema_compiler,
+			factory,
 		}: ObjectUncertain_options<
 			object_schema<
 				PropertiesMode
@@ -388,6 +386,7 @@ class ObjectUnspecified<
 			type_definition: options,
 			schema_definition: options,
 			schema_compiler,
+			factory,
 		});
 		this.properties_mode = options.properties_mode;
 	}
@@ -404,6 +403,7 @@ class ObjectUnspecified<
 		>,
 	): ObjectLiteralExpression {
 		return ObjectUnspecified.#createObjectLiteralExpression(
+			this.factory,
 			this.properties_mode,
 			data,
 			schema,
@@ -450,6 +450,7 @@ class ObjectUnspecified<
 				object_TypeLiteralNode<PropertiesMode>,
 			]>
 		) = ObjectUnspecified.#createTypeNode(
+			this.factory,
 			this.properties_mode,
 			schema,
 			schema_parser,
@@ -463,7 +464,7 @@ class ObjectUnspecified<
 				$ref: schema.$ref,
 			}, (maybe): maybe is $ref => $ref.is_a(maybe));
 
-			object_type = factory.createIntersectionTypeNode([
+			object_type = this.factory.createIntersectionTypeNode([
 				await $ref_instance.generate_typescript_type({
 					schema: {
 						$ref: schema.$ref,
@@ -477,6 +478,7 @@ class ObjectUnspecified<
 	}
 
 	static #computedProperty_or_string(
+		factory: NodeFactory,
 		property: string,
 	): ComputedPropertyName|string {
 		return /[?[\] ]/.test(property)
@@ -859,6 +861,7 @@ class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		factory: NodeFactory,
 		properties_mode: PropertiesMode,
 		data: T,
 		schema: object_type<
@@ -888,7 +891,7 @@ class ObjectUnspecified<
 				);
 
 				return factory.createPropertyAssignment(
-					this.#computedProperty_or_string(property),
+					this.#computedProperty_or_string(factory, property),
 					type,
 				);
 			}),
@@ -903,6 +906,7 @@ class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
+		factory: NodeFactory,
 		properties_mode: PropertiesMode,
 		schema: object_type<
 			PropertiesMode,
@@ -941,7 +945,7 @@ class ObjectUnspecified<
 				property,
 			): Promise<PropertySignature> => factory.createPropertySignature(
 				undefined,
-				this.#computedProperty_or_string(property),
+				this.#computedProperty_or_string(factory, property),
 				(
 					(
 						this.#is_schema_with_required(schema)
@@ -993,6 +997,7 @@ class ObjectUnspecified<
 			result = factory.createIntersectionTypeNode([
 				factory.createTypeLiteralNode(properties),
 				this.#patterned_literal_node(
+					factory,
 					patterned as [TypeNode, ...TypeNode[]],
 				),
 			]);
@@ -1000,6 +1005,7 @@ class ObjectUnspecified<
 			result = factory.createTypeLiteralNode(properties);
 		} else {
 			result = this.#patterned_literal_node(
+				factory,
 				patterned as [TypeNode, ...TypeNode[]],
 			);
 		}
@@ -1064,6 +1070,7 @@ class ObjectUnspecified<
 	}
 
 	static #patterned_literal_node(
+		factory: NodeFactory,
 		value: [TypeNode, ...TypeNode[]],
 	): TypeLiteralNode<IndexSignatureDeclaration> {
 		return factory.createTypeLiteralNode([

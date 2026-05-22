@@ -16,6 +16,7 @@ import type {
 } from 'typescript';
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -52,6 +53,10 @@ import type {
 	ts_asserter,
 } from '../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../src/typescript/coercions.ts';
+
 function is_unspecified_data(
 	maybe: Node,
 ): asserts maybe is TemplateExpression {
@@ -87,12 +92,20 @@ function is_unspecified_type(
 }
 
 void describe('TemplatedString', () => {
+	const factory = coerce_factory(ts_factory);
+
 	void it('comes out of SchemaParser', () => {
 		const ajv = new Ajv({strict: true});
-		const schema_parser = new SchemaParser({ajv});
+		const schema_parser = new SchemaParser({ajv, factory});
 		schema_parser.types = [
-			new TemplatedString({ajv}, ['foo', {type: 'string'}, 'bar']),
-			new TemplatedString({ajv}, ['foo', {type: 'string'}, 'baz']),
+			new TemplatedString({
+				ajv,
+				factory,
+			}, ['foo', {type: 'string'}, 'bar']),
+			new TemplatedString({
+				ajv,
+				factory,
+			}, ['foo', {type: 'string'}, 'baz']),
 			...schema_parser.types,
 		];
 
@@ -117,7 +130,7 @@ void describe('TemplatedString', () => {
 	void it('compiles to macro', () => {
 		const ajv = new Ajv({strict: true});
 
-		new TemplatedString({ajv});
+		new TemplatedString({ajv, factory});
 
 		const validator = ajv.compile({
 			type: 'string',
@@ -700,7 +713,10 @@ void describe('TemplatedString', () => {
 			], j) => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
 					const ajv = new Ajv({strict: true});
-					const instance = new TemplatedString({ajv}, specified);
+					const instance = new TemplatedString({
+						ajv,
+						factory,
+					}, specified);
 
 					const actual = instance.check_type(value);
 
@@ -721,7 +737,7 @@ void describe('TemplatedString', () => {
 	void describe('::generate_typescript_data()', () => {
 		void it('fails as expected', () => {
 			const ajv = new Ajv({strict: true});
-			const instance = new TemplatedString({ajv}, ['foo']);
+			const instance = new TemplatedString({ajv, factory}, ['foo']);
 			assert.throws(() => instance.generate_typescript_data('bar'));
 		});
 
@@ -736,7 +752,10 @@ void describe('TemplatedString', () => {
 			], j) => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, () => {
 					const ajv = new Ajv({strict: true});
-					const instance = new TemplatedString({ajv}, specified);
+					const instance = new TemplatedString({
+						ajv,
+						factory,
+					}, specified);
 
 					const data = instance.generate_typescript_data(
 						value,
@@ -756,7 +775,7 @@ void describe('TemplatedString', () => {
 			const instance = new TemplatedString<
 				string,
 				['foo']
-			>({ajv}, ['foo']);
+			>({ajv, factory}, ['foo']);
 
 			await assert.rejects(() => instance.generate_typescript_type({
 				data: 'bar',
@@ -779,7 +798,10 @@ void describe('TemplatedString', () => {
 			], j) => {
 				void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
 					const ajv = new Ajv({strict: true});
-					const instance = new TemplatedString({ajv}, specified);
+					const instance = new TemplatedString({
+						ajv,
+						factory,
+					}, specified);
 
 					const schema: templated_string_type = {
 						type: 'string',

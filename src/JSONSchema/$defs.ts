@@ -14,10 +14,6 @@ import type {
 	ObjectLiteralExpression,
 } from '../typescript/types.ts';
 
-import {
-	factory,
-} from '../typescript/factory.ts';
-
 import type {
 	ObjectOfSchemas,
 } from '../types.ts';
@@ -189,7 +185,7 @@ export class $defs extends Type<
 	}
 
 	generate_typescript_data(): ObjectLiteralExpression<[]> {
-		return factory.createObjectLiteralExpression([]);
+		return this.factory.createObjectLiteralExpression([]);
 	}
 
 	generate_typescript_type({
@@ -202,7 +198,7 @@ export class $defs extends Type<
 	}): Promise<NamedExports> {
 		const types = Object.keys($defs).map(
 			(name) => {
-				return factory.createExportSpecifier(
+				return this.factory.createExportSpecifier(
 					true,
 					undefined,
 					adjust_name_finisher(
@@ -213,7 +209,7 @@ export class $defs extends Type<
 			},
 		);
 
-		return Promise.resolve(factory.createNamedExports(types));
+		return Promise.resolve(this.factory.createNamedExports(types));
 	}
 
 	static generate_schema_definition(): Readonly<$defs_schema> {

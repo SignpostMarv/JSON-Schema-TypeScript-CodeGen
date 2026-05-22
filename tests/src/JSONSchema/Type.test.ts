@@ -12,6 +12,10 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
+import {
+	factory as ts_factory,
+} from 'typescript';
+
 import type {
 	SchemaObject,
 } from '../../../src/types.ts';
@@ -27,7 +31,13 @@ import {
 	String,
 } from '../../../src/JSONSchema/String.ts';
 
+import {
+	coerce_factory,
+} from '../../../src/typescript/coercions.ts';
+
 void describe('Type', () => {
+	const factory = coerce_factory(ts_factory);
+
 	void describe('::maybe_add_$defs()', () => {
 		type DataSet = (
 			| [
@@ -64,7 +74,7 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv}),
+				(ajv: Ajv) => new String({ajv, factory}),
 			],
 			[
 				{
@@ -76,14 +86,14 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv}),
+				(ajv: Ajv) => new String({ajv, factory}),
 			],
 			[
 				{
 					type: 'string',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv}),
+				(ajv: Ajv) => new String({ajv, factory}),
 			],
 			[
 				{
@@ -91,7 +101,7 @@ void describe('Type', () => {
 					minLength: 1,
 				},
 				false,
-				(ajv: Ajv) => new NonEmptyString({ajv}),
+				(ajv: Ajv) => new NonEmptyString({ajv, factory}),
 			],
 			[
 				{
@@ -99,7 +109,7 @@ void describe('Type', () => {
 					const: 'foo',
 				},
 				false,
-				(ajv: Ajv) => new ConstString(undefined, {ajv}),
+				(ajv: Ajv) => new ConstString(undefined, {ajv, factory}),
 			],
 			[
 				{
@@ -110,7 +120,7 @@ void describe('Type', () => {
 					],
 				},
 				false,
-				(ajv: Ajv) => new EnumString([], {ajv}),
+				(ajv: Ajv) => new EnumString([], {ajv, factory}),
 			],
 			[
 				{
@@ -118,7 +128,7 @@ void describe('Type', () => {
 					pattern: '.+',
 				},
 				false,
-				(ajv: Ajv) => new PatternString(undefined, {ajv}),
+				(ajv: Ajv) => new PatternString(undefined, {ajv, factory}),
 			],
 			[
 				{

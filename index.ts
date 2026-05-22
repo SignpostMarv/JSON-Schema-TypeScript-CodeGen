@@ -1,3 +1,7 @@
+import type {
+	NodeFactory,
+} from './src/typescript/types.ts';
+
 export * from './src/coercions.ts';
 export * from './src/guarded.ts';
 export * from './src/types.ts';
@@ -14,3 +18,7 @@ export * from './src/JSONSchema/SomethingOf.ts';
 export * from './src/JSONSchema/String.ts';
 export * from './src/JSONSchema/OneOf.ts';
 export * from './src/MaybeCacheCompile.ts';
+
+export type {
+	NodeFactory,
+};

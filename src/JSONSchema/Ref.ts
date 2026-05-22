@@ -33,10 +33,6 @@ import type {
 	ObjectOfSchemas,
 } from '../types.ts';
 
-import {
-	factory,
-} from '../typescript/factory.ts';
-
 import type {
 	TypeReferenceNode,
 } from '../typescript/types';
@@ -245,7 +241,7 @@ class $ref extends
 			this.needs_import.add(name);
 		}
 
-		return Promise.resolve(factory.createTypeReferenceNode(
+		return Promise.resolve(this.factory.createTypeReferenceNode(
 			name,
 		));
 	}

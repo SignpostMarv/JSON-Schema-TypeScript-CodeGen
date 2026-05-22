@@ -9,12 +9,16 @@ import {
 
 import {
 	factory,
+} from 'typescript';
+
+import {
+	coerce_factory,
 } from '../../../src/typescript/index.ts';
 
 void describe('ts.factory.createArrayLiteralExpression()', () => {
 	void it('behave as expected', () => {
 		isArrayLiteralExpression(
-			factory.createArrayLiteralExpression([]),
+			coerce_factory(factory).createArrayLiteralExpression([]),
 		);
 	});
 });

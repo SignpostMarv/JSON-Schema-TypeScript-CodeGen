@@ -7,6 +7,9 @@ import assert from 'node:assert/strict';
 import type {
 	Expression,
 } from 'typescript';
+import {
+	factory as ts_factory,
+} from 'typescript';
 
 import Ajv from 'ajv/dist/2020.js';
 
@@ -22,6 +25,9 @@ import {
 
 import type {
 	TypeReferenceNode,
+} from '../../../src/typescript/index.ts';
+import {
+	coerce_factory,
 } from '../../../src/typescript/index.ts';
 
 import type {
@@ -45,6 +51,8 @@ import {
 } from '../../index.ts';
 
 void describe('$ref', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
 		TestValue = PassesCheckType extends true
@@ -158,7 +166,7 @@ void describe('$ref', () => {
 		], i) => {
 			const instance = new $ref(
 				{},
-				{ajv: new Ajv({strict: true})},
+				{ajv: new Ajv({strict: true}), factory},
 			);
 			void it(`behaves with data_sets[${i}]`, () => {
 				assert.equal(
@@ -182,7 +190,7 @@ void describe('$ref', () => {
 				void it(`behaves with data_sets[${i}]`, async () => {
 					const instance = new $ref(
 						{},
-						{ajv: new Ajv({strict: true})},
+						{ajv: new Ajv({strict: true}), factory},
 					);
 					assert.ok(instance.check_type(data));
 					const result = await instance.generate_typescript_type({
@@ -197,7 +205,7 @@ void describe('$ref', () => {
 
 	void describe('::resolve_def()', () => {
 		void it('behaves with external $defs', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			const instance = parser.parse_by_type(
 				{
@@ -248,7 +256,7 @@ void describe('$ref', () => {
 		});
 
 		void it('fails when expected', () => {
-			const parser = new SchemaParser();
+			const parser = new SchemaParser({ajv_options: {}, factory});
 
 			const instance = parser.parse_by_type(
 				{
@@ -278,10 +286,10 @@ void describe('$ref', () => {
 	void describe('::is_a()', () => {
 		void it('behaves as expected', () => {
 			const ajv = new Ajv({strict: true});
-			assert.ok($ref.is_a(new $ref({}, {ajv})));
+			assert.ok($ref.is_a(new $ref({}, {ajv, factory})));
 			assert.ok(!$ref.is_a(
 				new ArrayType(
-					{ajv},
+					{ajv, factory},
 					{
 						array_options: {
 							array_mode: 'items',
@@ -296,12 +304,14 @@ void describe('$ref', () => {
 				),
 			));
 			assert.ok(!$ref.is_a(undefined));
-			assert.ok(!$ref.is_a(new String({ajv})));
+			assert.ok(!$ref.is_a(new String({ajv, factory})));
 		});
 	});
 });
 
 void describe('$ref', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type DataSubSet = [
 		unknown,
 		SchemaObject,
@@ -395,9 +405,12 @@ void describe('$ref', () => {
 	] of split_data_sets(data_sets)) {
 		void describe('::generate_typescript_data()', () => {
 			void it(`behaves with data_sets[${i}][${j}]`, () => {
-				const schema_parser = new SchemaParser({ajv_options: {}});
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 				const instance = schema_parser.share_ajv(
-					(ajv) => new $ref(specific_options, {ajv}),
+					(ajv) => new $ref(specific_options, {ajv, factory}),
 				);
 
 				assert.ok($ref.is_supported_$ref(schema));
@@ -414,9 +427,12 @@ void describe('$ref', () => {
 
 		void describe('::generate_typescript_type()', () => {
 			void it(`behaves with data_sets[${i}][${j}]`, async () => {
-				const schema_parser = new SchemaParser({ajv_options: {}});
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 				const instance = schema_parser.share_ajv(
-					(ajv) => new $ref(specific_options, {ajv}),
+					(ajv) => new $ref(specific_options, {ajv, factory}),
 				);
 
 				const foo: ts_asserter<TypeReferenceNode> = type_asserter;
@@ -432,9 +448,9 @@ void describe('$ref', () => {
 
 	void describe('::generate_typescript_data()', () => {
 		void it('fails when expected', () => {
-			const schema_parser = new SchemaParser({ajv_options: {}});
+			const schema_parser = new SchemaParser({ajv_options: {}, factory});
 			const instance = schema_parser.share_ajv(
-				(ajv) => new $ref({}, {ajv}),
+				(ajv) => new $ref({}, {ajv, factory}),
 			);
 
 			const $ref_value = '#/$defs/foo';

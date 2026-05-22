@@ -8,6 +8,7 @@ import {
 import type {
 	Expression,
 	NamedExports,
+	factory as TSFactory,
 	TypeNode,
 } from 'typescript';
 
@@ -29,6 +30,14 @@ import {
 import type {
 	$defs_schema,
 } from './$defs.ts';
+
+import type {
+	NodeFactory,
+} from '../typescript/types.ts';
+
+import {
+	coerce_factory,
+} from '../typescript/coercions.ts';
 
 type SchemaDefinitionDefinition<
 	Required extends readonly [
@@ -110,6 +119,7 @@ type TypeOptions<
 	type_definition: TypeDefinitionOptions,
 	add_to_$defs_excluded?: true,
 	schema_compiler?: MaybeCacheCompile,
+	factory: typeof TSFactory,
 };
 
 type SchemalessTypeOptions = Omit<
@@ -165,6 +175,8 @@ abstract class Type<
 
 	protected type_definition: TypeDefinition;
 
+	protected factory: NodeFactory;
+
 	#check_type: Is<T>;
 
 	#check_schema: Is<TypeDefinition>;
@@ -183,6 +195,7 @@ abstract class Type<
 		type_definition,
 		add_to_$defs_excluded,
 		schema_compiler,
+		factory,
 	}: TypeOptions<SchemaDefinitionOptions, TypeDefinitionOptions>) {
 		const static_class = (
 			this.constructor as typeof Type<
@@ -219,6 +232,8 @@ abstract class Type<
 			ajv,
 			this.type_definition,
 		);
+
+		this.factory = coerce_factory(factory);
 	}
 
 	can_handle_schema(

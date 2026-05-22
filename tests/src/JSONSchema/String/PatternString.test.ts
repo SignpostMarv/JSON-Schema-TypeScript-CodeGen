@@ -10,6 +10,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -31,7 +32,13 @@ import {
 	SchemaParser,
 } from '../../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../../src/typescript/coercions.ts';
+
 void describe('PatternString', () => {
+	const factory = coerce_factory(ts_factory);
+
 	void describe('::check_type()', () => {
 		type DataSet = [
 			pattern_string_type<string>,
@@ -61,8 +68,11 @@ void describe('PatternString', () => {
 				pass_or_fail,
 			], j) => {
 				const ajv = new Ajv({strict: true});
-				const a = new PatternString(type_schema.pattern, {ajv});
-				const b = new PatternString(undefined, {ajv});
+				const a = new PatternString(type_schema.pattern, {
+					ajv,
+					factory,
+				});
+				const b = new PatternString(undefined, {ajv, factory});
 
 				void it(
 					`${
@@ -124,13 +134,13 @@ void describe('PatternString', () => {
 			const ajv = new Ajv({strict: true});
 			const instance = new PatternString(
 				'pattern' in type_schema ? type_schema.pattern : undefined,
-				{ajv},
+				{ajv, factory},
 			);
 
 			void it(`behaves with data_sets[${i}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
-					schema_parser: new SchemaParser({ajv}),
+					schema_parser: new SchemaParser({ajv, factory}),
 				});
 
 				await assert.doesNotReject(() => promise);
@@ -145,7 +155,7 @@ void describe('PatternString', () => {
 
 				const data = instance.generate_typescript_data(
 					value,
-					new SchemaParser({ajv}),
+					new SchemaParser({ajv, factory}),
 					type_schema,
 				);
 

@@ -21,6 +21,9 @@ import {
 import type {
 	PropertySignature,
 } from 'typescript';
+import {
+	factory as ts_factory,
+} from 'typescript';
 
 import type {
 	ts_asserter,
@@ -34,8 +37,13 @@ import {
 import type {
 	TypeLiteralNode,
 } from '../../../src/typescript/index.ts';
+import {
+	coerce_factory,
+} from '../../../src/typescript/index.ts';
 
 void describe('$defs', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type DataSet = [
 		ConstructorParameters<typeof $defs>[1],
 		ts_asserter<TypeLiteralNode<PropertySignature>>,
@@ -64,7 +72,7 @@ void describe('$defs', () => {
 	void describe('::generate_typescript_data()', () => {
 		data_sets.forEach(([specific_options], i) => {
 			const ajv = new Ajv({strict: true});
-			const instance = new $defs({ajv}, specific_options, {});
+			const instance = new $defs({ajv, factory}, specific_options, {});
 
 			void it(`behaves with data_sets[${i}]`, () => {
 				const result = instance.generate_typescript_data();
@@ -78,9 +86,9 @@ void describe('$defs', () => {
 	void describe('::generate_typescript_type()', () => {
 		data_sets.forEach(([specific_options, expectation], i) => {
 			const ajv = new Ajv({strict: true});
-			const schema_parser = new SchemaParser({ajv});
-			const a = new $defs({ajv}, specific_options, {});
-			const b = new $defs({ajv}, {}, {});
+			const schema_parser = new SchemaParser({ajv, factory});
+			const a = new $defs({ajv, factory}, specific_options, {});
+			const b = new $defs({ajv, factory}, {}, {});
 
 			void it(`behaves with data_sets[${i}]`, async () => {
 				const foo: ts_asserter = expectation;

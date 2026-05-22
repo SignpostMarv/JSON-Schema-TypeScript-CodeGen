@@ -1,10 +1,12 @@
 import type {
+	factory as TSFactory,
+} from 'typescript';
+
+import type {
 	LiteralTypeNode,
+	NodeFactory,
 	StringLiteral,
 } from './types.ts';
-import {
-	factory,
-} from './factory.ts';
 
 export type StringTupleToLiteralTypeNodeTuple<
 	T1 extends readonly string[],
@@ -18,7 +20,10 @@ export type StringTupleToLiteralTypeNodeTuple<
 
 export function StringTupleToLiteralTypeNodeTuple<
 	T1 extends readonly string[],
->(value: T1): StringTupleToLiteralTypeNodeTuple<T1> {
+>(
+	factory: NodeFactory,
+	value: T1,
+): StringTupleToLiteralTypeNodeTuple<T1> {
 	const enum_as_literal = value.map(
 		(item) => factory.createLiteralTypeNode(
 			factory.createStringLiteral(item),
@@ -26,4 +31,8 @@ export function StringTupleToLiteralTypeNodeTuple<
 	);
 
 	return enum_as_literal as StringTupleToLiteralTypeNodeTuple<T1>;
+}
+
+export function coerce_factory(original: typeof TSFactory): NodeFactory {
+	return original as NodeFactory;
 }

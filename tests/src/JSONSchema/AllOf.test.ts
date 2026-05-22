@@ -15,8 +15,8 @@ import type {
 	TypeNode,
 } from 'typescript';
 import {
-	factory,
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -53,7 +53,13 @@ import {
 	SchemaParser,
 } from '../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../src/typescript/coercions.ts';
+
 void describe('AllOf', () => {
+	const factory = coerce_factory(ts_factory);
+
 	type DataSet<
 		Mode extends something_of_mode = something_of_mode,
 		TypeChoices extends type_choices = type_choices,
@@ -105,7 +111,7 @@ void describe('AllOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({}, {ajv}),
+					(ajv) => new $ref({}, {ajv, factory}),
 					false,
 				],
 			],
@@ -231,11 +237,12 @@ void describe('AllOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
+						factory,
 					});
 
 					const result = instance.generate_typescript_data(
 						data,
-						new SchemaParser({ajv}),
+						new SchemaParser({ajv, factory}),
 						AllOf.generate_type_definition<'allOf'>(
 							type_definition,
 						),
@@ -251,7 +258,7 @@ void describe('AllOf', () => {
 								type_definition,
 							);
 
-						const parser = new SchemaParser({ajv});
+						const parser = new SchemaParser({ajv, factory});
 
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
@@ -708,7 +715,7 @@ void describe('AllOf', () => {
 						ObjectOfSchemas
 					> {
 						generate_typescript_data() {
-							return factory.createKeywordTypeNode(
+							return this.factory.createKeywordTypeNode(
 								SyntaxKind.UnknownKeyword,
 							) as unknown as ObjectLiteralExpression;
 						}
@@ -740,9 +747,18 @@ void describe('AllOf', () => {
 								kind: 'allOf',
 								mode: 'unspecified',
 							},
+							factory,
 						}),
-						new $ref({}, {ajv}),
-						new foo({properties_mode: 'properties'}, {ajv}),
+						new $ref({}, {ajv, factory}),
+						new foo(
+							{
+								properties_mode: 'properties',
+							},
+							{
+								ajv,
+								factory,
+							},
+						),
 					];
 
 					return schema_parser;
@@ -790,7 +806,7 @@ void describe('AllOf', () => {
 						ObjectOfSchemas
 					> {
 						generate_typescript_data() {
-							return factory.createObjectLiteralExpression([
+							return this.factory.createObjectLiteralExpression([
 								factory.createMethodDeclaration(
 									undefined,
 									undefined,
@@ -831,9 +847,18 @@ void describe('AllOf', () => {
 								kind: 'allOf',
 								mode: 'unspecified',
 							},
+							factory,
 						}),
-						new $ref({}, {ajv}),
-						new foo({properties_mode: 'properties'}, {ajv}),
+						new $ref({}, {ajv, factory}),
+						new foo(
+							{
+								properties_mode: 'properties',
+							},
+							{
+								ajv,
+								factory,
+							},
+						),
 					];
 
 					return schema_parser;
@@ -851,7 +876,10 @@ void describe('AllOf', () => {
 			i,
 		) => {
 			void it(`behaves with data_sets[${i}]`, () => {
-				const schema_parser = new SchemaParser();
+				const schema_parser = new SchemaParser({
+					ajv_options: {},
+					factory,
+				});
 
 				if (modifier) {
 					modifier(schema_parser);
@@ -898,6 +926,7 @@ void describe('AllOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
+						factory,
 					});
 
 					const promise = instance.generate_typescript_type({
@@ -907,7 +936,7 @@ void describe('AllOf', () => {
 						>(
 							type_definition,
 						),
-						schema_parser: new SchemaParser({ajv}),
+						schema_parser: new SchemaParser({ajv, factory}),
 					});
 
 					await assert.doesNotReject(() => promise);
@@ -934,6 +963,7 @@ void describe('AllOf', () => {
 					ajv,
 					type_definition,
 					schema_definition,
+					factory,
 				});
 
 				assert.ok(AllOf.is_a(instance));
@@ -948,10 +978,11 @@ void describe('AllOf', () => {
 							kind: 'allOf',
 							mode: 'unspecified',
 						},
+						factory,
 					}),
 				));
 				assert.ok(!AllOf.is_a<AllOf<unknown>>(
-					new $ref({}, {ajv}),
+					new $ref({}, {ajv, factory}),
 				));
 			});
 

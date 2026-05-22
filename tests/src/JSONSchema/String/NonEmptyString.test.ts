@@ -14,6 +14,7 @@ import {
 
 import {
 	SyntaxKind,
+	factory as ts_factory,
 } from 'typescript';
 
 import {
@@ -44,7 +45,13 @@ import {
 	SchemaParser,
 } from '../../../../index.ts';
 
+import {
+	coerce_factory,
+} from '../../../../src/typescript/coercions.ts';
+
 void describe('identify non-empty String types as expected', () => {
+	const factory = coerce_factory(ts_factory);
+
 	const string_expectations: [
 		non_empty_string_type, // input for SchemaParser
 
@@ -102,7 +109,11 @@ void describe('identify non-empty String types as expected', () => {
 						: 'directly'
 				} with dataset item ${i}`,
 				async () => {
-					const parser = new SchemaParser();
+					const parser = new SchemaParser({
+						ajv_options: {},
+						factory,
+					});
+
 					const instance = from_parser_default
 						? parser.parse(schema)
 						: new NonEmptyString(
@@ -111,6 +122,7 @@ void describe('identify non-empty String types as expected', () => {
 									...ajv_options,
 									strict: true,
 								}),
+								factory,
 							},
 						);
 
@@ -172,7 +184,8 @@ void describe('identify non-empty String types as expected', () => {
 				const ajv = new Ajv();
 				const instance = new SchemaParser({
 					ajv,
-					types: [new ConstString(undefined, {ajv})],
+					types: [new ConstString(undefined, {ajv, factory})],
+					factory,
 				});
 
 				throws_Error(
