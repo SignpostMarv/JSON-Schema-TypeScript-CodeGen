@@ -408,7 +408,7 @@ class BaseString<
 		if (!('pattern' in schema)) {
 			const sanity_check: StringLiteral<
 				T
-			> = this.factory.createStringLiteral(data);
+			> = this.ts.factory.createStringLiteral(data);
 
 			result = sanity_check as typeof result;
 		} else {
@@ -420,7 +420,7 @@ class BaseString<
 					StringLiteral<T>,
 					StringLiteral<Exclude<Pattern, undefined>>,
 				]
-			> = this.factory.createCallExpression<
+			> = this.ts.factory.createCallExpression<
 				Identifier<'StringPassesRegexGuard'>,
 				never[],
 				[
@@ -428,11 +428,11 @@ class BaseString<
 					StringLiteral<Exclude<Pattern, undefined>>,
 				]
 			>(
-				this.factory.createIdentifier('StringPassesRegexGuard'),
+				this.ts.factory.createIdentifier('StringPassesRegexGuard'),
 				[],
 				[
-					this.factory.createStringLiteral(data),
-					this.factory.createStringLiteral(
+					this.ts.factory.createStringLiteral(data),
+					this.ts.factory.createStringLiteral(
 						schema.pattern as Exclude<Pattern, undefined>,
 					),
 				],
@@ -514,9 +514,9 @@ class BaseString<
 		}[StringMode];
 
 		if ('enum' in schema) {
-			const sanity_check = this.factory.createUnionTypeNode(
+			const sanity_check = this.ts.factory.createUnionTypeNode(
 				StringTupleToLiteralTypeNodeTuple(
-					this.factory,
+					this.ts.factory,
 					schema.enum,
 				),
 			);
@@ -526,11 +526,11 @@ class BaseString<
 			const sanity_check: TypeReferenceNode<
 				'StringPassesRegex',
 				[LiteralTypeNode<StringLiteral>]
-			> = this.factory.createTypeReferenceNode(
+			> = this.ts.factory.createTypeReferenceNode(
 				'StringPassesRegex',
 				[
-					this.factory.createLiteralTypeNode(
-						this.factory.createStringLiteral(schema.pattern),
+					this.ts.factory.createLiteralTypeNode(
+						this.ts.factory.createStringLiteral(schema.pattern),
 					),
 				],
 			);
@@ -548,7 +548,7 @@ class BaseString<
 			if (undefined === schema.const) {
 				const sanity_check: KeywordTypeNode<
 					SyntaxKind.StringKeyword
-				> = this.factory.createKeywordTypeNode(
+				> = this.ts.factory.createKeywordTypeNode(
 					this.ts.SyntaxKind.StringKeyword,
 				);
 
@@ -558,8 +558,8 @@ class BaseString<
 			} else {
 				const sanity_check: LiteralTypeNode<
 					StringLiteral<Exclude<Const, undefined>>
-				> = this.factory.createLiteralTypeNode(
-					this.factory.createStringLiteral(
+				> = this.ts.factory.createLiteralTypeNode(
+					this.ts.factory.createStringLiteral(
 						schema.const as Exclude<Const, undefined>,
 					),
 				);
@@ -581,14 +581,14 @@ class BaseString<
 					KeywordTypeNode,
 					LiteralTypeNode<StringLiteral>,
 				]
-			> = this.factory.createTypeReferenceNode(
+			> = this.ts.factory.createTypeReferenceNode(
 				'Exclude',
 				[
-					this.factory.createKeywordTypeNode(
+					this.ts.factory.createKeywordTypeNode(
 						this.ts.SyntaxKind.StringKeyword,
 					),
-					this.factory.createLiteralTypeNode(
-						this.factory.createStringLiteral(''),
+					this.ts.factory.createLiteralTypeNode(
+						this.ts.factory.createStringLiteral(''),
 					),
 				],
 			);
@@ -597,7 +597,7 @@ class BaseString<
 		} else {
 			const sanity_check: KeywordTypeNode<
 				SyntaxKind.StringKeyword
-			> = this.factory.createKeywordTypeNode(
+			> = this.ts.factory.createKeywordTypeNode(
 				this.ts.SyntaxKind.StringKeyword,
 			);
 

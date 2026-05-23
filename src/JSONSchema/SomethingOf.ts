@@ -364,11 +364,11 @@ abstract class SomethingOf<
 		if (SomethingOf.#is_allOf_schema(schema)) {
 			const sanity_check: IntersectionTypeNode<
 				[TypeNode, ...TypeNode[]]
-			> = this.factory.createIntersectionTypeNode(sub_types);
+			> = this.ts.factory.createIntersectionTypeNode(sub_types);
 
 			result = sanity_check as typeof result;
 		} else {
-			const sanity_check = this.factory.createUnionTypeNode(
+			const sanity_check = this.ts.factory.createUnionTypeNode(
 				sub_types,
 			);
 
@@ -503,7 +503,7 @@ abstract class SomethingOf<
 			);
 		}
 
-		return this.factory.createObjectLiteralExpression(
+		return this.ts.factory.createObjectLiteralExpression(
 			properties,
 			true,
 		);

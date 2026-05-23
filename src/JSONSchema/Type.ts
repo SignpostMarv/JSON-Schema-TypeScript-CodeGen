@@ -173,10 +173,6 @@ abstract class Type<
 
 	protected ts: ts;
 
-	protected get factory(): NodeFactory {
-		return this.ts.factory;
-	}
-
 	#check_type: Is<T>;
 
 	#check_schema: Is<TypeDefinition>;

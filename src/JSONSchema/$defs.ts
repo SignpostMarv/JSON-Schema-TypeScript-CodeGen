@@ -185,7 +185,7 @@ export class $defs extends Type<
 	}
 
 	generate_typescript_data(): ObjectLiteralExpression<[]> {
-		return this.factory.createObjectLiteralExpression([]);
+		return this.ts.factory.createObjectLiteralExpression([]);
 	}
 
 	generate_typescript_type({
@@ -198,7 +198,7 @@ export class $defs extends Type<
 	}): Promise<NamedExports> {
 		const types = Object.keys($defs).map(
 			(name) => {
-				return this.factory.createExportSpecifier(
+				return this.ts.factory.createExportSpecifier(
 					true,
 					undefined,
 					adjust_name_finisher(
@@ -209,7 +209,7 @@ export class $defs extends Type<
 			},
 		);
 
-		return Promise.resolve(this.factory.createNamedExports(types));
+		return Promise.resolve(this.ts.factory.createNamedExports(types));
 	}
 
 	static generate_schema_definition(): Readonly<$defs_schema> {

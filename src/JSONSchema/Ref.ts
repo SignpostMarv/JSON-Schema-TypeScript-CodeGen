@@ -241,7 +241,7 @@ class $ref extends
 			this.needs_import.add(name);
 		}
 
-		return Promise.resolve(this.factory.createTypeReferenceNode(
+		return Promise.resolve(this.ts.factory.createTypeReferenceNode(
 			name,
 		));
 	}

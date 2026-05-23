@@ -556,7 +556,7 @@ class ArrayType<
 			throw new TypeError('data does not pass type check!');
 		}
 
-		return this.factory.createArrayLiteralExpression(
+		return this.ts.factory.createArrayLiteralExpression(
 			data.map((value, i): T4 => {
 				const index = PositiveIntegerOrZeroGuard(i);
 				const element = ArrayType.#convert(
@@ -619,7 +619,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				TupleTypeNode<T2, T3>
 			> = ArrayType.#generate_typescript_type_has_prefixItems(
-				this.factory,
+				this.ts.factory,
 				data,
 				schema as array_type<
 					'prefixItems',

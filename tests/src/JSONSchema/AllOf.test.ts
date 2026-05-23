@@ -723,7 +723,7 @@ void describe('AllOf', () => {
 						ObjectOfSchemas
 					> {
 						generate_typescript_data() {
-							return this.factory.createKeywordTypeNode(
+							return this.ts.factory.createKeywordTypeNode(
 								SyntaxKind.UnknownKeyword,
 							) as unknown as ObjectLiteralExpression;
 						}
@@ -814,7 +814,8 @@ void describe('AllOf', () => {
 						ObjectOfSchemas
 					> {
 						generate_typescript_data() {
-							return this.factory.createObjectLiteralExpression([
+							// oxlint-disable-next-line @stylistic/max-len
+							return this.ts.factory.createObjectLiteralExpression([
 								factory.createMethodDeclaration(
 									undefined,
 									undefined,

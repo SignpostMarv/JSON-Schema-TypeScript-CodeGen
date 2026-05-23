@@ -274,7 +274,7 @@ class TemplatedString<
 			);
 		}
 
-		return this.factory.createStringLiteral(data);
+		return this.ts.factory.createStringLiteral(data);
 	}
 
 	async generate_typescript_type({
@@ -611,7 +611,7 @@ abstract class MacroToTemplatedString<
 			);
 		}
 
-		return this.factory.createStringLiteral(data);
+		return this.ts.factory.createStringLiteral(data);
 	}
 }
 

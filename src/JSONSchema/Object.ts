@@ -401,7 +401,7 @@ class ObjectUnspecified<
 		>,
 	): ObjectLiteralExpression {
 		return ObjectUnspecified.#createObjectLiteralExpression(
-			this.factory,
+			this.ts.factory,
 			this.properties_mode,
 			data,
 			schema,
@@ -462,7 +462,7 @@ class ObjectUnspecified<
 				$ref: schema.$ref,
 			}, (maybe): maybe is $ref => $ref.is_a(maybe));
 
-			object_type = this.factory.createIntersectionTypeNode([
+			object_type = this.ts.factory.createIntersectionTypeNode([
 				await $ref_instance.generate_typescript_type({
 					schema: {
 						$ref: schema.$ref,
