@@ -1,5 +1,6 @@
 import type {
 	NodeFactory,
+	ts,
 } from './src/typescript/types.ts';
 
 export * from './src/coercions.ts';
@@ -21,4 +22,5 @@ export * from './src/MaybeCacheCompile.ts';
 
 export type {
 	NodeFactory,
+	ts,
 };

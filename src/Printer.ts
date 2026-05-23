@@ -57,7 +57,7 @@ import type {
 
 type name_to_filename_callback = (name: string) => `./${string}.ts`;
 
-type ts = (
+type printer_ts = (
 	& base_ts
 	& {
 		createPrinter: typeof createPrinter,
@@ -118,7 +118,7 @@ class Printer {
 		data: unknown,
 		schema: SchemaObject,
 		schema_parser: SchemaParser,
-		ts: ts,
+		ts: printer_ts,
 		type_name: string = 'foo',
 		data_name: string = 'bar',
 		output_types: boolean = true,
@@ -638,6 +638,10 @@ class Printer {
 		return result;
 	}
 }
+
+export type {
+	printer_ts,
+};
 
 export {
 	Printer,
