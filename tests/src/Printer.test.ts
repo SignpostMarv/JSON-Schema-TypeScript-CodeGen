@@ -1139,7 +1139,7 @@ void describe('Printer', () => {
 
 				assert.equal(
 					params.length,
-					5,
+					6,
 				);
 
 				params.push(true, false);
@@ -1209,7 +1209,7 @@ void describe('Printer', () => {
 
 				assert.equal(
 					params.length,
-					5,
+					6,
 				);
 
 				params.push(false, true);
@@ -1281,7 +1281,7 @@ void describe('Printer', () => {
 
 					assert.equal(
 						params.length,
-						5,
+						6,
 					);
 
 					params.push(false, false);
