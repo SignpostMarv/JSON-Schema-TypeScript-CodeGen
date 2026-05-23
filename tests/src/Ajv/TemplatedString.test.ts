@@ -15,6 +15,8 @@ import type {
 	TypeNode,
 } from 'typescript';
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -93,18 +95,24 @@ function is_unspecified_type(
 
 void describe('TemplatedString', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	void it('comes out of SchemaParser', () => {
 		const ajv = new Ajv({strict: true});
-		const schema_parser = new SchemaParser({ajv, factory});
+		const schema_parser = new SchemaParser({ajv, ts});
 		schema_parser.types = [
 			new TemplatedString({
 				ajv,
-				factory,
+				ts,
 			}, ['foo', {type: 'string'}, 'bar']),
 			new TemplatedString({
 				ajv,
-				factory,
+				ts,
 			}, ['foo', {type: 'string'}, 'baz']),
 			...schema_parser.types,
 		];
@@ -130,7 +138,7 @@ void describe('TemplatedString', () => {
 	void it('compiles to macro', () => {
 		const ajv = new Ajv({strict: true});
 
-		new TemplatedString({ajv, factory});
+		new TemplatedString({ajv, ts});
 
 		const validator = ajv.compile({
 			type: 'string',
@@ -715,7 +723,7 @@ void describe('TemplatedString', () => {
 					const ajv = new Ajv({strict: true});
 					const instance = new TemplatedString({
 						ajv,
-						factory,
+						ts,
 					}, specified);
 
 					const actual = instance.check_type(value);
@@ -737,7 +745,7 @@ void describe('TemplatedString', () => {
 	void describe('::generate_typescript_data()', () => {
 		void it('fails as expected', () => {
 			const ajv = new Ajv({strict: true});
-			const instance = new TemplatedString({ajv, factory}, ['foo']);
+			const instance = new TemplatedString({ajv, ts}, ['foo']);
 			assert.throws(() => instance.generate_typescript_data('bar'));
 		});
 
@@ -754,7 +762,7 @@ void describe('TemplatedString', () => {
 					const ajv = new Ajv({strict: true});
 					const instance = new TemplatedString({
 						ajv,
-						factory,
+						ts,
 					}, specified);
 
 					const data = instance.generate_typescript_data(
@@ -775,7 +783,7 @@ void describe('TemplatedString', () => {
 			const instance = new TemplatedString<
 				string,
 				['foo']
-			>({ajv, factory}, ['foo']);
+			>({ajv, ts}, ['foo']);
 
 			await assert.rejects(() => instance.generate_typescript_type({
 				data: 'bar',
@@ -800,7 +808,7 @@ void describe('TemplatedString', () => {
 					const ajv = new Ajv({strict: true});
 					const instance = new TemplatedString({
 						ajv,
-						factory,
+						ts,
 					}, specified);
 
 					const schema: templated_string_type = {

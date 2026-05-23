@@ -1,8 +1,5 @@
 import type {
 	KeywordTypeNode,
-} from 'typescript';
-
-import {
 	SyntaxKind,
 } from 'typescript';
 
@@ -552,7 +549,7 @@ class BaseString<
 				const sanity_check: KeywordTypeNode<
 					SyntaxKind.StringKeyword
 				> = this.factory.createKeywordTypeNode(
-					SyntaxKind.StringKeyword,
+					this.ts.SyntaxKind.StringKeyword,
 				);
 
 				double_sanity_check = sanity_check as (
@@ -588,7 +585,7 @@ class BaseString<
 				'Exclude',
 				[
 					this.factory.createKeywordTypeNode(
-						SyntaxKind.StringKeyword,
+						this.ts.SyntaxKind.StringKeyword,
 					),
 					this.factory.createLiteralTypeNode(
 						this.factory.createStringLiteral(''),
@@ -600,7 +597,9 @@ class BaseString<
 		} else {
 			const sanity_check: KeywordTypeNode<
 				SyntaxKind.StringKeyword
-			> = this.factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
+			> = this.factory.createKeywordTypeNode(
+				this.ts.SyntaxKind.StringKeyword,
+			);
 
 			result = sanity_check as typeof result;
 		}

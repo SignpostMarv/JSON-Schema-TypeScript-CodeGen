@@ -9,6 +9,8 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -37,6 +39,12 @@ import {
 
 void describe('EnumString', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	void describe('::check_type()', () => {
 		type DataSet = [
@@ -67,8 +75,8 @@ void describe('EnumString', () => {
 				pass_or_fail,
 			], j) => {
 				const ajv = new Ajv({strict: true});
-				const a = new EnumString(type_schema.enum, {ajv, factory});
-				const b = new EnumString([], {ajv, factory});
+				const a = new EnumString(type_schema.enum, {ajv, ts});
+				const b = new EnumString([], {ajv, ts});
 
 				void it(
 					`${
@@ -169,13 +177,13 @@ void describe('EnumString', () => {
 			const ajv = new Ajv({strict: true});
 			const instance = new EnumString(
 				'enum' in type_schema ? type_schema.enum : [],
-				{ajv, factory},
+				{ajv, ts},
 			);
 
 			void it(`behaves with data_sets[${i}][2][${j}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
-					schema_parser: new SchemaParser({ajv, factory}),
+					schema_parser: new SchemaParser({ajv, ts}),
 				});
 
 				await assert.doesNotReject(() => promise);
@@ -186,7 +194,7 @@ void describe('EnumString', () => {
 
 				const data = instance.generate_typescript_data(
 					value,
-					new SchemaParser({ajv, factory}),
+					new SchemaParser({ajv, ts}),
 					type_schema,
 				);
 

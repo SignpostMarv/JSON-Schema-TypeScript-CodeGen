@@ -9,6 +9,8 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -38,6 +40,12 @@ import {
 
 void describe('PatternString', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	void describe('::check_type()', () => {
 		type DataSet = [
@@ -70,9 +78,9 @@ void describe('PatternString', () => {
 				const ajv = new Ajv({strict: true});
 				const a = new PatternString(type_schema.pattern, {
 					ajv,
-					factory,
+					ts,
 				});
-				const b = new PatternString(undefined, {ajv, factory});
+				const b = new PatternString(undefined, {ajv, ts});
 
 				void it(
 					`${
@@ -134,13 +142,13 @@ void describe('PatternString', () => {
 			const ajv = new Ajv({strict: true});
 			const instance = new PatternString(
 				'pattern' in type_schema ? type_schema.pattern : undefined,
-				{ajv, factory},
+				{ajv, ts},
 			);
 
 			void it(`behaves with data_sets[${i}]`, async () => {
 				const promise = instance.generate_typescript_type({
 					schema: type_schema,
-					schema_parser: new SchemaParser({ajv, factory}),
+					schema_parser: new SchemaParser({ajv, ts}),
 				});
 
 				await assert.doesNotReject(() => promise);
@@ -155,7 +163,7 @@ void describe('PatternString', () => {
 
 				const data = instance.generate_typescript_data(
 					value,
-					new SchemaParser({ajv, factory}),
+					new SchemaParser({ajv, ts}),
 					type_schema,
 				);
 

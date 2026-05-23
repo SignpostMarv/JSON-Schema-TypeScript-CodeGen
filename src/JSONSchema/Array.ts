@@ -2,9 +2,6 @@ import type {
 	Expression,
 	TypeNode,
 } from 'typescript';
-import {
-	SyntaxKind,
-} from 'typescript';
 
 import type {
 	SchemaDefinitionDefinitionWith$defs,
@@ -29,6 +26,7 @@ import type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
 	NodeFactory,
+	ts,
 	TupleTypeNode,
 } from '../typescript/types.ts';
 
@@ -639,7 +637,7 @@ class ArrayType<
 				}[MinItems_mode],
 				prefixItems: TupleTypeNode<T2, T3>,
 			}[ArrayMode]> = ArrayType.#generate_typescript_type_has_items(
-				this.factory,
+				this.ts,
 				data,
 				schema,
 				schema_parser,
@@ -1568,7 +1566,7 @@ class ArrayType<
 		ArrayMode extends array_mode,
 		MinItems_mode extends MinItemsType_mode,
 	>(
-		factory: NodeFactory,
+		ts: ts,
 		data: T1,
 		schema: (
 			| array_type<
@@ -1599,7 +1597,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				TupleTypeNode<T2, T3>
 			> = this.#generate_typescript_type_has_items_and_minItems(
-				factory,
+				ts,
 				data,
 				schema,
 				schema_parser,
@@ -1610,7 +1608,7 @@ class ArrayType<
 			const sanity_check: Promise<
 				ArrayTypeNode<T2>
 			> = this.#generate_typescript_type_has_items_only(
-				factory,
+				ts,
 				data,
 				schema,
 				schema_parser,
@@ -1643,7 +1641,7 @@ class ArrayType<
 			...SchemaObject[],
 		],
 	>(
-		factory: NodeFactory,
+		ts: ts,
 		data: T1,
 		schema: array_type<
 			'items',
@@ -1679,8 +1677,8 @@ class ArrayType<
 			++i;
 		}
 
-		tuple_members.push(factory.createRestTypeNode(
-			factory.createArrayTypeNode(
+		tuple_members.push(ts.factory.createRestTypeNode(
+			ts.factory.createArrayTypeNode(
 				await sub_type.generate_typescript_type({
 					data: undefined,
 					schema: schema.items,
@@ -1689,7 +1687,7 @@ class ArrayType<
 			),
 		));
 
-		return factory.createTupleTypeNode<T2, T3>(tuple_members as T3);
+		return ts.factory.createTupleTypeNode<T2, T3>(tuple_members as T3);
 	}
 
 	static async #generate_typescript_type_has_items_only<
@@ -1706,7 +1704,7 @@ class ArrayType<
 			...SchemaObject[],
 		],
 	>(
-		factory: NodeFactory,
+		ts: ts,
 		data: T1,
 		schema: array_type<
 			'items',
@@ -1720,15 +1718,15 @@ class ArrayType<
 	): Promise<ArrayTypeNode<T2>> {
 		if (0 === Object.keys(schema?.items || {}).length) {
 			if (undefined === data || data.length < 1) {
-				return factory.createArrayTypeNode(
-					factory.createKeywordTypeNode(
-						SyntaxKind.NeverKeyword,
+				return ts.factory.createArrayTypeNode(
+					ts.factory.createKeywordTypeNode(
+						ts.SyntaxKind.NeverKeyword,
 					) as T2,
 				);
 			}
 
-			return factory.createArrayTypeNode(
-				factory.createUnionTypeNode(
+			return ts.factory.createArrayTypeNode(
+				ts.factory.createUnionTypeNode(
 					await Promise.all(
 						data.map(
 							(sub_data) => schema_parser
@@ -1749,7 +1747,7 @@ class ArrayType<
 			schema.items,
 		));
 
-		return factory.createArrayTypeNode(
+		return ts.factory.createArrayTypeNode(
 			await sub_type.generate_typescript_type({
 				data: data,
 				schema: schema.items,

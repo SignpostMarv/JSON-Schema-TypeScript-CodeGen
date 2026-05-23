@@ -5,9 +5,6 @@ import type {
 	PropertySignature,
 	TypeNode,
 } from 'typescript';
-import {
-	SyntaxKind,
-} from 'typescript';
 
 import type {
 	SchemaDefinitionDefinition,
@@ -37,6 +34,7 @@ import type {
 import type {
 	IntersectionTypeNode,
 	NodeFactory,
+	ts,
 	TypeLiteralNode,
 	TypeReferenceNode,
 } from '../typescript/types.ts';
@@ -367,7 +365,7 @@ class ObjectUnspecified<
 		{
 			ajv,
 			schema_compiler,
-			factory,
+			ts,
 		}: ObjectUncertain_options<
 			object_schema<
 				PropertiesMode
@@ -386,7 +384,7 @@ class ObjectUnspecified<
 			type_definition: options,
 			schema_definition: options,
 			schema_compiler,
-			factory,
+			ts,
 		});
 		this.properties_mode = options.properties_mode;
 	}
@@ -450,7 +448,7 @@ class ObjectUnspecified<
 				object_TypeLiteralNode<PropertiesMode>,
 			]>
 		) = ObjectUnspecified.#createTypeNode(
-			this.factory,
+			this.ts,
 			this.properties_mode,
 			schema,
 			schema_parser,
@@ -906,7 +904,7 @@ class ObjectUnspecified<
 		Properties extends ObjectOfSchemas,
 		PatternProperties extends ObjectOfSchemas,
 	>(
-		factory: NodeFactory,
+		ts: ts,
 		properties_mode: PropertiesMode,
 		schema: object_type<
 			PropertiesMode,
@@ -918,19 +916,21 @@ class ObjectUnspecified<
 		schema_parser: SchemaParser,
 	): Promise<object_TypeLiteralNode<PropertiesMode>> {
 		if (!this.#is_schema_with_some_type_of_properties(schema)) {
-			return factory.createTypeLiteralNode([
-				factory.createIndexSignature(
+			return ts.factory.createTypeLiteralNode([
+				ts.factory.createIndexSignature(
 					undefined,
 					[
-						factory.createParameterDeclaration(
+						ts.factory.createParameterDeclaration(
 							undefined,
 							undefined,
-							factory.createIdentifier('key'),
+							ts.factory.createIdentifier('key'),
 							undefined,
-							factory.createToken(SyntaxKind.StringKeyword),
+							ts.factory.createToken(
+								ts.SyntaxKind.StringKeyword,
+							),
 						),
 					],
-					factory.createToken(SyntaxKind.UnknownKeyword),
+					ts.factory.createToken(ts.SyntaxKind.UnknownKeyword),
 				),
 			]) as object_TypeLiteralNode<PropertiesMode>;
 		}
@@ -943,16 +943,18 @@ class ObjectUnspecified<
 				schema.properties,
 			).map(async (
 				property,
-			): Promise<PropertySignature> => factory.createPropertySignature(
+			): Promise<
+				PropertySignature
+			> => ts.factory.createPropertySignature(
 				undefined,
-				this.#computedProperty_or_string(factory, property),
+				this.#computedProperty_or_string(ts.factory, property),
 				(
 					(
 						this.#is_schema_with_required(schema)
 						&& schema.required.includes(property)
 					)
 						? undefined
-						: factory.createToken(SyntaxKind.QuestionToken)
+						: ts.factory.createToken(ts.SyntaxKind.QuestionToken)
 				),
 				await this.#generate_type(
 					properties_mode,
@@ -994,18 +996,18 @@ class ObjectUnspecified<
 		>;
 
 		if (properties.length > 0 && patterned.length > 0) {
-			result = factory.createIntersectionTypeNode([
-				factory.createTypeLiteralNode(properties),
+			result = ts.factory.createIntersectionTypeNode([
+				ts.factory.createTypeLiteralNode(properties),
 				this.#patterned_literal_node(
-					factory,
+					ts,
 					patterned as [TypeNode, ...TypeNode[]],
 				),
 			]);
 		} else if (properties.length > 0) {
-			result = factory.createTypeLiteralNode(properties);
+			result = ts.factory.createTypeLiteralNode(properties);
 		} else {
 			result = this.#patterned_literal_node(
-				factory,
+				ts,
 				patterned as [TypeNode, ...TypeNode[]],
 			);
 		}
@@ -1070,27 +1072,27 @@ class ObjectUnspecified<
 	}
 
 	static #patterned_literal_node(
-		factory: NodeFactory,
+		ts: ts,
 		value: [TypeNode, ...TypeNode[]],
 	): TypeLiteralNode<IndexSignatureDeclaration> {
-		return factory.createTypeLiteralNode([
-			factory.createIndexSignature(
+		return ts.factory.createTypeLiteralNode([
+			ts.factory.createIndexSignature(
 				undefined,
 				[
-					factory.createParameterDeclaration(
+					ts.factory.createParameterDeclaration(
 						undefined,
 						undefined,
 						'key',
 						undefined,
-						factory.createKeywordTypeNode(
-							SyntaxKind.StringKeyword,
+						ts.factory.createKeywordTypeNode(
+							ts.SyntaxKind.StringKeyword,
 						),
 						undefined,
 					),
 				],
 				1 === value.length
 					? value[0]
-					: factory.createUnionTypeNode(
+					: ts.factory.createUnionTypeNode(
 						value as [TypeNode, TypeNode, ...TypeNode[]],
 					),
 			),

@@ -13,6 +13,8 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -51,6 +53,12 @@ import {
 
 void describe('identify non-empty String types as expected', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	const string_expectations: [
 		non_empty_string_type, // input for SchemaParser
@@ -111,7 +119,7 @@ void describe('identify non-empty String types as expected', () => {
 				async () => {
 					const parser = new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					});
 
 					const instance = from_parser_default
@@ -122,7 +130,7 @@ void describe('identify non-empty String types as expected', () => {
 									...ajv_options,
 									strict: true,
 								}),
-								factory,
+								ts,
 							},
 						);
 
@@ -184,8 +192,8 @@ void describe('identify non-empty String types as expected', () => {
 				const ajv = new Ajv();
 				const instance = new SchemaParser({
 					ajv,
-					types: [new ConstString(undefined, {ajv, factory})],
-					factory,
+					types: [new ConstString(undefined, {ajv, ts})],
+					ts,
 				});
 
 				throws_Error(

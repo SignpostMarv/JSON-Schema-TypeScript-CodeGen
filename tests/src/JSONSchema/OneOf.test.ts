@@ -13,6 +13,8 @@ import type {
 	TypeNode,
 } from 'typescript';
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -47,6 +49,12 @@ import {
 
 void describe('OneOf', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	type DataSet<
 		Mode extends something_of_mode = something_of_mode,
@@ -99,7 +107,7 @@ void describe('OneOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({}, {ajv, factory}),
+					(ajv) => new $ref({}, {ajv, ts}),
 					false,
 				],
 			],
@@ -225,12 +233,12 @@ void describe('OneOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
-						factory,
+						ts,
 					});
 
 					const result = instance.generate_typescript_data(
 						data,
-						new SchemaParser({ajv, factory}),
+						new SchemaParser({ajv, ts}),
 						OneOf.generate_type_definition<'oneOf'>(
 							type_definition,
 						),
@@ -243,7 +251,7 @@ void describe('OneOf', () => {
 					if (undefined !== data) {
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
-							new SchemaParser({ajv, factory}),
+							new SchemaParser({ajv, ts}),
 							OneOf.generate_type_definition<'oneOf'>(
 								type_definition,
 							),
@@ -272,7 +280,7 @@ void describe('OneOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
-						factory,
+						ts,
 					});
 
 					const promise = instance.generate_typescript_type({
@@ -282,7 +290,7 @@ void describe('OneOf', () => {
 						>(
 							type_definition,
 						),
-						schema_parser: new SchemaParser({ajv, factory}),
+						schema_parser: new SchemaParser({ajv, ts}),
 					});
 
 					await assert.doesNotReject(() => promise);
@@ -309,7 +317,7 @@ void describe('OneOf', () => {
 					ajv,
 					type_definition,
 					schema_definition,
-					factory,
+					ts,
 				});
 
 				assert.ok(OneOf.is_a(instance));
@@ -324,11 +332,11 @@ void describe('OneOf', () => {
 							kind: 'oneOf',
 							mode: 'unspecified',
 						},
-						factory,
+						ts,
 					}),
 				));
 				assert.ok(!OneOf.is_a<OneOf<unknown>>(
-					new $ref({}, {ajv, factory}),
+					new $ref({}, {ajv, ts}),
 				));
 			});
 

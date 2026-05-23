@@ -17,6 +17,9 @@ import {
 } from '@signpostmarv/ts-assert';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
 
@@ -34,13 +37,21 @@ import {
 } from '../../../src/typescript/coercions.ts';
 
 void describe('StringStartsWith', () => {
+	const factory = coerce_factory(ts_factory);
+
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
+
 	void it('comes out of SchemaParser', () => {
-		const factory = coerce_factory(ts_factory);
 		const ajv = new Ajv({strict: true});
-		const schema_parser = new SchemaParser({ajv, factory});
+		const schema_parser = new SchemaParser({ajv, ts});
 		schema_parser.types = [
-			new StringStartsWith('foo', {ajv, factory}),
-			new StringStartsWith('baz', {ajv, factory}),
+			new StringStartsWith('foo', {ajv, ts}),
+			new StringStartsWith('baz', {ajv, ts}),
 			...schema_parser.types,
 		];
 
@@ -54,9 +65,8 @@ void describe('StringStartsWith', () => {
 	});
 
 	void describe('::generate_typescript_data()', () => {
-		const factory = coerce_factory(ts_factory);
 		const ajv = new Ajv({strict: true});
-		const instance = new StringStartsWith('foo', {ajv, factory});
+		const instance = new StringStartsWith('foo', {ajv, ts});
 
 		const a = instance.generate_typescript_data('foo');
 		const b = instance.generate_typescript_data('foobar');

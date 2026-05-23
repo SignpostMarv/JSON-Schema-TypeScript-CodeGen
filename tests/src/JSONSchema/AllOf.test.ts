@@ -17,6 +17,8 @@ import type {
 import {
 	SyntaxKind,
 	factory as ts_factory,
+	isObjectLiteralExpression as ts_isObjectLiteralExpression,
+	isPropertyAssignment as ts_isPropertyAssignment,
 } from 'typescript';
 
 import {
@@ -59,6 +61,12 @@ import {
 
 void describe('AllOf', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression: ts_isObjectLiteralExpression,
+		isPropertyAssignment: ts_isPropertyAssignment,
+	};
 
 	type DataSet<
 		Mode extends something_of_mode = something_of_mode,
@@ -111,7 +119,7 @@ void describe('AllOf', () => {
 			],
 			[
 				[
-					(ajv) => new $ref({}, {ajv, factory}),
+					(ajv) => new $ref({}, {ajv, ts}),
 					false,
 				],
 			],
@@ -237,12 +245,12 @@ void describe('AllOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
-						factory,
+						ts,
 					});
 
 					const result = instance.generate_typescript_data(
 						data,
-						new SchemaParser({ajv, factory}),
+						new SchemaParser({ajv, ts}),
 						AllOf.generate_type_definition<'allOf'>(
 							type_definition,
 						),
@@ -258,7 +266,7 @@ void describe('AllOf', () => {
 								type_definition,
 							);
 
-						const parser = new SchemaParser({ajv, factory});
+						const parser = new SchemaParser({ajv, ts});
 
 						assert.throws(() => instance.generate_typescript_data(
 							undefined,
@@ -747,16 +755,16 @@ void describe('AllOf', () => {
 								kind: 'allOf',
 								mode: 'unspecified',
 							},
-							factory,
+							ts,
 						}),
-						new $ref({}, {ajv, factory}),
+						new $ref({}, {ajv, ts}),
 						new foo(
 							{
 								properties_mode: 'properties',
 							},
 							{
 								ajv,
-								factory,
+								ts,
 							},
 						),
 					];
@@ -847,16 +855,16 @@ void describe('AllOf', () => {
 								kind: 'allOf',
 								mode: 'unspecified',
 							},
-							factory,
+							ts,
 						}),
-						new $ref({}, {ajv, factory}),
+						new $ref({}, {ajv, ts}),
 						new foo(
 							{
 								properties_mode: 'properties',
 							},
 							{
 								ajv,
-								factory,
+								ts,
 							},
 						),
 					];
@@ -878,7 +886,7 @@ void describe('AllOf', () => {
 			void it(`behaves with data_sets[${i}]`, () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 
 				if (modifier) {
@@ -926,7 +934,7 @@ void describe('AllOf', () => {
 						ajv,
 						type_definition,
 						schema_definition,
-						factory,
+						ts,
 					});
 
 					const promise = instance.generate_typescript_type({
@@ -936,7 +944,7 @@ void describe('AllOf', () => {
 						>(
 							type_definition,
 						),
-						schema_parser: new SchemaParser({ajv, factory}),
+						schema_parser: new SchemaParser({ajv, ts}),
 					});
 
 					await assert.doesNotReject(() => promise);
@@ -963,7 +971,7 @@ void describe('AllOf', () => {
 					ajv,
 					type_definition,
 					schema_definition,
-					factory,
+					ts,
 				});
 
 				assert.ok(AllOf.is_a(instance));
@@ -978,11 +986,11 @@ void describe('AllOf', () => {
 							kind: 'allOf',
 							mode: 'unspecified',
 						},
-						factory,
+						ts,
 					}),
 				));
 				assert.ok(!AllOf.is_a<AllOf<unknown>>(
-					new $ref({}, {ajv, factory}),
+					new $ref({}, {ajv, ts}),
 				));
 			});
 

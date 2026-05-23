@@ -13,6 +13,9 @@ import {
 } from '@satisfactory-dev/custom-assert';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
 
@@ -37,6 +40,12 @@ import {
 
 void describe('Type', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	void describe('::maybe_add_$defs()', () => {
 		type DataSet = (
@@ -74,7 +83,7 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv, factory}),
+				(ajv: Ajv) => new String({ajv, ts}),
 			],
 			[
 				{
@@ -86,14 +95,14 @@ void describe('Type', () => {
 					$ref: '#/$defs/foo',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv, factory}),
+				(ajv: Ajv) => new String({ajv, ts}),
 			],
 			[
 				{
 					type: 'string',
 				},
 				false,
-				(ajv: Ajv) => new String({ajv, factory}),
+				(ajv: Ajv) => new String({ajv, ts}),
 			],
 			[
 				{
@@ -101,7 +110,7 @@ void describe('Type', () => {
 					minLength: 1,
 				},
 				false,
-				(ajv: Ajv) => new NonEmptyString({ajv, factory}),
+				(ajv: Ajv) => new NonEmptyString({ajv, ts}),
 			],
 			[
 				{
@@ -109,7 +118,7 @@ void describe('Type', () => {
 					const: 'foo',
 				},
 				false,
-				(ajv: Ajv) => new ConstString(undefined, {ajv, factory}),
+				(ajv: Ajv) => new ConstString(undefined, {ajv, ts}),
 			],
 			[
 				{
@@ -120,7 +129,7 @@ void describe('Type', () => {
 					],
 				},
 				false,
-				(ajv: Ajv) => new EnumString([], {ajv, factory}),
+				(ajv: Ajv) => new EnumString([], {ajv, ts}),
 			],
 			[
 				{
@@ -128,7 +137,7 @@ void describe('Type', () => {
 					pattern: '.+',
 				},
 				false,
-				(ajv: Ajv) => new PatternString(undefined, {ajv, factory}),
+				(ajv: Ajv) => new PatternString(undefined, {ajv, ts}),
 			],
 			[
 				{

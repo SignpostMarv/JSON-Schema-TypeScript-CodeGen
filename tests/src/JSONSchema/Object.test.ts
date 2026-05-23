@@ -16,6 +16,8 @@ import type {
 import {
 	SyntaxKind,
 	factory as ts_factory,
+	isObjectLiteralExpression as ts_isObjectLiteralExpression,
+	isPropertyAssignment as ts_isPropertyAssignment,
 } from 'typescript';
 
 import {
@@ -82,6 +84,12 @@ import {
 
 void describe('ObjectUnspecified', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression: ts_isObjectLiteralExpression,
+		isPropertyAssignment: ts_isPropertyAssignment,
+	};
 
 	void describe('::generate_schema_definition()', () => {
 		type DataSet<
@@ -530,7 +538,7 @@ void describe('ObjectUnspecified', () => {
 							specific_options,
 							{
 								ajv: new Ajv({strict: true}),
-								factory,
+								ts,
 							},
 						);
 
@@ -2161,18 +2169,18 @@ void describe('ObjectUnspecified', () => {
 			void it(`behaves directly with data_sets[${i}]`, () => {
 				const instance = new ObjectUnspecified(
 					specific_options,
-					{ajv, factory},
+					{ajv, ts},
 				);
 
 				do_test(instance, new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				}));
 			});
 			void it(`behaves from schema parser with data_sets[${i}]`, () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 				const instance = schema_parser.parse(type_schema);
 
@@ -2243,7 +2251,7 @@ void describe('ObjectUnspecified', () => {
 				},
 				{
 					ajv,
-					factory,
+					ts,
 				},
 			);
 
@@ -2251,7 +2259,7 @@ void describe('ObjectUnspecified', () => {
 				{
 					foo: 'bar',
 				},
-				new SchemaParser({ajv, factory}),
+				new SchemaParser({ajv, ts}),
 				{
 					type: 'object',
 					required: ['bar'],
@@ -2267,7 +2275,7 @@ void describe('ObjectUnspecified', () => {
 				{
 					foo: 'bar',
 				},
-				new SchemaParser({ajv, factory}),
+				new SchemaParser({ajv, ts}),
 				{
 					$defs: {
 						prop: {
@@ -2306,7 +2314,7 @@ void describe('ObjectUnspecified', () => {
 				},
 				{
 					ajv,
-					factory,
+					ts,
 				},
 			);
 			const schema = type_schema_for_data_set<
@@ -2360,7 +2368,7 @@ void describe('ObjectUnspecified', () => {
 						bat: 'bag',
 					},
 				},
-				new SchemaParser({ajv, factory}),
+				new SchemaParser({ajv, ts}),
 				schema,
 			));
 		});
@@ -2373,7 +2381,7 @@ void describe('ObjectUnspecified', () => {
 				},
 				{
 					ajv,
-					factory,
+					ts,
 				},
 			);
 			const schema = type_schema_for_data_set<
@@ -2437,7 +2445,7 @@ void describe('ObjectUnspecified', () => {
 						bat: 'bag',
 					},
 				},
-				new SchemaParser({ajv, factory}),
+				new SchemaParser({ajv, ts}),
 				schema,
 			);
 
@@ -2536,7 +2544,7 @@ void describe('ObjectUnspecified', () => {
 		void describe(' with external schemas', () => {
 			const parser = new SchemaParser({
 				ajv_options: {},
-				factory,
+				ts,
 			});
 
 			parser.add_schema({
@@ -2939,7 +2947,7 @@ void describe('ObjectUnspecified', () => {
 						{
 							properties_mode: 'properties',
 						},
-						{ajv, factory},
+						{ajv, ts},
 					);
 
 					const type_schema: object_type_with_allOf<
@@ -2984,7 +2992,7 @@ void describe('ObjectUnspecified', () => {
 							bar: 'bar',
 							baz: 'baz',
 						},
-						new SchemaParser({ajv, factory}),
+						new SchemaParser({ajv, ts}),
 						type_schema,
 					));
 				},
@@ -2999,7 +3007,7 @@ void describe('ObjectUnspecified', () => {
 						{
 							properties_mode: 'properties',
 						},
-						{ajv, factory},
+						{ajv, ts},
 					);
 
 					const type_schema: object_type_with_oneOf<
@@ -3042,7 +3050,7 @@ void describe('ObjectUnspecified', () => {
 						{
 							baz: 'baz',
 						},
-						new SchemaParser({ajv, factory}),
+						new SchemaParser({ajv, ts}),
 						type_schema,
 					));
 				},
@@ -3082,14 +3090,14 @@ void describe('ObjectUnspecified', () => {
 			void it(`behaves directly with data_sets[${i}]`, async () => {
 				const instance = new ObjectUnspecified(
 					specific_options,
-					{ajv, factory},
+					{ajv, ts},
 				);
 
 				await do_test(
 					instance,
 					new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					}),
 					PositiveIntegerOrZeroGuard(i),
 				);
@@ -3099,7 +3107,7 @@ void describe('ObjectUnspecified', () => {
 				async () => {
 					const schema_parser = new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					});
 					const instance = schema_parser.parse(type_schema);
 

@@ -5,19 +5,16 @@ import {
 } from 'path';
 
 import type {
-	ExportDeclaration,
-	TypeAliasDeclaration,
-} from 'typescript';
-import {
 	createPrinter,
 	createSourceFile,
 	EmitHint,
-	factory,
+	ExportDeclaration,
 	NewLineKind,
 	NodeFlags,
 	ScriptKind,
 	ScriptTarget,
 	SyntaxKind,
+	TypeAliasDeclaration,
 } from 'typescript';
 
 import {
@@ -54,7 +51,25 @@ import {
 	$defs as $defs_type_handler,
 } from './JSONSchema/$defs.ts';
 
+import type {
+	ts as base_ts,
+} from './typescript/types.ts';
+
 type name_to_filename_callback = (name: string) => `./${string}.ts`;
+
+type ts = (
+	& base_ts
+	& {
+		createPrinter: typeof createPrinter,
+		createSourceFile: typeof createSourceFile,
+		EmitHint: typeof EmitHint,
+		NewLineKind: typeof NewLineKind,
+		NodeFlags: typeof NodeFlags,
+		ScriptKind: typeof ScriptKind,
+		ScriptTarget: typeof ScriptTarget,
+		SyntaxKind: typeof SyntaxKind,
+	}
+);
 
 function data_name_to_filename_default(): './index.ts' {
 	return './index.ts';
@@ -103,6 +118,7 @@ class Printer {
 		data: unknown,
 		schema: SchemaObject,
 		schema_parser: SchemaParser,
+		ts: ts,
 		type_name: string = 'foo',
 		data_name: string = 'bar',
 		output_types: boolean = true,
@@ -127,9 +143,9 @@ class Printer {
 		let type_node: TypeAliasDeclaration|ExportDeclaration;
 
 		if (!(type_for_schema instanceof $defs_type_handler)) {
-			type_node = factory.createTypeAliasDeclaration(
+			type_node = ts.factory.createTypeAliasDeclaration(
 				[
-					factory.createToken(SyntaxKind.ExportKeyword),
+					ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
 				],
 				adjusted_type_name,
 				undefined,
@@ -147,10 +163,10 @@ class Printer {
 					schema_parser,
 				});
 
-			type_result = factory.updateNamedExports(
+			type_result = ts.factory.updateNamedExports(
 				type_result,
 				type_result.elements
-					.map((element) => factory.updateExportSpecifier(
+					.map((element) => ts.factory.updateExportSpecifier(
 						element,
 						false,
 						element.propertyName,
@@ -158,15 +174,15 @@ class Printer {
 					)),
 			);
 
-			type_node = factory.createExportDeclaration(
+			type_node = ts.factory.createExportDeclaration(
 				undefined,
 				true,
 				type_result,
 			);
 		}
 
-		const printer = createPrinter({
-			newLine: NewLineKind.LineFeed,
+		const printer = ts.createPrinter({
+			newLine: ts.NewLineKind.LineFeed,
 			noEmitHelpers: true,
 		});
 
@@ -175,25 +191,25 @@ class Printer {
 
 		const outputs: {[key: `./${string}.ts`]: [string, ...string[]]} = {};
 
-		const source_file = createSourceFile(
+		const source_file = ts.createSourceFile(
 			'index.ts',
 			'',
-			ScriptTarget.Latest,
+			ts.ScriptTarget.Latest,
 			false,
-			ScriptKind.TS,
+			ts.ScriptKind.TS,
 		);
 
 		if (output_data) {
-			const data_node = factory.createVariableStatement(
+			const data_node = ts.factory.createVariableStatement(
 				[
-					factory.createToken(SyntaxKind.ExportKeyword),
+					ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
 				],
-				factory.createVariableDeclarationList(
+				ts.factory.createVariableDeclarationList(
 					[
-						factory.createVariableDeclaration(
+						ts.factory.createVariableDeclaration(
 							adjusted_data_name,
 							undefined,
-							factory.createTypeReferenceNode(
+							ts.factory.createTypeReferenceNode(
 								adjusted_type_name,
 							),
 							type_for_schema.generate_typescript_data(
@@ -203,29 +219,29 @@ class Printer {
 							),
 						),
 					],
-					NodeFlags.Const,
+					ts.NodeFlags.Const,
 				),
 			);
 
 			outputs[data_filename] = [
 				printer.printNode(
-					EmitHint.Unspecified,
-					factory.createImportDeclaration(
+					ts.EmitHint.Unspecified,
+					ts.factory.createImportDeclaration(
 						undefined,
-						factory.createImportClause(
-							SyntaxKind.TypeKeyword,
+						ts.factory.createImportClause(
+							ts.SyntaxKind.TypeKeyword,
 							undefined,
-							factory.createNamedImports([
-								factory.createImportSpecifier(
+							ts.factory.createNamedImports([
+								ts.factory.createImportSpecifier(
 									false,
 									undefined,
-									factory.createIdentifier(
+									ts.factory.createIdentifier(
 										adjusted_type_name,
 									),
 								),
 							]),
 						),
-						factory.createStringLiteral(
+						ts.factory.createStringLiteral(
 							`./${
 								relative(
 									dirname(data_filename),
@@ -240,7 +256,7 @@ class Printer {
 					source_file,
 				),
 				printer.printNode(
-					EmitHint.Unspecified,
+					ts.EmitHint.Unspecified,
 					data_node,
 					source_file,
 				),
@@ -271,11 +287,13 @@ class Printer {
 				$def_schema,
 			);
 
-			const node = factory.createTypeAliasDeclaration(
+			const node = ts.factory.createTypeAliasDeclaration(
 				(
 					type_filename !== $def_filename
 						? [
-							factory.createToken(SyntaxKind.ExportKeyword),
+							ts.factory.createToken(
+								ts.SyntaxKind.ExportKeyword,
+							),
 						]
 						: undefined
 				),
@@ -292,7 +310,7 @@ class Printer {
 
 			if (output_types) {
 				const code = printer.printNode(
-					EmitHint.Unspecified,
+					ts.EmitHint.Unspecified,
 					node,
 					source_file,
 				);
@@ -367,28 +385,32 @@ class Printer {
 
 		const import_code = Object.entries(imports)
 			.map(([import_filename, to_import]) => printer.printNode(
-				EmitHint.Unspecified,
-				factory.createImportDeclaration(
+				ts.EmitHint.Unspecified,
+				ts.factory.createImportDeclaration(
 					undefined,
-					factory.createImportClause(
-						SyntaxKind.TypeKeyword,
+					ts.factory.createImportClause(
+						ts.SyntaxKind.TypeKeyword,
 						undefined,
-						factory.createNamedImports(to_import.map(
+						ts.factory.createNamedImports(to_import.map(
 							([
 								module_scope,
 								current_scope,
 							]) => {
 								if (module_scope === current_scope) {
-									return factory.createImportSpecifier(
+									return ts.factory.createImportSpecifier(
 										false,
 										undefined,
-										factory.createIdentifier(module_scope),
+										ts.factory.createIdentifier(
+											module_scope,
+										),
 									);
 								} else {
-									return factory.createImportSpecifier(
+									return ts.factory.createImportSpecifier(
 										false,
-										factory.createIdentifier(module_scope),
-										factory.createIdentifier(
+										ts.factory.createIdentifier(
+											module_scope,
+										),
+										ts.factory.createIdentifier(
 											current_scope,
 										),
 									);
@@ -396,7 +418,7 @@ class Printer {
 							},
 						)),
 					),
-					factory.createStringLiteral(
+					ts.factory.createStringLiteral(
 						`./${
 							relative(
 								dirname(type_filename),
@@ -465,21 +487,21 @@ class Printer {
 			imports_from_module,
 		] of filtered_module_type_imports) {
 			import_code.push(printer.printNode(
-				EmitHint.Unspecified,
-				factory.createImportDeclaration(
+				ts.EmitHint.Unspecified,
+				ts.factory.createImportDeclaration(
 					undefined,
-					factory.createImportClause(
-						SyntaxKind.TypeKeyword,
+					ts.factory.createImportClause(
+						ts.SyntaxKind.TypeKeyword,
 						undefined,
-						factory.createNamedImports(imports_from_module.map(
-							(name) => factory.createImportSpecifier(
+						ts.factory.createNamedImports(imports_from_module.map(
+							(name) => ts.factory.createImportSpecifier(
 								false,
 								undefined,
-								factory.createIdentifier(name),
+								ts.factory.createIdentifier(name),
 							),
 						)),
 					),
-					factory.createStringLiteral(
+					ts.factory.createStringLiteral(
 						module_string,
 					),
 				),
@@ -492,21 +514,21 @@ class Printer {
 			imports_from_module,
 		] of filtered_module_imports) {
 			import_code_for_data.push(printer.printNode(
-				EmitHint.Unspecified,
-				factory.createImportDeclaration(
+				ts.EmitHint.Unspecified,
+				ts.factory.createImportDeclaration(
 					undefined,
-					factory.createImportClause(
+					ts.factory.createImportClause(
 						undefined,
 						undefined,
-						factory.createNamedImports(imports_from_module.map(
-							(name) => factory.createImportSpecifier(
+						ts.factory.createNamedImports(imports_from_module.map(
+							(name) => ts.factory.createImportSpecifier(
 								false,
 								undefined,
-								factory.createIdentifier(name),
+								ts.factory.createIdentifier(name),
 							),
 						)),
 					),
-					factory.createStringLiteral(
+					ts.factory.createStringLiteral(
 						module_string,
 					),
 				),
@@ -527,7 +549,7 @@ class Printer {
 
 		if (output_types) {
 			const code = printer.printNode(
-				EmitHint.Unspecified,
+				ts.EmitHint.Unspecified,
 				type_node,
 				source_file,
 			);
@@ -554,10 +576,10 @@ class Printer {
 					},
 					schema_parser,
 				});
-			type_result = factory.updateNamedExports(
+			type_result = ts.factory.updateNamedExports(
 				type_result,
 				type_result.elements
-					.map((element) => factory.updateExportSpecifier(
+					.map((element) => ts.factory.updateExportSpecifier(
 						element,
 						false,
 						element.propertyName,
@@ -565,13 +587,13 @@ class Printer {
 					)),
 			);
 			if (output_types) {
-				type_node = factory.createExportDeclaration(
+				type_node = ts.factory.createExportDeclaration(
 					undefined,
 					true,
 					type_result,
 				);
 				const code = printer.printNode(
-					EmitHint.Unspecified,
+					ts.EmitHint.Unspecified,
 					type_node,
 					source_file,
 				);

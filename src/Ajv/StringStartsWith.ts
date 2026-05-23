@@ -80,7 +80,7 @@ export class StringStartsWith<
 	): Promise<TemplateLiteralTypeNode> {
 		return Promise.resolve(
 			TemplatedString.generate_typescript_type_from_parts(
-				this.factory,
+				this.ts,
 				[
 					schema.starts_with,
 					{type: 'string'},

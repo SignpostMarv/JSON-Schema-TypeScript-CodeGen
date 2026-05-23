@@ -12,6 +12,8 @@ import {
 } from 'ajv/dist/2020.js';
 
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -46,6 +48,12 @@ import {
 
 void describe('identify Const String types as expected', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	const const_expectations: [
 		const_string_type,
@@ -104,7 +112,7 @@ void describe('identify Const String types as expected', () => {
 				async () => {
 					const parser = new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					});
 					let instance: undefined|Type<unknown> = from_parser_default
 						? parser.parse(schema)
@@ -113,7 +121,7 @@ void describe('identify Const String types as expected', () => {
 								...ajv_options,
 								strict: true,
 							}),
-							factory,
+							ts,
 						});
 
 					if (!('const' in schema) && from_parser_default) {
@@ -169,9 +177,9 @@ void describe('identify Const String types as expected', () => {
 				ajv,
 				types: [new ObjectUnspecified(
 					{properties_mode: 'neither'},
-					{ajv, factory},
+					{ajv, ts},
 				)],
-				factory,
+				ts,
 			});
 
 			throws_Error(
@@ -198,7 +206,7 @@ void describe('identify Const String types as expected', () => {
 			test_value,
 			expectation,
 		], i) => {
-			const instance = new ConstString(specific, {ajv, factory});
+			const instance = new ConstString(specific, {ajv, ts});
 			assert.equal(
 				instance.check_type(test_value),
 				expectation,

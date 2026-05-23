@@ -65,7 +65,7 @@ import {
 } from './MaybeCacheCompile.ts';
 
 import type {
-	NodeFactory,
+	ts,
 } from './typescript/types.ts';
 
 type supported_type = (
@@ -92,7 +92,7 @@ type SchemaParserOptions = (
 			Type<unknown>,
 			...Type<unknown>[],
 		],
-		factory: NodeFactory,
+		ts: ts,
 	}
 );
 
@@ -116,7 +116,7 @@ class SchemaParser {
 		this.types = (
 			types
 			|| SchemaParser.#default_types(
-				options.factory,
+				options.ts,
 				this.#ajv,
 				schema_compiler || new AlwaysFreshCompile(),
 			)
@@ -331,7 +331,7 @@ class SchemaParser {
 	}
 
 	static #default_types(
-		factory: NodeFactory,
+		ts: ts,
 		ajv: Ajv,
 		schema_compiler: MaybeCacheCompile,
 	): [
@@ -378,38 +378,38 @@ class SchemaParser {
 			new String({
 				ajv,
 				schema_compiler,
-				factory,
+				ts,
 			}),
-			new EnumString([], {ajv, schema_compiler, factory}),
-			new PatternString(undefined, {ajv, schema_compiler, factory}),
-			new ConstString(undefined, {ajv, schema_compiler, factory}),
-			new NonEmptyString({ajv, schema_compiler, factory}),
+			new EnumString([], {ajv, schema_compiler, ts}),
+			new PatternString(undefined, {ajv, schema_compiler, ts}),
+			new ConstString(undefined, {ajv, schema_compiler, ts}),
+			new NonEmptyString({ajv, schema_compiler, ts}),
 			new $ref(
 				{},
 				{
 					ajv,
 					schema_compiler,
-					factory,
+					ts,
 				},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'properties'},
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'pattern'},
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'both'},
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 			),
 			new ObjectUnspecified(
 				{properties_mode: 'neither'},
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 			),
 			new ArrayType(
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 				{
 					array_options: {
 						array_mode: 'items',
@@ -420,7 +420,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 				{
 					array_options: {
 						array_mode: 'prefixItems',
@@ -432,7 +432,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 				{
 					array_options: {
 						array_mode: 'items',
@@ -443,7 +443,7 @@ class SchemaParser {
 				},
 			),
 			new ArrayType(
-				{ajv, schema_compiler, factory},
+				{ajv, schema_compiler, ts},
 				{
 					array_options: {
 						array_mode: 'prefixItems',
@@ -465,7 +465,7 @@ class SchemaParser {
 					kind: 'oneOf',
 					mode: 'unspecified',
 				},
-				factory,
+				ts,
 			}),
 			new AllOf<unknown, 'unspecified'>({
 				ajv,
@@ -478,7 +478,7 @@ class SchemaParser {
 					kind: 'allOf',
 					mode: 'unspecified',
 				},
-				factory,
+				ts,
 			}),
 			new AnyOf<unknown, 'unspecified'>({
 				ajv,
@@ -491,9 +491,9 @@ class SchemaParser {
 					kind: 'anyOf',
 					mode: 'unspecified',
 				},
-				factory,
+				ts,
 			}),
-			new $defs({ajv, schema_compiler, factory}, {}, {}),
+			new $defs({ajv, schema_compiler, ts}, {}, {}),
 		];
 	}
 }

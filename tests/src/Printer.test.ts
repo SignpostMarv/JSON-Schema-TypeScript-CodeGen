@@ -5,6 +5,16 @@ import {
 import assert from 'node:assert/strict';
 
 import {
+	createPrinter,
+	createSourceFile,
+	EmitHint,
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	NewLineKind,
+	NodeFlags,
+	ScriptKind,
+	ScriptTarget,
+	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
 
@@ -24,6 +34,20 @@ import {
 void describe('Printer', () => {
 	const factory = coerce_factory(ts_factory);
 
+	const ts = {
+		createPrinter,
+		createSourceFile,
+		EmitHint,
+		factory,
+		NewLineKind,
+		NodeFlags,
+		ScriptKind,
+		ScriptTarget,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
+
 	type ParseExpectation = [
 		`./${string}.ts`,
 		string,
@@ -37,13 +61,13 @@ void describe('Printer', () => {
 			| [
 				Parameters<Printer['parse']>[0],
 				Parameters<Printer['parse']>[1],
-				Parameters<Printer['parse']>[3],
+				Parameters<Printer['parse']>[4],
 			]
 			| [
 				Parameters<Printer['parse']>[0],
 				Parameters<Printer['parse']>[1],
-				Parameters<Printer['parse']>[3],
 				Parameters<Printer['parse']>[4],
+				Parameters<Printer['parse']>[5],
 			]
 		),
 		(schema_parser: SchemaParser) => void,
@@ -57,7 +81,7 @@ void describe('Printer', () => {
 	function load_TemplatedString(schema_parser: SchemaParser) {
 		const additional_types = schema_parser.share_ajv(
 			(ajv) => [
-				new TemplatedString({ajv, factory}),
+				new TemplatedString({ajv, ts}),
 			],
 		);
 
@@ -1040,7 +1064,7 @@ void describe('Printer', () => {
 			void it(`behaves with data_sets[${i}][${j}]`, async () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 
 				modify_schema_parser(schema_parser);
@@ -1051,6 +1075,7 @@ void describe('Printer', () => {
 					parse_params[0],
 					parse_params[1],
 					schema_parser,
+					ts,
 				];
 
 				if (parse_params.length > 2) {
@@ -1084,7 +1109,7 @@ void describe('Printer', () => {
 			void it(`omits data with data_sets[${i}][${j}]`, async () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 
 				modify_schema_parser(schema_parser);
@@ -1095,6 +1120,7 @@ void describe('Printer', () => {
 					parse_params[0],
 					parse_params[1],
 					schema_parser,
+					ts,
 				];
 
 				if (parse_params.length > 2) {
@@ -1153,7 +1179,7 @@ void describe('Printer', () => {
 			void it(`omits types with data_sets[${i}][${j}]`, async () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 
 				modify_schema_parser(schema_parser);
@@ -1164,6 +1190,7 @@ void describe('Printer', () => {
 					parse_params[0],
 					parse_params[1],
 					schema_parser,
+					ts,
 				];
 
 				if (parse_params.length > 2) {
@@ -1224,7 +1251,7 @@ void describe('Printer', () => {
 				async () => {
 					const schema_parser = new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					});
 
 					modify_schema_parser(schema_parser);
@@ -1235,6 +1262,7 @@ void describe('Printer', () => {
 						parse_params[0],
 						parse_params[1],
 						schema_parser,
+						ts,
 					];
 
 					if (parse_params.length > 2) {
@@ -1275,7 +1303,7 @@ void describe('Printer', () => {
 
 	void it('fails if data does not match type', async () => {
 		const instance = new Printer();
-		const schema_parser = new SchemaParser({ajv_options: {}, factory});
+		const schema_parser = new SchemaParser({ajv_options: {}, ts});
 
 		const promise = instance.parse(
 			'foo',
@@ -1286,6 +1314,7 @@ void describe('Printer', () => {
 				},
 			},
 			schema_parser,
+			ts,
 		);
 
 		await assert.rejects(() => promise);
@@ -1293,7 +1322,7 @@ void describe('Printer', () => {
 
 	void it('fails if $defs matches type name', async () => {
 		const instance = new Printer();
-		const schema_parser = new SchemaParser({ajv_options: {}, factory});
+		const schema_parser = new SchemaParser({ajv_options: {}, ts});
 
 		const promise = instance.parse(
 			['foobar'],
@@ -1312,6 +1341,7 @@ void describe('Printer', () => {
 				uniqueItems: true,
 			},
 			schema_parser,
+			ts,
 		);
 
 		await assert.rejects(() => promise);

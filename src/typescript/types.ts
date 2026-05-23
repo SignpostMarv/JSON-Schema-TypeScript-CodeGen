@@ -2,6 +2,8 @@ import type {
 	BooleanLiteral,
 	EntityName,
 	Expression,
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	LeftHandSideExpression,
 	LiteralExpression,
 	NamedTupleMember,
@@ -10,6 +12,7 @@ import type {
 	ObjectLiteralElementLike,
 	PrefixUnaryExpression,
 	QuestionDotToken,
+	SyntaxKind,
 	ArrayLiteralExpression as TSArrayLiteralExpression,
 	ArrayTypeNode as TSArrayTypeNode,
 	AsExpression as TSAsExpression,
@@ -386,6 +389,13 @@ interface NodeFactory extends TSNodeFactory {
 	>(value: T): UnionTypeNode<T>;
 }
 
+type ts = {
+	factory: NodeFactory,
+	SyntaxKind: typeof SyntaxKind,
+	isObjectLiteralExpression: typeof isObjectLiteralExpression,
+	isPropertyAssignment: typeof isPropertyAssignment,
+};
+
 export type {
 	ArrayLiteralExpression,
 	ArrayTypeNode,
@@ -403,4 +413,5 @@ export type {
 	TypeLiteralNode,
 	TypeReferenceNode,
 	UnionTypeNode,
+	ts,
 };

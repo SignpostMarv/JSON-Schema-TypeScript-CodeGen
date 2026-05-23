@@ -8,6 +8,9 @@ import type {
 	Expression,
 } from 'typescript';
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
+	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
 
@@ -52,6 +55,12 @@ import {
 
 void describe('$ref', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	type DataSet<
 		PassesCheckType extends boolean = boolean,
@@ -166,7 +175,7 @@ void describe('$ref', () => {
 		], i) => {
 			const instance = new $ref(
 				{},
-				{ajv: new Ajv({strict: true}), factory},
+				{ajv: new Ajv({strict: true}), ts},
 			);
 			void it(`behaves with data_sets[${i}]`, () => {
 				assert.equal(
@@ -190,7 +199,7 @@ void describe('$ref', () => {
 				void it(`behaves with data_sets[${i}]`, async () => {
 					const instance = new $ref(
 						{},
-						{ajv: new Ajv({strict: true}), factory},
+						{ajv: new Ajv({strict: true}), ts},
 					);
 					assert.ok(instance.check_type(data));
 					const result = await instance.generate_typescript_type({
@@ -205,7 +214,7 @@ void describe('$ref', () => {
 
 	void describe('::resolve_def()', () => {
 		void it('behaves with external $defs', () => {
-			const parser = new SchemaParser({ajv_options: {}, factory});
+			const parser = new SchemaParser({ajv_options: {}, ts});
 
 			const instance = parser.parse_by_type(
 				{
@@ -256,7 +265,7 @@ void describe('$ref', () => {
 		});
 
 		void it('fails when expected', () => {
-			const parser = new SchemaParser({ajv_options: {}, factory});
+			const parser = new SchemaParser({ajv_options: {}, ts});
 
 			const instance = parser.parse_by_type(
 				{
@@ -286,10 +295,10 @@ void describe('$ref', () => {
 	void describe('::is_a()', () => {
 		void it('behaves as expected', () => {
 			const ajv = new Ajv({strict: true});
-			assert.ok($ref.is_a(new $ref({}, {ajv, factory})));
+			assert.ok($ref.is_a(new $ref({}, {ajv, ts})));
 			assert.ok(!$ref.is_a(
 				new ArrayType(
-					{ajv, factory},
+					{ajv, ts},
 					{
 						array_options: {
 							array_mode: 'items',
@@ -304,13 +313,19 @@ void describe('$ref', () => {
 				),
 			));
 			assert.ok(!$ref.is_a(undefined));
-			assert.ok(!$ref.is_a(new String({ajv, factory})));
+			assert.ok(!$ref.is_a(new String({ajv, ts})));
 		});
 	});
 });
 
 void describe('$ref', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	type DataSubSet = [
 		unknown,
@@ -407,10 +422,10 @@ void describe('$ref', () => {
 			void it(`behaves with data_sets[${i}][${j}]`, () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 				const instance = schema_parser.share_ajv(
-					(ajv) => new $ref(specific_options, {ajv, factory}),
+					(ajv) => new $ref(specific_options, {ajv, ts}),
 				);
 
 				assert.ok($ref.is_supported_$ref(schema));
@@ -429,10 +444,10 @@ void describe('$ref', () => {
 			void it(`behaves with data_sets[${i}][${j}]`, async () => {
 				const schema_parser = new SchemaParser({
 					ajv_options: {},
-					factory,
+					ts,
 				});
 				const instance = schema_parser.share_ajv(
-					(ajv) => new $ref(specific_options, {ajv, factory}),
+					(ajv) => new $ref(specific_options, {ajv, ts}),
 				);
 
 				const foo: ts_asserter<TypeReferenceNode> = type_asserter;
@@ -448,9 +463,9 @@ void describe('$ref', () => {
 
 	void describe('::generate_typescript_data()', () => {
 		void it('fails when expected', () => {
-			const schema_parser = new SchemaParser({ajv_options: {}, factory});
+			const schema_parser = new SchemaParser({ajv_options: {}, ts});
 			const instance = schema_parser.share_ajv(
-				(ajv) => new $ref({}, {ajv, factory}),
+				(ajv) => new $ref({}, {ajv, ts}),
 			);
 
 			const $ref_value = '#/$defs/foo';

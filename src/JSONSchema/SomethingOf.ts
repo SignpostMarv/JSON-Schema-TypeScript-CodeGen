@@ -5,10 +5,6 @@ import type {
 	SyntaxKind,
 	TypeNode,
 } from 'typescript';
-import {
-	isObjectLiteralExpression,
-	isPropertyAssignment,
-} from 'typescript';
 
 import {
 	object_has_property,
@@ -483,12 +479,12 @@ abstract class SomethingOf<
 				resolved,
 			);
 
-			if (!isObjectLiteralExpression(resolved_data)) {
+			if (!this.ts.isObjectLiteralExpression(resolved_data)) {
 				throw new TypeError('Was expecting ObjectLiteralExpression!');
 			}
 
 			for (const property of resolved_data.properties) {
-				if (!isPropertyAssignment(property)) {
+				if (!this.ts.isPropertyAssignment(property)) {
 					throw new TypeError('Was expecting PropertyAssignment!');
 				}
 

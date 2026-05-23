@@ -13,6 +13,8 @@ import type {
 	TypeNode,
 } from 'typescript';
 import {
+	isObjectLiteralExpression,
+	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 } from 'typescript';
@@ -63,6 +65,12 @@ import {
 
 void describe('ArrayType', () => {
 	const factory = coerce_factory(ts_factory);
+	const ts = {
+		factory,
+		SyntaxKind,
+		isObjectLiteralExpression,
+		isPropertyAssignment,
+	};
 
 	type AllowedMutation<
 		ArrayMode extends array_mode = array_mode,
@@ -1278,11 +1286,11 @@ void describe('ArrayType', () => {
 				} mutation`,
 				() => {
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv, factory});
+					const schema_parser = new SchemaParser({ajv, ts});
 					const instance = new ArrayType(
 						{
 							ajv,
-							factory,
+							ts,
 						},
 						specific_options,
 					);
@@ -1313,11 +1321,11 @@ void describe('ArrayType', () => {
 				} mutation`,
 				async () => {
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv, factory});
+					const schema_parser = new SchemaParser({ajv, ts});
 					const instance = new ArrayType(
 						{
 							ajv,
-							factory,
+							ts,
 						},
 						specific_options,
 					);
@@ -1342,11 +1350,11 @@ void describe('ArrayType', () => {
 				'fails as expected when passing insufficient data',
 				async () => {
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv, factory});
+					const schema_parser = new SchemaParser({ajv, ts});
 					const instance = new ArrayType(
 						{
 							ajv,
-							factory,
+							ts,
 						},
 						{
 							array_options: {
@@ -1427,11 +1435,11 @@ void describe('ArrayType', () => {
 				'fails as expected when checking prefixItems schema',
 				async () => {
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv, factory});
+					const schema_parser = new SchemaParser({ajv, ts});
 					const instance = new ArrayType(
 						{
 							ajv,
-							factory,
+							ts,
 						},
 						{
 							array_options: {
@@ -1484,11 +1492,11 @@ void describe('ArrayType', () => {
 				'succeeds as expected when checking prefixItems schema',
 				async () => {
 					const ajv = new Ajv({strict: true});
-					const schema_parser = new SchemaParser({ajv, factory});
+					const schema_parser = new SchemaParser({ajv, ts});
 					const instance = new ArrayType(
 						{
 							ajv,
-							factory,
+							ts,
 						},
 						{
 							array_options: {
@@ -1704,12 +1712,12 @@ void describe('ArrayType', () => {
 				void it(`behaves with data_sets[${i}][${j}]`, () => {
 					const schema_parser = new SchemaParser({
 						ajv_options: {},
-						factory,
+						ts,
 					});
 
 					const instance = schema_parser.share_ajv(
 						(ajv) => new ArrayType(
-							{ajv, factory},
+							{ajv, ts},
 							options,
 						),
 					);
