@@ -31,7 +31,6 @@ import type {
 } from './$defs.ts';
 
 import type {
-	NodeFactory,
 	ts,
 } from '../typescript/types.ts';
 
