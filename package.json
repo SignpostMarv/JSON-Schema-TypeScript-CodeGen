@@ -23,7 +23,7 @@
     }
   },
   "engines": {
-    "node": "^25.0"
+    "node": "^26.0"
   },
   "files": [
     "index.js",
@@ -36,7 +36,7 @@
     "@signpostmarv/oxlint-config": "^0.3.2",
     "@signpostmarv/ts-assert": "^0.5.1",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/node": "^25.6.0",
+    "@types/node": "^26.1.2",
     "oxlint": "^1.66.0",
     "oxlint-tsgolint": "^0.23.0",
     "prettier": "^3.8.2"

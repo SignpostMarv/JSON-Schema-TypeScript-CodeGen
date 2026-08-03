@@ -32,7 +32,7 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/node:2.1.0": {
-			"version": "25"
+			"version": "26"
 		}
 	}
 }
