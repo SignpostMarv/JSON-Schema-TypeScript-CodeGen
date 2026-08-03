@@ -11,13 +11,13 @@ import {
 import type {
 	Expression,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 import {
 	isObjectLiteralExpression,
 	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import ts_assert from '@signpostmarv/ts-assert';
 

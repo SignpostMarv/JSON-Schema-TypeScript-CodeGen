@@ -5,7 +5,7 @@ import type {
 import type {
 	Expression,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	SchemaDefinitionDefinition,

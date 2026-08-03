@@ -1,7 +1,7 @@
 import type {
 	KeywordTypeNode,
 	SyntaxKind,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	SchemaDefinitionDefinition,

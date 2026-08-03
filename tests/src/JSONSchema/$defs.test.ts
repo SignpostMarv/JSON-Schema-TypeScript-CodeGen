@@ -20,13 +20,13 @@ import {
 
 import type {
 	PropertySignature,
-} from 'typescript';
+} from '@typescript/typescript6';
 import {
 	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
 	isObjectLiteralExpression as ts_isObjectLiteralExpression,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	ts_asserter,

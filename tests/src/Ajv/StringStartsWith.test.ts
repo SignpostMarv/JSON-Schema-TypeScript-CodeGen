@@ -21,7 +21,7 @@ import {
 	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	SchemaParser,

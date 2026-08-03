@@ -1,6 +1,6 @@
 import type {
 	Expression,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	object_has_property,

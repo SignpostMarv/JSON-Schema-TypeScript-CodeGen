@@ -9,7 +9,7 @@ import type {
 	Expression,
 	NamedExports,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	SchemaParser,

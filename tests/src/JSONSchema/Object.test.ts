@@ -12,13 +12,13 @@ import type {
 	Node,
 	ObjectLiteralElementLike,
 	PropertyAssignment,
-} from 'typescript';
+} from '@typescript/typescript6';
 import {
 	SyntaxKind,
 	factory as ts_factory,
 	isObjectLiteralExpression as ts_isObjectLiteralExpression,
 	isPropertyAssignment as ts_isPropertyAssignment,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	is_instanceof,

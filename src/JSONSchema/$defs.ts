@@ -1,6 +1,6 @@
 import type {
 	NamedExports,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	SchemaDefinitionDefinitionWith$defs,

@@ -4,7 +4,7 @@ import type {
 	PropertyAssignment,
 	SyntaxKind,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	object_has_property,

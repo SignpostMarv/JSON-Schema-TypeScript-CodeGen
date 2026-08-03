@@ -4,7 +4,7 @@ import type {
 	ObjectLiteralExpression,
 	PropertySignature,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	SchemaDefinitionDefinition,

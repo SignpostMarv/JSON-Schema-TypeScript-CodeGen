@@ -1,6 +1,6 @@
 import type {
 	factory as TSFactory,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import type {
 	LiteralTypeNode,

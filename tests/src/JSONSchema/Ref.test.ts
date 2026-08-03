@@ -6,13 +6,13 @@ import assert from 'node:assert/strict';
 
 import type {
 	Expression,
-} from 'typescript';
+} from '@typescript/typescript6';
 import {
 	isObjectLiteralExpression,
 	isPropertyAssignment,
 	SyntaxKind,
 	factory as ts_factory,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import Ajv from 'ajv/dist/2020.js';
 

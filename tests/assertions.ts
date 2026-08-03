@@ -6,11 +6,15 @@ import type {
 	Node,
 	TypeElement,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
+
+import {
+	maybe_Error,
+} from '@signpostmarv/ts-assert';
 
 import {
 	isArrayLiteralExpression,
@@ -127,7 +131,7 @@ function is_TypeLiteralNode<
 			maybe,
 			predicate,
 		)),
-		message,
+		maybe_Error(message),
 	);
 }
 
@@ -197,7 +201,7 @@ function is_TupleTypeNode<
 				is_last: i === (value.elements.length - 1),
 			},
 		)),
-		message,
+		maybe_Error(message),
 	);
 
 	if (last_is_rest) {

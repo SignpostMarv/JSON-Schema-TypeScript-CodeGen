@@ -30,7 +30,7 @@ import type {
 	UnionTypeNode as TSUnionTypeNode,
 	TypeElement,
 	TypeNode,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 type ArrayLiteralExpression<
 	T1 extends Expression,

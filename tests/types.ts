@@ -1,6 +1,6 @@
 import type {
 	Node,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 export type ts_asserter<
 	T extends Node = Node,

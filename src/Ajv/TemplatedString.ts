@@ -4,7 +4,7 @@ import type {
 	TemplateHead,
 	TemplateLiteralTypeNode,
 	TemplateLiteralTypeSpan,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	object_has_property,

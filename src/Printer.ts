@@ -15,7 +15,7 @@ import type {
 	ScriptTarget,
 	SyntaxKind,
 	TypeAliasDeclaration,
-} from 'typescript';
+} from '@typescript/typescript6';
 
 import {
 	is_non_empty_array,

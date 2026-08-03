@@ -95,7 +95,11 @@ function run_checks(against: MaybeCacheCompile) {
 					using = if_dynamic ? 'equal' : 'notEqual';
 				}
 
-				assert[using](first, second);
+				if ('notEqual' === using) {
+					assert.notEqual(first, second);
+				} else {
+					assert.equal(first, second);
+				}
 			}
 		});
 	}
