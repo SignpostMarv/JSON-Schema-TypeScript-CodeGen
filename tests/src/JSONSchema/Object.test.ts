@@ -25,6 +25,9 @@ import {
 	not_undefined,
 } from '@satisfactory-dev/custom-assert';
 
+import type {
+	AssertMessage,
+} from '@signpostmarv/ts-assert';
 import {
 	isComputedPropertyName,
 	isIdentifier,
@@ -39,6 +42,7 @@ import {
 	isTypeLiteralNode,
 	isTypeReferenceNode,
 	isUnionTypeNode,
+	maybe_Message,
 } from '@signpostmarv/ts-assert';
 
 import {
@@ -659,7 +663,7 @@ void describe('ObjectUnspecified', () => {
 		from: {[key: string]: string|{[key: string]: string}},
 	): (
 		value: Node,
-		message?: string|Error,
+		message?: AssertMessage,
 	) => asserts value is ObjectLiteralExpression<[
 		PropertyAssignment,
 		...PropertyAssignment[],
@@ -667,11 +671,12 @@ void describe('ObjectUnspecified', () => {
 		function do_assertions(
 			value: Node,
 			entries: [string, string| {[key: string]: string}][],
-			message?: string|Error,
+			message?: AssertMessage,
 		): asserts value is ObjectLiteralExpression<[
 			PropertyAssignment,
 			...PropertyAssignment[],
 		]> {
+			message = maybe_Message(message);
 			isObjectLiteralExpression(value, message);
 			not_undefined(value.properties, message);
 			assert.equal(value.properties.length, entries.length, message);
@@ -698,7 +703,7 @@ void describe('ObjectUnspecified', () => {
 
 		return (
 			value: Node,
-			message?: string|Error,
+			message?: AssertMessage,
 		): asserts value is ObjectLiteralExpression<[
 			PropertyAssignment,
 			...PropertyAssignment[],
@@ -728,8 +733,9 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -793,8 +799,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeReferenceNode(value, message);
 				isIdentifier(value.typeName, message);
 				assert.equal(
@@ -825,11 +833,13 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is IntersectionTypeNode<[
 				TypeReferenceNode,
 				object_TypeLiteralNode<PropertyMode>,
 			]> => {
+				message = maybe_Message(message);
+
 				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2);
 
@@ -893,10 +903,12 @@ void describe('ObjectUnspecified', () => {
 			}),
 			(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
+				message = maybe_Message(message);
+
 				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 1);
@@ -915,8 +927,10 @@ void describe('ObjectUnspecified', () => {
 			},
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -978,8 +992,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1042,8 +1058,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1086,8 +1104,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1130,8 +1150,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1174,8 +1196,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1218,8 +1242,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1275,10 +1301,12 @@ void describe('ObjectUnspecified', () => {
 			}),
 			(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
+				message = maybe_Message(message);
+
 				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 8);
@@ -1318,8 +1346,10 @@ void describe('ObjectUnspecified', () => {
 			},
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1385,10 +1415,12 @@ void describe('ObjectUnspecified', () => {
 			}),
 			(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is ObjectLiteralExpression<[
 				PropertyAssignment,
 			]> => {
+				message = maybe_Message(message);
+
 				isObjectLiteralExpression(value, message);
 				not_undefined(value.properties);
 				assert.equal(value.properties.length, 8);
@@ -1428,8 +1460,10 @@ void describe('ObjectUnspecified', () => {
 			},
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
 
@@ -1486,8 +1520,10 @@ void describe('ObjectUnspecified', () => {
 			object_literal_expression_asserter({foo: 'bar'}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1570,8 +1606,10 @@ void describe('ObjectUnspecified', () => {
 			}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(3, value.members.length, message);
 				value.members.forEach((member, i) => {
@@ -1684,8 +1722,10 @@ void describe('ObjectUnspecified', () => {
 			}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
 				isTypeReferenceNode(value.types[0], message);
@@ -1777,8 +1817,10 @@ void describe('ObjectUnspecified', () => {
 			}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isIntersectionTypeNode(value, message);
 				assert.equal(value.types.length, 2, message);
 				isTypeReferenceNode(value.types[0], message);
@@ -1880,8 +1922,10 @@ void describe('ObjectUnspecified', () => {
 			}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
@@ -1982,8 +2026,10 @@ void describe('ObjectUnspecified', () => {
 			}),
 			<PropertyMode extends object_properties_mode>(
 				value: Node,
-				message?: string|Error,
+				message?: AssertMessage,
 			): asserts value is object_TypeLiteralNode<PropertyMode> => {
+				message = maybe_Message(message);
+
 				isTypeLiteralNode(value, message);
 				assert.equal(1, value.members.length, message);
 				value.members.forEach((member) => {
