@@ -33,12 +33,12 @@
   ],
   "devDependencies": {
     "@satisfactory-dev/custom-assert": "^0.5.0",
-    "@signpostmarv/oxlint-config": "^0.3.2",
+    "@signpostmarv/oxlint-config": "^0.4.0",
     "@signpostmarv/ts-assert": "^0.7.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@types/node": "^26.1.2",
-    "oxlint": "^1.66.0",
-    "oxlint-tsgolint": "^0.23.0",
+    "oxlint": "^1.77.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "prettier": "^3.8.2"
   },
   "peerDependencies": {
