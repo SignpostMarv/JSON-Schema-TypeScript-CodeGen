@@ -13,15 +13,12 @@ import {
 } from '@satisfactory-dev/custom-assert';
 
 import {
-	maybe_Error,
-} from '@signpostmarv/ts-assert';
-
-import {
 	isArrayLiteralExpression,
 	isArrayTypeNode,
 	isRestTypeNode,
 	isTupleTypeNode,
 	isTypeLiteralNode,
+	maybe_Message,
 } from '@signpostmarv/ts-assert';
 
 import type {
@@ -131,7 +128,7 @@ function is_TypeLiteralNode<
 			maybe,
 			predicate,
 		)),
-		maybe_Error(message),
+		maybe_Message(message),
 	);
 }
 
@@ -201,7 +198,7 @@ function is_TupleTypeNode<
 				is_last: i === (value.elements.length - 1),
 			},
 		)),
-		maybe_Error(message),
+		maybe_Message(message),
 	);
 
 	if (last_is_rest) {
