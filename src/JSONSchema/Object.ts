@@ -601,9 +601,7 @@ class ObjectUnspecified<
 			required: partial_required,
 			additionalProperties: false,
 			properties: partial_properties,
-		} as object_schema<
-			PropertiesMode
-		>;
+		};
 
 		return Object.freeze(result);
 	}
@@ -1253,7 +1251,7 @@ class ObjectUnspecified<
 				);
 
 				if (maybe_type && maybe_type.check_type(checking_schema)) {
-					schema = checking_schema as typeof schema;
+					schema = checking_schema;
 				}
 			}
 		}
