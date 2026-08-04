@@ -630,20 +630,12 @@ class ArrayType<
 
 			result = sanity_check as typeof result;
 		} else {
-			const sanity_check: Promise<{
-				items: {
-					with: TupleTypeNode<T2, T3>,
-					optional: ArrayTypeNode<T2>,
-				}[MinItems_mode],
-				prefixItems: TupleTypeNode<T2, T3>,
-			}[ArrayMode]> = ArrayType.#generate_typescript_type_has_items(
+			result = ArrayType.#generate_typescript_type_has_items(
 				this.ts,
 				data,
 				schema,
 				schema_parser,
 			);
-
-			result = sanity_check as unknown as typeof result;
 		}
 
 		return result;
@@ -1421,59 +1413,31 @@ class ArrayType<
 
 		if ('with' === options.min_items_mode) {
 			if ('yes' === options.unique_items_mode) {
-				const sanity_check: array_schema<
-					'items',
-					specified_mode,
-					'yes',
-					'with'
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'minItems',
 					'uniqueItems',
 				];
-
-				required = sanity_check as typeof required;
 			} else {
-				const sanity_check: array_schema<
-					'items',
-					specified_mode,
-					'no',
-					'with'
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'minItems',
 				];
-
-				required = sanity_check as typeof required;
 			}
 		} else {
 			if ('yes' === options.unique_items_mode) {
-				const sanity_check: array_schema<
-					'items',
-					specified_mode,
-					'yes',
-					'optional'
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'uniqueItems',
 				];
-
-				required = sanity_check as typeof required;
 			} else {
-				const sanity_check: array_schema<
-					'items',
-					specified_mode,
-					'no',
-					'optional'
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 				];
-
-				required = sanity_check as typeof required;
 			}
 		}
 
@@ -1498,61 +1462,33 @@ class ArrayType<
 
 		if ('specified' === options.specified_mode) {
 			if ('yes' === options.unique_items_mode) {
-				const sanity_check: array_schema<
-					'prefixItems',
-					'specified',
-					'yes',
-					MinItemsType_mode
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'prefixItems',
 					'uniqueItems',
 				];
-
-				required = sanity_check as typeof required;
 			} else {
-				const sanity_check: array_schema<
-					'prefixItems',
-					'specified',
-					'no',
-					MinItemsType_mode
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'prefixItems',
 				];
-
-				required = sanity_check as typeof required;
 			}
 		} else {
 			if ('yes' === options.unique_items_mode) {
-				const sanity_check: array_schema<
-					'prefixItems',
-					'unspecified',
-					'yes',
-					MinItemsType_mode
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'prefixItems',
 					'uniqueItems',
 				];
-
-				required = sanity_check as typeof required;
 			} else {
-				const sanity_check: array_schema<
-					'prefixItems',
-					'unspecified',
-					'no',
-					MinItemsType_mode
-				>['required'] = [
+				required = [
 					'type',
 					'items',
 					'prefixItems',
 				];
-
-				required = sanity_check as typeof required;
 			}
 		}
 
